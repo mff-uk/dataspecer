@@ -35,8 +35,12 @@ export interface SemanticModelClass extends NamedThing, SemanticModelEntity {
 
     /**
      * URL of external documentation.
+     *
+     * This value is optional as it can be missing in the source data.
+     * You should not set the value to undefined manually.
+     * Use null to indicate an absence of a value.
      */
-    externalDocumentationUrl: string | null;
+    externalDocumentationUrl?: string | null;
 }
 
 /**
@@ -59,8 +63,12 @@ export interface SemanticModelRelationshipEnd extends NamedThing {
 
     /**
      * URL of external documentation.
+     *
+     * This value is optional as it can be missing in the source data.
+     * You should not set the value to undefined manually.
+     * Use null to indicate an absence of a value.
      */
-    externalDocumentationUrl: string | null;
+    externalDocumentationUrl?: string | null;
 }
 
 /**
