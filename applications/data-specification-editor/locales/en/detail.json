@@ -57,6 +57,8 @@
   "JSON attributes": "JSON specific attributes",
   "JSON-LD IRI prefixes": "Prefixes used in JSON-LD context and schemas",
   "JSON-LD IRI prefixes help": "The table below allows you to set frequently used prefixes for IRIs used in the JSON-LD context and thus for IRIs used in JSON Schemas.",
+  "JSON-LD type mapping": "Type mapping to specific labels",
+  "JSON-LD type mapping help": "In case of a collision between type names used in the JSON-LD context, you can set custom mapping of IRIs to type names here.",
   "label max": "max",
   "label min": "min",
   "label regex for iri": "Regular expression of IRI",

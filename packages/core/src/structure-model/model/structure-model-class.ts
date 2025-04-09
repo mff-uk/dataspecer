@@ -103,6 +103,11 @@ export class StructureModelClass {
   jsonLdDefinedPrefixes: { [prefix: string]: string } = {};
 
   /**
+   * Type iri to label used for @types.
+   */
+  jsonLdTypeMapping: { [iri: string]: string } = {};
+
+  /**
    * Whether the regex pattern on IRI should be translated to accommodate defined prefixes.
    */
   jsonSchemaPrefixesInIriRegex: {

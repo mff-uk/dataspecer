@@ -1,7 +1,8 @@
-import { SemanticModelEntity, isSemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
+import { Entity } from "@dataspecer/core-v2";
+import { isSemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
 
 export function isAncestorOf(
-  model: SemanticModelEntity[],
+  model: Entity[],
   ancestor: string,
   descendant: string,
 ): boolean {
@@ -9,7 +10,7 @@ export function isAncestorOf(
   let index = 0;
   while (index < toVisit.length) {
     const currentId = toVisit[index];
-    const current = model.find(e => e.id === currentId) as SemanticModelEntity;
+    const current = model.find(e => e.id === currentId) as Entity;
 
     if (current) {
       const parents = model.filter(isSemanticModelGeneralization).filter(g => g.child === currentId).map(g => g.parent);

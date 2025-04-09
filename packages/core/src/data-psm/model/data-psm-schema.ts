@@ -50,6 +50,13 @@ export class DataPsmSchema extends ExtendableCoreResource {
     [prefix: string]: string;
   } | undefined = undefined;
 
+  /**
+   * Defines mapping of types in JSON-LD from IRI to label
+   */
+  jsonLdDefinedTypeMapping: {
+    [iri: string]: string;
+  } | undefined = undefined;
+
   /*
   todo: We are missing the concept of "DataPsmSchemaRoot", which would be between this class - DataPsmSchema and the actual root class - DataPsmClass.
   This class would contain additional metadata and may serve as some king of "association" to the actual root class.

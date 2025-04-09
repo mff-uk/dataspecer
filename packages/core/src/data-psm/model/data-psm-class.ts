@@ -73,6 +73,13 @@ export class DataPsmClass extends DataPsmResource {
   } | undefined = undefined;
 
   /**
+   * Defines mapping of types in JSON-LD from IRI to label
+   */
+  jsonLdDefinedTypeMapping: {
+    [iri: string]: string;
+  } | undefined = undefined;
+
+  /**
    * Whether the regex pattern on IRI should be translated to accommodate defined prefixes.
    * If set to undefined, the default value will be used which is "ALWAYS" and include parent prefixes.
    */

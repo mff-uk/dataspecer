@@ -1,4 +1,5 @@
-import { isSemanticModelGeneralization, SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization } from "../../semantic-model/concepts";
+import { Entity } from "../../entity-model";
+import { isSemanticModelGeneralization, SemanticModelClass, SemanticModelGeneralization } from "../../semantic-model/concepts";
 import { InMemorySemanticModel } from "../../semantic-model/in-memory";
 import { createClass, createGeneralization } from "../../semantic-model/operations";
 
@@ -6,7 +7,7 @@ import { createClass, createGeneralization } from "../../semantic-model/operatio
  * Copies classes with their inheritance from the source model to the target model.
  * Starts with {@link fromClassId} and ends with {@link toClassId}. These ids refer to the source model.
  */
-export async function copyInheritanceToModel(targetSemanticModel: InMemorySemanticModel, sourceSemanticModel: SemanticModelEntity[], fromClassId: string, toClassId: string) {
+export async function copyInheritanceToModel(targetSemanticModel: InMemorySemanticModel, sourceSemanticModel: Entity[], fromClassId: string, toClassId: string) {
   const fromClass = sourceSemanticModel.find((e) => e.id === fromClassId) as SemanticModelClass;
   const toClass = sourceSemanticModel.find((e) => e.id === toClassId) as SemanticModelClass;
 
@@ -60,7 +61,7 @@ export async function copyInheritanceToModel(targetSemanticModel: InMemorySemant
   // Create each class and fix its extends
   let parentLocalClassInChain: string | null = null; // Patent of the current one but from the local store
   for (const classToProcessId of classesToProcess) {
-    const classToProcess = sourceSemanticModel.find((e) => e.iri === classToProcessId) as SemanticModelClass;
+    const classToProcess = sourceSemanticModel.find((e) => (e as SemanticModelClass).iri === classToProcessId) as SemanticModelClass;
 
     if (!targetEntities[classToProcess.iri!]) {
       const op = createClass(classToProcess);

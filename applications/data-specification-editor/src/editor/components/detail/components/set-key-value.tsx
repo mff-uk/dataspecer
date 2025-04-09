@@ -6,54 +6,58 @@ import CloseIcon from "@mui/icons-material/Close";
 import DeleteTwoToneIcon from "@mui/icons-material/DeleteTwoTone";
 import EditTwoToneIcon from "@mui/icons-material/EditTwoTone";
 
-export interface SetPrefixesProps {
-  currentPrefixes: Record<string, string>;
-  setCurrentPrefixes: (prefixes: Record<string, string>) => void;
-  //  parentPrefixes: Record<string, string>;
+export interface SetKeyValueProps {
+  currentKV: Record<string, string>;
+  setCurrentKV: (kes: Record<string, string>) => void;
+  //  parentKes: Record<string, string>;
+
+  keyTitle: string,
+  valueTitle: string;
+  keyWidthPercent: number;
 }
 
 /**
- * This component allows to set and modify IRI prefixes.
+ * This component allows to set and modify IRI kes.
  */
-export const SetPrefixes = (props: SetPrefixesProps) => {
-  const sortedPrefixes = useMemo(() => Object.entries(props.currentPrefixes).sort(([prefixA], [prefixB]) => prefixA.localeCompare(prefixB)), [props.currentPrefixes]);
+export const SetKeyValue = (props: SetKeyValueProps) => {
+  const sortedKeyValue = useMemo(() => Object.entries(props.currentKV).sort(([A], [B]) => A.localeCompare(B)), [props.currentKV]);
 
   return (
     <TableContainer component={Paper}>
       <Table size="small" sx={{ tableLayout: "fixed" }}>
         <TableHead>
           <TableRow>
-            <TableCell sx={{ width: "20%" }} align="right">
-              Prefix
+            <TableCell sx={{ width: props.keyWidthPercent + "%" }} align="right">
+              {props.keyTitle}
             </TableCell>
-            <TableCell sx={{ width: "80%" }}>IRI</TableCell>
+            <TableCell sx={{ width: (100 - props.keyWidthPercent) + "%" }}>{props.valueTitle}</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {sortedPrefixes.map(([prefix, iri]) => (
+          {sortedKeyValue.map(([k, v]) => (
             <Row
-              key={prefix}
-              prefix={prefix}
-              iri={iri}
+              key={k}
+              k={k}
+              v={v}
               onDelete={() => {
-                const newPrefixes = { ...props.currentPrefixes };
-                delete newPrefixes[prefix];
-                props.setCurrentPrefixes(newPrefixes);
+                const newKV = { ...props.currentKV };
+                delete newKV[k];
+                props.setCurrentKV(newKV);
               }}
-              onChange={(newPrefix, newIri) => {
-                const newPrefixes = { ...props.currentPrefixes };
-                delete newPrefixes[prefix];
-                newPrefixes[newPrefix] = newIri;
-                props.setCurrentPrefixes(newPrefixes);
+              onChange={(newK, newV) => {
+                const newKV = { ...props.currentKV };
+                delete newKV[k];
+                newKV[newK] = newV;
+                props.setCurrentKV(newKV);
               }}
             />
           ))}
           <Row
             create
-            onChange={(newPrefix, newIri) => {
-              const newPrefixes = { ...props.currentPrefixes };
-              newPrefixes[newPrefix] = newIri;
-              props.setCurrentPrefixes(newPrefixes);
+            onChange={(newK, newV) => {
+              const newKV = { ...props.currentKV };
+              newKV[newK] = newV;
+              props.setCurrentKV(newKV);
             }}
           />
         </TableBody>
@@ -63,24 +67,24 @@ export const SetPrefixes = (props: SetPrefixesProps) => {
 };
 
 function Row({
-  prefix,
-  iri,
+  k: k,
+  v: v,
   onDelete,
   onChange,
   create,
 }: {
-  prefix?: string;
-  iri?: string;
+  k?: string;
+  v?: string;
   onDelete?: () => void;
-  onChange: (prefix: string, iri: string) => void;
+  onChange: (k: string, v: string) => void;
   create?: boolean;
 }) {
   const [isBeingModified, setIsBeingModified] = useState(create || false);
   if (isBeingModified) {
     return (
       <Modify
-        prefix={prefix}
-        iri={iri}
+        k={k}
+        v={v}
         create={create}
         onCancel={() => setIsBeingModified(false)}
         onChange={(...p) => {
@@ -91,13 +95,13 @@ function Row({
     );
   } else {
     return (
-      <TableRow key={prefix}>
+      <TableRow key={k}>
         <TableCell align="right" style={{ overflow: "hidden", overflowWrap: "anywhere" }}>
-          {prefix}
+          {k}
         </TableCell>
         <TableCell>
           <div style={{ display: "flex", gap: 1, alignItems: "center" }}>
-            <div style={{ flexGrow: 1, overflow: "hidden", overflowWrap: "anywhere" }}>{iri}</div>
+            <div style={{ flexGrow: 1, overflow: "hidden", overflowWrap: "anywhere" }}>{v}</div>
             <IconButton size="small" onClick={() => setIsBeingModified(true)}>
               <EditTwoToneIcon fontSize="small" />
             </IconButton>
@@ -112,37 +116,37 @@ function Row({
 }
 
 function Modify({
-  prefix,
-  iri,
+  k,
+  v,
   onCancel,
   onChange,
   create,
 }: {
-  prefix?: string;
-  iri?: string;
+  k?: string;
+  v?: string;
   onCancel?: () => void;
-  onChange: (prefix: string, iri: string) => void;
+  onChange: (k: string, v: string) => void;
   create?: boolean;
 }) {
-  const [newPrefix, setNewPrefix] = useState(prefix || "");
-  const [newIri, setNewIri] = useState(iri || "");
+  const [newK, setNewK] = useState(k || "");
+  const [newV, setNewV] = useState(v || "");
   const submit = () => {
     if (create) {
-      setNewPrefix("");
-      setNewIri("");
+      setNewK("");
+      setNewV("");
     }
-    onChange(newPrefix, newIri);
+    onChange(newK, newV);
   };
   return (
-    <TableRow key={prefix}>
+    <TableRow key={k}>
       <TableCell align="right">
         <TextField
           size="small"
           variant="outlined"
           hiddenLabel
           fullWidth
-          value={newPrefix}
-          onChange={(e) => setNewPrefix(e.target.value)}
+          value={newK}
+          onChange={(e) => setNewK(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               submit();
@@ -156,8 +160,8 @@ function Modify({
           variant="outlined"
           hiddenLabel
           fullWidth
-          value={newIri}
-          onChange={(e) => setNewIri(e.target.value)}
+          value={newV}
+          onChange={(e) => setNewV(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               submit();

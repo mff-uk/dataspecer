@@ -57,6 +57,8 @@
   "JSON attributes": "JSON specifické atributy",
   "JSON-LD IRI prefixes": "Prefixy použité v JSON-LD kontextu a schématech",
   "JSON-LD IRI prefixes help": "V tabulce níže lze nastavit často používané prefixy pro IRI použitá v JSON-LD kontextu a tím i pro IRI jež jsou použita v JSON Schématech.",
+  "JSON-LD type mapping": "Mapování typů na specifické popisky",
+  "JSON-LD type mapping help": "V případě že by mělo dojít ke kolizi mezi názvy typů které se použijí v JSON-LD kontextu, můžete zde nastavit vlastní mapování IRI na název typu.",
   "label max": "max",
   "label min": "min",
   "label regex for iri": "Regulární výraz IRI instancí",

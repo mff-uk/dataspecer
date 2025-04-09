@@ -51,6 +51,7 @@ export async function getSingleArtifact(
 
   // Convert data specification
   const ds = Object.values(dataSpecificationsWithArtifacts).map(specification => ({
+    ...specification,
     iri: specification.id,
     pim: specification.id,
     psms: specification.dataStructures.map(ds => ds.id),
