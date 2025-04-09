@@ -7,4 +7,5 @@ export * from "./cme-relationship-profile";
 export * from "./cme-relationship";
 export * from "./cme-semantic-model";
 export * from "./cme-specialization";
+export * from "./cme-well-known";
 export * from "./cme-writable-semantic-model";

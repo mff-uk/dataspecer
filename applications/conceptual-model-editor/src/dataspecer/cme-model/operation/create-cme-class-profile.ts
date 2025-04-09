@@ -13,6 +13,11 @@ export function createCmeClassProfile(
   model: InMemorySemanticModel,
   value: NewCmeClassProfile,
 ) {
+  const tags: string[] = [];
+  if (value.role !== null) {
+    tags.push(value.role);
+  }
+
   const operation = factory.createClassProfile({
     iri: value.iri,
     profiling: value.profileOf,
@@ -22,6 +27,8 @@ export function createCmeClassProfile(
     descriptionFromProfiled: value.descriptionSource,
     usageNote: value.usageNote,
     usageNoteFromProfiled: value.usageNoteSource,
+    externalDocumentationUrl: value.externalDocumentationUrl,
+    tags,
   });
 
   const result = model.executeOperation(operation);

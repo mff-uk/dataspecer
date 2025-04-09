@@ -4,6 +4,7 @@ import { CmeReference } from "../model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { DataspecerError } from "../../dataspecer-error";
 import { CreatedEntityOperationResult } from "@dataspecer/core-v2/semantic-model/operations";
+import { emptyAsNull } from "../../../utilities/string";
 
 const factory = createDefaultSemanticModelProfileOperationFactory();
 
@@ -14,6 +15,11 @@ export function createCmeRelationshipProfile(
   model: InMemorySemanticModel,
   value: NewCmeRelationshipProfile,
 ): CmeReference {
+  const tags: string[] = [];
+  if (value.mandatoryLevel !== null) {
+    tags.push(value.mandatoryLevel);
+  }
+
   const operation = factory.createRelationshipProfile({
     ends: [{
       profiling: [],
@@ -26,6 +32,8 @@ export function createCmeRelationshipProfile(
       usageNoteFromProfiled: null,
       concept: value.domain,
       cardinality: value.domainCardinality,
+      externalDocumentationUrl: null,
+      tags: [],
     }, {
       profiling: value.profileOf,
       iri: value.iri,
@@ -37,6 +45,8 @@ export function createCmeRelationshipProfile(
       usageNoteFromProfiled: value.usageNoteSource,
       concept: value.range,
       cardinality: value.rangeCardinality,
+      externalDocumentationUrl: emptyAsNull(value.externalDocumentationUrl),
+      tags,
     }]
   })
 
