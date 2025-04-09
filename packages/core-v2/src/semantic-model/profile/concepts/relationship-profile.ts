@@ -47,20 +47,12 @@ export interface SemanticModelRelationshipEndProfile extends NamedThingProfile, 
 
   /**
    * This value is not inherited from profiled entity.
+   * {@link https://mff-uk.github.io/data-specification-vocabulary/requirement-level/requirement-level.ttl}
+   *
+   * This value is optional as it can be missing in the source data.
+   * You should not set the value to undefined manually.
+   * Use null to indicate an absence of a value.
    */
-  requirementLevel: RelationshipProfileMandatoryLevel | null;
-
-}
-
-/**
- * {@link https://mff-uk.github.io/data-specification-vocabulary/requirement-level/requirement-level.ttl}
- */
-export enum RelationshipProfileMandatoryLevel {
-
-  Mandatory = "https://w3id.org/dsv/requirement-level#mandatory",
-
-  Recommended = "https://w3id.org/dsv/requirement-level#recommended",
-
-  Optional = "https://w3id.org/dsv/requirement-level#optional",
+  requirementLevel?: string | null;
 
 }
