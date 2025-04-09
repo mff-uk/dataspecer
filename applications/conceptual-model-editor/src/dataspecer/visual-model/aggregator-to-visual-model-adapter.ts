@@ -149,6 +149,7 @@ function synchronizeUpdates(
       } else if (isVisualRelationship(visual)) {
         updateVisualRelationship(visualModel, item, visual);
       } else if (isVisualProfileRelationship(visual)) {
+        // I think that this never happens - RadStr
         updateVisualProfileRelationship(visualModel, item, visual);
       } else {
         // We just ignore all rest.

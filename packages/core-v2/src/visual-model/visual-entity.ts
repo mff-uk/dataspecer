@@ -1,3 +1,4 @@
+import { LanguageString } from "../semantic-model/concepts";
 import { Entity, EntityIdentifier } from "./entity-model/entity";
 import { ModelIdentifier } from "./entity-model/entity-model";
 
@@ -46,6 +47,21 @@ export interface VisualNode extends VisualEntity {
 }
 
 /**
+ * Represents a visual node, which represents {@link representedVisualModel}.
+ */
+export interface VisualDiagramNode extends VisualEntity {
+
+    label: LanguageString,
+
+    description: LanguageString,
+
+    position: Position,
+
+    representedVisualModel: string,
+
+}
+
+/**
  * Used for migration as the model can not be determined from the
  * visual model alone in version 0.
  */
@@ -61,6 +77,23 @@ export const VISUAL_NODE_TYPE = "visual-node";
 
 export function isVisualNode(what: Entity): what is VisualNode {
     return what.type.includes(VISUAL_NODE_TYPE);
+}
+
+
+export const VISUAL_DIAGRAM_NODE_TYPE = "visual-diagram-node";
+
+export function isVisualDiagramNode(what: Entity): what is VisualDiagramNode {
+    return what.type.includes(VISUAL_DIAGRAM_NODE_TYPE);
+}
+
+export type VisualEdgeEndPoint = VisualDiagramNode | VisualNode;
+
+/**
+ * @returns True if the given {@link what} is visual entity, which can be visual end of edge.
+ * Currently that is either {@link VisualNode} or node representing diagram ({@link VisualDiagramNode}).
+ */
+export function isVisualEdgeEnd(what: Entity): what is VisualEdgeEndPoint {
+    return isVisualNode(what) || isVisualDiagramNode(what);
 }
 
 export interface Position {

@@ -1,4 +1,4 @@
-import { isVisualGroup, isVisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualEdgeEnd, isVisualGroup, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 
 /**
@@ -18,7 +18,7 @@ export function toggleAnchorAction(
     notifications.error("The entity to change anchor for doesn't exist.");
     return;
   }
-  if(isVisualNode(visualEntity)) {
+  if(isVisualEdgeEnd(visualEntity)) {
     let newAnchor: true | null;
     if(isNewlyAnchored !== undefined) {
       newAnchor = isNewlyAnchored
