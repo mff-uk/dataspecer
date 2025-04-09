@@ -7,6 +7,7 @@ import { createNewVisualModelAction } from "./create-new-visual-model-from-sourc
 import { QueryParamsContextType } from "@/context/query-params-context";
 import { createCreateVisualModelDialog, createCreateVisualModelDialogState } from "@/dialog/visual-model/create-visual-model/create-create-visual-model-dialog";
 import { CreateVisualModelDialogState } from "@/dialog/visual-model/create-visual-model/create-visual-model-dialog-controller";
+import { changeVisualModelAction } from "./change-visual-model";
 
 export function openCreateVisualModelDialogAction(
   notifications: UseNotificationServiceWriterType,
@@ -28,8 +29,7 @@ export function openCreateVisualModelDialogAction(
       if (createdVisualModel === null) {
         return;
       }
-      graph.aggregatorView.changeActiveVisualModel(createdVisualModel.getId());
-      queryParamsContext.updateViewId(createdVisualModel.getId());
+      changeVisualModelAction(graph, queryParamsContext, createdVisualModel.getId());
     }
   };
 

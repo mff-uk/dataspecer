@@ -246,9 +246,10 @@ interface VisualModelActions {
   //
 
   /**
-   * Creates new visual model with content equal to {@link nodeSelection} and relevant edges from {@link edgeSelection}.
+   * Opens dialog, which after confirmation creates new visual model with content equal to {@link nodeSelection} and
+   * relevant edges from {@link edgeSelection}.
    */
-  createNewVisualModelFromSelection: (
+  openCreateNewVisualModelFromSelectionDialog: (
     nodeSelection: string[],
     edgeSelection: string[],
     shouldSwitchToCreatedModel: boolean
@@ -260,9 +261,9 @@ interface VisualModelActions {
   changeVisualModel: (newVisualModel: string) => void;
 
   /**
-   * Creates new empty visual model.
+   * Opens dialog, which after confirmation creates new empty visual model.
    */
-  createNewVisualModel: (shouldSwitchToCreatedModel: boolean) => void;
+  openCreateNewVisualModelDialog: (shouldSwitchToCreatedModel: boolean) => void;
 
   //
   // TODO PRQuestion: Again document using {@link .*Action} or not?
@@ -360,9 +361,9 @@ const noOperationActionsContext = {
   createVisualNodeDuplicate: noOperation,
   centerViewportToVisualEntityByRepresented: noOperation,
   //
-  createNewVisualModelFromSelection: noOperation,
+  openCreateNewVisualModelFromSelectionDialog: noOperation,
   changeVisualModel: noOperation,
-  createNewVisualModel: () => null,
+  openCreateNewVisualModelDialog: noOperation,
   //
   addEntitiesFromSemanticModelToVisualModel: async () => {},
   removeEntitiesInSemanticModelFromVisualModel: noOperation,
@@ -825,7 +826,7 @@ function createActionsContext(
     return promise;
   };
 
-  const createNewVisualModelFromSelection = (
+  const openCreateNewVisualModelFromSelectionDialog = (
     nodeSelection: string[],
     edgeSelection: string[],
     shouldSwitchToCreatedModel: boolean
@@ -841,8 +842,8 @@ function createActionsContext(
     changeVisualModelAction(graph, queryParamsContext, newVisualModel);
   };
 
-  const createNewVisualModel = (shouldSwitchToCreatedModel: boolean) => {
-    return createNewVisualModelFromSelection([], [], shouldSwitchToCreatedModel);
+  const openCreateNewVisualModelDialog = (shouldSwitchToCreatedModel: boolean) => {
+    return openCreateNewVisualModelFromSelectionDialog([], [], shouldSwitchToCreatedModel);
   };
 
   const openExtendSelectionDialog = (selections: Selections) => {
@@ -1052,7 +1053,7 @@ function createActionsContext(
 
     onCreateNewViewFromSelection: () => {
       const { nodeSelection, edgeSelection } = getSelections(diagram, false, true);
-      createNewVisualModelFromSelection(nodeSelection, edgeSelection, false);
+      openCreateNewVisualModelFromSelectionDialog(nodeSelection, edgeSelection, false);
     },
 
     onProfileSelection: () => {
@@ -1154,9 +1155,9 @@ function createActionsContext(
     createVisualNodeDuplicate,
     centerViewportToVisualEntityByRepresented,
 
-    createNewVisualModelFromSelection,
+    openCreateNewVisualModelFromSelectionDialog,
     changeVisualModel,
-    createNewVisualModel,
+    openCreateNewVisualModelDialog,
     addEntitiesFromSemanticModelToVisualModel,
     removeEntitiesInSemanticModelFromVisualModel,
     addClassNeighborhoodToVisualModel,
