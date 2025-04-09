@@ -103,8 +103,8 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
 
     return {
       // Add all properties from aggregated entities and from this one.
-      ...otherPropertiesAggregated,
-      ...profile,
+      ...otherPropertiesAggregated as {}, // enforce all members to be explicitly defined
+      ...profile as {}, // enforce all members to be explicitly defined
       //
       id: profile.id,
       type: profile.type,
@@ -130,15 +130,15 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
     const profiled = createProfiledGetter(aggregatedProfiled, profile);
     return {
       // Add all properties from the profile.
-      ...profile,
+      ...profile as {}, // enforce all members to be explicitly defined
       //
       id: profile.id,
       type: profile.type,
       //
       ends: profile.ends.map((end, index) => ({
         // Add all properties from the profile and profiled entities.
-        ...end.profiling.map(profiled).reduce((p, c) => Object.assign(p, c?.ends[index]), {}),
-        ...end,
+        ...end.profiling.map(profiled).reduce((p, c) => Object.assign(p, c?.ends[index]), {}) as {}, // enforce all members to be explicitly defined
+        ...end as {}, // enforce all members to be explicitly defined
         //
         profiling: end.profiling,
         iri: end.iri,

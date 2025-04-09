@@ -133,7 +133,7 @@ function executeModifySemanticModelClassProfile(
     usageNoteFromProfiled: mergeFromProfiled(entity.usageNoteFromProfiled, previous.usageNoteFromProfiled),
     profiling: entity.profiling ?? previous.profiling,
     externalDocumentationUrl: mergeFromProfiled(entity.externalDocumentationUrl, previous.externalDocumentationUrl),
-    role: mergeFromProfiled(entity.role, previous.role),
+    tags: mergeFromProfiled(entity.tags, previous.tags),
   };
   entityWriter.change({ [identifier]: updatedEntity }, []);
   return {
@@ -142,15 +142,15 @@ function executeModifySemanticModelClassProfile(
   }
 }
 
-function mergeFromProfiled(
-  next: string | null | undefined,
-  previous: string | null,
-): string | null {
-  // We actually need to store null.
-  if (next === null) {
-    return null;
+function mergeFromProfiled<T>(
+  next: T | undefined,
+  previous: T,
+): T {
+  if (next === undefined) {
+    return previous;
   }
-  return next ?? previous;
+  // We actually need to store null, if next is null
+  return next;
 }
 
 function executeCreateSemanticModelRelationshipProfile(
@@ -188,7 +188,7 @@ function defaultRelationshipEndProfile():
     usageNoteFromProfiled: null,
     profiling: [],
     externalDocumentationUrl: null,
-    requirementLevel: null,
+    tags: [],
   }
 }
 
