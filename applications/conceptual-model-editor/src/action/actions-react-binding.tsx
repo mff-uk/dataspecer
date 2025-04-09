@@ -75,14 +75,7 @@ import { openEditAssociationDialogAction } from "./open-edit-association-dialog"
 import { isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { openEditAssociationProfileDialogAction } from "./open-edit-association-profile-dialog";
 import { changeVisualModelAction } from "./change-visual-model";
-import { openEditVisualDiagramNodeDialogAction } from "./open-edit-visual-diagram-node-dialog";
-import { openCreateVisualDiagramNodeDialogAction } from "./open-create-visual-diagram-node-dialog";
 import { QueryParamsContextType, useQueryParamsContext } from "@/context/query-params-context";
-import { createNewVisualModelAction } from "./create-new-visual-model-from-source-visual-model";
-import { putVisualDiagramNodeContentToVisualModelAction } from "./put-visual-diagram-node-content-to-visual-model";
-import { openVisualDiagramNodeInfoDialogAction } from "./open-visual-diagram-node-info-dialog";
-import { addVisualDiagramNodeForExistingModelToVisualModelAction } from "./create-visual-diagram-node-for-existing-model";
-import { addAllRelationshipsForVisualDiagramNodeToVisualModelAction } from "./add-all-relationships";
 import { openCreateVisualModelDialogAction } from "./open-create-new-visual-model-dialog";
 
 const LOG = createLogger(import.meta.url);
