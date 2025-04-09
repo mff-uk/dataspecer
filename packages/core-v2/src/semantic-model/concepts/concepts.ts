@@ -36,6 +36,8 @@ export interface SemanticModelClass extends NamedThing, SemanticModelEntity {
     /**
      * URL of external documentation.
      *
+     * The URL can be absolute or relative.
+     *
      * This value is optional as it can be missing in the source data.
      * You should not set the value to undefined manually.
      * Use null to indicate an absence of a value.
@@ -63,6 +65,8 @@ export interface SemanticModelRelationshipEnd extends NamedThing {
 
     /**
      * URL of external documentation.
+     *
+     * The URL can be absolute or relative.
      *
      * This value is optional as it can be missing in the source data.
      * You should not set the value to undefined manually.

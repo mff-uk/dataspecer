@@ -8,14 +8,13 @@ export interface SemanticModelClassProfile extends SemanticModelEntity, Profile,
   type: [typeof SEMANTIC_MODEL_CLASS_PROFILE];
 
   /**
-   * This value is not inherited from profiled entity.
-   * {@link https://mff-uk.github.io/data-specification-vocabulary/class-role/class-role.ttl}.
+   * Collections of IRIs tagging this resources.
    *
-    * This value is optional as it can be missing in the source data.
-    * You should not set the value to undefined manually.
-    * Use null to indicate an absence of a value.
+   * This value is optional as it can be missing in the source data.
+   * You should not set the value to undefined manually.
+   * Use null to indicate an absence of a value.
    */
-  role?: string | null;
+  tags: string[];
 
 }
 

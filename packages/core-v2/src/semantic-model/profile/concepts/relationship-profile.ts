@@ -46,13 +46,12 @@ export interface SemanticModelRelationshipEndProfile extends NamedThingProfile, 
   cardinality: [number, number | null] | null;
 
   /**
-   * This value is not inherited from profiled entity.
-   * {@link https://mff-uk.github.io/data-specification-vocabulary/requirement-level/requirement-level.ttl}
+   * Collections of IRIs tagging this resources.
    *
    * This value is optional as it can be missing in the source data.
    * You should not set the value to undefined manually.
    * Use null to indicate an absence of a value.
    */
-  requirementLevel?: string | null;
+  tags: string[];
 
 }
