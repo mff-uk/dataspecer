@@ -423,7 +423,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
    * Shows full hierarchy of given local entity only for use with getSurroundings.
    */
   async getHierarchyForLookup(localEntityId: string): Promise<ExternalEntityWrapped[] | null> {
-
+    // It is not possible to get hierarchy of external entity as there is no way to get to it.
     if (!this.entities[localEntityId]) {
       return null;
     }
@@ -453,13 +453,35 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
       originatingModel: [this],
     }));
 
+    // specific class - generic class
+    const generalizations: Map<string, Map<string, LocalEntityWrapped<SemanticModelGeneralization>>> = new Map();
+    for (const entity of Object.values(this.entities)) {
+      const semanticEntity = entity.aggregatedEntity;
+      if (isSemanticModelGeneralization(semanticEntity)) {
+        const superClassId = semanticEntity.parent;
+        const subClassId = semanticEntity.child;
+        if (!generalizations.has(subClassId)) {
+          generalizations.set(subClassId, new Map());
+        }
+        const subClass = generalizations.get(subClassId)!;
+        if (!subClass.has(superClassId)) {
+          subClass.set(superClassId, entity as LocalEntityWrapped<SemanticModelGeneralization>);
+        }
+      }
+    }
+
     const superProfiles: LocalEntityWrapped[] = [this.entities[localEntityId]];
     {
       const lookup: LocalEntityWrapped<SemanticModelClassProfile>[] = [this.entities[localEntityId] as LocalEntityWrapped<SemanticModelClassProfile>];
       let superProfile: LocalEntityWrapped<SemanticModelClassProfile> | undefined;
       while (superProfile = lookup.pop()) {
         for (const profile of classProfiles) {
-          if (superProfile.aggregatedEntity.profiling.includes(profile.aggregatedEntity.id)) {
+          const generalization = generalizations.get(superProfile.aggregatedEntity.id)?.get(profile.aggregatedEntity.id);
+          if (generalization) {
+            lookup.push(profile);
+            superProfiles.push(profile);
+            superProfiles.push(generalization);
+          } else if (superProfile.aggregatedEntity.profiling.includes(profile.aggregatedEntity.id)) {
             if (!superProfiles.includes(profile)) {
               lookup.push(profile);
               superProfiles.push(profile);
