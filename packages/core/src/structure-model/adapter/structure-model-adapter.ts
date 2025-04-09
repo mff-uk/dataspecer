@@ -46,6 +46,7 @@ class StructureModelAdapter {
     model.humanDescription = psmSchema.dataPsmHumanDescription;
     model.technicalLabel = psmSchema.dataPsmTechnicalLabel;
     model.jsonLdDefinedPrefixes = psmSchema.jsonLdDefinedPrefixes ?? {};
+    model.jsonLdTypeMapping = psmSchema.jsonLdDefinedTypeMapping ?? {};
     model.roots = roots;
 
     return model;
@@ -94,6 +95,7 @@ class StructureModelAdapter {
     model = new StructureModelClass();
     if (DataPsmClass.is(classData)) {
       model.jsonLdDefinedPrefixes = classData.jsonLdDefinedPrefixes ?? {};
+      model.jsonLdTypeMapping = classData.jsonLdDefinedTypeMapping ?? {};
     }
     this.classes[classData.iri] = model;
     //

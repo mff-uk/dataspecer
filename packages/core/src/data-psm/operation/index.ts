@@ -31,6 +31,7 @@ export * from "./data-psm-set-interpretation";
 export * from "./data-psm-set-is-closed";
 export * from "./data-psm-set-empty-as-complex";
 export * from "./data-psm-set-json-ld-defined-prefixes";
+export * from "./data-psm-set-json-ld-type-mapping";
 export * from "./data-psm-set-json-schema-prefixes-in-iri-regex";
 export * from "./data-psm-set-order";
 export * from "./data-psm-set-part";

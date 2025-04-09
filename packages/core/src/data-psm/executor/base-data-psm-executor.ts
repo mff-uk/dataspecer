@@ -33,6 +33,7 @@ import { executeDataPsmSetInstancesSpecifyTypes } from "./data-psm-set-instances
 import { executeDataPsmSetInterpretation } from "./data-psm-set-interpretation-executor";
 import { executeDataPsmSetIsClosed } from "./data-psm-set-is-closed-executor";
 import { executeDataPsmSetJsonLdDefinedPrefixes } from "./data-psm-set-json-ld-defined-prefixes-executor";
+import { executeDataPsmSetJsonLdTypeMapping } from "./data-psm-set-json-ld-type-mapping-executor";
 import { executeDataPsmSetJsonSchemaPrefixesInIriRegex } from "./data-psm-set-json-schema-prefixes-in-iri-regex-executor";
 import { executeDataPsmSetOrder } from "./data-psm-set-order-executor";
 import { executeDataPsmSetPart } from "./data-psm-set-part-executor";
@@ -248,6 +249,11 @@ export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.DataPsmSetJsonLdDefinedPrefixes.is,
     executeDataPsmSetJsonLdDefinedPrefixes,
     Operations.DataPsmSetJsonLdDefinedPrefixes.TYPE
+  ),
+  CoreOperationExecutor.create(
+    Operations.DataPsmSetJsonLdDefinedTypeMapping.is,
+    executeDataPsmSetJsonLdTypeMapping,
+    Operations.DataPsmSetJsonLdDefinedTypeMapping.TYPE
   ),
   CoreOperationExecutor.create(
     Operations.DataPsmSetJsonSchemaPrefixesInIriRegex.is,

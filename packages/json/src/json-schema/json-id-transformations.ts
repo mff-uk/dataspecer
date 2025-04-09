@@ -34,7 +34,7 @@ export function structureModelAddIdAndTypeProperties(
     // todo: properties are added only to non-empty classes as empty are treated differently
     if (structureClass.cimIri !== null && (structureClass.properties.length > 0 || structureClass.emptyAsComplex)) {
       if (localClassConfiguration.jsonTypeKeyAlias !== null) {
-        const typeKeyValue = getClassTypeKey(semanticModel[structureClass.pimIri] as LocalEntityWrapped<SemanticModelClass | SemanticModelClassProfile>, structureClass, configuration);
+        const typeKeyValue = getClassTypeKey(semanticModel[structureClass.pimIri] as LocalEntityWrapped<SemanticModelClass | SemanticModelClassProfile>, structureClass, configuration, structure.jsonLdTypeMapping);
 
         const datatype = new StructureModelCustomType();
         if (typeKeyValue.length === 1) {

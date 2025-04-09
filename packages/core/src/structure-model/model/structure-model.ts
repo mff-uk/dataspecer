@@ -42,6 +42,11 @@ export class StructureModel {
   jsonLdDefinedPrefixes: { [prefix: string]: string } = {};
 
   /**
+   * Type iri to label used for @types.
+   */
+  jsonLdTypeMapping: { [iri: string]: string } = {};
+
+  /**
    * Returns a list of classes in the model.
    */
   getClasses(): StructureModelClass[] {

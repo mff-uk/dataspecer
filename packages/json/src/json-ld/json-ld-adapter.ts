@@ -49,16 +49,16 @@ function getPrefixesForContext(localPrefixes: Record<string, string>, parentPref
 /**
  * Returns string array that is used for the @type key in the JSON-LD context and JSON schema.
  */
-export function getClassTypeKey(cls: LocalEntityWrapped<SemanticModelClass | SemanticModelClassProfile>, structureClass: StructureModelClass, configuration: JsonConfiguration): string[] {
+export function getClassTypeKey(cls: LocalEntityWrapped<SemanticModelClass | SemanticModelClassProfile>, structureClass: StructureModelClass, configuration: JsonConfiguration, preDefinedMapping: Record<string, string>): string[] {
   const concepts = splitProfileToConcepts(cls);
   const mappingType = configuration.jsonDefaultTypeKeyMapping;
 
   if (mappingType === "technical-label" && concepts.length <= 1) {
-    return [structureClass.technicalLabel];
+    return [preDefinedMapping[concepts[0]?.aggregatedEntity.iri] ?? structureClass.technicalLabel];
   }
 
   if (mappingType === "human-label") {
-    return concepts.map(concept => pickTypeLabel(concept.aggregatedEntity.name, configuration));
+    return concepts.map(concept => preDefinedMapping[concept.aggregatedEntity.iri] ?? pickTypeLabel(concept.aggregatedEntity.name, configuration));
   }
 
   throw new Error(`Unknown mapping type ${mappingType}`);
@@ -97,15 +97,17 @@ export class JsonLdAdapter {
       ...this.model.jsonLdDefinedPrefixes
     };
 
+    const customTypeNames = this.model.jsonLdTypeMapping;
+
     const rootClasses = this.model.roots[0].classes;
     // Iterate over all classes in root OR
-    this.generateClassesContext(rootClasses, context, prefixes);
+    this.generateClassesContext(rootClasses, context, prefixes, customTypeNames);
 
     // Clean the object of undefined values
     return this.optimize(result);
   }
 
-  protected generatePropertyContext(property: StructureModelProperty, context: object, prefixes: Record<string, string>) {
+  protected generatePropertyContext(property: StructureModelProperty, context: object, prefixes: Record<string, string>, customTypeNames: Record<string, string>) {
     const contextData = {};
 
     const firstDataType = property.dataTypes[0];
@@ -150,11 +152,11 @@ export class JsonLdAdapter {
             } else {
               const localContext = {}
               contextData["@context"] = localContext;
-              this.generateClassesContext([firstDataType.dataType], localContext, prefixes);
+              this.generateClassesContext([firstDataType.dataType], localContext, prefixes, customTypeNames);
             }
           } else {
             const localContext = {};
-            this.generateClassesContext(property.dataTypes.map(dt => (dt as StructureModelComplexType).dataType), localContext, prefixes);
+            this.generateClassesContext(property.dataTypes.map(dt => (dt as StructureModelComplexType).dataType), localContext, prefixes, customTypeNames);
             contextData["@context"] = localContext;
           }
         }
@@ -174,7 +176,7 @@ export class JsonLdAdapter {
    * Fills the given context with context of given classes.
    * The trick is that if classes share something or are profiles, then we need to separate them.
    */
-  protected generateClassesContext(classes: StructureModelClass[], context: object, prefixes: Record<string, string>) {
+  protected generateClassesContext(classes: StructureModelClass[], context: object, prefixes: Record<string, string>, customTypeNames: Record<string, string>) {
     const GOES_TO_PARENT = "";
     const mappingToProperties: Record<string, Set<StructureModelProperty>> = {
       // this is parent context
@@ -199,9 +201,9 @@ export class JsonLdAdapter {
           if (!mappingToProperties[iri]) {
             mappingToProperties[iri] = new Set();
           }
-          mappingToTypeName[iri] = pickTypeLabel(concept.aggregatedEntity.name, this.configuration);
+          mappingToTypeName[iri] = customTypeNames[iri] ?? pickTypeLabel(concept.aggregatedEntity.name, this.configuration);
           if (this.configuration.jsonDefaultTypeKeyMapping === "technical-label") {
-            if (classConcepts.length > 1) {
+            if (classConcepts.length > 1 && !customTypeNames[iri]) {
               console.warn("JSON-LD generator: Technical labels as type keys are not supported for multiprofiles. Fallback to class name.");
             } else {
               mappingToTypeName[iri] = cls.technicalLabel;
@@ -243,7 +245,7 @@ export class JsonLdAdapter {
 
     // 2. Generate properties that do not belong to specific class
     for (const property of mappingToProperties[GOES_TO_PARENT]) {
-      this.generatePropertyContext(property, context, prefixes);
+      this.generatePropertyContext(property, context, prefixes, customTypeNames);
     }
 
     // 3. Generate classes with their properties
@@ -255,7 +257,7 @@ export class JsonLdAdapter {
       const contextForProperties = {};
       classContext["@context"] = contextForProperties;
       for (const property of mappingToProperties[iri]) {
-        this.generatePropertyContext(property, contextForProperties, prefixes);
+        this.generatePropertyContext(property, contextForProperties, prefixes, customTypeNames);
       }
     }
   }
