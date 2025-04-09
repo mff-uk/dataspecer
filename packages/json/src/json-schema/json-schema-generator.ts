@@ -1,27 +1,28 @@
+import { LocalEntityWrapped } from "@dataspecer/core-v2/hierarchical-semantic-aggregator";
+import { ConceptualModel, ConceptualModelProperty } from "@dataspecer/core/conceptual-model";
+import { assertFailed, assertNot, createStringSelector } from "@dataspecer/core/core";
+import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
+import { DataSpecificationConfiguration, DataSpecificationConfigurator, DefaultDataSpecificationConfiguration } from "@dataspecer/core/data-specification/configuration";
 import {
   DataSpecification,
   DataSpecificationArtefact,
   DataSpecificationSchema,
 } from "@dataspecer/core/data-specification/model";
-import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
 import { ArtefactGenerator, ArtefactGeneratorContext } from "@dataspecer/core/generator";
-import { JsonSchema } from "./json-schema-model";
-import { writeJsonSchema } from "./json-schema-writer";
-import { structureModelToJsonSchema } from "./json-schema-model-adapter";
-import { assertFailed, assertNot, createStringSelector } from "@dataspecer/core/core";
+import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
+import { StructureModel, StructureModelClass, StructureModelProperty } from "@dataspecer/core/structure-model/model";
 import {
   structureModelAddDefaultValues,
   transformStructureModel
 } from "@dataspecer/core/structure-model/transformation";
-import { JSON_SCHEMA } from "./json-schema-vocabulary";
-import { structureModelAddIdAndTypeProperties } from "./json-id-transformations";
-import {DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator} from "../configuration";
-import {structureModelAddJsonProperties} from "../json-structure-model/add-json-properties";
-import {DataSpecificationConfigurator, DefaultDataSpecificationConfiguration, DataSpecificationConfiguration} from "@dataspecer/core/data-specification/configuration";
-import { StructureModel, StructureModelClass, StructureModelProperty } from "@dataspecer/core/structure-model/model";
-import { ConceptualModel, ConceptualModelProperty } from "@dataspecer/core/conceptual-model";
-import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
+import { DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator } from "../configuration";
 import { MAIN_JSON_PARTIAL } from "../documentation/configuration";
+import { structureModelAddJsonProperties } from "../json-structure-model/add-json-properties";
+import { structureModelAddIdAndTypeProperties } from "./json-id-transformations";
+import { JsonSchema } from "./json-schema-model";
+import { structureModelToJsonSchema } from "./json-schema-model-adapter";
+import { JSON_SCHEMA } from "./json-schema-vocabulary";
+import { writeJsonSchema } from "./json-schema-writer";
 import { shortenByIriPrefixes } from "./propagate-iri-regex";
 
 export class JsonSchemaGenerator implements ArtefactGenerator {
@@ -83,8 +84,13 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
     structureModel = transformStructureModel(mergedConceptualModel, structureModel, Object.values(context.specifications));
     structureModel = structureModelAddDefaultValues(structureModel, globalConfiguration);
     structureModel = shortenByIriPrefixes(mergedConceptualModel, structureModel);
+
+    // Semantic model from aggregator
+    // @ts-ignore
+    const semanticModel = specification.semanticModel.getAggregatedEntities() as Record<string, LocalEntityWrapped>;
+
     if (!skipIdAndTypeProperties) {
-      structureModel = structureModelAddIdAndTypeProperties(structureModel, configuration);
+      structureModel = structureModelAddIdAndTypeProperties(structureModel, configuration, semanticModel);
     }
     const jsonSchema = structureModelToJsonSchema(
       context.specifications,

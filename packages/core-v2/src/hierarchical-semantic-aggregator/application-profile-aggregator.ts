@@ -10,6 +10,21 @@ import { getSearchRelevance } from "./utils/get-search-relevance";
 import { TupleSet } from "./utils/tuple-set";
 import { withAbsoluteIri } from "../semantic-model/utils";
 
+const APPLICATION_PROFILE_AGGREGATOR_TYPE = "application-profile-aggregator";
+
+export interface AggregatedEntityInApplicationProfileAggregator<T extends SemanticModelEntity = SemanticModelEntity> extends LocalEntityWrapped<T> {
+  type: typeof APPLICATION_PROFILE_AGGREGATOR_TYPE;
+
+  /**
+   * List of direct sources that contributed to the aggregation.
+   */
+  sources: LocalEntityWrapped[];
+}
+
+export function isAggregatedEntityInApplicationProfileAggregator(entity: LocalEntityWrapped): entity is AggregatedEntityInApplicationProfileAggregator {
+  return entity?.type === APPLICATION_PROFILE_AGGREGATOR_TYPE;
+}
+
 function iriGetLastChunk(iri: string | null | undefined) {
   if (!iri) {
     return null;
@@ -174,29 +189,37 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
         }
       } else {
         if (isSemanticModelClassProfile(entity)) {
-          const dependsOn = entity.profiling.map(id => this.entities[id]?.aggregatedEntity ?? this.sourceEntities[id]?.aggregatedEntity ?? this.profileEntities[id]).filter(x => x) as SemanticModelClass[];
+          // todo: we need to handle the case with local classes!
+          const dependsOnWrappedEntities = entity.profiling.map(id => this.entities[id] ?? this.sourceEntities[id]).filter(x => x) as LocalEntityWrapped<SemanticModelClass>[];
+          const dependsOn = dependsOnWrappedEntities.map(e => e.aggregatedEntity);
           const aggregatedEntity = this.profileEntityAggregator.aggregateSemanticModelClassProfile(entity, dependsOn);
           // todo workaround with typing
           const aggregatedEntityClass = {...aggregatedEntity, type: ["class", "class-profile"]} as unknown as SemanticModelClass;
           const updatedEntity = {
+            id: entity.id,
+            type: APPLICATION_PROFILE_AGGREGATOR_TYPE,
             aggregatedEntity: aggregatedEntityClass,
             vocabularyChain: [],
-            isReadOnly: true,
-          };
+            sources: dependsOnWrappedEntities,
+          } satisfies AggregatedEntityInApplicationProfileAggregator;
           this.entities[entity.id] = updatedEntity;
           this.dependsOn.overrideByFirst(entity.id, entity.profiling);
           toUpdate.push(...this.dependsOn.getBySecond(entity.id));
           updated[entity.id] = updatedEntity;
         } else if (isSemanticModelRelationshipProfile(entity)) {
-          const dependsOn = entity.ends.map(end => end.profiling).flat().map(id => this.entities[id]?.aggregatedEntity ?? this.sourceEntities[id]?.aggregatedEntity ?? this.profileEntities[id]).filter(x => x) as SemanticModelRelationship[];
+          // todo: we need to handle the case with local relations!
+          const dependsOnWrappedEntities = entity.ends.map(end => end.profiling).flat().map(id => this.entities[id] ?? this.sourceEntities[id]).filter(x => x) as LocalEntityWrapped<SemanticModelRelationship>[];
+          const dependsOn = dependsOnWrappedEntities.map(e => e.aggregatedEntity);
           const aggregatedEntity = this.profileEntityAggregator.aggregateSemanticModelRelationshipProfile(entity, dependsOn);
           // todo workaround with typing
           const aggregatedEntityRelationship = {...aggregatedEntity, type: ["relationship", "relationship-profile"]} as unknown as SemanticModelRelationship;
           const updatedEntity = {
+            id: entity.id,
+            type: APPLICATION_PROFILE_AGGREGATOR_TYPE,
             aggregatedEntity: aggregatedEntityRelationship,
             vocabularyChain: [],
-            isReadOnly: true,
-          };
+            sources: dependsOnWrappedEntities,
+          } satisfies AggregatedEntityInApplicationProfileAggregator;
           this.entities[entity.id] = updatedEntity;
           this.dependsOn.overrideByFirst(entity.id, entity.ends.map(end => end.profiling).flat());
           toUpdate.push(...this.dependsOn.getBySecond(entity.id));
@@ -205,10 +228,11 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
           if (!this.allowOnlyProfiledEntities) {
             // ! We do not allow not profiled classes and relationships in the final result
             const updatedEntity = {
+              id: entity.id,
+              type: APPLICATION_PROFILE_AGGREGATOR_TYPE,
               aggregatedEntity: entity,
               vocabularyChain: [],
-              isReadOnly: true,
-            };
+            } satisfies LocalEntityWrapped;
             this.entities[entity.id] = updatedEntity;
             this.dependsOn.deleteFirst(entity.id); // class is independent
             updated[entity.id] = updatedEntity;
@@ -217,10 +241,11 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
         } else if (isSemanticModelRelationship(entity)) {
           if (!this.allowOnlyProfiledEntities) {
             const updatedEntity = {
+              id: entity.id,
+              type: APPLICATION_PROFILE_AGGREGATOR_TYPE,
               aggregatedEntity: entity,
               vocabularyChain: [],
-              isReadOnly: true,
-            };
+            } satisfies LocalEntityWrapped;
             this.entities[entity.id] = updatedEntity;
             this.dependsOn.deleteFirst(entity.id); // relationship is profile-independent
             updated[entity.id] = updatedEntity;
@@ -228,10 +253,11 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
           toUpdate.push(...this.dependsOn.getBySecond(entity.id));
         } else if (isSemanticModelGeneralization(entity)) {
           const updatedEntity = {
+            id: entity.id,
+            type: APPLICATION_PROFILE_AGGREGATOR_TYPE,
             aggregatedEntity: entity,
             vocabularyChain: [],
-            isReadOnly: true,
-          };
+          } satisfies LocalEntityWrapped;
           this.entities[entity.id] = updatedEntity;
           this.dependsOn.deleteFirst(entity.id); // generalization is profile-independent
           toUpdate.push(...this.dependsOn.getBySecond(entity.id));
@@ -617,9 +643,10 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
     } as SemanticModelGeneralization;
 
     return {
+      id: generalization.id,
+      type: APPLICATION_PROFILE_AGGREGATOR_TYPE,
       aggregatedEntity: generalization,
       vocabularyChain: [this.thisVocabularyChain],
-      isReadOnly: true,
-    };
+    } satisfies LocalEntityWrapped;
   }
 }

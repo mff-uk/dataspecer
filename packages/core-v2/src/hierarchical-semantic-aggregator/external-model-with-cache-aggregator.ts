@@ -5,6 +5,8 @@ import { createClass, CreatedEntityOperationResult, createRelationship } from ".
 import { copyInheritanceToModel } from "./utils/copy-inheritance-to-model";
 import { ExternalEntityWrapped, SemanticModelAggregator, LocalEntityWrapped } from "./interfaces";
 
+const EXTERNAL_MODEL_WITH_CACHE_AGGREGATOR_TYPE = "external-model-with-cache-aggregator";
+
 export interface SourceSemanticModelInterface {
   search(searchQuery: string): Promise<SemanticModelClass[]>;
   getSurroundings(iri: string): Promise<SemanticModelEntity[]>;
@@ -54,10 +56,11 @@ export class ExternalModelWithCacheAggregator implements SemanticModelAggregator
 
     for (const entity of Object.values(updated)) {
       const update = {
+        id: entity.id,
+        type: EXTERNAL_MODEL_WITH_CACHE_AGGREGATOR_TYPE,
         aggregatedEntity: entity as SemanticModelEntity,
         vocabularyChain: [this.thisVocabularyChain],
-        isReadOnly: true,
-      };
+      } satisfies LocalEntityWrapped;
       this.aggregatedEntities[entity.id] = update;
       toChanged[entity.id] = update;
     }
@@ -77,8 +80,8 @@ export class ExternalModelWithCacheAggregator implements SemanticModelAggregator
 
   async externalEntityToLocalForSearch(entity: ExternalEntityWrapped): Promise<LocalEntityWrapped> {
     // We need to create a class if not exists
-    const iri = entity.aggregatedEntity.iri;
     const cls = entity.aggregatedEntity as SemanticModelClass;
+    const iri = cls.iri;
 
     let foundEntity = Object.values(this.cacheSemanticModel.getEntities()).find((entity) => isSemanticModelClass(entity) && entity.iri === iri) as SemanticModelClass | undefined;
     if (!foundEntity) {
@@ -106,7 +109,7 @@ export class ExternalModelWithCacheAggregator implements SemanticModelAggregator
   async getSurroundings(localOrExternalEntityId: string): Promise<ExternalEntityWrapped[]> {
     const maybePim = this.aggregatedEntities[localOrExternalEntityId];
     if (maybePim) {
-      const entities = await this.externalSemanticModel.getSurroundings(maybePim.aggregatedEntity.iri!);
+      const entities = await this.externalSemanticModel.getSurroundings((maybePim.aggregatedEntity as SemanticModelClass).iri!);
       return this.transformEntities(entities);
     } else {
       const entities = await this.externalSemanticModel.getSurroundings(localOrExternalEntityId);
@@ -155,7 +158,6 @@ export class ExternalModelWithCacheAggregator implements SemanticModelAggregator
       aggregatedEntity: entity,
       vocabularyChain: [this.thisVocabularyChain],
       originatingModel: [],
-      isReadOnly: true,
     }));
   }
 
