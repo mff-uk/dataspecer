@@ -94,34 +94,6 @@ export const getDomainAndRangeConcepts = (
 };
 
 /**
- * Extension of {@link getDomainAndRangeConcepts}.
- *  This method also returns domain and range for {@link SemanticModelGeneralization}.
- */
-export const getDomainAndRangeConceptsIncludingGeneralizations = (
-  relationship: SemanticModelRelationship
-  | SemanticModelRelationshipUsage
-  | SemanticModelRelationshipProfile
-  | SemanticModelGeneralization,
-): DomainAndRangeConcepts => {
-  let domain: string | null;
-  let range: string | null;
-  if(isSemanticModelGeneralization(relationship)) {
-    domain = relationship.child;
-    range = relationship.parent;
-  }
-  else {
-    const domainAndRange = getDomainAndRangeConcepts(relationship);
-    domain = domainAndRange.domain;
-    range = domainAndRange.range;
-  }
-
-  return {
-    domain,
-    range,
-  };
-};
-
-/**
  * For given cardinality return human readable representation.
  */
 export const cardinalityToHumanLabel = (cardinality: [number, number | null] | undefined | null): string | null => {
