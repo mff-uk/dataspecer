@@ -266,6 +266,7 @@ export async function generateSpecification(packageId: string, context: Generate
     })),
     "https://w3id.org/dsv#artefact": [],
     "http://purl.org/dc/terms/references": [[...usedVocabularies].map((v) => ({ "@id": v }))],
+    "http://www.w3.org/ns/dx/prof/isProfileOf": [[...usedVocabularies].map((v) => ({ "@id": v }))],
   };
 
   // OWL

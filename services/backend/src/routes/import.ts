@@ -254,6 +254,7 @@ async function importFromUrl(parentIri: string, url: string): Promise<[BaseResou
     const vocabularies = [...new Set([
       ...store.getObjects(baseIri, "https://w3id.org/dsv#usedVocabularies", null).map(v => v.id),
       ...store.getObjects(baseIri, "http://purl.org/dc/terms/references", null).map(v => v.id),
+      ...store.getObjects(baseIri, "http://www.w3.org/ns/dx/prof/isProfileOf", null).map(v => v.id),
     ])];
     const entities: SemanticModelEntity[] = [];
     for (const vocabularyId of vocabularies) {
