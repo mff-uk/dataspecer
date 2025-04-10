@@ -239,8 +239,8 @@ async function importFromUrl(parentIri: string, url: string): Promise<[BaseResou
     let dsvUrl = null;
 
     const artefacts = [...new Set([
-      ...store.getObjects(baseIri, "https://w3id.org/dsv#artefact", null),
-      ...store.getObjects(baseIri, "http://www.w3.org/ns/dx/prof/hasResource", null), // Added for compatibility
+      ...store.getObjects(baseIri, "https://w3id.org/dsv#artefact", null),  // TODO: remove when every known specification contains prof:hasResource
+      ...store.getObjects(baseIri, "http://www.w3.org/ns/dx/prof/hasResource", null),
     ])];
 
     for (const artefact of artefacts) {
@@ -256,8 +256,8 @@ async function importFromUrl(parentIri: string, url: string): Promise<[BaseResou
     }
 
     const vocabularies = [...new Set([
-      ...store.getObjects(baseIri, "https://w3id.org/dsv#usedVocabularies", null).map(v => v.id),
-      ...store.getObjects(baseIri, "http://purl.org/dc/terms/references", null).map(v => v.id),
+      ...store.getObjects(baseIri, "https://w3id.org/dsv#usedVocabularies", null).map(v => v.id), // TODO: remove when every known specification contains prof:isProfileOF
+      ...store.getObjects(baseIri, "http://purl.org/dc/terms/references", null).map(v => v.id), // TODO: remove when every known specification contains prof:isProfileOF
       ...store.getObjects(baseIri, "http://www.w3.org/ns/dx/prof/isProfileOf", null).map(v => v.id),
     ])];
     const entities: SemanticModelEntity[] = [];
