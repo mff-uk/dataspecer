@@ -238,7 +238,11 @@ async function importFromUrl(parentIri: string, url: string): Promise<[BaseResou
     let rdfsUrl = null;
     let dsvUrl = null;
 
-    const artefacts = store.getObjects(baseIri, "https://w3id.org/dsv#artefact", null);
+    const artefacts = [...new Set([
+      ...store.getObjects(baseIri, "https://w3id.org/dsv#artefact", null),
+      ...store.getObjects(baseIri, "http://www.w3.org/ns/dx/prof/hasResource", null), // Added for compatibility
+    ])];
+
     for (const artefact of artefacts) {
       console.log(artefact);
       const artefactUrl = store.getObjects(artefact, "http://www.w3.org/ns/dx/prof/hasArtifact", null)[0].id;

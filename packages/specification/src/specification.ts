@@ -265,6 +265,7 @@ export async function generateSpecification(packageId: string, context: Generate
       "@value": value,
     })),
     "https://w3id.org/dsv#artefact": [],
+    "http://www.w3.org/ns/dx/prof/hasResource": [], // Added for compatibility
     "http://purl.org/dc/terms/references": [[...usedVocabularies].map((v) => ({ "@id": v }))],
     "http://www.w3.org/ns/dx/prof/isProfileOf": [[...usedVocabularies].map((v) => ({ "@id": v }))],
   };
@@ -279,6 +280,19 @@ export async function generateSpecification(packageId: string, context: Generate
       externalArtifacts["owl-vocabulary"] = [{ type: "model.owl.ttl", URL: "./model.owl.ttl" + queryParams }];
 
       dsvMetadata["https://w3id.org/dsv#artefact"].push({
+        "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
+        "http://www.w3.org/ns/dx/prof/hasArtifact": [
+          {
+            "@id": "./model.owl.ttl" + queryParams,
+          },
+        ],
+        "http://www.w3.org/ns/dx/prof/hasRole": [
+          {
+            "@id": "http://www.w3.org/ns/dx/prof/role/vocabulary",
+          },
+        ],
+      });
+      dsvMetadata["http://www.w3.org/ns/dx/prof/hasResource"].push({
         "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
         "http://www.w3.org/ns/dx/prof/hasArtifact": [
           {
@@ -313,6 +327,19 @@ export async function generateSpecification(packageId: string, context: Generate
         },
       ],
     });
+    dsvMetadata["http://www.w3.org/ns/dx/prof/hasResource"].push({
+      "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
+      "http://www.w3.org/ns/dx/prof/hasArtifact": [
+        {
+          "@id": "./dsv.ttl" + queryParams,
+        },
+      ],
+      "http://www.w3.org/ns/dx/prof/hasRole": [
+        {
+          "@id": "http://www.w3.org/ns/dx/prof/role/schema",
+        },
+      ],
+    });
   }
 
   // All SVGs
@@ -334,6 +361,19 @@ export async function generateSpecification(packageId: string, context: Generate
 
   // HTML
   dsvMetadata["https://w3id.org/dsv#artefact"].push({
+    "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
+    "http://www.w3.org/ns/dx/prof/hasArtifact": [
+      {
+        "@id": options.queryParams ?? ".",
+      },
+    ],
+    "http://www.w3.org/ns/dx/prof/hasRole": [
+      {
+        "@id": "http://www.w3.org/ns/dx/prof/role/specification",
+      },
+    ],
+  });
+  dsvMetadata["http://www.w3.org/ns/dx/prof/hasResource"].push({
     "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
     "http://www.w3.org/ns/dx/prof/hasArtifact": [
       {
