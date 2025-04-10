@@ -4,10 +4,8 @@ import {
   Direction,
   EdgeRouting,
   ElkForceAlgType,
-  UserGivenAlgorithmConfiguration,
-  UserGivenConstraintsVersion4,
-  getDefaultMainUserGivenAlgorithmConstraint,
-  getDefaultUserGivenConstraintsVersion4
+  UserGivenAlgorithmConfigurations,
+  getDefaultUserGivenAlgorithmConfigurationsFull,
 } from "@dataspecer/layout";
 import _ from "lodash";
 import LayeredAlgorithmDirectionDropdown from "./react-combobox";
@@ -21,7 +19,7 @@ type MainOrGeneralType = MainType | "general";
 // 3) Style it better - but it is kind of throwaway so it doesn't really matter
 // 4) Have dialog localization
 export const useConfigDialog = () => {
-  const [config, setConfig] = useState<UserGivenConstraintsVersion4>(getDefaultUserGivenConstraintsVersion4());
+  const [config, setConfig] = useState<UserGivenAlgorithmConfigurations>(getDefaultUserGivenAlgorithmConfigurationsFull());
   const advancedSettingsForAlgorithms = useRef<Record<string, string>>({});
   const handleAdvancedSettingsChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     advancedSettingsForAlgorithms.current[config.chosenMainAlgorithm] = event.target.value;
@@ -55,8 +53,8 @@ export const useConfigDialog = () => {
   };
 
   const resetConfig = () => {
-    if(!_.isEqual(config, getDefaultUserGivenConstraintsVersion4())) {
-      setConfig(getDefaultUserGivenConstraintsVersion4());
+    if(!_.isEqual(config, getDefaultUserGivenAlgorithmConfigurationsFull())) {
+      setConfig(getDefaultUserGivenAlgorithmConfigurationsFull());
     }
   };
 
@@ -94,32 +92,6 @@ export const useConfigDialog = () => {
                                                         (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
           }}></input>
         {config?.[props.stateField]?.elk_overlapRemoval?.["min_distance_between_nodes"]}
-      </div>
-    </div>;
-  };
-
-  const CompactionConfig = (props: {stateField: MainType}) => {
-    return <div>
-      <div className="flex flex-row">
-        <label htmlFor="range-min-distance-between-nodes">Minimal distance between nodes: </label>
-      </div>
-      <div className="flex flex-row">
-        <input type="range" min="0" max="1000" step="10" className="slider" id="range-min-distance-between-nodes" draggable="false"
-          defaultValue={config?.[props.stateField]?.sporeCompaction?.["min_distance_between_nodes"]}
-          onMouseUp={(e) => { setConfig({
-            ...config,
-            [props.stateField]: {
-              ...config[props.stateField],
-              [config.chosenMainAlgorithm]: {
-                ...config[props.stateField][config.chosenMainAlgorithm],
-                "min_distance_between_nodes": parseInt((e.target as HTMLInputElement).value)
-              }
-            }
-          });
-          {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
-                                                        (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
-          }}></input>
-        {config?.[props.stateField]?.sporeCompaction?.["min_distance_between_nodes"]}
       </div>
     </div>;
   };
@@ -198,7 +170,7 @@ export const useConfigDialog = () => {
   const interactiveCheckbox = (props: {algorithmName: AlgorithmName, stateField: MainOrGeneralType}) => {
     return <div>
       <input type="checkbox" id={`checkbox-interactive${props.stateField}`} name="checkbox-interactive"
-        checked={(config?.[props.stateField] as Partial<Record<AlgorithmName, UserGivenAlgorithmConfiguration>>)?.[props.algorithmName]?.interactive}
+        checked={(config?.[props.stateField])?.[props.algorithmName]?.interactive}
         onChange={e => {
           setConfigWithNewValue(props.algorithmName, props.stateField, "interactive", e.target.checked);
         }} />
@@ -260,7 +232,7 @@ export const useConfigDialog = () => {
     if(stateField === "general" && algorithmName !== "elk_layered") {
       return;
     }
-    const algorithmSettings = (config?.[stateField] as Partial<Record<AlgorithmName, UserGivenAlgorithmConfiguration>>)?.[algorithmName];
+    const algorithmSettings = (config?.[stateField])?.[algorithmName];
     if(algorithmSettings === undefined) {
       return;
     }
@@ -496,10 +468,8 @@ export const useConfigDialog = () => {
     // TODO RadStr: resetConfig is not it, the state has to be solved differently - different algorithms share non-relevant parameters, but it affects them
     //       (For example running layered after layered, because I checked it for stress layout)
     // resetConfig();
-    if(config.main[config.chosenMainAlgorithm] === undefined) {
-      config.main[config.chosenMainAlgorithm] = getDefaultMainUserGivenAlgorithmConstraint(config.chosenMainAlgorithm);
-      advancedSettingsForAlgorithms.current[config.chosenMainAlgorithm] = "{}";
-    }
+
+    advancedSettingsForAlgorithms.current = config.main[config.chosenMainAlgorithm].advanced_settings;
 
     switch(config.chosenMainAlgorithm) {
       case "elk_stress_advanced_using_clusters":
@@ -510,8 +480,6 @@ export const useConfigDialog = () => {
         return <LayeredConfig stateField="main"></LayeredConfig>;
       case "elk_force":
         return <ForceConfig stateField="main"></ForceConfig>;
-      case "sporeCompaction":
-        return <CompactionConfig stateField="main"></CompactionConfig>;
       case "elk_radial":
         return <RadialConfig stateField="main"></RadialConfig>;
       case "elk_overlapRemoval":
@@ -547,7 +515,6 @@ export const useConfigDialog = () => {
           <option value="elk_force">Elk Force (Force-based algorithm)</option>
           <option value="elk_radial">Radial</option>
           <option value="elk_overlapRemoval">Overlap removal</option>
-          <option value="sporeCompaction">Compaction</option>
           <option value="automatic">Automatic</option>
           <option value="random">Random</option>
         </select>
@@ -559,7 +526,7 @@ export const useConfigDialog = () => {
       <hr className="my-2"/>
       <label htmlFor="advanced-settings-textbox">Advanced settings:</label>
       <textarea id="advanced-settings-textbox"
-                value={(advancedSettingsForAlgorithms.current[config.chosenMainAlgorithm])}
+                value={String(advancedSettingsForAlgorithms.current)}
                 onChange={handleAdvancedSettingsChange}></textarea>
       <hr className="my-4"/>
       <input type="checkbox" id="checkbox-main-layout-alg" name="checkbox-main-layout-alg" checked={config.chosenGeneralAlgorithm !== "none"}

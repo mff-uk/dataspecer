@@ -34,7 +34,7 @@ import { addClassNeighborhoodToVisualModelAction } from "./add-class-neighborhoo
 import { createDefaultProfilesAction } from "./create-default-profiles";
 import { openCreateClassDialogWithModelDerivedFromClassAction } from "./open-create-class-dialog-with-derived-model";
 import { EntityToAddToVisualModel, addSemanticEntitiesToVisualModelAction } from "./add-semantic-entities-to-visual-model";
-import { getDefaultUserGivenConstraintsVersion4, LayoutedVisualEntities, UserGivenConstraintsVersion4 } from "@dataspecer/layout";
+import { getDefaultUserGivenAlgorithmConfigurationsFull, LayoutedVisualEntities, UserGivenConstraintsVersion4 } from "@dataspecer/layout";
 import { layoutActiveVisualModelAction, layoutGivenVisualEntitiesAdvancedAction } from "./layout-visual-model";
 import { toggleAnchorAction } from "./toggle-anchor";
 import { SelectionFilterState } from "../dialog/selection/filter-selection-dialog-controller";
@@ -952,7 +952,7 @@ function createActionsContext(
       withVisualModel(notifications, graph, (visualModel) => {
         layoutGivenVisualEntitiesAdvancedAction(
           notifications, classes, diagram, graph, visualModel,
-          getDefaultUserGivenConstraintsVersion4(), visualEntitiesToLayout);
+          getDefaultUserGivenAlgorithmConfigurationsFull(), visualEntitiesToLayout);
       });
       // TODO RadStr: In future - Opens layouting menu - 3 buttons - alignments + layouting
     },

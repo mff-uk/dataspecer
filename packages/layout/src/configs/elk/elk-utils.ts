@@ -1,9 +1,10 @@
 import { LayoutOptions } from "elkjs";
-import { AlgorithmName, UserGivenAlgorithmConfigurationOnlyData } from "../..";
+import { AlgorithmName } from "../..";
+import { UserGivenAlgorithmConfigurationInterfacesUnion } from "../constraints";
 
 
 // Note for myself: alternatively could define the type as Omit<Record<keyof UserGivenConstraints, string[]>, "double_run" | "process_general_separately">
-export const CONFIG_TO_ELK_CONFIG_MAP: Record<keyof Omit<UserGivenAlgorithmConfigurationOnlyData, "number_of_new_algorithm_runs" | "advanced_settings" | "interactive">, string[]> = {
+export const CONFIG_TO_ELK_CONFIG_MAP: Record<keyof Omit<UserGivenAlgorithmConfigurationInterfacesUnion, "number_of_new_algorithm_runs" | "advanced_settings" | "interactive">, string[]> = {
     "layout_alg": ["elk.algorithm"],
     "alg_direction": ['elk.direction'],
     "layer_gap": ["spacing.nodeNodeBetweenLayers"],
@@ -47,7 +48,6 @@ const CONFIG_TO_ELK_CONFIG_SPECIAL_CASES_CONVERTOR: Record<string, Record<Algori
         },
         none: undefined,
         random: undefined,
-        sporeCompaction: undefined,
         elk_radial: undefined,
         elk_overlapRemoval: undefined,
         elk_stress_advanced_using_clusters: undefined,
@@ -67,7 +67,6 @@ export const ALGORITHM_TO_ELK_ALGORITHM_MAP: Record<AlgorithmName, string> = {
     elk_stress_profile: "stress",
     none: "not elk algorithm",
     random: "not elk algorithm",
-    sporeCompaction: "not elk algorithm",
     elk_stress_advanced_using_clusters: "not elk algorithm",
     automatic: "not elk algorithm",
 };

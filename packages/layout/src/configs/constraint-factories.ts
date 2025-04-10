@@ -1,36 +1,35 @@
 import { VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
 import { getBestLayoutFromMetricResultAggregation, performLayoutFromGraph, XY } from "..";
 import { GraphAlgorithms, ToConsiderFilter } from "../graph-algoritms";
-import { EdgeEndPoint } from "../graph/representation/edge";
 import { MainGraph } from "../graph/representation/graph";
-import { GraphFactory } from "../graph/representation/graph-factory";
 import { LayoutMethod } from "../layout-algorithms/layout-algorithms-interfaces";
-import { Direction, PhantomElementsFactory, reverseDirection } from "../util/utils";
+import { Direction } from "../util/utils";
 import { ConstraintContainer } from "./constraint-container";
 import {
     DefaultAlgorithmConfiguration,
     GraphConversionConstraint,
     AlgorithmConfiguration,
-    UserGivenAlgorithmConfiguration,
-    UserGivenAlgorithmConfigurationslVersion4,
+    UserGivenAlgorithmConfigurations,
     DefaultGraphConversionConstraint,
     RandomConfiguration,
-    getDefaultUserGivenConstraintsVersion4,
     AlgorithmPhases,
     ClusterifyConstraint,
     LayoutClustersActionConstraint,
     SpecificGraphConversions,
-    getDefaultMainUserGivenAlgorithmConstraint,
     UserGivenAlgorithmConfigurationStress,
     AutomaticConfiguration,
-    AffectedNodesGroupingsType
+    AffectedNodesGroupingsType,
+    UserGivenAlgorithmConfigurationBase,
+    UserGivenAlgorithmConfigurationRandom,
+    isUserGivenAlgorithmConfigurationInterface,
+    getDefaultUserGivenAlgorithmConfigurationsFull
 } from "./constraints";
 import {
     ElkForceConfiguration,
     ElkLayeredConfiguration,
     ElkRadialConfiguration,
-    ElkSporeCompactionConfiguration,
     ElkSporeOverlapConfiguration,
+    ElkStressAdvancedUsingClustersConfiguration,
     ElkStressConfiguration,
     ElkStressProfileLayoutConfiguration
 } from "./elk/elk-constraints";
@@ -40,26 +39,9 @@ function getOverlapConfigurationToRunAfterMainAlgorithm(
     affectedNodes: AffectedNodesGroupingsType,
     minSpaceBetweenNodes: number | null
 ) {
-    const overlapConfiguration: UserGivenAlgorithmConfiguration = {
-        layout_alg: "elk_overlapRemoval",
-        interactive: true,
-        advanced_settings: undefined,
-        alg_direction: Direction.Up,
-        layer_gap: 0,
-        in_layer_gap: 0,
-        edge_routing: "ORTHOGONAL",
-        stress_edge_len: 0,
-        number_of_new_algorithm_runs: 0,
-        min_distance_between_nodes: minSpaceBetweenNodes ?? 50,
-        force_alg_type: "FRUCHTERMAN_REINGOLD",
-        run_layered_after: false,
-        run_node_overlap_removal_after: false,
-
-        profileEdgeLength: 0,
-        preferredProfileDirection: Direction.Up,
-    }
-
-    return new ElkSporeOverlapConfiguration(overlapConfiguration, affectedNodes, true);
+    const input = ElkSporeOverlapConfiguration.getDefaultConfiguration();
+    input.min_distance_between_nodes = minSpaceBetweenNodes;
+    return new ElkSporeOverlapConfiguration(input, affectedNodes, true);
 }
 
 
@@ -67,32 +49,34 @@ function getOverlapConfigurationToRunAfterMainAlgorithm(
  * This factory class takes care of creating constraints based on given configuration
  */
 class AlgorithmConstraintFactory {
-    static getLayoutMethodForAlgorithmConstraint(algConstraint: DefaultAlgorithmConfiguration): LayoutMethod {
-        if(algConstraint instanceof ElkStressConfiguration) {
-            throw new Error("Not implemented - Should return the layout method for Elk Stress algorithm");
-        }
-        else {
-            throw new Error("Not implemented - Define for the rest of the Algorithms");
-        }
-    }
-
 
     private static getRandomLayoutConfiguration(
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
-    ): AlgorithmConfiguration {
-
-        return new RandomConfiguration(affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+    ): RandomConfiguration {
+        const randomConfig: UserGivenAlgorithmConfigurationRandom = {
+            layout_alg: "random",
+            advanced_settings: {},
+            run_layered_after: false,
+            run_node_overlap_removal_after: false,
+            interactive: false
+        };
+        return new RandomConfiguration(randomConfig, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
     }
 
     static addAlgorithmConfigurationLayoutActions(
-        userGivenAlgorithmConfiguration: UserGivenAlgorithmConfiguration,
-        layoutActionsBeforeMainRun: (AlgorithmConfiguration | GraphConversionConstraint)[] | null,
-        layoutActionsToSet: (AlgorithmConfiguration | GraphConversionConstraint)[],
+        userGivenAlgorithmConfiguration: UserGivenAlgorithmConfigurationBase,
+        layoutActionsBeforeMainRun: (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> | GraphConversionConstraint)[] | null,
+        layoutActionsToSet: (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> | GraphConversionConstraint)[],
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean
     ): void {
+        const isConfigurationCorrectlyTyped = isUserGivenAlgorithmConfigurationInterface(userGivenAlgorithmConfiguration);
+        if(isConfigurationCorrectlyTyped === false) {
+            return;
+        }
+
         switch(userGivenAlgorithmConfiguration.layout_alg) {
             case "elk_stress":
                 const elkStress = new ElkStressConfiguration(
@@ -126,9 +110,6 @@ class AlgorithmConstraintFactory {
             case "random":
                 layoutActionsToSet.push(AlgorithmConstraintFactory.getRandomLayoutConfiguration(affectedNodes, shouldCreateNewGraph));
                 break;
-            case "sporeCompaction":
-                layoutActionsToSet.push(new ElkSporeCompactionConfiguration(userGivenAlgorithmConfiguration, affectedNodes, shouldCreateNewGraph));
-                break;
             case "elk_radial":
                 layoutActionsToSet.push(DefaultGraphConversionConstraint.createSpecificAlgorithmConversionConstraint("RESET_LAYOUT", null));
                 layoutActionsToSet.push(DefaultGraphConversionConstraint.createSpecificAlgorithmConversionConstraint("TREEIFY", null));
@@ -138,7 +119,7 @@ class AlgorithmConstraintFactory {
                 layoutActionsToSet.push(new ElkSporeOverlapConfiguration(userGivenAlgorithmConfiguration, affectedNodes, shouldCreateNewGraph));
                 break;
             case "elk_stress_advanced_using_clusters":
-                const elkStressUsingClusters = new ElkStressConfiguration(userGivenAlgorithmConfiguration, affectedNodes, shouldCreateNewGraph);
+                const elkStressUsingClusters = new ElkStressAdvancedUsingClustersConfiguration(userGivenAlgorithmConfiguration, affectedNodes, shouldCreateNewGraph);
                 layoutActionsToSet.push(AlgorithmConstraintFactory.getRandomLayoutConfiguration(affectedNodes, true));
                 elkStressUsingClusters.addAlgorithmConstraint("interactive", "true");
                 layoutActionsToSet.push(elkStressUsingClusters);
@@ -178,7 +159,7 @@ class AlgorithmConstraintFactory {
         }
 
         if(userGivenAlgorithmConfiguration.run_layered_after) {
-            const configLayeredAfter = getDefaultUserGivenConstraintsVersion4();
+            const configLayeredAfter = getDefaultUserGivenAlgorithmConfigurationsFull();
             configLayeredAfter.chosenMainAlgorithm = "elk_layered";
             configLayeredAfter.main.elk_layered.interactive = true;
             AlgorithmConstraintFactory.addAlgorithmConfigurationLayoutActions(
@@ -187,8 +168,8 @@ class AlgorithmConstraintFactory {
     }
 
     static addToLayoutActionsInPreMainRunBasedOnConfiguration(
-        config: UserGivenAlgorithmConfigurationslVersion4,
-        layoutActionsBeforeMainRun: (AlgorithmConfiguration | GraphConversionConstraint)[],
+        config: UserGivenAlgorithmConfigurations,
+        layoutActionsBeforeMainRun: (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> | GraphConversionConstraint)[],
     ): void {
         if(config.chosenGeneralAlgorithm === "elk_layered") {
             const convertGeneralizationSubgraphs = DefaultGraphConversionConstraint.createSpecificAlgorithmConversionConstraint("CREATE_GENERALIZATION_SUBGRAPHS", null);
@@ -209,8 +190,6 @@ class AlgorithmConstraintFactory {
                 break;
             case "random":
                 break;
-            case "sporeCompaction":
-                break;
             case "elk_radial":
                 break;
             case "elk_overlapRemoval":
@@ -228,9 +207,9 @@ class AlgorithmConstraintFactory {
     }
 
     static addToLayoutActionsInMainRunBasedOnConfiguration(
-        config: UserGivenAlgorithmConfigurationslVersion4,
-        layoutActionsBeforeMainRun: (AlgorithmConfiguration | GraphConversionConstraint)[],
-        layoutActions: (AlgorithmConfiguration | GraphConversionConstraint)[],
+        config: UserGivenAlgorithmConfigurations,
+        layoutActionsBeforeMainRun: (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> | GraphConversionConstraint)[],
+        layoutActions: (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> | GraphConversionConstraint)[],
     ): void {
         AlgorithmConstraintFactory.addAlgorithmConfigurationLayoutActions(
             config.main[config.chosenMainAlgorithm], layoutActionsBeforeMainRun, layoutActions, "ALL", false);
@@ -247,23 +226,25 @@ export class ConstraintFactory {
      * @returns {@link ConstraintContainer} for the whole graph based on given {@link config}.
      */
     static createConstraints(
-        config: UserGivenAlgorithmConfigurationslVersion4,
+        config: UserGivenAlgorithmConfigurations,
     ): ConstraintContainer {
-        const layoutActionsBeforeMainRun: (AlgorithmConfiguration | GraphConversionConstraint)[] = [];
-        const layoutActions: (AlgorithmConfiguration | GraphConversionConstraint)[] = [];
+        const layoutActionsBeforeMainRun: (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> | GraphConversionConstraint)[] = [];
+        const layoutActions: (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> | GraphConversionConstraint)[] = [];
 
         AlgorithmConstraintFactory.addToLayoutActionsInPreMainRunBasedOnConfiguration(
             config, layoutActionsBeforeMainRun);
 
         if((config.main[config.chosenMainAlgorithm].interactive === true || config.chosenGeneralAlgorithm === "elk_layered") &&
            config.chosenMainAlgorithm !== "elk_stress_advanced_using_clusters") {
-            config.main[config.chosenMainAlgorithm].number_of_new_algorithm_runs = 1;
+            if((config.main[config.chosenMainAlgorithm] as any).number_of_new_algorithm_runs !== undefined) {
+               (config.main[config.chosenMainAlgorithm] as any).number_of_new_algorithm_runs = 1;
+            }
         }
 
         AlgorithmConstraintFactory.addToLayoutActionsInMainRunBasedOnConfiguration(config, layoutActionsBeforeMainRun, layoutActions);
 
         const constraintContainer = new ConstraintContainer(
-            layoutActionsBeforeMainRun, layoutActions, config.main[config.chosenMainAlgorithm].number_of_new_algorithm_runs);
+            layoutActionsBeforeMainRun, layoutActions, (config.main[config.chosenMainAlgorithm] as any).number_of_new_algorithm_runs ?? 1);
 
         console.info("config", config);
         console.info("layoutActions", layoutActions);
@@ -364,7 +345,7 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
             // TODO RadStr: Debug print
             console.info("sectorPopulations", clusterRoot?.semanticEntityRepresentingNode?.iri, leastPopulatedSector, sectorPopulations);
 
-            const configuration = getDefaultUserGivenConstraintsVersion4();
+            const configuration = getDefaultUserGivenAlgorithmConfigurationsFull();
             configuration.main.elk_layered.alg_direction = leastPopulatedSector as Direction;
             configuration.main.elk_layered.in_layer_gap = 50;
             if(leastPopulatedSector === "UP" || leastPopulatedSector === "DOWN") {
@@ -374,7 +355,6 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
                 configuration.main.elk_layered.layer_gap = 120;
             }
             configuration.main.elk_layered.edge_routing = "ORTHOGONAL";
-            configuration.main.elk_layered.number_of_new_algorithm_runs = 1;            // TODO RadStr: This is not good - but it will be fixed with new constraints/layout actions
             graph = await getBestLayoutFromMetricResultAggregation(await performLayoutFromGraph(graph, configuration));
 
             const clusterRootAfterLayout = graph.findNodeInAllNodes(clusterRoot.id);
@@ -417,9 +397,8 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
             }
         }
 
-        const configuration = getDefaultUserGivenConstraintsVersion4();
+        const configuration = getDefaultUserGivenAlgorithmConfigurationsFull();
         configuration.chosenMainAlgorithm = "elk_stress";
-        configuration.main.elk_stress = getDefaultMainUserGivenAlgorithmConstraint("elk_stress");
         configuration.main.elk_stress.interactive = true;
         configuration.main.elk_stress.run_node_overlap_removal_after = true;
         (configuration.main.elk_stress as UserGivenAlgorithmConfigurationStress).stress_edge_len = algorithmConversionConstraint.data.edgeLength;

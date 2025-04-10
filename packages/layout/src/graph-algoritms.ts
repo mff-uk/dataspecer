@@ -1,6 +1,5 @@
 import { Direction, ReactflowDimensionsConstantEstimator } from ".";
 import {
-  DefaultGraph,
   Graph,
   MainGraph,
 } from "./graph/representation/graph";

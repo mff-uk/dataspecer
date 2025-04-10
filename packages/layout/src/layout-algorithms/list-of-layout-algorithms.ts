@@ -6,7 +6,7 @@ import { NoActionLayout } from "./implementations/no-action-layouts";
 import { LayoutAlgorithm } from "./layout-algorithms-interfaces";
 
 export type AlgorithmName = "none" | "elk_stress" | "elk_layered" | "elk_force" | "random" |
-                            "sporeCompaction" | "elk_radial" | "elk_overlapRemoval" |
+                            "elk_radial" | "elk_overlapRemoval" |
                             "elk_stress_advanced_using_clusters" | "elk_stress_profile" |
                             "automatic";
 
@@ -15,7 +15,6 @@ export const ALGORITHM_NAME_TO_LAYOUT_MAPPING: Record<AlgorithmName, LayoutAlgor
     "elk_layered": new ElkLayout(),
     "elk_force": new ElkLayout(),
     "random": new RandomLayout(),
-    "sporeCompaction": new ElkLayout(),
     "elk_radial": new ElkLayout(),
     "elk_overlapRemoval": new ElkLayout(),
     "elk_stress_advanced_using_clusters": new ElkLayout(),

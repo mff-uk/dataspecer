@@ -2,7 +2,7 @@ import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts
 import { Position, VisualModel } from "@dataspecer/core-v2/visual-model";
 
 import {
-	UserGivenAlgorithmConfigurationslVersion4,
+	UserGivenAlgorithmConfigurations,
 	DefaultAlgorithmConfiguration,
 	DefaultGraphConversionConstraint,
 } from "./configs/constraints";
@@ -18,12 +18,7 @@ import { EdgeCrossingMetric } from "./graph/graph-metrics/implemented-metrics/ed
 import { EdgeNodeCrossingMetric } from "./graph/graph-metrics/implemented-metrics/edge-node-crossing";
 
 export type {
-	UserGivenAlgorithmConfigurationslVersion4 as UserGivenConstraintsVersion4
-} from "./configs/constraints";
-export {
-	getDefaultUserGivenAlgorithmConstraint,
-	getDefaultMainUserGivenAlgorithmConstraint,
-	getDefaultUserGivenConstraintsVersion4
+	UserGivenAlgorithmConfigurations as UserGivenConstraintsVersion4
 } from "./configs/constraints";
 
 import { Direction } from "./util/utils";
@@ -37,9 +32,6 @@ export type { EdgeRouting };
 
 import { placeCoordinateOnGrid, placePositionOnGrid } from "./util/utils";
 import { ExplicitAnchors } from "./explicit-anchors";
-import { AreaMetric } from "./graph/graph-metrics/implemented-metrics/area-metric";
-import { NodeOrthogonalityMetric } from "./graph/graph-metrics/implemented-metrics/node-orthogonality";
-import { EdgeCrossingAngleMetric } from "./graph/graph-metrics/implemented-metrics/edge-crossing-angle";
 import { ComputedMetricValues, Metric } from "./graph/graph-metrics/graph-metric";
 import { Node } from "./graph/representation/node";
 export { type Node };
@@ -55,12 +47,15 @@ export { type ExplicitAnchors } from "./explicit-anchors";
 export { type VisualModelWithOutsiders } from "./graph/representation/graph";
 
 export type {
-	UserGivenAlgorithmConfiguration,
 	UserGivenAlgorithmConfigurationElkForce,
 	UserGivenAlgorithmConfigurationExtraAlgorithmsToRunAfter as UserGivenAlgorithmConfigurationExtraData,
 	UserGivenAlgorithmConfigurationLayered,
 	UserGivenAlgorithmConfigurationStress,
-	UserGivenAlgorithmConfigurationOnlyData,
+	UserGivenAlgorithmConfigurations,
+} from "./configs/constraints";
+
+export  {
+	getDefaultUserGivenAlgorithmConfigurationsFull
 } from "./configs/constraints";
 
 export { type ElkForceAlgType } from "./configs/elk/elk-constraints";
@@ -105,7 +100,7 @@ export async function performLayout(
 	visualModel: VisualModel,
 	semanticModels: Map<string, EntityModel>,
 	entitiesToLayout: VisualEntitiesWithOutsiders,
-	config: UserGivenAlgorithmConfigurationslVersion4,
+	config: UserGivenAlgorithmConfigurations,
 	nodeDimensionQueryHandler?: NodeDimensionQueryHandler,
 	explicitAnchors?: ExplicitAnchors
 ): Promise<LayoutedVisualEntities> {
@@ -132,7 +127,7 @@ export async function performLayout(
 export async function performLayoutOfVisualModel(
 	visualModel: VisualModelWithOutsiders,
 	semanticModels: Map<string, EntityModel>,
-	config: UserGivenAlgorithmConfigurationslVersion4,
+	config: UserGivenAlgorithmConfigurations,
 	nodeDimensionQueryHandler?: NodeDimensionQueryHandler,
 	explicitAnchors?: ExplicitAnchors
 ): Promise<LayoutedVisualEntities> {
@@ -155,7 +150,7 @@ export async function performLayoutOfVisualModel(
 export async function performLayoutOfSemanticModel(
 	inputSemanticModel: Record<string, SemanticModelEntity>,
 	semanticModelId: string,
-	config: UserGivenAlgorithmConfigurationslVersion4,
+	config: UserGivenAlgorithmConfigurations,
 	nodeDimensionQueryHandler?: NodeDimensionQueryHandler
 ): Promise<LayoutedVisualEntities> {
 	// If we want to layout more than one, then just change the arguments and fill the semanticModels variable in loop.
@@ -198,7 +193,7 @@ function performLayoutInternal(
 	visualModel: VisualModel,
 	semanticModels: Map<string, EntityModel>,
 	entitiesToLayout: VisualEntitiesWithOutsiders,
-	config: UserGivenAlgorithmConfigurationslVersion4,
+	config: UserGivenAlgorithmConfigurations,
 	nodeDimensionQueryHandler?: NodeDimensionQueryHandler,
 	explicitAnchors?: ExplicitAnchors
 ): Promise<LayoutedVisualEntities> {
@@ -223,7 +218,7 @@ function performLayoutInternal(
  */
 export async function performLayoutFromGraph(
 	graph: MainGraph,
-	config: UserGivenAlgorithmConfigurationslVersion4
+	config: UserGivenAlgorithmConfigurations
 ): Promise<Record<string, MetricResultsAggregation>> {
 	const constraints = ConstraintFactory.createConstraints(config);
 

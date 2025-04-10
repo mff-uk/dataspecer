@@ -1,6 +1,6 @@
 import { Direction } from "../util/utils";
 import _ from "lodash";
-import { ElkForceAlgType } from "./elk/elk-constraints";
+import { ElkForceAlgType, ElkForceConfiguration, ElkLayeredConfiguration, ElkRadialConfiguration, ElkSporeOverlapConfiguration, ElkStressAdvancedUsingClustersConfiguration, ElkStressConfiguration, ElkStressProfileLayoutConfiguration } from "./elk/elk-constraints";
 import { Edge } from "../graph/representation/edge";
 import { AlgorithmName } from "../layout-algorithms/list-of-layout-algorithms";
 
@@ -56,7 +56,7 @@ export type SpecificGraphConversions = "CREATE_GENERALIZATION_SUBGRAPHS" | "TREE
 export class DefaultGraphConversionConstraint implements GraphConversionConstraint {
     static createSpecificAlgorithmConversionConstraint(
         name: SpecificGraphConversions,
-        userGivenAlgorithmConfiguration: UserGivenAlgorithmConfiguration | null,
+        userGivenAlgorithmConfiguration: UserGivenAlgorithmConfigurationBase | null,
     ): DefaultGraphConversionConstraint {
         switch(name) {
             case "CREATE_GENERALIZATION_SUBGRAPHS":
@@ -66,6 +66,10 @@ export class DefaultGraphConversionConstraint implements GraphConversionConstrai
             case "CLUSTERIFY":
                 return new ClusterifyConstraint(name, {clusters: null}, "ALL", false);
             case "LAYOUT_CLUSTERS_ACTION":
+                if(!isUserGivenAlgorithmConfigurationStressWithClusters(userGivenAlgorithmConfiguration)) {
+                    console.error("Using actions for clusters but not using cluster layouting algorithm");
+                    return;
+                }
                 const layoutClustersActionData = {
                     clusterifyConstraint: null,
                     edgeLength: userGivenAlgorithmConfiguration.stress_edge_len
@@ -123,101 +127,238 @@ type LayoutClustersActionConstraintDataType = {
     "edgeLength": number
 };
 
-// TODO RadStr REFACTOR:
-export function getDefaultUserGivenConstraintsVersion4(): UserGivenAlgorithmConfigurationslVersion4 {
+
+
+/**
+ *
+ * @returns Returns the configurations of the full thing, that is not only the algorithm configurations, but also the chosen algorithm.
+ */
+export function getDefaultUserGivenAlgorithmConfigurationsFull(): UserGivenAlgorithmConfigurations {
     return {
-        main: {
-            "elk_layered": {
-                ...getDefaultUserGivenAlgorithmConstraint("elk_layered"),
-            }
-        },
-        general: {
-            "elk_layered": {
-                ...getDefaultUserGivenAlgorithmConstraint("elk_layered"),
-                "layout_alg": "elk_layered",        // Defined as stress in the default
-            }
-        },
+        main: getDefaultUserGivenAlgorithmConfigurationsMap(),
+        general: getDefaultUserGivenAlgorithmConfigurationsMap(),
         chosenMainAlgorithm: "elk_layered",
         chosenGeneralAlgorithm: "none",
         additionalSteps: {}
     };
 }
 
+type ConfigMapFromUnion<T extends { layout_alg: string }> = {
+    [K in T['layout_alg']]: Extract<T, { layout_alg: K }>;
+};
 
-export interface UserGivenAlgorithmConfigurationslVersion4 {
-    main: Partial<Record<AlgorithmName, UserGivenAlgorithmConfiguration>>,
+type UserGivenAlgorithmConfigurationsMap = ConfigMapFromUnion<UserGivenAlgorithmConfigurationInterfaces>;
+
+/**
+ *
+ * @returns Returns the configurations of the algorithms - and only algorithms
+ */
+function getDefaultUserGivenAlgorithmConfigurationsMap(): UserGivenAlgorithmConfigurationsMap {
+    return {
+        none: {
+            layout_alg: "none",
+            advanced_settings: undefined,
+            run_layered_after: false,
+            run_node_overlap_removal_after: false,
+            interactive: false
+        },
+        elk_stress: ElkStressConfiguration.getDefaultConfiguration(),
+        elk_layered: ElkLayeredConfiguration.getDefaultConfiguration(),
+        elk_force: ElkForceConfiguration.getDefaultConfiguration(),
+        random: RandomConfiguration.getDefaultConfiguration(),
+        elk_radial: ElkRadialConfiguration.getDefaultConfiguration(),
+        elk_overlapRemoval: ElkSporeOverlapConfiguration.getDefaultConfiguration(),
+        elk_stress_advanced_using_clusters: ElkStressAdvancedUsingClustersConfiguration.getDefaultConfiguration(),
+        elk_stress_profile: ElkStressProfileLayoutConfiguration.getDefaultConfiguration(),
+        automatic: AutomaticConfiguration.getDefaultConfiguration()
+    }
+};
+
+
+export interface UserGivenAlgorithmConfigurationsForModel {
+    main: Partial<Record<AlgorithmName, UserGivenAlgorithmConfigurationBase>>,
     chosenMainAlgorithm: AlgorithmName,
 
-    general: {"elk_layered": UserGivenAlgorithmConfiguration},
+    general: {"elk_layered": UserGivenAlgorithmConfigurationBase},
     chosenGeneralAlgorithm: AlgorithmName,
-    additionalSteps: Record<number, (UserGivenAlgorithmConfigurationslVersion4 | GraphConversionConstraint)>,
+    additionalSteps: Record<number, (UserGivenAlgorithmConfigurations | GraphConversionConstraint)>,
 }
 
 
-// TODO RadStr: Actually it might be better from programming perspective to have main: [algorithmName]: SpecificConfiguration, chosenAlgorithm: AlgorithmName !!!!
-export function getDefaultUserGivenConstraintsVersion5(): UserGivenAlgorithmConfigurationslVersion5 {
-    return {
-        main:
-        {
-            configuration: {
-                "elk_layered": {
-                    ...getDefaultUserGivenAlgorithmConstraint("elk_layered"),
-                }
-            },
-            chosenAlgorithm: "elk_layered",
-        },
-        generalization:
-        {
-            configuration: {
-                "elk_layered": {
-                    ...getDefaultUserGivenAlgorithmConstraint("elk_layered"),
-                }
-            },
-            chosenAlgorithm: "none",
-        }
-    };
-}
+export interface UserGivenAlgorithmConfigurations {
+    main: UserGivenAlgorithmConfigurationsMap,
+    chosenMainAlgorithm: AlgorithmName,
 
-export interface UserGivenAlgorithmConfigurationslVersion5 {
-    main: {
-        configuration: Partial<Record<AlgorithmName, UserGivenAlgorithmConfiguration>>
-        chosenAlgorithm: AlgorithmName,
-    },
-    generalization: {
-        configuration: Partial<Record<AlgorithmName, UserGivenAlgorithmConfiguration>>
-        chosenAlgorithm: AlgorithmName,
-    },
+    general: UserGivenAlgorithmConfigurationsMap,
+    chosenGeneralAlgorithm: AlgorithmName,
+    additionalSteps: Record<number, (UserGivenAlgorithmConfigurations | GraphConversionConstraint)>,
 }
-
 
 
 export type EdgeRouting = "ORTHOGONAL" | "SPLINES" | "POLYLINE";
 
-export interface UserGivenAlgorithmConfigurationLayered {
+
+// TODO RadStr: Put all of this into separate file, but only after since there again might be some cycle-dependnecy
+export type UserGivenAlgorithmConfigurationInterfaces =
+    | UserGivenAlgorithmConfigurationLayered
+    | UserGivenAlgorithmConfigurationStress
+    | UserGivenAlgorithmConfigurationStressProfile
+    | UserGivenAlgorithmConfigurationStressWithClusters
+    | UserGivenAlgorithmConfigurationAutomatic
+    | UserGivenAlgorithmConfigurationRadial
+    | UserGivenAlgorithmConfigurationOverlapRemoval
+    | UserGivenAlgorithmConfigurationNone
+    | UserGivenAlgorithmConfigurationElkForce
+    | UserGivenAlgorithmConfigurationRandom;
+
+export type UserGivenAlgorithmConfigurationInterfacesUnion =
+    & UserGivenAlgorithmConfigurationLayered
+    & UserGivenAlgorithmConfigurationStress
+    & UserGivenAlgorithmConfigurationStressProfile
+    & UserGivenAlgorithmConfigurationStressWithClusters
+    & UserGivenAlgorithmConfigurationAutomatic
+    & UserGivenAlgorithmConfigurationRadial
+    & UserGivenAlgorithmConfigurationOverlapRemoval
+    & UserGivenAlgorithmConfigurationNone
+    & UserGivenAlgorithmConfigurationElkForce
+    & UserGivenAlgorithmConfigurationRandom;
+
+export function isUserGivenAlgorithmConfigurationInterface(
+    what: UserGivenAlgorithmConfigurationBase | undefined | null
+): what is UserGivenAlgorithmConfigurationInterfaces {
+    if(what === undefined || what === null || what?.layout_alg === undefined) {
+        return false;
+    }
+
+    switch (what.layout_alg) {
+        case "elk_layered":
+        case "elk_stress":
+        case "elk_stress_profile":
+        case "elk_stress_advanced_using_clusters":
+        case "automatic":
+        case "elk_radial":
+        case "elk_overlapRemoval":
+        case "none":
+        case "elk_force":
+        case "random":
+            return true;
+        default:
+            throw new Error(`Unknown layout_alg: ${(what as any).layout_alg}`);
+    }
+}
+
+export interface UserGivenAlgorithmConfigurationLayered extends UserGivenAlgorithmConfigurationBase {
+    layout_alg: "elk_layered",
     "alg_direction": Direction,
     "layer_gap": number,
     "in_layer_gap": number,
     "edge_routing": EdgeRouting
 }
+export function isUserGivenAlgorithmConfigurationLayered(
+    what: UserGivenAlgorithmConfigurationBase | undefined | null
+): what is UserGivenAlgorithmConfigurationLayered {
+    return what?.layout_alg === "elk_layered";
+}
 
-export interface UserGivenAlgorithmConfigurationStress {
+interface UserGivenAlgorithmConfigurationStressBase extends UserGivenAlgorithmConfigurationBase {
     "stress_edge_len": number,
     "number_of_new_algorithm_runs": number,
 }
 
-export interface UserGivenAlgorithmConfigurationStressProfile extends UserGivenAlgorithmConfigurationStress {
+export interface UserGivenAlgorithmConfigurationStress extends UserGivenAlgorithmConfigurationStressBase {
+    layout_alg: "elk_stress",
+    "stress_edge_len": number,
+}
+export function isUserGivenAlgorithmConfigurationStress(
+    what: UserGivenAlgorithmConfigurationBase | undefined | null
+): what is UserGivenAlgorithmConfigurationStress {
+    return what?.layout_alg === "elk_stress";
+}
+
+export interface UserGivenAlgorithmConfigurationStressProfile extends UserGivenAlgorithmConfigurationStressBase {
+    layout_alg: "elk_stress_profile",
     profileEdgeLength: number,
     preferredProfileDirection: Direction,
 }
-
-export interface UserGivenAlgorithmConfigurationSpore {
-    "min_distance_between_nodes": number,
+export function isUserGivenAlgorithmConfigurationStressProfile(
+    what: UserGivenAlgorithmConfigurationBase | undefined | null
+): what is UserGivenAlgorithmConfigurationStressProfile {
+    return what?.layout_alg === "elk_stress_profile";
 }
 
-export interface UserGivenAlgorithmConfigurationElkForce {
+export interface UserGivenAlgorithmConfigurationStressWithClusters extends UserGivenAlgorithmConfigurationStressBase {
+    layout_alg: "elk_stress_advanced_using_clusters",
+}
+export function isUserGivenAlgorithmConfigurationStressWithClusters(
+    what: UserGivenAlgorithmConfigurationBase
+): what is UserGivenAlgorithmConfigurationStressWithClusters {
+    return what.layout_alg === "elk_stress_advanced_using_clusters";
+}
+
+export interface UserGivenAlgorithmConfigurationAutomatic extends UserGivenAlgorithmConfigurationBase {
+    layout_alg: "automatic",
+    "min_distance_between_nodes": number,
+    number_of_new_algorithm_runs: number,
+}
+export function isUserGivenAlgorithmConfigurationAutomatic(
+    what: UserGivenAlgorithmConfigurationBase | undefined | null
+): what is UserGivenAlgorithmConfigurationAutomatic {
+    return what?.layout_alg === "automatic";
+}
+
+export interface UserGivenAlgorithmConfigurationRadial extends UserGivenAlgorithmConfigurationBase {
+    layout_alg: "elk_radial",
+    "min_distance_between_nodes": number,
+}
+export function isUserGivenAlgorithmConfigurationRadial(
+    what: UserGivenAlgorithmConfigurationBase | undefined | null
+): what is UserGivenAlgorithmConfigurationRadial {
+    return what?.layout_alg === "elk_radial";
+}
+
+export interface UserGivenAlgorithmConfigurationOverlapRemoval extends UserGivenAlgorithmConfigurationBase {
+    layout_alg: "elk_overlapRemoval",
+    "min_distance_between_nodes": number,
+}
+export function isUserGivenAlgorithmConfigurationOverlapRemoval(
+    what: UserGivenAlgorithmConfigurationBase | undefined | null
+): what is UserGivenAlgorithmConfigurationOverlapRemoval {
+    return what?.layout_alg === "elk_overlapRemoval";
+}
+
+export interface UserGivenAlgorithmConfigurationNone extends UserGivenAlgorithmConfigurationBase {
+    layout_alg: "none",
+    "advanced_settings": {},
+
+    "run_layered_after": false,
+    "run_node_overlap_removal_after": false,
+    "interactive": false,
+}
+export function isUserGivenAlgorithmConfigurationNone(
+    what: UserGivenAlgorithmConfigurationBase | undefined | null
+): what is UserGivenAlgorithmConfigurationNone {
+    return what?.layout_alg === "none";
+}
+
+export interface UserGivenAlgorithmConfigurationElkForce extends UserGivenAlgorithmConfigurationBase {
+    layout_alg: "elk_force",
     "min_distance_between_nodes": number,
     "force_alg_type": ElkForceAlgType,
     "number_of_new_algorithm_runs": number,
+}
+export function isUserGivenAlgorithmConfigurationElkForce(
+    what: UserGivenAlgorithmConfigurationBase | undefined | null
+): what is UserGivenAlgorithmConfigurationElkForce {
+    return what?.layout_alg === "elk_force";
+}
+
+export interface UserGivenAlgorithmConfigurationRandom extends UserGivenAlgorithmConfigurationBase {
+    layout_alg: "random",
+}
+export function isUserGivenAlgorithmConfigurationRandom(
+    what: UserGivenAlgorithmConfigurationBase | undefined | null
+): what is UserGivenAlgorithmConfigurationRandom {
+    return what?.layout_alg === "random";
 }
 
 export interface UserGivenAlgorithmConfigurationExtraAlgorithmsToRunAfter {
@@ -225,71 +366,33 @@ export interface UserGivenAlgorithmConfigurationExtraAlgorithmsToRunAfter {
     "run_node_overlap_removal_after": boolean,
 }
 
-// This actually only used so we type checking for the mapping from the universal parameter names to the library ones (for example to the elk ones)
-export interface UserGivenAlgorithmConfigurationOnlyData extends UserGivenAlgorithmConfigurationLayered,
-                                                                UserGivenAlgorithmConfigurationStressProfile,
-                                                                UserGivenAlgorithmConfigurationElkForce {
-    "layout_alg": AlgorithmName,        // Now it is actually redundant, but it is still to better to keep it here (rewriting takes too much work)
-    // The idea is to have fields which are "main" in a way and universal (so they can be actually shared between algorithms) and then just advanced_settings
-    // which contains additional configuration in the JSON format of given library
+
+export interface UserGivenAlgorithmConfigurationBase {
+    "layout_alg": AlgorithmName,
+    // The idea is to have fields which are "main" in a way and universal
+    // (so they can be actually shared between algorithms ...
+    //  which retrospectively doesn't add much, but still user can name the paramters as he pleases)
+    // and then just advanced_settings, which contains additional configuration in the JSON format of given library
     // Note: the advanced_settings should override the main ones if passed, but it should not override the algorithm itself.
     //       (For example when I am calling elk.stress I can't just pass in elk.layered and run that instead,
     //        but I can change the desiredEdgeLength if I want to)
-    "interactive": boolean,
     "advanced_settings": Record<string, string>,
-}
 
-export interface UserGivenAlgorithmConfiguration extends UserGivenAlgorithmConfigurationOnlyData, UserGivenAlgorithmConfigurationExtraAlgorithmsToRunAfter { }
-
-// TODO: getDefaultUserGivenAlgorithmConfiguration
-export function getDefaultUserGivenAlgorithmConstraint(algorithmName: AlgorithmName): UserGivenAlgorithmConfiguration {
-    let interactive = false;
-    let run_node_overlap_removal_after = false;
-    // TODO RadStr: Spore compaction seems to be useless (it is like layered algorithm)
-    if(algorithmName === "elk_overlapRemoval" || algorithmName === "sporeCompaction" || algorithmName === "elk_stress_advanced_using_clusters") {
-        interactive = true;
-    }
-    if(algorithmName === "elk_stress" || algorithmName === "elk_stress_advanced_using_clusters" ||
-       algorithmName === "random") {
-        run_node_overlap_removal_after = true;
-    }
-    return {
-        "layout_alg": algorithmName,
-    //  "profile-nodes-position-against-source": DIRECTION.Down,
-        ...LayeredConfiguration.getDefaultObject(),
-        "stress_edge_len": 800,
-        profileEdgeLength: 800,
-        run_node_overlap_removal_after,
-        preferredProfileDirection: Direction.Up,
-
-        "force_alg_type": "FRUCHTERMAN_REINGOLD",
-        "min_distance_between_nodes": 100,
-        "number_of_new_algorithm_runs": 10,
-        "run_layered_after": false,
-        interactive,
-        advanced_settings: {},
-    }
-}
-
-export function getDefaultMainUserGivenAlgorithmConstraint(algorithmName: AlgorithmName): UserGivenAlgorithmConfiguration {
-    return {
-        ...getDefaultUserGivenAlgorithmConstraint(algorithmName),
-    };
+    "run_layered_after": boolean,
+    "run_node_overlap_removal_after": boolean,
+    "interactive": boolean,
 }
 
 /**
  * Constraint on predefined set of nodes.
  */
-export interface Constraint {
-    name: string;
-    type: string;
+export interface Constraint<T extends UserGivenAlgorithmConfigurationBase> {
     affectedNodes: AffectedNodesGroupingsType,
-    data: object,
+    data: T,
 }
 export type AlgorithmPhases = "ONLY-PREPARE" | "ONLY-RUN" | "PREPARE-AND-RUN";
 
-export interface AlgorithmOnlyConstraint extends Constraint, AdditionalControlOptions {
-    algorithmName: AlgorithmName;
+export interface AlgorithmOnlyConstraint<T extends UserGivenAlgorithmConfigurationBase> extends Constraint<T>, AdditionalControlOptions {
     /**
      * Default is "PREPARE-AND-RUN", other values need to be explicitly set in constructor -
      * You should set it to other value only in case if you know that algorithm can be prepared once and then run multiple times.
@@ -303,36 +406,22 @@ interface AdvancedSettingsForUnderlying {
     addAlgorithmConstraintForUnderlying(key: string, value: string): void;
 }
 
-export interface AlgorithmConfiguration extends AlgorithmOnlyConstraint, AdvancedSettingsForUnderlying {
+export interface AlgorithmConfiguration<T extends UserGivenAlgorithmConfigurationBase> extends AlgorithmOnlyConstraint<T>, AdvancedSettingsForUnderlying {
     addAdvancedSettings(advancedSettings: object): void;
     addAlgorithmConstraint(key: string, value: string): void;
 }
 
-export abstract class DefaultAlgorithmConfiguration implements AlgorithmConfiguration {
-    algorithmName: AlgorithmName;
+export abstract class DefaultAlgorithmConfiguration<T extends UserGivenAlgorithmConfigurationBase> implements AlgorithmConfiguration<T> {
+    algorithmName: AlgorithmName;           // Behaves as type guard!
     affectedNodes: AffectedNodesGroupingsType;
-    data: object;
+    data: T;
     type: string;
     name: string;
     shouldCreateNewGraph: boolean;
     algorithmPhasesToCall: AlgorithmPhases;
 
-    /**
-     *
-     * @returns the keys/names (in the general sense, not in the library specific sense), which are relevant for given algorithm. new keys are added in children classes.
-     */
-    getAllRelevantConstraintKeys() {
-        let constraintKeys = [
-            "layout_alg",
-            "interactive",
-        ];
-
-
-        return constraintKeys;
-    }
-
     constructor(
-        algorithmName: AlgorithmName,
+        givenAlgorithmConstraints: T,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
@@ -344,20 +433,12 @@ export abstract class DefaultAlgorithmConfiguration implements AlgorithmConfigur
             this.algorithmPhasesToCall = algorithmPhasesToCall;
         }
         this.shouldCreateNewGraph = shouldCreateNewGraph;
-        this.algorithmName = algorithmName;
         this.affectedNodes = affectedNodes;
         this.type = "ALG";
+        this.data = givenAlgorithmConstraints;
     }
     abstract addAlgorithmConstraintForUnderlying(key: string, value: string): void;
     abstract addAdvancedSettingsForUnderlying(advancedSettings: object): void;
-
-    /**
-     * Picks relevant keys from {@link getAllRelevantConstraintKeys} and uses those keys to get values from {@link givenAlgorithmConstraints}, then sets {@link data} based on that.
-     */
-    setData(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
-        this.data = _.pick(givenAlgorithmConstraints, this.getAllRelevantConstraintKeys());
-        this.data["advanced_settings"] = givenAlgorithmConstraints.advanced_settings;
-    }
 
     addAlgorithmConstraint(key: string, value: string): void {
         this.data[key] = value;
@@ -379,9 +460,25 @@ export abstract class DefaultAlgorithmConfiguration implements AlgorithmConfigur
     }
 }
 
-export class RandomConfiguration extends DefaultAlgorithmConfiguration {
-    constructor(affectedNodes: AffectedNodesGroupingsType, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
-        super("random", affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+export class RandomConfiguration extends DefaultAlgorithmConfiguration<UserGivenAlgorithmConfigurationRandom> {
+    static getDefaultConfiguration(): UserGivenAlgorithmConfigurationRandom {
+        return {
+            layout_alg: "random",
+            advanced_settings: {},
+            run_layered_after: false,
+            run_node_overlap_removal_after: true,
+            interactive: false
+        }
+    }
+
+    constructor(
+        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationRandom,
+        affectedNodes: AffectedNodesGroupingsType,
+        shouldCreateNewGraph: boolean,
+        algorithmPhasesToCall?: AlgorithmPhases
+    ) {
+        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        this.algorithmName = "random";
     }
 
     addAlgorithmConstraintForUnderlying(key: string, value: string): void {
@@ -398,125 +495,75 @@ export class RandomConfiguration extends DefaultAlgorithmConfiguration {
  * General Class which has all relevant constraints for the stress like algorithm. The classes extending this should convert the constraints into
  * the representation which will be used in the algorithm (that means renaming, transforming[, etc.] the parameters in the data field)
  */
-export abstract class StressConfiguration extends DefaultAlgorithmConfiguration {
-    getAllRelevantConstraintKeys(): string[] {
-        return super.getAllRelevantConstraintKeys().concat([
-            "stress_edge_len",
-        ]);
-    }
+export abstract class StressConfiguration<T extends UserGivenAlgorithmConfigurationStressBase> extends DefaultAlgorithmConfiguration<T> {
 
     constructor(
-        algorithmName: AlgorithmName,
-        givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
+        givenAlgorithmConstraints: T,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(algorithmName, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
-        this.setData(givenAlgorithmConstraints);
+        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
     }
 
-    data: UserGivenAlgorithmConfigurationStress = undefined;
 }
 
 
-export abstract class LayeredConfiguration extends DefaultAlgorithmConfiguration {
-    getAllRelevantConstraintKeys(): string[] {
-        return super.getAllRelevantConstraintKeys().concat(Object.keys(LayeredConfiguration.getDefaultObject()));
-    }
-
-    // TODO: Ideally just export this static function not the whole class, but it seems that it is possible only using aliasing
-    static getDefaultObject(): UserGivenAlgorithmConfigurationLayered {
-        return {
-            "alg_direction": Direction.Up,
-            "layer_gap": 500,
-            "in_layer_gap": 500,
-            "edge_routing": "ORTHOGONAL",
-        }
-    }
+export abstract class LayeredConfiguration extends DefaultAlgorithmConfiguration<UserGivenAlgorithmConfigurationLayered> {
     constructor(
-        algorithmName: AlgorithmName,
-        givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
+        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationLayered,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(algorithmName, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
-        this.setData(givenAlgorithmConstraints);
+        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
     }
-
-    data: UserGivenAlgorithmConfigurationLayered = undefined;
 }
 
 
 // TODO: Maybe put each class to separate file?
-export abstract class SporeConfiguration extends DefaultAlgorithmConfiguration {
-    getAllRelevantConstraintKeys(): string[] {
-        return super.getAllRelevantConstraintKeys().concat([
-            "min_distance_between_nodes",
-        ]);
-    }
 
+// TODO: I am not sure if this actually adds anything - the extra abstract class before moving to the elk implementation
+
+
+export abstract class RadialConfiguration extends DefaultAlgorithmConfiguration<UserGivenAlgorithmConfigurationRadial> {
     constructor(
-        algorithmName: AlgorithmName,
-        givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
+        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationRadial,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(algorithmName, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
-        this.setData(givenAlgorithmConstraints);
+        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
     }
-
-    data: UserGivenAlgorithmConfigurationSpore = undefined
 }
 
 
-
-export abstract class RadialConfiguration extends DefaultAlgorithmConfiguration {
-    getAllRelevantConstraintKeys(): string[] {
-        return super.getAllRelevantConstraintKeys().concat([
-            "min_distance_between_nodes",
-        ]);
+export class AutomaticConfiguration extends DefaultAlgorithmConfiguration<UserGivenAlgorithmConfigurationAutomatic> {
+    static getDefaultConfiguration(): UserGivenAlgorithmConfigurationAutomatic {
+        return {
+            layout_alg: "automatic",
+            min_distance_between_nodes: 500,
+            number_of_new_algorithm_runs: 1,
+            advanced_settings: {},
+            run_layered_after: false,
+            run_node_overlap_removal_after: false,
+            interactive: false
+        };
     }
-
-    constructor(
-        algorithmName: AlgorithmName,
-        givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
-        affectedNodes: AffectedNodesGroupingsType,
-        shouldCreateNewGraph: boolean,
-        algorithmPhasesToCall?: AlgorithmPhases
-    ) {
-        super(algorithmName, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
-        this.setData(givenAlgorithmConstraints);
-    }
-
-    data: UserGivenAlgorithmConfigurationSpore = undefined
-}
-
-
-export class AutomaticConfiguration extends DefaultAlgorithmConfiguration {
     addAlgorithmConstraintForUnderlying(key: string, value: string): void {
         // Do Nothing
     }
     addAdvancedSettingsForUnderlying(advancedSettings: object): void {
         // Do nothing
     }
-    getAllRelevantConstraintKeys(): string[] {
-        return super.getAllRelevantConstraintKeys().concat([
-            "min_distance_between_nodes",
-        ]);
-    }
 
     constructor(
-        givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
+        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationAutomatic,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(givenAlgorithmConstraints.layout_alg, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
-        this.setData(givenAlgorithmConstraints);
+        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        this.algorithmName = "automatic";
     }
-
-    data: Record<"min_distance_between_nodes", number> = undefined;
 }

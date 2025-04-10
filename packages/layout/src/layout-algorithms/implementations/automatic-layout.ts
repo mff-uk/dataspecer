@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { AlgorithmName, getBestMetricResultAggregation, performLayoutFromGraph } from "../..";
 import { ConstraintContainer } from "../../configs/constraint-container";
-import { AutomaticConfiguration, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4 } from "../../configs/constraints";
+import { AutomaticConfiguration, getDefaultUserGivenAlgorithmConfigurationsFull } from "../../configs/constraints";
 import { Graph, MainGraph } from "../../graph/representation/graph";
 import { LayoutAlgorithm } from "../layout-algorithms-interfaces";
 
@@ -52,12 +52,15 @@ function getAlgorithmsToTry(edgeLength: number) {
   const algorithms = [];
 
   for(const chosenAlgorithm of chosenAlgorithmNames) {
-    const config = getDefaultUserGivenConstraintsVersion4();
-    config.main[chosenAlgorithm] = getDefaultMainUserGivenAlgorithmConstraint(chosenAlgorithm);
+    const config = getDefaultUserGivenAlgorithmConfigurationsFull();
     config.chosenMainAlgorithm = chosenAlgorithm;
-    config.main[chosenAlgorithm].number_of_new_algorithm_runs = 1;
-    config.main[chosenAlgorithm].stress_edge_len = edgeLength;
-    config.main[chosenAlgorithm].min_distance_between_nodes = edgeLength;
+    if(chosenAlgorithm === "elk_stress" || chosenAlgorithm === "elk_stress_advanced_using_clusters") {
+      config.main[chosenAlgorithm].number_of_new_algorithm_runs = 1;
+      config.main[chosenAlgorithm].stress_edge_len = edgeLength;
+    }
+    if(chosenAlgorithm === "elk_overlapRemoval" || chosenAlgorithm === "elk_radial") {
+      config.main[chosenAlgorithm].min_distance_between_nodes = edgeLength;
+    }
     algorithms.push(config);
   }
 

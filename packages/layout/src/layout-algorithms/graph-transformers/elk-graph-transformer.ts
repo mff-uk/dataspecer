@@ -1,5 +1,5 @@
 import { isVisualProfileRelationship, isVisualRelationship, Position, VisualNode, VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { AlgorithmConfiguration } from "../../configs/constraints";
+import { AlgorithmConfiguration, UserGivenAlgorithmConfigurationBase } from "../../configs/constraints";
 import { ElkConstraint } from "../../configs/elk/elk-constraints";
 import { VisualNodeComplete } from "../../graph/representation/node";
 import { GraphTransformer } from "./graph-transformer-interface";
@@ -37,7 +37,16 @@ export class ElkGraphTransformer implements GraphTransformer {
         layoutOptions: Record<string, string>,
     ) {
         const elkLayoutOptions: Record<string, string> = {};
-        Object.entries(layoutOptions).forEach(([key, value]) => elkLayoutOptions[CONFIG_TO_ELK_CONFIG_MAP[key] ?? key] = value);
+        Object.entries(layoutOptions).forEach(([key, value]) => {
+            if(CONFIG_TO_ELK_CONFIG_MAP[key] === undefined || CONFIG_TO_ELK_CONFIG_MAP[key] === null) {
+                elkLayoutOptions[key] = value;
+            }
+            else {
+                for (const elkKey of CONFIG_TO_ELK_CONFIG_MAP[key]) {
+                    elkLayoutOptions[elkKey] = value;
+                }
+            }
+        });
         return Object.values(elkLayoutOptions).length === 0 ? undefined : elkLayoutOptions;
     }
 
@@ -126,7 +135,7 @@ export class ElkGraphTransformer implements GraphTransformer {
         if(shouldSetLayoutOptions) {
             if((constraintContainer.currentLayoutAction.action.affectedNodes === "GENERALIZATION" && isSubgraph(this.mainGraph, elkGraph.id)) ||
                 (constraintContainer.currentLayoutAction.action.affectedNodes === "ALL" && (graph instanceof DefaultMainGraph))) {
-                elkGraph.layoutOptions = (constraintContainer.currentLayoutAction.action as (AlgorithmConfiguration & ElkConstraint)).elkData;
+                elkGraph.layoutOptions = (constraintContainer.currentLayoutAction.action as (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> & ElkConstraint)).elkData;
             }
             else if(isSubgraph(this.mainGraph, elkGraph.id)) {
                 const nodesInOriginalGraph = Object.values(graph.nodes);
@@ -461,7 +470,7 @@ export class ElkGraphTransformer implements GraphTransformer {
             const parentPosition = graphNode.getSourceGraph()?.completeVisualNode?.coreVisualNode?.position;
             node.x = position.x - (parentPosition?.x ?? 0);
             node.y = position.y - (parentPosition?.y ?? 0);
-            if((constraintContainer.currentLayoutAction?.action as (AlgorithmConfiguration & ElkConstraint))?.algorithmName === "elk_stress") {
+            if((constraintContainer.currentLayoutAction?.action as (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase>))?.data.layout_alg === "elk_stress") {
                 node.layoutOptions["org.eclipse.elk.stress.fixed"] = graphNode.completeVisualNode.isAnchored.toString();
             }
         }

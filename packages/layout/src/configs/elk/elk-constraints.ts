@@ -5,14 +5,18 @@ import {
     DefaultAlgorithmConfiguration,
     LayeredConfiguration,
     RadialConfiguration,
-    SporeConfiguration,
     StressConfiguration,
-    UserGivenAlgorithmConfiguration,
     UserGivenAlgorithmConfigurationElkForce,
-    UserGivenAlgorithmConfigurationStressProfile
+    UserGivenAlgorithmConfigurationLayered,
+    UserGivenAlgorithmConfigurationOverlapRemoval,
+    UserGivenAlgorithmConfigurationRadial,
+    UserGivenAlgorithmConfigurationStress,
+    UserGivenAlgorithmConfigurationStressProfile,
+    UserGivenAlgorithmConfigurationStressWithClusters
 } from "../constraints";
 import { modifyElkDataObject } from "./elk-utils";
 import _ from "lodash";
+import { Direction } from "../../util/utils";
 
 
 export type ElkForceAlgType = "FRUCHTERMAN_REINGOLD" | "EADES";
@@ -26,13 +30,29 @@ export interface ElkConstraint {
  * Stores configuration for elk layered algorithm
  */
 export class ElkLayeredConfiguration extends LayeredConfiguration implements ElkConstraint {
+    static getDefaultConfiguration(): UserGivenAlgorithmConfigurationLayered {
+        return {
+            layout_alg: "elk_layered",
+            alg_direction: Direction.Up,
+            layer_gap: 200,
+            in_layer_gap: 100,
+            edge_routing: "ORTHOGONAL",
+            advanced_settings: {},
+            run_layered_after: false,
+            run_node_overlap_removal_after: false,
+            interactive: false
+        };
+    }
+
     constructor(
-        givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
+        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationLayered,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super("elk_layered", givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        this.algorithmName = "elk_layered";
+
         console.log("elkData in LayeredConfiguration");
         console.log(_.cloneDeep(this.elkData));
 
@@ -59,103 +79,33 @@ export class ElkLayeredConfiguration extends LayeredConfiguration implements Elk
     }
 
     elkData: LayoutOptions = {};
-
-
-
-    // TODO: Old commented code to pick only the relevant stuff from the given configuration, right now we just don't care, we can implement this if stuff starts breaking
-
-// const getValidConfig = () => {
-    //     if(config['main_layout_alg'] === "random") {
-    //         return {
-    //             'main-alg-config': {
-    //                 "constraintedNodes": "ALL",
-    //                 "data": {
-    //                     "main-layout-alg": config['main_layout_alg']
-    //                 }
-    //             }
-    //         };
-    //     }
-    //     let validConfig: Record<string, IConstraintSimple> = {};
-    //     if(config['main_layout_alg'] === "elk_stress") {
-    //         validConfig = {
-    //             'main-alg-config': {
-    //                 "constraintedNodes": "ALL",
-    //                 "data": {
-    //                     "main-layout-alg": config['main_layout_alg'],
-    //                     "stress-edge-len": config['stress_edge_len']
-    //                 }
-    //             }
-    //         };
-    //     }
-    //     else if(config['main_layout_alg'] === "elk_force") {
-    //         validConfig = {
-    //             'main-alg-config': {
-    //                 "constraintedNodes": "ALL",
-    //                 "data": {
-    //                     "main-layout-alg": config['main_layout_alg'],
-    //                     "min-distance-between-nodes": config['min_distance_between_nodes'],
-    //                     "force-alg-type": config['force_alg_type'],
-    //                 }
-    //             }
-    //         };
-    //     }
-    //     else {
-    //         validConfig = {
-    //             'main-alg-config': {
-    //                 "constraintedNodes": "ALL",
-    //                 "data": {
-    //                     "main-layout-alg": config['main_layout_alg'],
-    //                     "main-alg-direction": config["main_alg_direction"],
-    //                     "layer-gap": config["layer_gap"],
-    //                     "in-layer-gap": config["in_layer_gap"],
-    //                 }
-    //             }
-    //         };
-    //     }
-
-    //     if(config['process_general_separately']) {
-    //         validConfig = {
-    //             ...validConfig,
-    //             'general-config': {
-    //                 "constraintedNodes": "GENERALIZATION",
-    //                 "data": {
-    //                     "main-layout-alg": "layered",       // TODO: Just fix it for now (layered is usually the best choice for generalization hierarchy anyways)
-    //                     "general-main-alg-direction": config['general_main_alg_direction'],
-    //                     "general-layer-gap": config['general_layer_gap'],
-    //                     "general-in-layer-gap": config['general_in_layer_gap'],
-    //                 }
-    //             }
-    //         };
-
-    //         if(config["double_run"]) {
-    //             validConfig = {
-    //                 ...validConfig,
-    //                 'general-config-double-run': {
-    //                     "constraintedNodes": "GENERALIZATION",
-    //                     "data": {
-    //                         "double-run": config["double_run"],
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     return validConfig;
-    // }
 }
 
 
 /**
  * Stores configuration for elk stress algorithm
  */
-export class ElkStressConfiguration extends StressConfiguration implements ElkConstraint {
+export class ElkStressConfiguration extends StressConfiguration<UserGivenAlgorithmConfigurationStress> implements ElkConstraint {
+    static getDefaultConfiguration(): UserGivenAlgorithmConfigurationStress {
+        return {
+            layout_alg: "elk_stress",
+            stress_edge_len: 800,
+            number_of_new_algorithm_runs: 10,
+            advanced_settings: {},
+            run_layered_after: false,
+            run_node_overlap_removal_after: true,
+            interactive: false
+        };
+    }
+
     constructor(
-        givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
+        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationStress,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super("elk_stress", givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        this.algorithmName = "elk_stress";
         modifyElkDataObject(this.data, this.elkData);
     }
 
@@ -169,22 +119,28 @@ export class ElkStressConfiguration extends StressConfiguration implements ElkCo
     elkData: LayoutOptions = {};
 }
 
-export class ElkStressProfileLayoutConfiguration extends StressConfiguration implements ElkConstraint {
-    getAllRelevantConstraintKeys() {
-        return super.getAllRelevantConstraintKeys().concat([
-            "profileEdgeLength",
-            "preferredProfileDirection",
-        ]);
+export class ElkStressAdvancedUsingClustersConfiguration extends StressConfiguration<UserGivenAlgorithmConfigurationStressWithClusters>
+                                                    implements ElkConstraint {
+    static getDefaultConfiguration(): UserGivenAlgorithmConfigurationStressWithClusters {
+        return {
+            layout_alg: "elk_stress_advanced_using_clusters",
+            stress_edge_len: 800,
+            number_of_new_algorithm_runs: 10,
+            advanced_settings: {},
+            run_layered_after: false,
+            run_node_overlap_removal_after: true,
+            interactive: true
+        };
     }
 
     constructor(
-        givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
+        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationStressWithClusters,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super("elk_stress_profile", givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
-        this.setData(givenAlgorithmConstraints);
+        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        this.algorithmName = "elk_stress_advanced_using_clusters";
         modifyElkDataObject(this.data, this.elkData);
     }
 
@@ -196,9 +152,45 @@ export class ElkStressProfileLayoutConfiguration extends StressConfiguration imp
     }
 
     elkData: LayoutOptions = {};
-    // TODO RadStr: This is nice, but it would be better to use getter which just converts the data: object into this type
-    //              I don't need to solve the issues oh having 2 data objects (I have only 1 accessible, but I have to set it here)
-    data: UserGivenAlgorithmConfigurationStressProfile = undefined;
+}
+
+
+
+export class ElkStressProfileLayoutConfiguration extends StressConfiguration<UserGivenAlgorithmConfigurationStressProfile>
+                                                    implements ElkConstraint {
+    static getDefaultConfiguration(): UserGivenAlgorithmConfigurationStressProfile {
+        return {
+            layout_alg: "elk_stress_profile",
+            profileEdgeLength: 400,
+            preferredProfileDirection: Direction.Up,
+            stress_edge_len: 800,
+            number_of_new_algorithm_runs: 10,
+            advanced_settings: {},
+            run_layered_after: false,
+            run_node_overlap_removal_after: true,
+            interactive: true
+        };
+    }
+
+    constructor(
+        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationStressProfile,
+        affectedNodes: AffectedNodesGroupingsType,
+        shouldCreateNewGraph: boolean,
+        algorithmPhasesToCall?: AlgorithmPhases
+    ) {
+        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        this.algorithmName = "elk_stress_profile";
+        modifyElkDataObject(this.data, this.elkData);
+    }
+
+    addAdvancedSettingsForUnderlying(advancedSettings: object) {
+        modifyElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
+    }
+    addAlgorithmConstraintForUnderlying(key: string, value: string): void {
+        modifyElkDataObject({[key]: value, "layout_alg": this.algorithmName}, this.elkData);
+    }
+
+    elkData: LayoutOptions = {};
 }
 
 
@@ -211,22 +203,28 @@ export class ElkStressProfileLayoutConfiguration extends StressConfiguration imp
 /**
  * Stores configuration for elk force algorithm
  */
-export class ElkForceConfiguration extends DefaultAlgorithmConfiguration implements ElkConstraint {
-    getAllRelevantConstraintKeys(): string[] {
-        return super.getAllRelevantConstraintKeys().concat([
-            "force_alg_type",
-            "min_distance_between_nodes",
-        ]);
+export class ElkForceConfiguration extends DefaultAlgorithmConfiguration<UserGivenAlgorithmConfigurationElkForce> implements ElkConstraint {
+    static getDefaultConfiguration(): UserGivenAlgorithmConfigurationElkForce {
+        return {
+            layout_alg: "elk_force",
+            min_distance_between_nodes: 400,
+            force_alg_type: "FRUCHTERMAN_REINGOLD",
+            number_of_new_algorithm_runs: 10,
+            advanced_settings: {},
+            run_layered_after: false,
+            run_node_overlap_removal_after: true,
+            interactive: false
+        };
     }
 
     constructor(
-        givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
+        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationElkForce,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(givenAlgorithmConstraints.layout_alg, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
-        this.data = _.pick(givenAlgorithmConstraints, this.getAllRelevantConstraintKeys()) as UserGivenAlgorithmConfigurationElkForce;
+        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        this.algorithmName = "elk_force";
         modifyElkDataObject(this.data, this.elkData);
 
         // TODO: For now - hardcoded
@@ -248,51 +246,36 @@ export class ElkForceConfiguration extends DefaultAlgorithmConfiguration impleme
         modifyElkDataObject({[key]: value, "layout_alg": this.algorithmName}, this.elkData);
     }
 
-    data: UserGivenAlgorithmConfigurationElkForce = undefined;
     // I can further enforce the typing by creating type which takes into consideration only used parameters and not those which can't be used
     // (For example those for layered algorithm), but I won't
     elkData: LayoutOptions = {};
 }
 
 
-/**
- * Stores configuration for elk spore algorithm
- */
-export class ElkSporeCompactionConfiguration extends SporeConfiguration implements ElkConstraint {
-    constructor(
-        givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
-        affectedNodes: AffectedNodesGroupingsType,
-        shouldCreateNewGraph: boolean,
-        algorithmPhasesToCall?: AlgorithmPhases
-    ) {
-        super("sporeCompaction", givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
-        modifyElkDataObject(this.data, this.elkData);
-    }
-
-    // TODO: Copy paste of this method for every Elk class, I am not sure if there is way to do it without - some mixin or seomthing, same for addAlgorithmConstraintForUnderlying
-    addAdvancedSettingsForUnderlying(advancedSettings: object) {
-        modifyElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
-    }
-    addAlgorithmConstraintForUnderlying(key: string, value: string): void {
-        modifyElkDataObject({[key]: value, "layout_alg": this.algorithmName}, this.elkData);
-    }
-
-
-    elkData: LayoutOptions = {};
-}
-
 
 /**
  * Stores configuration for elk radial algorithm
  */
 export class ElkRadialConfiguration extends RadialConfiguration implements ElkConstraint {
+    static getDefaultConfiguration(): UserGivenAlgorithmConfigurationRadial {
+        return {
+            layout_alg: "elk_radial",
+            min_distance_between_nodes: 500,
+            advanced_settings: {},
+            run_layered_after: false,
+            run_node_overlap_removal_after: false,
+            interactive: false
+        };
+    }
+
     constructor(
-        givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
+        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationRadial,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super("elk_radial", givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        this.algorithmName = "elk_radial";
         modifyElkDataObject(this.data, this.elkData);
     }
 
@@ -310,14 +293,25 @@ export class ElkRadialConfiguration extends RadialConfiguration implements ElkCo
 /**
  * Stores configuration for elk sporeOverlap algorithm
  */
-export class ElkSporeOverlapConfiguration extends SporeConfiguration implements ElkConstraint {
+export class ElkSporeOverlapConfiguration extends DefaultAlgorithmConfiguration<UserGivenAlgorithmConfigurationOverlapRemoval> implements ElkConstraint {
+    static getDefaultConfiguration(): UserGivenAlgorithmConfigurationOverlapRemoval {
+        return {
+            layout_alg: "elk_overlapRemoval",
+            min_distance_between_nodes: 0,
+            advanced_settings: {},
+            run_layered_after: false,
+            run_node_overlap_removal_after: false,
+            interactive: true
+        };
+    }
     constructor(
-        givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
+        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationOverlapRemoval,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super("elk_overlapRemoval", givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        this.algorithmName = "elk_overlapRemoval";
         modifyElkDataObject(this.data, this.elkData);
     }
 

@@ -1,7 +1,8 @@
 import {
     GraphConversionConstraint,
     AlgorithmConfiguration,
-    DefaultGraphConversionConstraint
+    DefaultGraphConversionConstraint,
+    UserGivenAlgorithmConfigurationBase
 } from "./constraints";
 import { ElkConstraint } from "./elk/elk-constraints";
 
@@ -23,12 +24,12 @@ export class ConstraintContainer {
      * to more specific actions instead of the more general ones given from user
      * Different graph layouting libraries (for example for Elk {@link ElkConstraint}) can override this for more specific type in the values of Record.
      */
-    layoutActions: (AlgorithmConfiguration | GraphConversionConstraint)[];
+    layoutActions: (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> | GraphConversionConstraint)[];
 
     /**
      * Are the actions which run before the main layouting algorithm.
      */
-    layoutActionsToRunBefore: (AlgorithmConfiguration | GraphConversionConstraint)[];
+    layoutActionsToRunBefore: (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> | GraphConversionConstraint)[];
 
     /**
      * Is the current index of the generator for the {@link layoutActionsIterator}
@@ -38,7 +39,7 @@ export class ConstraintContainer {
     /**
      * Is generator contaning all the layout actions to be performed in the main loop
      */
-    layoutActionsIterator: Generator<AlgorithmConfiguration | GraphConversionConstraint>;
+    layoutActionsIterator: Generator<AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> | GraphConversionConstraint>;
 
 
     /**
@@ -49,14 +50,14 @@ export class ConstraintContainer {
     /**
      * Is generator contaning all the layout actions to be performed before running the main layout algorithm
      */
-    layoutActionsIteratorBefore: Generator<AlgorithmConfiguration | GraphConversionConstraint>;
+    layoutActionsIteratorBefore: Generator<AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> | GraphConversionConstraint>;
 
     /**
      * Represents the currently iterated layout action
      */
     currentLayoutAction: {
         isInActionsBefore: boolean,
-        action: AlgorithmConfiguration | GraphConversionConstraint,
+        action: AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> | GraphConversionConstraint,
     };
 
     /**
@@ -66,8 +67,8 @@ export class ConstraintContainer {
 
 
     constructor(
-        layoutActionsBefore: (AlgorithmConfiguration | GraphConversionConstraint)[],
-        layoutActions: (AlgorithmConfiguration | GraphConversionConstraint)[],
+        layoutActionsBefore: (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> | GraphConversionConstraint)[],
+        layoutActions: (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> | GraphConversionConstraint)[],
         numberOfAlgorithmRuns: number,
     ) {
         this.layoutActionsToRunBefore = layoutActionsBefore;
@@ -83,7 +84,7 @@ export class ConstraintContainer {
      * Adds new algorithm constraints to the list of internal algorithm constraints
      * @param constraints
      */
-    addAlgorithmConstraints(...constraints: (AlgorithmConfiguration | GraphConversionConstraint)[]) {
+    addAlgorithmConstraints(...constraints: (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> | GraphConversionConstraint)[]) {
         constraints.forEach(constraint => {
             if(constraint === null) {
                 return;
@@ -92,7 +93,7 @@ export class ConstraintContainer {
             this.addAlgorithmConstraint(constraint, this.layoutActions.length);
         });
     }
-    addAlgorithmConstraint(constraint: AlgorithmConfiguration | GraphConversionConstraint, position?: number) {
+    addAlgorithmConstraint(constraint: AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> | GraphConversionConstraint, position?: number) {
         if(position === undefined) {
             position = this.layoutActions.length;
         }
@@ -171,11 +172,11 @@ export class ConstraintContainer {
  * Constraint container for the Elk graph library. Extends {@link ConstraintContainer} by being more specific about types of algorithmic constraints.
  */
 export class ElkConstraintContainer extends ConstraintContainer {
-    layoutActionsToRunBefore: ((AlgorithmConfiguration & ElkConstraint) | GraphConversionConstraint)[] = [];
-    layoutActions: ((AlgorithmConfiguration & ElkConstraint) | GraphConversionConstraint)[] = [];
+    layoutActionsToRunBefore: ((AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> & ElkConstraint) | GraphConversionConstraint)[] = [];
+    layoutActions: ((AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> & ElkConstraint) | GraphConversionConstraint)[] = [];
     currentLayoutAction: {
         isInActionsBefore: boolean,
-        action: (AlgorithmConfiguration & ElkConstraint) | GraphConversionConstraint,
+        action: (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> & ElkConstraint) | GraphConversionConstraint,
     } | null = null;
 }
 
