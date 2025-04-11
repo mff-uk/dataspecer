@@ -406,6 +406,9 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversionA
             for(const edgeInCluster of edgesInCluster) {
                 const edgeInCurrentGraph = graph.findEdgeInAllEdges(edgeInCluster.id);
                 const layoutedEdge = visualEdgesWithWaypoints.find(e => e.identifier === edgeInCluster.id);
+                if(layoutedEdge === undefined || edgeInCurrentGraph === undefined) {
+                    continue;
+                }
                 for (const waypoint of layoutedEdge.waypoints) {
                     waypoint.x += positionShift.x;
                     waypoint.y += positionShift.y;
