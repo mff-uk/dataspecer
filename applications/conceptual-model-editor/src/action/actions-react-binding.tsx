@@ -954,7 +954,6 @@ function createActionsContext(
           notifications, classes, diagram, graph, visualModel,
           getDefaultUserGivenAlgorithmConfigurationsFull(), visualEntitiesToLayout);
       });
-      // TODO RadStr: In future - Opens layouting menu - 3 buttons - alignments + layouting
     },
 
     onCreateGroup: () => {
