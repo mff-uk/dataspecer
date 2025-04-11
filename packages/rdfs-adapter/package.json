@@ -4,7 +4,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc -w",
-    "prebuild": "node ./build/prebuild.js"
+    "prebuild": "rimraf lib"
   },
   "main": "lib/index.js",
   "dependencies": {
