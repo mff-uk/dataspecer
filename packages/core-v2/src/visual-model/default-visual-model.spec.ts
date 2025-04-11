@@ -83,3 +83,17 @@ test("Create 2 visual entities for one semantic and remove one of the visuals.",
   model.deleteVisualEntity(visualNode1!.identifier);
   expect(model.getVisualEntitiesForRepresented("s").length).toBe(1);
 });
+
+test("Create and set visual view", () => {
+  const model = createModel("abc");
+  // This should create new entity.
+  model.setView({
+    initialPositions: {x: 0, y: 0},
+  });
+  expect(model.getVisualEntities().size).toBe(1);
+  // This should not create a new entity.
+  model.setView({
+    initialPositions: {x: 10, y: 10},
+  });
+  expect(model.getVisualEntities().size).toBe(1);
+});

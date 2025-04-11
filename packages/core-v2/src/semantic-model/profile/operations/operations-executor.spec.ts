@@ -30,6 +30,8 @@ test("Create class profile.", () => {
     usageNote: { "en": "usage-note" },
     usageNoteFromProfiled: "usage-note-source",
     profiling: ["one", "two"],
+    externalDocumentationUrl: "http://example.com/document",
+    role: "main",
   }));
   //
   expect(result).toStrictEqual({ success: true, created: ["1"] });
@@ -47,6 +49,8 @@ test("Create class profile.", () => {
         usageNote: { "en": "usage-note" },
         usageNoteFromProfiled: "usage-note-source",
         profiling: ["one", "two"],
+        externalDocumentationUrl: "http://example.com/document",
+        role: "main",
       }
     },
     removed: []
@@ -67,6 +71,8 @@ test("Modify class profile, change none.", () => {
     usageNote: { "en": "usage-note" },
     usageNoteFromProfiled: "usage-note-source",
     profiling: ["one", "two"],
+    externalDocumentationUrl: "http://example.com/document",
+    role: "main",
   };
   const executor = createDefaultSemanticModelProfileOperationExecutor(
     { createIdentifier: () => (++counter).toString() },
@@ -91,6 +97,8 @@ test("Modify class profile, change none.", () => {
         usageNote: { "en": "usage-note" },
         usageNoteFromProfiled: "usage-note-source",
         profiling: ["one", "two"],
+        externalDocumentationUrl: "http://example.com/document",
+        role: "main",
       }
     },
     removed: []
@@ -111,6 +119,8 @@ test("Modify class profile, change all.", () => {
     usageNote: { "en": "prev-usage-note" },
     usageNoteFromProfiled: "prev-usage-note-source",
     profiling: ["prev-one", "prev-two"],
+    externalDocumentationUrl: "http://example.com/document",
+    role: "main",
   };
   const executor = createDefaultSemanticModelProfileOperationExecutor(
     { createIdentifier: () => (++counter).toString() },
@@ -128,6 +138,8 @@ test("Modify class profile, change all.", () => {
     usageNote: { "en": "usage-note" },
     usageNoteFromProfiled: "usage-note-source",
     profiling: ["one", "two"],
+    externalDocumentationUrl: "http://localhost/document",
+    role: "support",
   }));
   //
   expect(result).toStrictEqual({ success: true, created: [] });
@@ -145,6 +157,8 @@ test("Modify class profile, change all.", () => {
         usageNote: { "en": "usage-note" },
         usageNoteFromProfiled: "usage-note-source",
         profiling: ["one", "two"],
+        externalDocumentationUrl: "http://localhost/document",
+        role: "support",
       }
     },
     removed: []
@@ -172,6 +186,8 @@ test("Create relationship profile.", () => {
       profiling: ["first"],
       usageNote: { "en": "first-note" },
       usageNoteFromProfiled: "first-note-source",
+      externalDocumentationUrl: "first-document",
+      requirementLevel: "first-level",
     }, {
       iri: "second",
       name: { "en": "second-name" },
@@ -183,6 +199,8 @@ test("Create relationship profile.", () => {
       profiling: ["second"],
       usageNote: { "en": "second-note" },
       usageNoteFromProfiled: "second-note-source",
+      externalDocumentationUrl: "second-document",
+      requirementLevel: "second-level",
     }],
   }));
   //
@@ -204,6 +222,8 @@ test("Create relationship profile.", () => {
           profiling: ["first"],
           usageNote: { "en": "first-note" },
           usageNoteFromProfiled: "first-note-source",
+          externalDocumentationUrl: "first-document",
+          requirementLevel: "first-level"
         }, {
           iri: "second",
           name: { "en": "second-name" },
@@ -215,6 +235,8 @@ test("Create relationship profile.", () => {
           profiling: ["second"],
           usageNote: { "en": "second-note" },
           usageNoteFromProfiled: "second-note-source",
+          externalDocumentationUrl: "second-document",
+          requirementLevel: "second-level",
         }],
       }
     },
@@ -239,6 +261,8 @@ test("Modify relationship profile.", () => {
       profiling: [],
       usageNote: null,
       usageNoteFromProfiled: null,
+      externalDocumentationUrl: null,
+      requirementLevel: null,
     }, {
       iri: "second",
       name: null,
@@ -250,6 +274,8 @@ test("Modify relationship profile.", () => {
       profiling: [],
       usageNote: null,
       usageNoteFromProfiled: null,
+      externalDocumentationUrl: null,
+      requirementLevel: null,
     }],
   };
   const executor = createDefaultSemanticModelProfileOperationExecutor(
@@ -271,6 +297,8 @@ test("Modify relationship profile.", () => {
       profiling: ["first"],
       usageNote: { "en": "first-note" },
       usageNoteFromProfiled: "first-note-source",
+      externalDocumentationUrl: "first-document",
+      requirementLevel: "first-level"
     }, {
       iri: "second",
       name: { "en": "second-name" },
@@ -282,6 +310,8 @@ test("Modify relationship profile.", () => {
       profiling: ["second"],
       usageNote: { "en": "second-note" },
       usageNoteFromProfiled: "second-note-source",
+      externalDocumentationUrl: "second-document",
+      requirementLevel: "second-level",
     }],
   }));
   //
@@ -303,6 +333,8 @@ test("Modify relationship profile.", () => {
           profiling: ["first"],
           usageNote: { "en": "first-note" },
           usageNoteFromProfiled: "first-note-source",
+          externalDocumentationUrl: "first-document",
+          requirementLevel: "first-level"
         }, {
           iri: "second",
           name: { "en": "second-name" },
@@ -314,6 +346,8 @@ test("Modify relationship profile.", () => {
           profiling: ["second"],
           usageNote: { "en": "second-note" },
           usageNoteFromProfiled: "second-note-source",
+          externalDocumentationUrl: "second-document",
+          requirementLevel: "second-level",
         }],
       }
     },
@@ -342,6 +376,8 @@ test("Relationship use all edges.", () => {
       profiling: [],
       usageNote: null,
       usageNoteFromProfiled: null,
+      externalDocumentationUrl: null,
+      requirementLevel: null,
     }, {
       iri: "second",
       name: null,
@@ -353,6 +389,8 @@ test("Relationship use all edges.", () => {
       profiling: [],
       usageNote: null,
       usageNoteFromProfiled: null,
+      externalDocumentationUrl: null,
+      requirementLevel: null,
     }, {
       iri: "third",
       name: null,
@@ -364,6 +402,8 @@ test("Relationship use all edges.", () => {
       profiling: [],
       usageNote: null,
       usageNoteFromProfiled: null,
+      externalDocumentationUrl: null,
+      requirementLevel: null,
     }],
   }));
   //
@@ -385,6 +425,8 @@ test("Relationship use all edges.", () => {
           profiling: [],
           usageNote: null,
           usageNoteFromProfiled: null,
+          externalDocumentationUrl: null,
+          requirementLevel: null,
         }, {
           iri: "second",
           name: null,
@@ -396,6 +438,8 @@ test("Relationship use all edges.", () => {
           profiling: [],
           usageNote: null,
           usageNoteFromProfiled: null,
+          externalDocumentationUrl: null,
+          requirementLevel: null,
         }, {
           iri: "third",
           name: null,
@@ -407,6 +451,8 @@ test("Relationship use all edges.", () => {
           profiling: [],
           usageNote: null,
           usageNoteFromProfiled: null,
+          externalDocumentationUrl: null,
+          requirementLevel: null,
         }],
       }
     },
@@ -439,6 +485,8 @@ test("Issue #917: Change class profile to null.", () => {
     usageNote: { "en": "usage-note" },
     usageNoteFromProfiled: "one",
     profiling: ["one"],
+    externalDocumentationUrl: "profile-document",
+    role: "profile-role",
   }));
   expect(result).toStrictEqual({ success: true, created: ["1"] });
   executor.executeOperation(factory.modifyClassProfile("1", {
@@ -450,6 +498,8 @@ test("Issue #917: Change class profile to null.", () => {
     usageNote: { "en": "usage-note" },
     usageNoteFromProfiled: null,
     profiling: ["one"],
+    externalDocumentationUrl: null,
+    role: null,
   }));
   //
   expect(entities["1"]).toStrictEqual({
@@ -463,6 +513,8 @@ test("Issue #917: Change class profile to null.", () => {
     usageNote: { "en": "usage-note" },
     usageNoteFromProfiled: null,
     profiling: ["one"],
+    externalDocumentationUrl: null,
+    role: null,
   });
 });
 
@@ -483,6 +535,8 @@ test("Issue #917: Change relationship profile to null.", () => {
       profiling: [],
       usageNote: null,
       usageNoteFromProfiled: "1",
+      externalDocumentationUrl: "1-document",
+      requirementLevel: "1-level",
     }, {
       iri: "second",
       name: null,
@@ -494,6 +548,8 @@ test("Issue #917: Change relationship profile to null.", () => {
       profiling: [],
       usageNote: null,
       usageNoteFromProfiled: "2",
+      externalDocumentationUrl: "2-document",
+      requirementLevel: "2-level",
     }],
   };
   const executor = createDefaultSemanticModelProfileOperationExecutor(
@@ -515,6 +571,8 @@ test("Issue #917: Change relationship profile to null.", () => {
       profiling: ["first"],
       usageNote: { "en": "first-note" },
       usageNoteFromProfiled: null,
+      externalDocumentationUrl: null,
+      requirementLevel: null,
     }, {
       iri: "second",
       name: { "en": "second-name" },
@@ -526,6 +584,8 @@ test("Issue #917: Change relationship profile to null.", () => {
       profiling: ["second"],
       usageNote: { "en": "second-note" },
       usageNoteFromProfiled: null,
+      externalDocumentationUrl: null,
+      requirementLevel: null,
     }],
   }));
   //
@@ -547,6 +607,8 @@ test("Issue #917: Change relationship profile to null.", () => {
           profiling: ["first"],
           usageNote: { "en": "first-note" },
           usageNoteFromProfiled: null,
+          externalDocumentationUrl: null,
+          requirementLevel: null,
         }, {
           iri: "second",
           name: { "en": "second-name" },
@@ -558,6 +620,8 @@ test("Issue #917: Change relationship profile to null.", () => {
           profiling: ["second"],
           usageNote: { "en": "second-note" },
           usageNoteFromProfiled: null,
+          externalDocumentationUrl: null,
+          requirementLevel: null,
         }],
       }
     },

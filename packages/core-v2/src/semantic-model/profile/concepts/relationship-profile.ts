@@ -45,4 +45,13 @@ export interface SemanticModelRelationshipEndProfile extends NamedThingProfile, 
    */
   cardinality: [number, number | null] | null;
 
+  /**
+   * Collections of IRIs tagging this resources.
+   *
+   * This value is optional as it can be missing in the source data.
+   * You should not set the value to undefined manually.
+   * Use null to indicate an absence of a value.
+   */
+  tags: string[];
+
 }

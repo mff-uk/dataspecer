@@ -148,6 +148,7 @@ function handleCreateClassOperation(
         type: ["class"],
         name: operation.entity.name ?? {},
         description: operation.entity.description ?? {},
+        externalDocumentationUrl: operation.entity.externalDocumentationUrl ?? null,
     };
 
     change({ [id]: newClass }, []);
@@ -206,6 +207,7 @@ function handleCreateRelationshipOperation(
                 cardinality: operation.entity.ends?.[0]?.cardinality,
                 concept: operation.entity.ends?.[0]?.concept ?? null,
                 iri: operation.entity.ends?.[0]?.iri ?? null,
+                externalDocumentationUrl: operation.entity.ends?.[0]?.externalDocumentationUrl ?? null,
             },
             {
                 ...operation.entity.ends?.[1],
@@ -214,6 +216,7 @@ function handleCreateRelationshipOperation(
                 cardinality: operation.entity.ends?.[1]?.cardinality,
                 concept: operation.entity.ends?.[1]?.concept ?? null,
                 iri: operation.entity.ends?.[1]?.iri ?? null,
+                externalDocumentationUrl: operation.entity.ends?.[1]?.externalDocumentationUrl ?? null,
             },
         ],
     };
