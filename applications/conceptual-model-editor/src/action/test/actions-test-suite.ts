@@ -96,7 +96,7 @@ export class ActionsTestSuite {
           },
           getViewport: function (): ViewportDimensions {
             return {
-              position: {x: 0, y: 0},
+              position: { x: 0, y: 0 },
               width: 100,
               height: 100,
             };
@@ -126,6 +126,9 @@ export class ActionsTestSuite {
             _nodeIdentifiers: string[],
             _modelOfClassWhichStartedHighlighting: string
           ): void {
+            throw new Error("Function not implemented.");
+          },
+          openAlignmentMenu: function (sourceNode: Node, canvasPosition: Position): void {
             throw new Error("Function not implemented.");
           }
         }

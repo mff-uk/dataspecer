@@ -1,22 +1,24 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import "./dropdown-styling.css";
-import TreeIcon, { DirectionString } from "./TreeIcon";
+import TreeIcon from "./TreeIcon";
 import { Direction } from "@dataspecer/layout";
+
+function capitalizeFirst(direction: Direction): string {
+  return direction.charAt(0).toUpperCase() + direction.slice(1).toLowerCase();
+}
 
 const LayeredAlgorithmDirectionDropdown = (props: {
   direction: Direction,
   setDirection: (direction: Direction) => void,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const selectedDirection: DirectionString = Direction[props.direction];
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleOptionClick = (option: DirectionString) => {
-    props.setDirection(Direction[option as keyof typeof Direction]);
-    // SetSelectedOption(option);
+  const handleOptionClick = (direction: Direction) => {
+    props.setDirection(direction);
     setIsOpen(false);
   };
 
@@ -24,26 +26,26 @@ const LayeredAlgorithmDirectionDropdown = (props: {
     <div className="custom-select">
       <div className="select-box" onClick={toggleDropdown}>
         <div className="flex flex-row space-x-2">
-          <div><TreeIcon direction={selectedDirection}></TreeIcon></div>
-          <div>{selectedDirection}</div>
+          <div><TreeIcon direction={props.direction}></TreeIcon></div>
+          <div>{capitalizeFirst(props.direction)}</div>
         </div>
       </div>
       {isOpen && (
         <div className="dropdown-content">
-          <div className="dropdown-item" onClick={() => handleOptionClick("Up")}>
-            <TreeIcon direction="Up"></TreeIcon>
+          <div className="dropdown-item" onClick={() => handleOptionClick(Direction.Up)}>
+            <TreeIcon direction={Direction.Up}></TreeIcon>
             Up
           </div>
-          <div className="dropdown-item" onClick={() => handleOptionClick("Right")}>
-            <TreeIcon direction="Right"></TreeIcon>
+          <div className="dropdown-item" onClick={() => handleOptionClick(Direction.Right)}>
+            <TreeIcon direction={Direction.Right}></TreeIcon>
             Right
           </div>
-          <div className="dropdown-item" onClick={() => handleOptionClick("Down")}>
-            <TreeIcon direction="Down"></TreeIcon>
+          <div className="dropdown-item" onClick={() => handleOptionClick(Direction.Down)}>
+            <TreeIcon direction={Direction.Down}></TreeIcon>
             Down
           </div>
-          <div className="dropdown-item" onClick={() => handleOptionClick("Left")}>
-            <TreeIcon direction="Left"></TreeIcon>
+          <div className="dropdown-item" onClick={() => handleOptionClick(Direction.Left)}>
+            <TreeIcon direction={Direction.Left}></TreeIcon>
             Left
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { NodeDimensionQueryHandler } from "..";
-import { INodeClassic } from "../graph-iface";
+import { Node } from "../graph/representation/node";
 
 /**
  * Simple dimension query handler, which returns constant values as estimation of node dimensions.
@@ -17,11 +17,11 @@ export class ReactflowDimensionsConstantEstimator implements NodeDimensionQueryH
         return 58;
     }
 
-    getWidth(estimatedNode: INodeClassic): number {
+    getWidth(_estimatedNode: Node): number {
         return ReactflowDimensionsConstantEstimator.getDefaultWidth();
     }
 
-    getHeight(estimatedNode: INodeClassic): number {
+    getHeight(_estimatedNode: Node): number {
         return ReactflowDimensionsConstantEstimator.getDefaultHeight();
     }
 }

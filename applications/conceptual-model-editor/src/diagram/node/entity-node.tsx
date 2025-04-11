@@ -43,6 +43,8 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
 
   const context = useContext(DiagramContext);
 
+  const isSingleNodeSelected = context?.getShownNodeMenuType() === NodeMenuType.SingleNodeMenu;
+
   const moveAttributeUp = (attribute: string) => () =>
     context?.callbacks().onMoveAttributeUp(attribute, props.data.identifier);
   const moveAttributeDown = (attribute: string) => () =>
@@ -87,7 +89,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
           {
             return <li key={`${item.identifier}-li`} className="relative flex w-full flex-row justify-between z-50">
               <EntityNodeItem item={item} />
-              {props.selected !== true ? null :
+              {(props.selected !== true || !isSingleNodeSelected) ? null :
                 <div>
                   <button onClick={moveAttributeUp(item.identifier)}>🔼</button>
                   <button onClick={moveAttributeDown(item.identifier)}>🔽</button>
@@ -182,7 +184,7 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
         &nbsp;
         <button onClick={onAnchor} title={isPartOfGroup ? t("group-anchor-button") : t("node-anchor-button")} >⚓</button>
         &nbsp;
-        <button onClick={onAddAttribute} title={addAttributeTitle} >➕</button>
+        <button onClick={onAddAttribute} title={addAttributeTitle}>➕</button>
         &nbsp;
       </NodeToolbar>
     </>);
@@ -197,7 +199,7 @@ function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
     return null;
   }
 
-  const onShowSelectionActions = (event: React.MouseEvent) => {
+  const onOpenSelectionActionsMenu = (event: React.MouseEvent) => {
     const absoluteFlowPosition = reactFlow.screenToFlowPosition({x: event.clientX, y: event.clientY});
     context?.callbacks().onShowSelectionActionsMenu(props.data, absoluteFlowPosition);
   }
@@ -208,11 +210,24 @@ function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
   const onShowExpandSelection = () => context?.callbacks().onShowExpandSelection();
   const onShowFilterSelection = () => context?.callbacks().onShowFilterSelection();
 
+  const onOpenAlignmentMenu = (event: React.MouseEvent) => {
+    const absoluteFlowPosition = reactFlow.screenToFlowPosition({x: event.clientX, y: event.clientY});
+    context?.callbacks().onOpenAlignmentMenu(props.data, absoluteFlowPosition);
+  }
   return (<>
     <NodeToolbar isVisible={shouldShowMenu} position={Position.Top} className="flex gap-2 entity-node-menu" >
-      <button onClick={onShowSelectionActions} title={t("selection-action-button")}>🎬</button>
+      <button onClick={onOpenSelectionActionsMenu} title={t("selection-action-button")}>🎬</button>
       &nbsp;
-      <button onClick={onLayoutSelection} title={t("selection-layout-button")} disabled>🔀</button>
+      <button onClick={onLayoutSelection} title={t("selection-layout-button")}>🔀</button>
+      &nbsp;
+      <button onClick={(event) => onOpenAlignmentMenu(event)}>
+        { /* https://www.svgrepo.com/svg/535125/align-left */}
+        <svg width="24px" height="24px" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 1H3V15H1V1Z" fill="#000000"/>
+          <path d="M5 13H15V9H5V13Z" fill="#000000"/>
+          <path d="M11 7H5V3H11V7Z" fill="#000000"/>
+        </svg>
+      </button>
       &nbsp;
     </NodeToolbar>
     <NodeToolbar isVisible={shouldShowMenu} position={Position.Right} className="flex gap-2 entity-node-menu" >

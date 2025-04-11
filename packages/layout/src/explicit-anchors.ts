@@ -12,6 +12,11 @@ export enum AnchorOverrideSetting {
     AnchorEverythingExceptNotAnchored
 };
 
+/**
+ * Represents explicits anchors which override the anchors from visual model.
+ * It is important to note that the identifiers are both visual and semantic.
+ * The mixing of identifier types does not matter, since the code handles it very naturally.
+ */
 export type ExplicitAnchors = {
 	/**
 	 * The identifiers of nodes, which should not be anchored.
@@ -29,9 +34,6 @@ export type ExplicitAnchors = {
 
 
 /**
- *
- * @param identifier
- * @param explicitAnchors
  * @param defaultAnchorValue This value is relevant for the "merge-with-original-anchors" and "only-original-anchors" cases,
  * since if it isn't overriden using the {@link explicitAnchors} then we return the given default.
  * @returns
