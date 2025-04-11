@@ -391,7 +391,7 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversionA
         configuration.chosenMainAlgorithm = "elk_stress";
         configuration.main.elk_stress.interactive = true;
         configuration.main.elk_stress.run_node_overlap_removal_after = true;
-        (configuration.main.elk_stress as UserGivenAlgorithmConfigurationStress).stress_edge_len = graphConversionConfiguration.data.edgeLength;
+        configuration.main.elk_stress.stress_edge_len = graphConversionConfiguration.data.edgeLength;
         graph = await getBestLayoutFromMetricResultAggregation(await performLayoutFromGraph(graph, configuration));
 
 
