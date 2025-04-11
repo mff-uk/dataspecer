@@ -34,7 +34,7 @@ import { addClassNeighborhoodToVisualModelAction } from "./add-class-neighborhoo
 import { createDefaultProfilesAction } from "./create-default-profiles";
 import { openCreateClassDialogWithModelDerivedFromClassAction } from "./open-create-class-dialog-with-derived-model";
 import { EntityToAddToVisualModel, addSemanticEntitiesToVisualModelAction } from "./add-semantic-entities-to-visual-model";
-import { getDefaultUserGivenAlgorithmConfigurationsFull, LayoutedVisualEntities, UserGivenConstraintsVersion4 } from "@dataspecer/layout";
+import { UserGivenAlgorithmConfigurations, getDefaultUserGivenAlgorithmConfigurationsFull, LayoutedVisualEntities } from "@dataspecer/layout";
 import { layoutActiveVisualModelAction, layoutGivenVisualEntitiesAdvancedAction } from "./layout-visual-model";
 import { toggleAnchorAction } from "./toggle-anchor";
 import { SelectionFilterState } from "../dialog/selection/filter-selection-dialog-controller";
@@ -290,7 +290,7 @@ export interface ActionsContextType extends DialogActions, VisualModelActions {
     currentlyIteratedEntity: number
   ) => void;
 
-  layoutActiveVisualModel: (configuration: UserGivenConstraintsVersion4) => Promise<LayoutedVisualEntities | void>;
+  layoutActiveVisualModel: (configuration: UserGivenAlgorithmConfigurations) => Promise<LayoutedVisualEntities | void>;
 
   /**
    * Calls action {@link extendSelectionAction} with correct context. For more info check {@link extendSelectionAction}
@@ -766,7 +766,7 @@ function createActionsContext(
       notifications, graph, classes, diagram, identifier, currentlyIteratedEntity, model);
   };
 
-  const layoutActiveVisualModel = async (configuration: UserGivenConstraintsVersion4) => {
+  const layoutActiveVisualModel = async (configuration: UserGivenAlgorithmConfigurations) => {
     withVisualModel(notifications, graph, (visualModel) => {
       return layoutActiveVisualModelAction(
         notifications, classes, diagram, graph, visualModel, configuration);

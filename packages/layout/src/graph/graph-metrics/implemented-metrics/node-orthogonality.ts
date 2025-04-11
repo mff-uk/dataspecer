@@ -1,27 +1,26 @@
-import { DefaultGraph, Graph } from "../../representation/graph";
+import { Graph } from "../../representation/graph";
 import { VisualNodeComplete } from "../../representation/node";
 import { AllMetricData, ComputedMetricValues, Metric } from "../graph-metric";
 
 function areNodesAligned(
   node1: VisualNodeComplete,
   node2: VisualNodeComplete,
-  alingmentLimit: number
+  alignmentLimit: number
 ): boolean {
   const pos1 = node1.coreVisualNode.position;
   const pos2 = node2.coreVisualNode.position;
-  if(Math.abs(pos1.x - pos2.x) < alingmentLimit) {
+  if(Math.abs(pos1.x - pos2.x) < alignmentLimit) {
     return true;
   }
-  if(Math.abs(pos1.y - pos2.y) < alingmentLimit) {
+  if(Math.abs(pos1.y - pos2.y) < alignmentLimit) {
     return true;
   }
-  if(Math.abs((pos1.x - node1.width) - pos2.x) < alingmentLimit) {
+  if(Math.abs((pos1.x - node1.width) - pos2.x) < alignmentLimit) {
     return true;
   }
-  if(Math.abs((pos1.y - node1.height) - pos2.y) < alingmentLimit) {
+  if(Math.abs((pos1.y - node1.height) - pos2.y) < alignmentLimit) {
     return true;
   }
-
 
   return false;
 }
@@ -32,7 +31,7 @@ function areNodesAligned(
  */
 export class NodeOrthogonalityMetric implements Metric {
     computeMetric(graph: Graph): ComputedMetricValues {
-      const alingmentLimit = 20;      // TODO RadStr: Maybe try 0
+      const alignmentLimit = 20;      // TODO RadStr: Maybe try 0
       const nodes = Object.values(graph.nodes);
       const alreadyAligned: boolean[] = Array(nodes.length).fill(false);
       for (let i = 0; i < nodes.length; i++) {
@@ -41,7 +40,7 @@ export class NodeOrthogonalityMetric implements Metric {
             continue;
           }
           const areAligned = areNodesAligned(
-            nodes[i].completeVisualNode, nodes[j].completeVisualNode, alingmentLimit);
+            nodes[i].completeVisualNode, nodes[j].completeVisualNode, alignmentLimit);
           // Alternatively here we could compute the number of aligned pairs instead:
           // alignedPairCount += areAligned ? 1 : 0;
           if(areAligned) {

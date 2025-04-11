@@ -1,18 +1,18 @@
 import { isVisualProfileRelationship, isVisualRelationship, Position, VisualNode, VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { AlgorithmConfiguration, UserGivenAlgorithmConfigurationBase } from "../../configs/constraints";
 import { ElkConstraint } from "../../configs/elk/elk-constraints";
 import { VisualNodeComplete } from "../../graph/representation/node";
 import { GraphTransformer } from "./graph-transformer-interface";
 import { DefaultGraph, DefaultMainGraph, Graph, isSubgraph, MainGraph } from "../../graph/representation/graph";
 import { ElkExtendedEdge, ElkLabel, ElkNode, ElkPort } from "elkjs";
 import { ElkConstraintContainer } from "../../configs/constraint-container";
-import { CONFIG_TO_ELK_CONFIG_MAP } from "../../configs/elk/elk-utils";
+import { ALGORITHM_TO_ELK_ALGORITHM_MAP, CONFIG_TO_ELK_CONFIG_MAP } from "../../configs/elk/elk-utils";
 import { ReactflowDimensionsConstantEstimator, XY } from "../..";
 import { VisualEntities } from "../../migration-to-cme-v2";
 import { EdgeEndPoint } from "../../graph/representation/edge";
 import _ from "lodash";
 import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { PhantomElementsFactory } from "../../util/utils";
+import { UserGivenAlgorithmConfigurationBase } from "../../configs/user-algorithm-configurations";
+import { AlgorithmConfiguration } from "../../configs/algorithm-configurations";
 
 type VisualEntitiesType = (VisualNodeComplete | VisualRelationship | VisualProfileRelationship)[];
 
@@ -464,13 +464,20 @@ export class ElkGraphTransformer implements GraphTransformer {
 
         const hasParentGraphFixedLayout = parentElkNode !== undefined;
 
+
+        const originalAlgorithm = (constraintContainer.currentLayoutAction?.action as (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase>))?.data.layout_alg;
+        let elkAlgorithm = "not elk algorithm";
+        if(originalAlgorithm !== undefined) {
+            elkAlgorithm = ALGORITHM_TO_ELK_ALGORITHM_MAP[originalAlgorithm]
+        }
+
         if(position !== undefined &&
             (isInteractiveGeneralization || isInteractiveAll || isInteractiveGeneralizationSubgraphs || hasParentGraphFixedLayout)
           ) {
             const parentPosition = graphNode.getSourceGraph()?.completeVisualNode?.coreVisualNode?.position;
             node.x = position.x - (parentPosition?.x ?? 0);
             node.y = position.y - (parentPosition?.y ?? 0);
-            if((constraintContainer.currentLayoutAction?.action as (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase>))?.data.layout_alg === "elk_stress") {
+            if(elkAlgorithm === "stress") {
                 node.layoutOptions["org.eclipse.elk.stress.fixed"] = graphNode.completeVisualNode.isAnchored.toString();
             }
         }

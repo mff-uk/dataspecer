@@ -1,22 +1,12 @@
 import { LayoutOptions } from "elkjs";
 import {
     AffectedNodesGroupingsType,
-    AlgorithmPhases,
-    DefaultAlgorithmConfiguration,
-    LayeredConfiguration,
-    RadialConfiguration,
-    StressConfiguration,
-    UserGivenAlgorithmConfigurationElkForce,
-    UserGivenAlgorithmConfigurationLayered,
-    UserGivenAlgorithmConfigurationOverlapRemoval,
-    UserGivenAlgorithmConfigurationRadial,
-    UserGivenAlgorithmConfigurationStress,
-    UserGivenAlgorithmConfigurationStressProfile,
-    UserGivenAlgorithmConfigurationStressWithClusters
 } from "../constraints";
 import { modifyElkDataObject } from "./elk-utils";
 import _ from "lodash";
 import { Direction } from "../../util/utils";
+import { UserGivenAlgorithmConfigurationElkForce, UserGivenAlgorithmConfigurationLayered, UserGivenAlgorithmConfigurationOverlapRemoval, UserGivenAlgorithmConfigurationRadial, UserGivenAlgorithmConfigurationStress, UserGivenAlgorithmConfigurationStressProfile, UserGivenAlgorithmConfigurationStressWithClusters } from "../user-algorithm-configurations";
+import { AlgorithmPhases, DefaultAlgorithmConfiguration, LayeredConfiguration, RadialConfiguration, StressConfiguration } from "../algorithm-configurations";
 
 
 export type ElkForceAlgType = "FRUCHTERMAN_REINGOLD" | "EADES";
@@ -30,7 +20,7 @@ export interface ElkConstraint {
  * Stores configuration for elk layered algorithm
  */
 export class ElkLayeredConfiguration extends LayeredConfiguration implements ElkConstraint {
-    static getDefaultConfiguration(): UserGivenAlgorithmConfigurationLayered {
+    static getDefaultUserConfiguration(): UserGivenAlgorithmConfigurationLayered {
         return {
             layout_alg: "elk_layered",
             alg_direction: Direction.Up,
@@ -86,7 +76,7 @@ export class ElkLayeredConfiguration extends LayeredConfiguration implements Elk
  * Stores configuration for elk stress algorithm
  */
 export class ElkStressConfiguration extends StressConfiguration<UserGivenAlgorithmConfigurationStress> implements ElkConstraint {
-    static getDefaultConfiguration(): UserGivenAlgorithmConfigurationStress {
+    static getDefaultUserConfiguration(): UserGivenAlgorithmConfigurationStress {
         return {
             layout_alg: "elk_stress",
             stress_edge_len: 800,
@@ -121,7 +111,7 @@ export class ElkStressConfiguration extends StressConfiguration<UserGivenAlgorit
 
 export class ElkStressAdvancedUsingClustersConfiguration extends StressConfiguration<UserGivenAlgorithmConfigurationStressWithClusters>
                                                     implements ElkConstraint {
-    static getDefaultConfiguration(): UserGivenAlgorithmConfigurationStressWithClusters {
+    static getDefaultUserConfiguration(): UserGivenAlgorithmConfigurationStressWithClusters {
         return {
             layout_alg: "elk_stress_advanced_using_clusters",
             stress_edge_len: 800,
@@ -129,7 +119,7 @@ export class ElkStressAdvancedUsingClustersConfiguration extends StressConfigura
             advanced_settings: {},
             run_layered_after: false,
             run_node_overlap_removal_after: true,
-            interactive: true
+            interactive: false
         };
     }
 
@@ -158,7 +148,7 @@ export class ElkStressAdvancedUsingClustersConfiguration extends StressConfigura
 
 export class ElkStressProfileLayoutConfiguration extends StressConfiguration<UserGivenAlgorithmConfigurationStressProfile>
                                                     implements ElkConstraint {
-    static getDefaultConfiguration(): UserGivenAlgorithmConfigurationStressProfile {
+    static getDefaultUserConfiguration(): UserGivenAlgorithmConfigurationStressProfile {
         return {
             layout_alg: "elk_stress_profile",
             profileEdgeLength: 400,
@@ -204,7 +194,7 @@ export class ElkStressProfileLayoutConfiguration extends StressConfiguration<Use
  * Stores configuration for elk force algorithm
  */
 export class ElkForceConfiguration extends DefaultAlgorithmConfiguration<UserGivenAlgorithmConfigurationElkForce> implements ElkConstraint {
-    static getDefaultConfiguration(): UserGivenAlgorithmConfigurationElkForce {
+    static getDefaultUserConfiguration(): UserGivenAlgorithmConfigurationElkForce {
         return {
             layout_alg: "elk_force",
             min_distance_between_nodes: 400,
@@ -257,7 +247,7 @@ export class ElkForceConfiguration extends DefaultAlgorithmConfiguration<UserGiv
  * Stores configuration for elk radial algorithm
  */
 export class ElkRadialConfiguration extends RadialConfiguration implements ElkConstraint {
-    static getDefaultConfiguration(): UserGivenAlgorithmConfigurationRadial {
+    static getDefaultUserConfiguration(): UserGivenAlgorithmConfigurationRadial {
         return {
             layout_alg: "elk_radial",
             min_distance_between_nodes: 500,
@@ -294,7 +284,7 @@ export class ElkRadialConfiguration extends RadialConfiguration implements ElkCo
  * Stores configuration for elk sporeOverlap algorithm
  */
 export class ElkSporeOverlapConfiguration extends DefaultAlgorithmConfiguration<UserGivenAlgorithmConfigurationOverlapRemoval> implements ElkConstraint {
-    static getDefaultConfiguration(): UserGivenAlgorithmConfigurationOverlapRemoval {
+    static getDefaultUserConfiguration(): UserGivenAlgorithmConfigurationOverlapRemoval {
         return {
             layout_alg: "elk_overlapRemoval",
             min_distance_between_nodes: 0,

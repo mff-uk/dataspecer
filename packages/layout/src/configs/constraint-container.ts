@@ -1,10 +1,10 @@
+import { AlgorithmConfiguration } from "./algorithm-configurations";
 import {
     GraphConversionConstraint,
-    AlgorithmConfiguration,
     DefaultGraphConversionConstraint,
-    UserGivenAlgorithmConfigurationBase
 } from "./constraints";
 import { ElkConstraint } from "./elk/elk-constraints";
+import { UserGivenAlgorithmConfigurationBase } from "./user-algorithm-configurations";
 
 /**
  * Behaves like container for constraints of certain subgraph or whole graph. TODO: Maybe just the whole graph

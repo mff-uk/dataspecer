@@ -1,9 +1,10 @@
 import _ from "lodash";
 import { AlgorithmName, getBestMetricResultAggregation, performLayoutFromGraph } from "../..";
 import { ConstraintContainer } from "../../configs/constraint-container";
-import { AutomaticConfiguration, getDefaultUserGivenAlgorithmConfigurationsFull } from "../../configs/constraints";
 import { Graph, MainGraph } from "../../graph/representation/graph";
 import { LayoutAlgorithm } from "../layout-algorithms-interfaces";
+import { AutomaticConfiguration } from "../../configs/algorithm-configurations";
+import { getDefaultUserGivenAlgorithmConfigurationsFull } from "../../configs/user-algorithm-configurations";
 
 export class AutomaticLayout implements LayoutAlgorithm {
   prepareFromGraph(graph: Graph, constraintContainer: ConstraintContainer): void {

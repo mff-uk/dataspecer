@@ -2,8 +2,6 @@ import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts
 import { Position, VisualModel } from "@dataspecer/core-v2/visual-model";
 
 import {
-	UserGivenAlgorithmConfigurations,
-	DefaultAlgorithmConfiguration,
 	DefaultGraphConversionConstraint,
 } from "./configs/constraints";
 import { DefaultGraph, MainGraph, VisualModelWithOutsiders } from "./graph/representation/graph";
@@ -17,9 +15,6 @@ export type { VisualEntitiesWithModelVisualInformation };
 import { EdgeCrossingMetric } from "./graph/graph-metrics/implemented-metrics/edge-crossing";
 import { EdgeNodeCrossingMetric } from "./graph/graph-metrics/implemented-metrics/edge-node-crossing";
 
-export type {
-	UserGivenAlgorithmConfigurations as UserGivenConstraintsVersion4
-} from "./configs/constraints";
 
 import { Direction } from "./util/utils";
 export { Direction };
@@ -39,6 +34,8 @@ import { GraphFactory } from "./graph/representation/graph-factory";
 import { ALGORITHM_NAME_TO_LAYOUT_MAPPING, AlgorithmName } from "./layout-algorithms/list-of-layout-algorithms";
 import { LayoutAlgorithm } from "./layout-algorithms/layout-algorithms-interfaces";
 import _ from "lodash";
+import { UserGivenAlgorithmConfigurations } from "./configs/user-algorithm-configurations";
+import { DefaultAlgorithmConfiguration } from "./configs/algorithm-configurations";
 export type { AlgorithmName };
 export { AnchorOverrideSetting } from "./explicit-anchors";
 export { placeCoordinateOnGrid, placePositionOnGrid };
@@ -52,11 +49,11 @@ export type {
 	UserGivenAlgorithmConfigurationLayered,
 	UserGivenAlgorithmConfigurationStress,
 	UserGivenAlgorithmConfigurations,
-} from "./configs/constraints";
+} from "./configs/user-algorithm-configurations";
 
 export  {
 	getDefaultUserGivenAlgorithmConfigurationsFull
-} from "./configs/constraints";
+} from "./configs/user-algorithm-configurations";
 
 export { type ElkForceAlgType } from "./configs/elk/elk-constraints";
 

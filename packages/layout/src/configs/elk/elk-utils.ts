@@ -1,9 +1,8 @@
 import { LayoutOptions } from "elkjs";
 import { AlgorithmName } from "../..";
-import { UserGivenAlgorithmConfigurationInterfacesUnion } from "../constraints";
+import { UserGivenAlgorithmConfigurationInterfacesUnion } from "../user-algorithm-configurations";
 
 
-// Note for myself: alternatively could define the type as Omit<Record<keyof UserGivenConstraints, string[]>, "double_run" | "process_general_separately">
 export const CONFIG_TO_ELK_CONFIG_MAP: Record<keyof Omit<UserGivenAlgorithmConfigurationInterfacesUnion, "number_of_new_algorithm_runs" | "advanced_settings" | "interactive">, string[]> = {
     "layout_alg": ["elk.algorithm"],
     "alg_direction": ['elk.direction'],
@@ -67,7 +66,7 @@ export const ALGORITHM_TO_ELK_ALGORITHM_MAP: Record<AlgorithmName, string> = {
     elk_stress_profile: "stress",
     none: "not elk algorithm",
     random: "not elk algorithm",
-    elk_stress_advanced_using_clusters: "not elk algorithm",
+    elk_stress_advanced_using_clusters: "stress",
     automatic: "not elk algorithm",
 };
 

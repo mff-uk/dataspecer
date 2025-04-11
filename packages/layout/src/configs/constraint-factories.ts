@@ -2,27 +2,15 @@ import { VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-
 import { getBestLayoutFromMetricResultAggregation, performLayoutFromGraph, XY } from "..";
 import { GraphAlgorithms, ToConsiderFilter } from "../graph-algoritms";
 import { MainGraph } from "../graph/representation/graph";
-import { LayoutMethod } from "../layout-algorithms/layout-algorithms-interfaces";
 import { Direction } from "../util/utils";
 import { ConstraintContainer } from "./constraint-container";
 import {
-    DefaultAlgorithmConfiguration,
     GraphConversionConstraint,
-    AlgorithmConfiguration,
-    UserGivenAlgorithmConfigurations,
     DefaultGraphConversionConstraint,
-    RandomConfiguration,
-    AlgorithmPhases,
     ClusterifyConstraint,
     LayoutClustersActionConstraint,
     SpecificGraphConversions,
-    UserGivenAlgorithmConfigurationStress,
-    AutomaticConfiguration,
     AffectedNodesGroupingsType,
-    UserGivenAlgorithmConfigurationBase,
-    UserGivenAlgorithmConfigurationRandom,
-    isUserGivenAlgorithmConfigurationInterface,
-    getDefaultUserGivenAlgorithmConfigurationsFull
 } from "./constraints";
 import {
     ElkForceConfiguration,
@@ -33,14 +21,16 @@ import {
     ElkStressConfiguration,
     ElkStressProfileLayoutConfiguration
 } from "./elk/elk-constraints";
+import { getDefaultUserGivenAlgorithmConfigurationsFull, isUserGivenAlgorithmConfigurationInterface, UserGivenAlgorithmConfigurationBase, UserGivenAlgorithmConfigurationRandom, UserGivenAlgorithmConfigurations, UserGivenAlgorithmConfigurationStress } from "./user-algorithm-configurations";
+import { AlgorithmConfiguration, AlgorithmPhases, AutomaticConfiguration, RandomConfiguration } from "./algorithm-configurations";
 
 
 function getOverlapConfigurationToRunAfterMainAlgorithm(
     affectedNodes: AffectedNodesGroupingsType,
     minSpaceBetweenNodes: number | null
 ) {
-    const input = ElkSporeOverlapConfiguration.getDefaultConfiguration();
-    input.min_distance_between_nodes = minSpaceBetweenNodes;
+    const input = ElkSporeOverlapConfiguration.getDefaultUserConfiguration();
+    input.min_distance_between_nodes = minSpaceBetweenNodes ?? 50;
     return new ElkSporeOverlapConfiguration(input, affectedNodes, true);
 }
 

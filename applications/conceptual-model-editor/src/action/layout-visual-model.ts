@@ -1,5 +1,5 @@
 import { VisualNode, WritableVisualModel, isVisualNode, isVisualProfileRelationship, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { AnchorOverrideSetting, ExplicitAnchors, LayoutedVisualEntities, Node, NodeDimensionQueryHandler, ReactflowDimensionsEstimator, UserGivenAlgorithmConfigurationStress, UserGivenConstraintsVersion4, VisualModelWithOutsiders, getDefaultUserGivenAlgorithmConfigurationsFull, performLayout, performLayoutOfVisualModel } from "@dataspecer/layout";
+import { AnchorOverrideSetting, ExplicitAnchors, LayoutedVisualEntities, Node, NodeDimensionQueryHandler, ReactflowDimensionsEstimator, UserGivenAlgorithmConfigurationStress, UserGivenAlgorithmConfigurations, VisualModelWithOutsiders, getDefaultUserGivenAlgorithmConfigurationsFull, performLayout, performLayoutOfVisualModel } from "@dataspecer/layout";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
@@ -18,7 +18,7 @@ export async function layoutGivenVisualEntitiesAdvancedAction(
   diagram: UseDiagramType,
   graph: ModelGraphContextType,
   visualModel: WritableVisualModel,
-  configuration: UserGivenConstraintsVersion4,
+  configuration: UserGivenAlgorithmConfigurations,
   visualEntitiesToLayout: string[],
   explicitAnchors?: ExplicitAnchors,
   shouldUpdatePositionsInVisualModel?: boolean,
@@ -73,7 +73,7 @@ export function layouGivenVisualEntitiesAction(
   diagram: UseDiagramType,
   graph: ModelGraphContextType,
   visualModel: WritableVisualModel,
-  configuration: UserGivenConstraintsVersion4,
+  configuration: UserGivenAlgorithmConfigurations,
   visualEntitiesToLayout: string[],
   explicitAnchors?: ExplicitAnchors,
 ) {
@@ -116,7 +116,7 @@ export async function layoutActiveVisualModelAdvancedAction(
   diagram: UseDiagramType,
   graph: ModelGraphContextType,
   visualModel: WritableVisualModel,
-  configuration: UserGivenConstraintsVersion4,
+  configuration: UserGivenAlgorithmConfigurations,
   explicitAnchors?: ExplicitAnchors,
   shouldUpdatePositionsInVisualModel?: boolean,
   outsiders?: Record<string, XY | null>,
@@ -155,7 +155,7 @@ export async function layoutActiveVisualModelAction(
   diagram: UseDiagramType,
   graph: ModelGraphContextType,
   visualModel: WritableVisualModel,
-  configuration: UserGivenConstraintsVersion4,
+  configuration: UserGivenAlgorithmConfigurations,
   explicitAnchors?: ExplicitAnchors,
 ) {
   return layoutActiveVisualModelAdvancedAction(
@@ -198,7 +198,8 @@ export async function findPositionForNewNodesUsingLayouting(
 
   const configuration = getDefaultUserGivenAlgorithmConfigurationsFull();
   configuration.chosenMainAlgorithm = "elk_stress";
-  configuration.main.elk_stress.interactive = true;
+  configuration.main.elk_stress.run_node_overlap_removal_after = true;
+  configuration.main.elk_stress.interactive = true;   // If set to false, then the result is deterministic (always same)
   configuration.main.elk_stress.number_of_new_algorithm_runs = 1;
   // TODO RadStr: We can do better by using average edge length in graph.
   (configuration.main.elk_stress as UserGivenAlgorithmConfigurationStress).stress_edge_len = 500;
