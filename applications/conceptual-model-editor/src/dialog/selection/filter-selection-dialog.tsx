@@ -12,9 +12,6 @@ type CheckboxData = {
     checkboxTooltip: string;
 }
 
-//
-//
-
 export const createFilterSelectionDialog = (
   onConfirm: ((state: SelectionFilterState) => void) | null,
   selections: SelectionsWithIdInfo,

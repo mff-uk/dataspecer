@@ -98,8 +98,8 @@ export const EntitiesOfModel = (props: {
     .map(item => (aggregatedEntities[item.id]?.aggregatedEntity ?? item) as EntityTypes);
 
   /**
-     * Initialize.
-     */
+   * Initialize.
+   */
   useEffect(() => {
     if (activeVisualModel === null) {
       // We need to wait to get the model.
@@ -165,7 +165,7 @@ export const EntitiesOfModel = (props: {
               return newVisible;
             });
           } else if (previous !== null && next !== null) {
-
+            // Update
             if(isVisualNode(next)) {
               const { removed: removedAtrtibutes, added: addedAttributes } =
                 getRemovedAndAdded((previous as VisualNode).content, next.content);
@@ -181,7 +181,6 @@ export const EntitiesOfModel = (props: {
                 return newVisible;
               });
             }
-            // Update
           }
         }
       },
