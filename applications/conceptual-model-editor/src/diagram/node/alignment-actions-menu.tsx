@@ -5,7 +5,9 @@ import { t } from "../../application";
 import { AlignmentHorizontalPosition, AlignmentVerticalPosition } from "../../action/align-nodes";
 
 /**
- * This is react component representing toolbar menu, which appears when user clicks on the actions button on selection.
+ * This is react component representing toolbar menu, which represents alignment options
+ * That is for horizontal alignment - left/mid/right
+ * and for vertical alignment - top/mid/bot
  */
 export function AlignmentMenu(_: { menuProps: CanvasMenuContentProps }) {
   const context = useContext(DiagramContext);
@@ -13,6 +15,8 @@ export function AlignmentMenu(_: { menuProps: CanvasMenuContentProps }) {
     context?.callbacks().onAlignSelectionHorizontally(alignmentHorizontalPosition);
   const onVerticalAlign = (alignmentVerticalPosition: AlignmentVerticalPosition) =>
     context?.callbacks().onAlignSelectionVertically(alignmentVerticalPosition);
+
+  // The svgs can be found here https://www.svgrepo.com/svg/535125/align-left
 
   return <div className="flex flex-col bg-white border-2 border-slate-400 border-solid [&>*]:px-5 [&>*]:text-left">
       <button className="flex py-1.5 hover:bg-gray-100"

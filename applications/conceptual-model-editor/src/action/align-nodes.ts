@@ -17,7 +17,6 @@ export enum AlignmentVerticalPosition {
     Bot
 }
 
-// We could work with VisualEntities, but since the bot right needs width and height, it is better this way
 const getTopLeftPosition = (nodes: VisualNode[]) => {
     const topLeft = {x: 10000000, y: 10000000};
     nodes.forEach(node => {
@@ -33,7 +32,6 @@ const getTopLeftPosition = (nodes: VisualNode[]) => {
 };
 
 
-// We need width and height so it makes sence to work with reactflow or at least make to possibility to query width/height
 const getBotRightPosition = (
     diagram: UseDiagramType,
     nodes: VisualNode[]
@@ -92,6 +90,10 @@ const getRelevantDimensionForCoordinate = (coordinate: Coordinate): DimensionTyp
     return coordinate === "x" ? DimensionType.Width : DimensionType.Height;
 };
 
+/**
+ * @returns Returns either width or height of node identified by {@link nodeIdentifier}.
+ *  The returned dimension depends on {@link dimension}.
+ */
 function getDimensionValue(
     diagram: UseDiagramType,
     dimension: DimensionType,
@@ -174,7 +176,7 @@ function alignGeneral(
 };
 
 /**
- * Align nodes given in {@link identifiers} horizontally
+ * Updates visual model in such a way, that the nodes given in {@link identifiers} are aligned horizontally
  */
 export function alignHorizontallyAction(
     notifications: UseNotificationServiceWriterType,
@@ -187,7 +189,7 @@ export function alignHorizontallyAction(
 };
 
 /**
- * Align nodes given in {@link identifiers} vertically
+ * Updates visual model in such a way, that the nodes given in {@link identifiers} are aligned vertically.
  */
 export function alignVerticallyAction(
     notifications: UseNotificationServiceWriterType,
