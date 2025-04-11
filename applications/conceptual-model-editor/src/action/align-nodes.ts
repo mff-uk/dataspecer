@@ -71,7 +71,6 @@ const getBoundingBoxInfo = (
         x: (topLeft.x + botRight.x) / 2,
         y: (topLeft.y + botRight.y) / 2,
     };
-    // TODO:
     return {
         topLeft,
         mid,
@@ -104,10 +103,10 @@ function getDimensionValue(
     return dimensionGetter(nodeIdentifier) ?? 0;
 }
 
-const _getOtherDimension = (dimension: DimensionType): DimensionType => {
-    return dimension === DimensionType.Width ? DimensionType.Height : DimensionType.Width;
-};
 
+/**
+ * General method used for vertical and horizontal alignment, since they are almost the same, just with swapped coordinates
+ */
 function alignGeneral(
     notifications: UseNotificationServiceWriterType,
     diagram: UseDiagramType,
@@ -124,8 +123,8 @@ function alignGeneral(
     const dimensionForChangeCoordinate = getRelevantDimensionForCoordinate(coordinateToChange);
     const grid = coordinateToChange === "x" ? configuration().xSnapGrid : configuration().ySnapGrid;
 
+    // Left === Top, Right === Bot ... we don't include it in the switch, since then compiler throws some warnings
     switch(alignmentPosition) {
-        case AlignmentVerticalPosition.Top:
         case AlignmentHorizontalPosition.Left: {
             const topLeft = getTopLeftPosition(nodes);
             nodes.forEach(node => {
@@ -138,7 +137,6 @@ function alignGeneral(
             });
             break;
         }
-        case AlignmentHorizontalPosition.Mid:
         case AlignmentVerticalPosition.Mid: {
             const { mid } = getBoundingBoxInfo(diagram, nodes);
             nodes.forEach(node => {
@@ -154,7 +152,6 @@ function alignGeneral(
 
             break;
         }
-        case AlignmentVerticalPosition.Bot:
         case AlignmentHorizontalPosition.Right: {
             const botRight = getBotRightPosition(diagram, nodes);
             nodes.forEach(node => {
@@ -176,6 +173,9 @@ function alignGeneral(
     }
 };
 
+/**
+ * Align nodes given in {@link identifiers} horizontally
+ */
 export function alignHorizontallyAction(
     notifications: UseNotificationServiceWriterType,
     diagram: UseDiagramType,
@@ -186,6 +186,9 @@ export function alignHorizontallyAction(
     alignGeneral(notifications, diagram, visualModel, identifiers, alignmentPosition, "x");
 };
 
+/**
+ * Align nodes given in {@link identifiers} vertically
+ */
 export function alignVerticallyAction(
     notifications: UseNotificationServiceWriterType,
     diagram: UseDiagramType,
