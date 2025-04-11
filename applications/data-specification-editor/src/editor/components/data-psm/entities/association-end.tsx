@@ -93,7 +93,7 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots & Clas
   </>;
 
   const thisEndRow = <>
-    {pimSemanticRelationship && (" " + getCardinalityFromResource(pimSemanticRelationship))}
+    {pimSemanticRelationship && (" " + getCardinalityFromResource(pimSemanticRelationship, !isBackwardsAssociation))}
   </>;
 
   const startRow = props.startRow ? [...props.startRow, thisStartRow] : [thisStartRow];
