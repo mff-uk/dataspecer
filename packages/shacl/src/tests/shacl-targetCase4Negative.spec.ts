@@ -9,7 +9,7 @@ const modelCreator = new TargetCase4ModelCreator();
 test('Test SHACL against data - target case #4 NEGATIVE ', async () => {
   const validation = await Support.testFromData(testType, modelCreator);
   expect(validation.conforms).toBe(false);
-  const shape = await fs.readFileSync("src/tests/shapes/" + testType.substring(0,11) + "Shape.ttl",
+  const shape = await fs.readFileSync("src/tests/shapes/" + testType + "Shape.ttl",
     { encoding: 'utf8', flag: 'r' });
   expect(shape).toContain("sh:targetSubjectsOf <http://www.example.org/unikatniPredikat>")
 });
