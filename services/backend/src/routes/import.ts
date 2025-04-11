@@ -238,10 +238,10 @@ async function importFromUrl(parentIri: string, url: string): Promise<[BaseResou
     let rdfsUrl = null;
     let dsvUrl = null;
 
-    const artefacts = [...new Set([
+    const artefacts = [
       ...store.getObjects(baseIri, "https://w3id.org/dsv#artefact", null),  // TODO: remove when every known specification contains prof:hasResource
       ...store.getObjects(baseIri, "http://www.w3.org/ns/dx/prof/hasResource", null),
-    ])];
+    ];
 
     for (const artefact of artefacts) {
       console.log(artefact);
