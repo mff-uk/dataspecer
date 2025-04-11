@@ -1,4 +1,5 @@
-export function clone(object, hash = new WeakMap()) {
+// @ts-nocheck
+export function clone<T>(object: T, hash = new WeakMap()): T {
   // Do not try to clone primitives or functions
   if (Object(object) !== object || object instanceof Function) return object;
   if (hash.has(object)) return hash.get(object); // Cyclic reference
