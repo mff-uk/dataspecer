@@ -3,7 +3,7 @@ import {
     GraphConversionConstraint,
     DefaultGraphConversionConstraint,
 } from "./constraints";
-import { ElkConstraint } from "./elk/elk-constraints";
+import { ElkConstraint } from "./elk/elk-configurations";
 import { UserGivenAlgorithmConfigurationBase } from "./user-algorithm-configurations";
 
 /**

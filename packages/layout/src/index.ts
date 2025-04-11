@@ -55,7 +55,7 @@ export  {
 	getDefaultUserGivenAlgorithmConfigurationsFull
 } from "./configs/user-algorithm-configurations";
 
-export { type ElkForceAlgType } from "./configs/elk/elk-constraints";
+export { type ElkForceAlgType } from "./configs/elk/elk-configurations";
 
 /**
  * The object (class) implementing this interface handles the act of getting width and height of given node. The act has to be separated from the reactflow visualization library,

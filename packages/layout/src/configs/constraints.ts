@@ -1,6 +1,6 @@
 import { Direction } from "../util/utils";
 import _ from "lodash";
-import { ElkForceAlgType, ElkForceConfiguration, ElkLayeredConfiguration, ElkRadialConfiguration, ElkSporeOverlapConfiguration, ElkStressAdvancedUsingClustersConfiguration, ElkStressConfiguration, ElkStressProfileLayoutConfiguration } from "./elk/elk-constraints";
+import { ElkForceAlgType, ElkForceConfiguration, ElkLayeredConfiguration, ElkRadialConfiguration, ElkSporeOverlapConfiguration, ElkStressAdvancedUsingClustersConfiguration, ElkStressConfiguration, ElkStressProfileLayoutConfiguration } from "./elk/elk-configurations";
 import { Edge } from "../graph/representation/edge";
 import { AlgorithmName } from "../layout-algorithms/list-of-layout-algorithms";
 import { isUserGivenAlgorithmConfigurationStressWithClusters, UserGivenAlgorithmConfigurationBase } from "./user-algorithm-configurations";

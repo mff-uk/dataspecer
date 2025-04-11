@@ -20,7 +20,7 @@ import {
     ElkStressAdvancedUsingClustersConfiguration,
     ElkStressConfiguration,
     ElkStressProfileLayoutConfiguration
-} from "./elk/elk-constraints";
+} from "./elk/elk-configurations";
 import { getDefaultUserGivenAlgorithmConfigurationsFull, isUserGivenAlgorithmConfigurationInterface, UserGivenAlgorithmConfigurationBase, UserGivenAlgorithmConfigurationRandom, UserGivenAlgorithmConfigurations, UserGivenAlgorithmConfigurationStress } from "./user-algorithm-configurations";
 import { AlgorithmConfiguration, AlgorithmPhases, AutomaticConfiguration, RandomConfiguration } from "./algorithm-configurations";
 

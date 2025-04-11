@@ -1,5 +1,5 @@
 import { isVisualProfileRelationship, isVisualRelationship, Position, VisualNode, VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { ElkConstraint } from "../../configs/elk/elk-constraints";
+import { ElkConstraint } from "../../configs/elk/elk-configurations";
 import { VisualNodeComplete } from "../../graph/representation/node";
 import { GraphTransformer } from "./graph-transformer-interface";
 import { DefaultGraph, DefaultMainGraph, Graph, isSubgraph, MainGraph } from "../../graph/representation/graph";

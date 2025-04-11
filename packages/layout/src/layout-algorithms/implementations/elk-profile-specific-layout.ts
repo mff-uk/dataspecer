@@ -3,7 +3,7 @@ import { ElkConstraintContainer } from "../../configs/constraint-container";
 import { Graph } from "../../graph/representation/graph";
 import { ElkLayout } from "./elk-layout";
 import { ElkNode } from "elkjs";
-import { ElkStressProfileLayoutConfiguration } from "../../configs/elk/elk-constraints";
+import { ElkStressProfileLayoutConfiguration } from "../../configs/elk/elk-configurations";
 import { Direction } from "../../util/utils";
 
 export class ElkProfileLayout extends ElkLayout {

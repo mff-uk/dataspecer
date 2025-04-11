@@ -2,7 +2,7 @@ import { AlgorithmName } from "../layout-algorithms/list-of-layout-algorithms";
 import { Direction } from "../util/utils";
 import { AutomaticConfiguration, RandomConfiguration } from "./algorithm-configurations";
 import { AffectedNodesGroupingsType, EdgeRouting, GraphConversionConstraint } from "./constraints";
-import { ElkForceAlgType, ElkForceConfiguration, ElkLayeredConfiguration, ElkRadialConfiguration, ElkSporeOverlapConfiguration, ElkStressAdvancedUsingClustersConfiguration, ElkStressConfiguration, ElkStressProfileLayoutConfiguration } from "./elk/elk-constraints";
+import { ElkForceAlgType, ElkForceConfiguration, ElkLayeredConfiguration, ElkRadialConfiguration, ElkSporeOverlapConfiguration, ElkStressAdvancedUsingClustersConfiguration, ElkStressConfiguration, ElkStressProfileLayoutConfiguration } from "./elk/elk-configurations";
 
 export type UserGivenAlgorithmConfigurationInterfaces =
     | UserGivenAlgorithmConfigurationLayered

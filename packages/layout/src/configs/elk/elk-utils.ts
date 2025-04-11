@@ -49,7 +49,9 @@ const CONFIG_TO_ELK_CONFIG_SPECIAL_CASES_CONVERTOR: Record<string, Record<Algori
         random: undefined,
         elk_radial: undefined,
         elk_overlapRemoval: undefined,
-        elk_stress_advanced_using_clusters: undefined,
+        elk_stress_advanced_using_clusters: {
+            "interactive": "true",
+        },
         elk_stress_profile: {
             "interactive": "true"
         },
