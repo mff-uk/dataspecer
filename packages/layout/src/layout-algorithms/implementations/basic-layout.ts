@@ -1,4 +1,4 @@
-import { ConstraintContainer } from "../../configs/constraint-container";
+import { ConfigurationsContainer } from "../../configurations/configurations-container";
 import { Graph, MainGraph, } from "../../graph/representation/graph";
 import _ from "lodash";
 import { VisualNode } from "@dataspecer/core-v2/visual-model";
@@ -32,7 +32,7 @@ export async function doRandomLayoutAdvancedFromGraph(graph: Graph): Promise<Mai
  */
 export class RandomLayout implements LayoutAlgorithm {
 
-    prepareFromGraph(graph: Graph, _constraintContainer: ConstraintContainer): void {
+    prepareFromGraph(graph: Graph, _configurations: ConfigurationsContainer): void {
         this.graph = graph;
     }
 

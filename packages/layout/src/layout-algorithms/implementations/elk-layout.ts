@@ -6,7 +6,7 @@ import ELK from 'elkjs/lib/elk.bundled';
 
 import { ElkNode, ElkExtendedEdge, type ELK as ELKType } from 'elkjs/lib/elk-api';
 
-import { ConstraintContainer, ElkConstraintContainer } from "../../configs/constraint-container";
+import { ConfigurationsContainer, ElkConfigurationsContainer } from "../../configurations/configurations-container";
 import _ from "lodash";
 import { LayoutAlgorithm } from "../layout-algorithms-interfaces";
 import { ElkGraphTransformer } from "../graph-transformers/elk-graph-transformer";
@@ -74,17 +74,17 @@ export class ElkLayout implements LayoutAlgorithm {
         this.elk = new ELK();
     }
 
-    prepareFromGraph(graph: Graph, constraintContainer: ElkConstraintContainer): void {
+    prepareFromGraph(graph: Graph, configurations: ElkConfigurationsContainer): void {
         this.graph = graph
-        this.elkGraphTransformer = new ElkGraphTransformer(graph, constraintContainer);
-        this.graphInElk = this.elkGraphTransformer.convertGraphToLibraryRepresentation(graph, true, constraintContainer),
-        this.constraintContainer = constraintContainer;
+        this.elkGraphTransformer = new ElkGraphTransformer(graph, configurations);
+        this.graphInElk = this.elkGraphTransformer.convertGraphToLibraryRepresentation(graph, true, configurations),
+        this.configurations = configurations;
     }
 
     async run(): Promise<MainGraph> {
         let layoutPromise: Promise<ElkNode | void>;
         const graphInElkWorkCopy = this.getGraphInElk();
-        if(this.constraintContainer.isGeneralizationPerformedBefore()) {
+        if(this.configurations.isGeneralizationPerformedBefore()) {
             layoutPromise = performSecondPartGeneralizationTwoRunLayout(this.graph, graphInElkWorkCopy, this.elk);
         }
         else {
@@ -157,6 +157,6 @@ export class ElkLayout implements LayoutAlgorithm {
     private getGraphInElk(): ElkNode {
         return _.cloneDeep(this.graphInElk);
     }
-    protected constraintContainer: ConstraintContainer;
+    protected configurations: ConfigurationsContainer;
     private elkGraphTransformer: ElkGraphTransformer;
 }

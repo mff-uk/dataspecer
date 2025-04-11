@@ -1,22 +1,22 @@
 import _ from "lodash";
 import { AlgorithmName, getBestMetricResultAggregation, performLayoutFromGraph } from "../..";
-import { ConstraintContainer } from "../../configs/constraint-container";
+import { ConfigurationsContainer } from "../../configurations/configurations-container";
 import { Graph, MainGraph } from "../../graph/representation/graph";
 import { LayoutAlgorithm } from "../layout-algorithms-interfaces";
-import { AutomaticConfiguration } from "../../configs/algorithm-configurations";
-import { getDefaultUserGivenAlgorithmConfigurationsFull } from "../../configs/user-algorithm-configurations";
+import { AutomaticConfiguration } from "../../configurations/algorithm-configurations";
+import { getDefaultUserGivenAlgorithmConfigurationsFull } from "../../configurations/user-algorithm-configurations";
 
 export class AutomaticLayout implements LayoutAlgorithm {
-  prepareFromGraph(graph: Graph, constraintContainer: ConstraintContainer): void {
+  prepareFromGraph(graph: Graph, configurations: ConfigurationsContainer): void {
     this.graph = graph;
-    this.constraintContainer = constraintContainer;
+    this.configurations = configurations;
   };
   async run(): Promise<MainGraph> {
     let bestGraph = null;
     // Here we run every algorithm once and choose the best one - we could implement it in the index.js
-    if(this.constraintContainer.currentLayoutAction.action instanceof AutomaticConfiguration) {
-      console.info("Running automatic - AutomaticConfiguration", this.constraintContainer.currentLayoutAction.action);
-      const algorithmsToTry = getAlgorithmsToTry(this.constraintContainer.currentLayoutAction.action.data.min_distance_between_nodes);
+    if(this.configurations.currentLayoutAction.action instanceof AutomaticConfiguration) {
+      console.info("Running automatic - AutomaticConfiguration", this.configurations.currentLayoutAction.action);
+      const algorithmsToTry = getAlgorithmsToTry(this.configurations.currentLayoutAction.action.userGivenConfiguration.min_distance_between_nodes);
       let best = 10000000;
       for(const algorithmToTry of algorithmsToTry) {
         const graphCopy = _.cloneDeep(this.graph.mainGraph);
@@ -40,7 +40,7 @@ export class AutomaticLayout implements LayoutAlgorithm {
   };
 
   private graph: Graph;
-  private constraintContainer: ConstraintContainer;
+  private configurations: ConfigurationsContainer;
 }
 
 function getAlgorithmsToTry(edgeLength: number) {

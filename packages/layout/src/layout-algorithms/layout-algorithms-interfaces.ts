@@ -1,7 +1,7 @@
 import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
 import { VisualEntities } from "../migration-to-cme-v2";
 import { Graph, MainGraph } from "../graph/representation/graph";
-import { ConstraintContainer } from "../configs/constraint-container";
+import { ConfigurationsContainer } from "../configurations/configurations-container";
 
 export type LayoutMethod = (inputSemanticModel: Record<string, SemanticModelEntity>, options?: object) => Promise<VisualEntities>
 
@@ -13,9 +13,9 @@ export type LayoutMethod = (inputSemanticModel: Record<string, SemanticModelEnti
 export interface LayoutAlgorithm {
 
     /**
-     * Prepares the algorithm for future layouting. The future layouting will layout given graph and use given constraints.
+     * Prepares the algorithm for future layouting. The future layouting will layout given graph conversion actions and user given algorithm configurations.
      */
-    prepareFromGraph: (graph: Graph, constraintContainer: ConstraintContainer) => void,
+    prepareFromGraph: (graph: Graph, configurationsContainer: ConfigurationsContainer) => void,
     /**
      * Runs the layouting algorithm on the graph prepared earlier.
      * @returns promise which on resolve returns the layouted graph

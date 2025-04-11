@@ -2,12 +2,12 @@ import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts
 import { Position, VisualModel } from "@dataspecer/core-v2/visual-model";
 
 import {
-	DefaultGraphConversionConstraint,
-} from "./configs/constraints";
-import { DefaultGraph, MainGraph, VisualModelWithOutsiders } from "./graph/representation/graph";
-import { ConstraintContainer } from "./configs/constraint-container";
+	DefaultGraphConversionActionConfiguration,
+} from "./configurations/graph-conversion-action";
+import { MainGraph, VisualModelWithOutsiders } from "./graph/representation/graph";
+import { ConfigurationsContainer } from "./configurations/configurations-container";
 import { Entities, Entity, EntityModel } from "@dataspecer/core-v2";
-import { ConstraintFactory, SPECIFIC_ALGORITHM_CONVERSIONS_MAP } from "./configs/constraint-factories";
+import { ConfigurationFactory, SPECIFIC_ALGORITHM_CONVERSIONS_MAP } from "./configurations/configuration-factories";
 import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
 import type { LayoutedVisualEntities, VisualEntitiesWithModelVisualInformation } from "./migration-to-cme-v2";
 export { type LayoutedVisualEntities } from "./migration-to-cme-v2";
@@ -22,7 +22,7 @@ export { Direction };
 export { ReactflowDimensionsEstimator };
 export { ReactflowDimensionsConstantEstimator } from "./dimension-estimators/constant-dimension-estimator";
 
-import type { EdgeRouting } from "./configs/constraints";
+import type { EdgeRouting } from "./configurations/graph-conversion-action";
 export type { EdgeRouting };
 
 import { placeCoordinateOnGrid, placePositionOnGrid } from "./util/utils";
@@ -34,8 +34,8 @@ import { GraphFactory } from "./graph/representation/graph-factory";
 import { ALGORITHM_NAME_TO_LAYOUT_MAPPING, AlgorithmName } from "./layout-algorithms/list-of-layout-algorithms";
 import { LayoutAlgorithm } from "./layout-algorithms/layout-algorithms-interfaces";
 import _ from "lodash";
-import { UserGivenAlgorithmConfigurations } from "./configs/user-algorithm-configurations";
-import { DefaultAlgorithmConfiguration } from "./configs/algorithm-configurations";
+import { UserGivenAlgorithmConfigurations } from "./configurations/user-algorithm-configurations";
+import { DefaultAlgorithmConfiguration } from "./configurations/algorithm-configurations";
 export type { AlgorithmName };
 export { AnchorOverrideSetting } from "./explicit-anchors";
 export { placeCoordinateOnGrid, placePositionOnGrid };
@@ -49,13 +49,13 @@ export type {
 	UserGivenAlgorithmConfigurationLayered,
 	UserGivenAlgorithmConfigurationStress,
 	UserGivenAlgorithmConfigurations,
-} from "./configs/user-algorithm-configurations";
+} from "./configurations/user-algorithm-configurations";
 
 export  {
 	getDefaultUserGivenAlgorithmConfigurationsFull
-} from "./configs/user-algorithm-configurations";
+} from "./configurations/user-algorithm-configurations";
 
-export { type ElkForceAlgType } from "./configs/elk/elk-configurations";
+export { type ElkForceAlgType } from "./configurations/elk/elk-configurations";
 
 /**
  * The object (class) implementing this interface handles the act of getting width and height of given node. The act has to be separated from the reactflow visualization library,
@@ -71,12 +71,12 @@ export interface NodeDimensionQueryHandler {
 export type XY = Omit<Position, "anchored">;
 
 // The layout works like this. The layout package gets configuration from user, usually inserted through dialog.
-// This configuration is converted to different set of constraints, this looked like over-engineering at first, but actually after working with it a bit, while
+// This configuration is converted to different set of configurations, this looked like over-engineering at first, but actually after working with it a bit, while
 // programming my own algorithm, it is quite flexible.
-// There are different set of constraints:
+// There are different set of configurations:
 // 1) Actions which should be performed before we start the layouting. Meaning layouting in sense that we enter the loop which runs the algorithm 1 or more times to find the best layout.
 // 2) Then actions which should be performed in the loop (For example run random layout, followed by stress layout, followed by layered algorithm)
-// The actions in 1) and 2) are either GraphConversionConstraint or AlgorithmConfiguration, depending on the type of action
+// The actions in 1) and 2) are either GraphConversionActionConfigurations or AlgorithmConfiguration, depending on the type of action
 // TODO: Write the important places here to look at if you want to program your own algorithm
 
 
@@ -217,9 +217,9 @@ export async function performLayoutFromGraph(
 	graph: MainGraph,
 	config: UserGivenAlgorithmConfigurations
 ): Promise<Record<string, MetricResultsAggregation>> {
-	const constraints = ConstraintFactory.createConstraints(config);
+	const configurations = ConfigurationFactory.createConfigurationsContainer(config);
 
-	const resultingAggregationsPromise = performLayoutingBasedOnConstraints(graph, constraints);
+	const resultingAggregationsPromise = performLayoutingBasedOnConfigurations(graph, configurations);
 
 	// TODO: DEBUG
 	// console.log("THE END");
@@ -230,25 +230,25 @@ export async function performLayoutFromGraph(
 
 
 /**
- * Performs all relevant layout operations based on given constraints
+ * Performs all relevant layout operations based on given configurations
  */
-const performLayoutingBasedOnConstraints = async (
+const performLayoutingBasedOnConfigurations = async (
 	graph: MainGraph,
-	constraints: ConstraintContainer
+	configurations: ConfigurationsContainer
 ): Promise<Record<string, MetricResultsAggregation>> => {
 	let workGraph = graph;
-	for(const action of constraints.layoutActionsIteratorBefore) {
+	for(const action of configurations.layoutActionsIteratorBefore) {
 		if (action.shouldCreateNewGraph) {
 			workGraph = _.cloneDeep(workGraph);
 	 	}
 
-		if(action instanceof DefaultGraphConversionConstraint) {
+		if(action instanceof DefaultGraphConversionActionConfiguration) {
 			SPECIFIC_ALGORITHM_CONVERSIONS_MAP[action.actionName](action, workGraph);
 		}
 		else if(action instanceof DefaultAlgorithmConfiguration) {
 			const layoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[action.algorithmName];
 			if(action.algorithmPhasesToCall === "ONLY-PREPARE" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
-				layoutAlgorithm.prepareFromGraph(workGraph, constraints);
+				layoutAlgorithm.prepareFromGraph(workGraph, configurations);
 			}
 			if(action.algorithmPhasesToCall === "ONLY-RUN" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
 				if(action.affectedNodes === "GENERALIZATION") {
@@ -261,7 +261,7 @@ const performLayoutingBasedOnConstraints = async (
 		}
 	}
 
-	return runMainLayoutAlgorithm(workGraph, constraints).then(aggregationResult => {
+	return runMainLayoutAlgorithm(workGraph, configurations).then(aggregationResult => {
 		return aggregationResult;
 	});
 
@@ -274,7 +274,7 @@ const performLayoutingBasedOnConstraints = async (
  */
 const runMainLayoutAlgorithm = async (
 	graph: MainGraph,
-	constraints: ConstraintContainer
+	configurations: ConfigurationsContainer
 ): Promise<Record<string, MetricResultsAggregation>> => {
 	const metricsWithWeights: MetricWithWeight[] = [
 		{
@@ -304,17 +304,17 @@ const runMainLayoutAlgorithm = async (
 		// },
 	];
 	const computedMetricsData = createObjectsToHoldMetricsData(metricsWithWeights);
-	const numberOfAlgorithmRuns = constraints.numberOfAlgorithmRuns;
+	const numberOfAlgorithmRuns = configurations.numberOfAlgorithmRuns;
 
 
 	for(let i = 0; i < numberOfAlgorithmRuns; i++) {
 		let workGraph = graph;
 		let layoutedGraphPromise: Promise<MainGraph>;
-		for(const action of constraints.layoutActionsIterator) {
+		for(const action of configurations.layoutActionsIterator) {
 			if (action.shouldCreateNewGraph) {
  				workGraph = _.cloneDeep(workGraph);
 			}
-			if(action instanceof DefaultGraphConversionConstraint) {
+			if(action instanceof DefaultGraphConversionActionConfiguration) {
 				layoutedGraphPromise = SPECIFIC_ALGORITHM_CONVERSIONS_MAP[action.actionName](action, workGraph);
 				workGraph = await layoutedGraphPromise;
 			}
@@ -322,7 +322,7 @@ const runMainLayoutAlgorithm = async (
 				const layoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[action.algorithmName];
 				if(action.algorithmPhasesToCall === "ONLY-PREPARE" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
 					console.info("workGraph", {...workGraph});
-					layoutAlgorithm.prepareFromGraph(workGraph, constraints);
+					layoutAlgorithm.prepareFromGraph(workGraph, configurations);
 				}
 				if(action.algorithmPhasesToCall === "ONLY-RUN" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
 					if(action.affectedNodes === "ALL") {
@@ -341,7 +341,7 @@ const runMainLayoutAlgorithm = async (
 			metricsWithWeights, computedMetricsData.metricResults,
 			computedMetricsData.metricResultAggregations,
 			workGraph, layoutedGraphPromise);
-		constraints.resetLayoutActionsIterator();
+		configurations.resetLayoutActionsIterator();
 	}
 
 	for(const key of Object.keys(computedMetricsData.metricResultAggregations)) {

@@ -1,7 +1,7 @@
 import { LayoutOptions } from "elkjs";
 import {
     AffectedNodesGroupingsType,
-} from "../constraints";
+} from "../graph-conversion-action";
 import { modifyElkDataObject } from "./elk-utils";
 import _ from "lodash";
 import { Direction } from "../../util/utils";
@@ -11,7 +11,7 @@ import { AlgorithmPhases, DefaultAlgorithmConfiguration, LayeredConfiguration, R
 
 export type ElkForceAlgType = "FRUCHTERMAN_REINGOLD" | "EADES";
 
-export interface ElkConstraint {
+export interface ElkConfiguration {
     elkData: LayoutOptions;
 }
 
@@ -19,7 +19,7 @@ export interface ElkConstraint {
 /**
  * Stores configuration for elk layered algorithm
  */
-export class ElkLayeredConfiguration extends LayeredConfiguration implements ElkConstraint {
+export class ElkLayeredConfiguration extends LayeredConfiguration implements ElkConfiguration {
     static getDefaultUserConfiguration(): UserGivenAlgorithmConfigurationLayered {
         return {
             layout_alg: "elk_layered",
@@ -35,12 +35,12 @@ export class ElkLayeredConfiguration extends LayeredConfiguration implements Elk
     }
 
     constructor(
-        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationLayered,
+        userGivenConfiguration: UserGivenAlgorithmConfigurationLayered,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        super(userGivenConfiguration, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.algorithmName = "elk_layered";
 
         console.log("elkData in LayeredConfiguration");
@@ -51,7 +51,7 @@ export class ElkLayeredConfiguration extends LayeredConfiguration implements Elk
         this.elkData["spacing.edgeEdge"] = "10";
         this.elkData["org.eclipse.elk.spacing.nodeSelfLoop"] = "150";
 
-        modifyElkDataObject(this.data, this.elkData);
+        modifyElkDataObject(this.userGivenConfiguration, this.elkData);
 
         console.log("elkData in ElkLayeredConfiguration");
         console.log(_.cloneDeep(this.elkData));
@@ -60,11 +60,11 @@ export class ElkLayeredConfiguration extends LayeredConfiguration implements Elk
         // console.log(this.elkData);
     }
 
-    addAdvancedSettingsForUnderlying(advancedSettings: object) {
+    addAdvancedSettingsToUnderlyingData(advancedSettings: object) {
         modifyElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
     }
 
-    addAlgorithmConstraintForUnderlying(key: string, value: string): void {
+    addAlgorithmConfigurationToUnderlyingData(key: string, value: string): void {
         modifyElkDataObject({[key]: value, "layout_alg": this.algorithmName}, this.elkData);
     }
 
@@ -75,7 +75,7 @@ export class ElkLayeredConfiguration extends LayeredConfiguration implements Elk
 /**
  * Stores configuration for elk stress algorithm
  */
-export class ElkStressConfiguration extends StressConfiguration<UserGivenAlgorithmConfigurationStress> implements ElkConstraint {
+export class ElkStressConfiguration extends StressConfiguration<UserGivenAlgorithmConfigurationStress> implements ElkConfiguration {
     static getDefaultUserConfiguration(): UserGivenAlgorithmConfigurationStress {
         return {
             layout_alg: "elk_stress",
@@ -89,20 +89,20 @@ export class ElkStressConfiguration extends StressConfiguration<UserGivenAlgorit
     }
 
     constructor(
-        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationStress,
+        userGivenConfiguration: UserGivenAlgorithmConfigurationStress,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        super(userGivenConfiguration, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.algorithmName = "elk_stress";
-        modifyElkDataObject(this.data, this.elkData);
+        modifyElkDataObject(this.userGivenConfiguration, this.elkData);
     }
 
-    addAdvancedSettingsForUnderlying(advancedSettings: object) {
+    addAdvancedSettingsToUnderlyingData(advancedSettings: object) {
         modifyElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
     }
-    addAlgorithmConstraintForUnderlying(key: string, value: string): void {
+    addAlgorithmConfigurationToUnderlyingData(key: string, value: string): void {
         modifyElkDataObject({[key]: value, "layout_alg": this.algorithmName}, this.elkData);
     }
 
@@ -110,7 +110,7 @@ export class ElkStressConfiguration extends StressConfiguration<UserGivenAlgorit
 }
 
 export class ElkStressAdvancedUsingClustersConfiguration extends StressConfiguration<UserGivenAlgorithmConfigurationStressWithClusters>
-                                                    implements ElkConstraint {
+                                                    implements ElkConfiguration {
     static getDefaultUserConfiguration(): UserGivenAlgorithmConfigurationStressWithClusters {
         return {
             layout_alg: "elk_stress_advanced_using_clusters",
@@ -124,20 +124,20 @@ export class ElkStressAdvancedUsingClustersConfiguration extends StressConfigura
     }
 
     constructor(
-        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationStressWithClusters,
+        userGivenConfiguration: UserGivenAlgorithmConfigurationStressWithClusters,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        super(userGivenConfiguration, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.algorithmName = "elk_stress_advanced_using_clusters";
-        modifyElkDataObject(this.data, this.elkData);
+        modifyElkDataObject(this.userGivenConfiguration, this.elkData);
     }
 
-    addAdvancedSettingsForUnderlying(advancedSettings: object) {
+    addAdvancedSettingsToUnderlyingData(advancedSettings: object) {
         modifyElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
     }
-    addAlgorithmConstraintForUnderlying(key: string, value: string): void {
+    addAlgorithmConfigurationToUnderlyingData(key: string, value: string): void {
         modifyElkDataObject({[key]: value, "layout_alg": this.algorithmName}, this.elkData);
     }
 
@@ -147,7 +147,7 @@ export class ElkStressAdvancedUsingClustersConfiguration extends StressConfigura
 
 
 export class ElkStressProfileLayoutConfiguration extends StressConfiguration<UserGivenAlgorithmConfigurationStressProfile>
-                                                    implements ElkConstraint {
+                                                    implements ElkConfiguration {
     static getDefaultUserConfiguration(): UserGivenAlgorithmConfigurationStressProfile {
         return {
             layout_alg: "elk_stress_profile",
@@ -163,20 +163,20 @@ export class ElkStressProfileLayoutConfiguration extends StressConfiguration<Use
     }
 
     constructor(
-        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationStressProfile,
+        userGivenConfiguration: UserGivenAlgorithmConfigurationStressProfile,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        super(userGivenConfiguration, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.algorithmName = "elk_stress_profile";
-        modifyElkDataObject(this.data, this.elkData);
+        modifyElkDataObject(this.userGivenConfiguration, this.elkData);
     }
 
-    addAdvancedSettingsForUnderlying(advancedSettings: object) {
+    addAdvancedSettingsToUnderlyingData(advancedSettings: object) {
         modifyElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
     }
-    addAlgorithmConstraintForUnderlying(key: string, value: string): void {
+    addAlgorithmConfigurationToUnderlyingData(key: string, value: string): void {
         modifyElkDataObject({[key]: value, "layout_alg": this.algorithmName}, this.elkData);
     }
 
@@ -193,7 +193,7 @@ export class ElkStressProfileLayoutConfiguration extends StressConfiguration<Use
 /**
  * Stores configuration for elk force algorithm
  */
-export class ElkForceConfiguration extends DefaultAlgorithmConfiguration<UserGivenAlgorithmConfigurationElkForce> implements ElkConstraint {
+export class ElkForceConfiguration extends DefaultAlgorithmConfiguration<UserGivenAlgorithmConfigurationElkForce> implements ElkConfiguration {
     static getDefaultUserConfiguration(): UserGivenAlgorithmConfigurationElkForce {
         return {
             layout_alg: "elk_force",
@@ -208,14 +208,14 @@ export class ElkForceConfiguration extends DefaultAlgorithmConfiguration<UserGiv
     }
 
     constructor(
-        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationElkForce,
+        userGivenConfiguration: UserGivenAlgorithmConfigurationElkForce,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        super(userGivenConfiguration, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.algorithmName = "elk_force";
-        modifyElkDataObject(this.data, this.elkData);
+        modifyElkDataObject(this.userGivenConfiguration, this.elkData);
 
         // TODO: For now - hardcoded
         if(this.elkData["org.eclipse.elk.force.model"] === "EADES") {
@@ -229,10 +229,10 @@ export class ElkForceConfiguration extends DefaultAlgorithmConfiguration<UserGiv
         this.elkData["org.eclipse.elk.randomSeed"] = "0";
     }
 
-    addAdvancedSettingsForUnderlying(advancedSettings: object) {
+    addAdvancedSettingsToUnderlyingData(advancedSettings: object) {
         modifyElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
     }
-    addAlgorithmConstraintForUnderlying(key: string, value: string): void {
+    addAlgorithmConfigurationToUnderlyingData(key: string, value: string): void {
         modifyElkDataObject({[key]: value, "layout_alg": this.algorithmName}, this.elkData);
     }
 
@@ -246,7 +246,7 @@ export class ElkForceConfiguration extends DefaultAlgorithmConfiguration<UserGiv
 /**
  * Stores configuration for elk radial algorithm
  */
-export class ElkRadialConfiguration extends RadialConfiguration implements ElkConstraint {
+export class ElkRadialConfiguration extends RadialConfiguration implements ElkConfiguration {
     static getDefaultUserConfiguration(): UserGivenAlgorithmConfigurationRadial {
         return {
             layout_alg: "elk_radial",
@@ -259,20 +259,20 @@ export class ElkRadialConfiguration extends RadialConfiguration implements ElkCo
     }
 
     constructor(
-        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationRadial,
+        userGivenConfiguration: UserGivenAlgorithmConfigurationRadial,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        super(userGivenConfiguration, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.algorithmName = "elk_radial";
-        modifyElkDataObject(this.data, this.elkData);
+        modifyElkDataObject(this.userGivenConfiguration, this.elkData);
     }
 
-    addAdvancedSettingsForUnderlying(advancedSettings: object) {
+    addAdvancedSettingsToUnderlyingData(advancedSettings: object) {
         modifyElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
     }
-    addAlgorithmConstraintForUnderlying(key: string, value: string): void {
+    addAlgorithmConfigurationToUnderlyingData(key: string, value: string): void {
         modifyElkDataObject({[key]: value, "layout_alg": this.algorithmName}, this.elkData);
     }
 
@@ -283,7 +283,7 @@ export class ElkRadialConfiguration extends RadialConfiguration implements ElkCo
 /**
  * Stores configuration for elk sporeOverlap algorithm
  */
-export class ElkSporeOverlapConfiguration extends DefaultAlgorithmConfiguration<UserGivenAlgorithmConfigurationOverlapRemoval> implements ElkConstraint {
+export class ElkSporeOverlapConfiguration extends DefaultAlgorithmConfiguration<UserGivenAlgorithmConfigurationOverlapRemoval> implements ElkConfiguration {
     static getDefaultUserConfiguration(): UserGivenAlgorithmConfigurationOverlapRemoval {
         return {
             layout_alg: "elk_overlapRemoval",
@@ -295,20 +295,20 @@ export class ElkSporeOverlapConfiguration extends DefaultAlgorithmConfiguration<
         };
     }
     constructor(
-        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationOverlapRemoval,
+        userGivenConfiguration: UserGivenAlgorithmConfigurationOverlapRemoval,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        super(userGivenConfiguration, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.algorithmName = "elk_overlapRemoval";
-        modifyElkDataObject(this.data, this.elkData);
+        modifyElkDataObject(this.userGivenConfiguration, this.elkData);
     }
 
-    addAdvancedSettingsForUnderlying(advancedSettings: object) {
+    addAdvancedSettingsToUnderlyingData(advancedSettings: object) {
         modifyElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
     }
-    addAlgorithmConstraintForUnderlying(key: string, value: string): void {
+    addAlgorithmConfigurationToUnderlyingData(key: string, value: string): void {
         modifyElkDataObject({[key]: value, "layout_alg": this.algorithmName}, this.elkData);
     }
 

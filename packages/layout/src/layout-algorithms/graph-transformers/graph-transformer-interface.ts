@@ -1,4 +1,4 @@
-import { ConstraintContainer } from "../../configs/constraint-container";
+import { ConfigurationsContainer } from "../../configurations/configurations-container";
 import { Graph } from "../../graph/representation/graph";
 
 /**
@@ -18,7 +18,7 @@ export interface GraphTransformer {
     convertGraphToLibraryRepresentation(
         graph: Graph,
         shouldSetLayoutOptions: boolean,
-        constraintContainer: ConstraintContainer
+        configurations: ConfigurationsContainer
     ): object,
 
     /**

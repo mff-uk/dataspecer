@@ -1,10 +1,12 @@
 import { AlgorithmName } from "../layout-algorithms/list-of-layout-algorithms";
-import { AffectedNodesGroupingsType, MemoryAllocationControl } from "./constraints";
-import { Constraint, UserGivenAlgorithmConfigurationAutomatic, UserGivenAlgorithmConfigurationBase, UserGivenAlgorithmConfigurationLayered, UserGivenAlgorithmConfigurationRadial, UserGivenAlgorithmConfigurationRandom, UserGivenAlgorithmConfigurationStressBase } from "./user-algorithm-configurations";
+import { AffectedNodesGroupingsType, MemoryAllocationControl } from "./graph-conversion-action";
+import { UserGivenAlgorithmConfigurationAutomatic, UserGivenAlgorithmConfigurationBase, UserGivenAlgorithmConfigurationLayered, UserGivenAlgorithmConfigurationRadial, UserGivenAlgorithmConfigurationRandom, UserGivenAlgorithmConfigurationStressBase } from "./user-algorithm-configurations";
 
 export type AlgorithmPhases = "ONLY-PREPARE" | "ONLY-RUN" | "PREPARE-AND-RUN";
 
-export interface AlgorithmOnlyConstraint<T extends UserGivenAlgorithmConfigurationBase> extends Constraint<T>, MemoryAllocationControl {
+export interface AlgorithmConfigurationData<T extends UserGivenAlgorithmConfigurationBase> extends MemoryAllocationControl {
+    affectedNodes: AffectedNodesGroupingsType,
+    userGivenConfiguration: T,
     /**
      * Default is "PREPARE-AND-RUN", other values need to be explicitly set in constructor -
      * You should set it to other value only in case if you know that algorithm can be prepared once and then run multiple times.
@@ -13,22 +15,22 @@ export interface AlgorithmOnlyConstraint<T extends UserGivenAlgorithmConfigurati
     algorithmPhasesToCall: AlgorithmPhases;
 }
 
-export interface AlgorithmConfiguration<T extends UserGivenAlgorithmConfigurationBase> extends AlgorithmOnlyConstraint<T> {
+export interface AlgorithmConfiguration<T extends UserGivenAlgorithmConfigurationBase> extends AlgorithmConfigurationData<T> {
     addAdvancedSettings(advancedSettings: object): void;
-    addAlgorithmConstraint(key: string, value: string): void;
+    addAlgorithmConfiguration(key: string, value: string): void;
 }
 
 export abstract class DefaultAlgorithmConfiguration<T extends UserGivenAlgorithmConfigurationBase> implements AlgorithmConfiguration<T> {
     algorithmName: AlgorithmName;           // Behaves as type guard!
     affectedNodes: AffectedNodesGroupingsType;
-    data: T;
+    userGivenConfiguration: T;
     type: string;
     name: string;
     shouldCreateNewGraph: boolean;
     algorithmPhasesToCall: AlgorithmPhases;
 
     constructor(
-        givenAlgorithmConstraints: T,
+        userGivenConfiguration: T,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
@@ -42,28 +44,35 @@ export abstract class DefaultAlgorithmConfiguration<T extends UserGivenAlgorithm
         this.shouldCreateNewGraph = shouldCreateNewGraph;
         this.affectedNodes = affectedNodes;
         this.type = "ALG";
-        this.data = givenAlgorithmConstraints;
+        this.userGivenConfiguration = userGivenConfiguration;
     }
-    protected abstract addAlgorithmConstraintForUnderlying(key: string, value: string): void;
-    protected abstract addAdvancedSettingsForUnderlying(advancedSettings: object): void;
+    /**
+     * This method is called internally in addAlgorithmConfiguration. This method should extend all the underlying data structures.
+     * For example elk algorithms contain extra elkData field which has the transformed user given confgiuration into elk configuration.
+     */
+    protected abstract addAlgorithmConfigurationToUnderlyingData(userGivenConfigurationKey: string, userGivenConfigurationValue: string): void;
+    /**
+     * Similiar to {@link addAlgorithmConfigurationToUnderlyingData}, but for the advancedSettings property.
+     */
+    protected abstract addAdvancedSettingsToUnderlyingData(advancedSettings: object): void;
 
-    addAlgorithmConstraint(key: string, value: string): void {
-        this.data[key] = value;
-        this.addAlgorithmConstraintForUnderlying(key, value);
+    addAlgorithmConfiguration(key: string, value: string): void {
+        this.userGivenConfiguration[key] = value;
+        this.addAlgorithmConfigurationToUnderlyingData(key, value);
     }
 
     public addAdvancedSettings(advancedSettings: object) {
-        if(this.data["advanced_settings"] === undefined) {
-            this.data["advanced_settings"] = {...advancedSettings};
+        if(this.userGivenConfiguration["advanced_settings"] === undefined) {
+            this.userGivenConfiguration["advanced_settings"] = {...advancedSettings};
         }
         else {
-            this.data["advanced_settings"] = {
-                ...this.data["advanced_settings"],
+            this.userGivenConfiguration["advanced_settings"] = {
+                ...this.userGivenConfiguration["advanced_settings"],
                 ...advancedSettings,
             };
         }
 
-        this.addAdvancedSettingsForUnderlying(advancedSettings);
+        this.addAdvancedSettingsToUnderlyingData(advancedSettings);
     }
 }
 
@@ -79,19 +88,19 @@ export class RandomConfiguration extends DefaultAlgorithmConfiguration<UserGiven
     }
 
     constructor(
-        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationRandom,
+        userGivenConfiguration: UserGivenAlgorithmConfigurationRandom,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        super(userGivenConfiguration, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.algorithmName = "random";
     }
 
-    addAlgorithmConstraintForUnderlying(key: string, value: string): void {
+    addAlgorithmConfigurationToUnderlyingData(key: string, value: string): void {
         // EMPTY
     }
-    addAdvancedSettingsForUnderlying(advancedSettings: object): void {
+    addAdvancedSettingsToUnderlyingData(advancedSettings: object): void {
         // EMPTY
     }
 
@@ -99,18 +108,19 @@ export class RandomConfiguration extends DefaultAlgorithmConfiguration<UserGiven
 
 // TODO RadStr: I can return default object in the same way as for LayeredConfiguration.
 /**
- * General Class which has all relevant constraints for the stress like algorithm. The classes extending this should convert the constraints into
+ * General Class which has all relevant configurations for the stress like algorithm. The classes extending this should convert the user configurations
+ *  into
  * the representation which will be used in the algorithm (that means renaming, transforming[, etc.] the parameters in the data field)
  */
 export abstract class StressConfiguration<T extends UserGivenAlgorithmConfigurationStressBase> extends DefaultAlgorithmConfiguration<T> {
 
     constructor(
-        givenAlgorithmConstraints: T,
+        userGivenConfiguration: T,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        super(userGivenConfiguration, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
     }
 
 }
@@ -118,12 +128,12 @@ export abstract class StressConfiguration<T extends UserGivenAlgorithmConfigurat
 
 export abstract class LayeredConfiguration extends DefaultAlgorithmConfiguration<UserGivenAlgorithmConfigurationLayered> {
     constructor(
-        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationLayered,
+        userGivenConfiguration: UserGivenAlgorithmConfigurationLayered,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        super(userGivenConfiguration, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
     }
 }
 
@@ -135,12 +145,12 @@ export abstract class LayeredConfiguration extends DefaultAlgorithmConfiguration
 
 export abstract class RadialConfiguration extends DefaultAlgorithmConfiguration<UserGivenAlgorithmConfigurationRadial> {
     constructor(
-        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationRadial,
+        userGivenConfiguration: UserGivenAlgorithmConfigurationRadial,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        super(userGivenConfiguration, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
     }
 }
 
@@ -157,20 +167,20 @@ export class AutomaticConfiguration extends DefaultAlgorithmConfiguration<UserGi
             interactive: false
         };
     }
-    addAlgorithmConstraintForUnderlying(key: string, value: string): void {
+    addAlgorithmConfigurationToUnderlyingData(key: string, value: string): void {
         // Do Nothing
     }
-    addAdvancedSettingsForUnderlying(advancedSettings: object): void {
+    addAdvancedSettingsToUnderlyingData(advancedSettings: object): void {
         // Do nothing
     }
 
     constructor(
-        givenAlgorithmConstraints: UserGivenAlgorithmConfigurationAutomatic,
+        userGivenConfiguration: UserGivenAlgorithmConfigurationAutomatic,
         affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(givenAlgorithmConstraints, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        super(userGivenConfiguration, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.algorithmName = "automatic";
     }
 }

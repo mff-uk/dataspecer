@@ -1,21 +1,21 @@
 import _ from "lodash";
-import { ElkConstraintContainer } from "../../configs/constraint-container";
+import { ElkConfigurationsContainer } from "../../configurations/configurations-container";
 import { Graph } from "../../graph/representation/graph";
 import { ElkLayout } from "./elk-layout";
 import { ElkNode } from "elkjs";
-import { ElkStressProfileLayoutConfiguration } from "../../configs/elk/elk-configurations";
+import { ElkStressProfileLayoutConfiguration } from "../../configurations/elk/elk-configurations";
 import { Direction } from "../../util/utils";
 
 export class ElkProfileLayout extends ElkLayout {
-  prepareFromGraph(graph: Graph, constraintContainer: ElkConstraintContainer): void {
-    if(!(constraintContainer.currentLayoutAction.action instanceof ElkStressProfileLayoutConfiguration)) {
+  prepareFromGraph(graph: Graph, configurations: ElkConfigurationsContainer): void {
+    if(!(configurations.currentLayoutAction.action instanceof ElkStressProfileLayoutConfiguration)) {
       console.error("Incorrect configuration for ElkProfileLayout, can't correctly set initial positions for profile layouting");
       return;
     }
     for(const edge of graph.mainGraph.getAllEdgesInMainGraph()) {
       if(edge.edgeProfileType === "CLASS-PROFILE") {
         const profiledClassPosition = edge.end.completeVisualNode.coreVisualNode.position;
-        switch(constraintContainer.currentLayoutAction.action.data.preferredProfileDirection){
+        switch(configurations.currentLayoutAction.action.userGivenConfiguration.preferredProfileDirection){
           case Direction.Up:
             edge.start.completeVisualNode.setPositionInCoreVisualNode(
               profiledClassPosition.x, profiledClassPosition.y - 1000);
@@ -35,7 +35,7 @@ export class ElkProfileLayout extends ElkLayout {
         }
       }
     }
-    super.prepareFromGraph(graph, constraintContainer);
+    super.prepareFromGraph(graph, configurations);
     this.setProfileLengthsForEdges();
   };
   async run() {
@@ -46,11 +46,11 @@ export class ElkProfileLayout extends ElkLayout {
   };
 
   setProfileLengthsForEdges() {
-    if(!(this.constraintContainer.currentLayoutAction.action instanceof ElkStressProfileLayoutConfiguration)) {
+    if(!(this.configurations.currentLayoutAction.action instanceof ElkStressProfileLayoutConfiguration)) {
       console.error("Incorrect configuration for ElkProfileLayout, can't correctly set profile edge lengths");
       return;
     }
-    const profileEdgeLength = this.constraintContainer.currentLayoutAction.action.data.profileEdgeLength;
+    const profileEdgeLength = this.configurations.currentLayoutAction.action.userGivenConfiguration.profileEdgeLength;
     this.setProfileLengthsForEdgesInternal(this.graphInElk, profileEdgeLength);
   }
 

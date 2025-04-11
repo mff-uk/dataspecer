@@ -1,18 +1,18 @@
 import { isVisualProfileRelationship, isVisualRelationship, Position, VisualNode, VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { ElkConstraint } from "../../configs/elk/elk-configurations";
+import { ElkConfiguration } from "../../configurations/elk/elk-configurations";
 import { VisualNodeComplete } from "../../graph/representation/node";
 import { GraphTransformer } from "./graph-transformer-interface";
 import { DefaultGraph, DefaultMainGraph, Graph, isSubgraph, MainGraph } from "../../graph/representation/graph";
 import { ElkExtendedEdge, ElkLabel, ElkNode, ElkPort } from "elkjs";
-import { ElkConstraintContainer } from "../../configs/constraint-container";
-import { ALGORITHM_TO_ELK_ALGORITHM_MAP, CONFIG_TO_ELK_CONFIG_MAP } from "../../configs/elk/elk-utils";
+import { ElkConfigurationsContainer } from "../../configurations/configurations-container";
+import { ALGORITHM_TO_ELK_ALGORITHM_MAP, CONFIG_TO_ELK_CONFIG_MAP } from "../../configurations/elk/elk-utils";
 import { ReactflowDimensionsConstantEstimator, XY } from "../..";
 import { VisualEntities } from "../../migration-to-cme-v2";
 import { EdgeEndPoint } from "../../graph/representation/edge";
 import _ from "lodash";
 import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { UserGivenAlgorithmConfigurationBase } from "../../configs/user-algorithm-configurations";
-import { AlgorithmConfiguration } from "../../configs/algorithm-configurations";
+import { UserGivenAlgorithmConfigurationBase } from "../../configurations/user-algorithm-configurations";
+import { AlgorithmConfiguration } from "../../configurations/algorithm-configurations";
 
 type VisualEntitiesType = (VisualNodeComplete | VisualRelationship | VisualProfileRelationship)[];
 
@@ -27,10 +27,10 @@ export class ElkGraphTransformer implements GraphTransformer {
     convertGraphToLibraryRepresentation(
         graph: Graph,
         shouldSetLayoutOptions: boolean,
-        constraintContainer: ElkConstraintContainer,
+        configurations: ElkConfigurationsContainer,
         elkNodeToSet?: ElkNode
     ): ElkNode {
-        return this.convertGraphToLibraryRepresentationInternal(graph, shouldSetLayoutOptions, constraintContainer, elkNodeToSet);
+        return this.convertGraphToLibraryRepresentationInternal(graph, shouldSetLayoutOptions, configurations, elkNodeToSet);
     }
 
     convertLayoutOptionsToElkLayoutOptions(
@@ -56,7 +56,7 @@ export class ElkGraphTransformer implements GraphTransformer {
     convertGraphToLibraryRepresentationInternal(
         graph: Graph,
         shouldSetLayoutOptions: boolean,
-        constraintContainer?: ElkConstraintContainer,
+        configurations?: ElkConfigurationsContainer,
         elkNodeToSet?: ElkNode
     ): ElkNode {
         console.info("convertGraphToLibraryRepresentationInternal", {...graph})
@@ -70,14 +70,14 @@ export class ElkGraphTransformer implements GraphTransformer {
             console.warn(_.cloneDeep(node));
             if(node.isProfile) {
                 return this.createElkNode(
-                    id, constraintContainer, node, elkNodeToSet, true,
+                    id, configurations, node, elkNodeToSet, true,
                     "PROFILE OF: " + (node.semanticEntityRepresentingNode as SemanticModelClassProfile)?.profiling);
             }
             else {
                 const elkNode = this.createElkNode(
-                    id, constraintContainer, node, elkNodeToSet, true, node?.semanticEntityRepresentingNode?.iri);
+                    id, configurations, node, elkNodeToSet, true, node?.semanticEntityRepresentingNode?.iri);
                 if(node instanceof DefaultGraph) {
-                    this.convertGraphToLibraryRepresentationInternal(node, true, constraintContainer, elkNode);
+                    this.convertGraphToLibraryRepresentationInternal(node, true, configurations, elkNode);
                 }
                 return elkNode;
             }
@@ -133,9 +133,9 @@ export class ElkGraphTransformer implements GraphTransformer {
         }
 
         if(shouldSetLayoutOptions) {
-            if((constraintContainer.currentLayoutAction.action.affectedNodes === "GENERALIZATION" && isSubgraph(this.mainGraph, elkGraph.id)) ||
-                (constraintContainer.currentLayoutAction.action.affectedNodes === "ALL" && (graph instanceof DefaultMainGraph))) {
-                elkGraph.layoutOptions = (constraintContainer.currentLayoutAction.action as (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> & ElkConstraint)).elkData;
+            if((configurations.currentLayoutAction.action.affectedNodes === "GENERALIZATION" && isSubgraph(this.mainGraph, elkGraph.id)) ||
+                (configurations.currentLayoutAction.action.affectedNodes === "ALL" && (graph instanceof DefaultMainGraph))) {
+                elkGraph.layoutOptions = (configurations.currentLayoutAction.action as (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase> & ElkConfiguration)).elkData;
             }
             else if(isSubgraph(this.mainGraph, elkGraph.id)) {
                 const nodesInOriginalGraph = Object.values(graph.nodes);
@@ -413,7 +413,7 @@ export class ElkGraphTransformer implements GraphTransformer {
      */
     createElkNode(
         id: string,
-        constraintContainer: ElkConstraintContainer,
+        configurations: ElkConfigurationsContainer,
         graphNode: EdgeEndPoint,
         parentElkNode?: ElkNode,
         shouldComputeSize?: boolean,
@@ -449,23 +449,25 @@ export class ElkGraphTransformer implements GraphTransformer {
             console.info(parentElkNode.width);
         }
 
+        const currentLayoutAction = configurations.currentLayoutAction?.action as (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase>);
+
         const isNodeSubgraph = isSubgraph(this.mainGraph, node.id);
         const position = graphNode?.completeVisualNode?.coreVisualNode?.position;
-        const isInteractiveGeneralization = constraintContainer?.currentLayoutAction?.action?.affectedNodes === "GENERALIZATION" &&
-            String(constraintContainer?.currentLayoutAction?.action?.data?.["interactive"]) === "true" &&
+        const isInteractiveGeneralization = configurations?.currentLayoutAction?.action?.affectedNodes === "GENERALIZATION" &&
+            String(currentLayoutAction?.userGivenConfiguration?.["interactive"]) === "true" &&
             !isNodeSubgraph;
-        const isInteractiveAll = constraintContainer?.currentLayoutAction.action.affectedNodes === "ALL" &&
-            String(constraintContainer?.currentLayoutAction?.action?.data?.["interactive"]) === "true" &&
-            ((constraintContainer.isGeneralizationPerformedBefore() && isNodeSubgraph) ||
-                !constraintContainer.isGeneralizationPerformedBefore());
-        const isInteractiveGeneralizationSubgraphs = constraintContainer?.currentLayoutAction.action.affectedNodes === "ALL" &&
-            constraintContainer.isGeneralizationPerformedBefore() && !isNodeSubgraph;
+        const isInteractiveAll = configurations?.currentLayoutAction.action.affectedNodes === "ALL" &&
+            String(currentLayoutAction?.userGivenConfiguration?.["interactive"]) === "true" &&
+            ((configurations.isGeneralizationPerformedBefore() && isNodeSubgraph) ||
+                !configurations.isGeneralizationPerformedBefore());
+        const isInteractiveGeneralizationSubgraphs = configurations?.currentLayoutAction.action.affectedNodes === "ALL" &&
+            configurations.isGeneralizationPerformedBefore() && !isNodeSubgraph;
 
 
         const hasParentGraphFixedLayout = parentElkNode !== undefined;
 
 
-        const originalAlgorithm = (constraintContainer.currentLayoutAction?.action as (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase>))?.data.layout_alg;
+        const originalAlgorithm = currentLayoutAction?.userGivenConfiguration.layout_alg;
         let elkAlgorithm = "not elk algorithm";
         if(originalAlgorithm !== undefined) {
             elkAlgorithm = ALGORITHM_TO_ELK_ALGORITHM_MAP[originalAlgorithm]

@@ -23,5 +23,5 @@ export const ALGORITHM_NAME_TO_LAYOUT_MAPPING: Record<AlgorithmName, LayoutAlgor
     "automatic": new AutomaticLayout(),
 }
 
-// TODO: Theoretically you can create the same map for the ConstraintContainer and for the UserConfiguration
+// TODO: Theoretically you can create the same map for the ConfigurationsContainer and for the UserConfiguration
 //       or at least use map, the map forces me to add the code unlike the switch

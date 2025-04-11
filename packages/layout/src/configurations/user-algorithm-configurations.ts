@@ -1,7 +1,7 @@
 import { AlgorithmName } from "../layout-algorithms/list-of-layout-algorithms";
 import { Direction } from "../util/utils";
 import { AutomaticConfiguration, RandomConfiguration } from "./algorithm-configurations";
-import { AffectedNodesGroupingsType, EdgeRouting, GraphConversionConstraint } from "./constraints";
+import { AffectedNodesGroupingsType, EdgeRouting, GraphConversionActionConfiguration } from "./graph-conversion-action";
 import { ElkForceAlgType, ElkForceConfiguration, ElkLayeredConfiguration, ElkRadialConfiguration, ElkSporeOverlapConfiguration, ElkStressAdvancedUsingClustersConfiguration, ElkStressConfiguration, ElkStressProfileLayoutConfiguration } from "./elk/elk-configurations";
 
 export type UserGivenAlgorithmConfigurationInterfaces =
@@ -244,7 +244,7 @@ export interface UserGivenAlgorithmConfigurationsForModel {
 
   general: {"elk_layered": UserGivenAlgorithmConfigurationBase},
   chosenGeneralAlgorithm: AlgorithmName,
-  additionalSteps: Record<number, (UserGivenAlgorithmConfigurations | GraphConversionConstraint)>,
+  additionalSteps: Record<number, (UserGivenAlgorithmConfigurations | GraphConversionActionConfiguration)>,
 }
 
 
@@ -254,14 +254,5 @@ export interface UserGivenAlgorithmConfigurations {
 
   general: UserGivenAlgorithmConfigurationsMap,
   chosenGeneralAlgorithm: AlgorithmName,
-  additionalSteps: Record<number, (UserGivenAlgorithmConfigurations | GraphConversionConstraint)>,
-}
-
-
-/**
-* Constraint on predefined set of nodes.
-*/
-export interface Constraint<T extends UserGivenAlgorithmConfigurationBase> {
-  affectedNodes: AffectedNodesGroupingsType,
-  data: T,
+  additionalSteps: Record<number, (UserGivenAlgorithmConfigurations | GraphConversionActionConfiguration)>,
 }
