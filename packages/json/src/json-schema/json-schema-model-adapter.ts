@@ -35,6 +35,7 @@ import {
 import { JSON_SCHEMA } from "./json-schema-vocabulary";
 import { JsonConfiguration } from "../configuration";
 import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
+import { JsonStructureModelClass } from "../json-structure-model/structure-model-class";
 
 interface Context {
   /**
@@ -188,7 +189,8 @@ function findArtefactForImport(
 }
 
 function structureModelClassPrimitive(modelClass: StructureModelClass): JsonSchemaDefinition {
-  const str = new JsonSchemaString(JsonSchemaStringFormats.iri);
+  const useStringInsteadOfIri = !!(modelClass as JsonStructureModelClass).iriUsesPrefixes
+  const str = new JsonSchemaString(useStringInsteadOfIri ? null : JsonSchemaStringFormats.iri);
   if (modelClass.regex) {
     str.pattern = modelClass.regex;
   }
