@@ -622,7 +622,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
           cardinality: firstProfiledEntity.aggregatedEntity.ends[0]!.cardinality ?? [0, null], // todo intersection
           profiling: [],
           externalDocumentationUrl: null,
-          tags: null,
+          tags: [],
         },
         {
           iri: iriGetLastChunk(firstProfiledEntity.aggregatedEntity.ends[1]!.iri),
@@ -636,7 +636,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
           cardinality: firstProfiledEntity.aggregatedEntity.ends[1]!.cardinality ?? [0, null], // todo intersection
           profiling,
           externalDocumentationUrl: null,
-          tags: null,
+          tags: [],
         }
       ]
     });
@@ -659,7 +659,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
       usageNoteFromProfiled: isSemanticModelClassProfile(firstProfiledEntity.aggregatedEntity) ? firstProfiled : null,
       profiling,
       externalDocumentationUrl: null,
-      tags: null,
+      tags: [],
     });
     const { id } = this.profile.executeOperation(operation) as CreatedEntityOperationResult;
 

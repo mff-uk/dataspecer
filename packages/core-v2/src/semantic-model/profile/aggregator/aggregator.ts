@@ -15,10 +15,12 @@ export interface DependencyAnalyzer {
 }
 
 export interface AggregatedProfiledSemanticModelClass extends SemanticModelClassProfile {
+
   /**
    * List of IRIs of the original classes that were referenced by the profile.
    */
   conceptIris: string[];
+
 }
 
 export function isAggregatedProfiledSemanticModelClass(entity: Entity | null): entity is AggregatedProfiledSemanticModelClass {
@@ -30,10 +32,12 @@ export interface AggregatedProfiledSemanticModelRelationship extends SemanticMod
 }
 
 export interface AggregatedProfiledSemanticModelRelationshipEnd extends SemanticModelRelationshipEndProfile {
+
   /**
    * List of IRIs of the original ends that were referenced by the profile.
    */
   conceptIris: string[];
+
 }
 
 export interface ProfileAggregator {
@@ -110,6 +114,8 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
       type: profile.type,
       profiling: profile.profiling,
       iri: profile.iri,
+      externalDocumentationUrl: profile.externalDocumentationUrl,
+      tags: profile.tags,
       //
       usageNote: (profiled(profile.usageNoteFromProfiled) as SemanticModelClassProfile)?.usageNote ?? usageNote ?? null,
       usageNoteFromProfiled: profile.usageNoteFromProfiled,
@@ -142,6 +148,8 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
         //
         profiling: end.profiling,
         iri: end.iri,
+        externalDocumentationUrl: end.externalDocumentationUrl,
+        tags: end.tags,
         //
         name: profiled(end.nameFromProfiled)?.ends[index]?.name ?? end.name ?? null,
         nameFromProfiled: end.nameFromProfiled,

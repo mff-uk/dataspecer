@@ -4,6 +4,8 @@
 // and hopefully, one day, be able to integrate it with the specification.
 //
 
+import { DSV_CLASS_ROLE } from "./vocabulary";
+
 export type LanguageString = { [language: string]: string };
 
 export interface DsvModel {
@@ -62,6 +64,8 @@ export interface Profile {
   // @lc-identifier dsv:specializes
   specializationOfIri: string[];
 
+  externalDocumentationUrl: string | null;
+
 }
 
 // @lc-identifier dsv:PropertyValueReuse
@@ -80,6 +84,12 @@ export interface InvalidProfile extends Profile {
 
 }
 
+export enum ClassRole {
+  undefined,
+  main,
+  supportive,
+}
+
 // @lc-identifier dsv:ClassProfile
 export interface ClassProfile extends Profile {
   $type: [typeof ClassProfileType];
@@ -91,12 +101,22 @@ export interface ClassProfile extends Profile {
   // @lc-identifier dsv:domain
   properties: PropertyProfile[];
 
+  // @lc-identifier dsv:classRole
+  classRole: ClassRole;
+
 }
 
 export const ClassProfileType = "class-profile";
 
 export function isClassProfile(profile:Profile) : profile is ClassProfile {
   return ((profile as any).$type ?? []).includes(ClassProfileType);
+}
+
+export enum RequirementLevel {
+  undefined,
+  mandatory,
+  optional,
+  recommended,
 }
 
 // @lc-identifier dsv:PropertyProfile
@@ -108,6 +128,9 @@ export interface PropertyProfile extends Profile {
   // @lc-identifier dsv:property
   // @lc-type ConceptualProperty
   profiledPropertyIri: string[];
+
+  // @lc-identifier dsv:requirementLevel
+  requirementLevel: RequirementLevel;
 
 }
 

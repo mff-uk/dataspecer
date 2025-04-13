@@ -68,6 +68,20 @@ export const DSV = {
   "ZeroToOne": IRI(DSV_PREFIX + "01"),
   "ZeroToZero": IRI(DSV_PREFIX + "00"),
   "specializationOf": IRI(DSV_PREFIX + "specializes"),
+  "classRole": IRI(DSV_PREFIX + "classRole"),
+  "requirementLevel": IRI(DSV_PREFIX + "requirementLevel"),
+  "externalDocumentation": IRI(DSV_PREFIX + "externalDocumentation"),
+};
+
+export const DSV_CLASS_ROLE = {
+  "main": "https://w3id.org/dsv/class-role#main",
+  "supportive": "https://w3id.org/dsv/class-role#supportive",
+};
+
+export const DSV_MANDATORY_LEVEL = {
+  "mandatory": "https://w3id.org/dsv/requirement-level#mandatory",
+  "optional": "https://w3id.org/dsv/requirement-level#optional",
+  "recommended": "https://w3id.org/dsv/requirement-level#recommended",
 };
 
 const OWL_PREFIX = "http://www.w3.org/2002/07/owl#";
