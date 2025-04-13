@@ -265,7 +265,9 @@ export async function generateSpecification(packageId: string, context: Generate
       "@value": value,
     })),
     "https://w3id.org/dsv#artefact": [],
-    "http://purl.org/dc/terms/references": [[...usedVocabularies].map((v) => ({ "@id": v }))],
+    "http://www.w3.org/ns/dx/prof/hasResource": [],
+    "http://purl.org/dc/terms/references": [[...usedVocabularies].map((v) => ({ "@id": v }))], //TODO: remove when every known instance is updated to prof:isProfileOf
+    "http://www.w3.org/ns/dx/prof/isProfileOf": [[...usedVocabularies].map((v) => ({ "@id": v }))],
   };
 
   // OWL
@@ -277,7 +279,20 @@ export async function generateSpecification(packageId: string, context: Generate
       await writeFile("model.owl.ttl", owl);
       externalArtifacts["owl-vocabulary"] = [{ type: "model.owl.ttl", URL: "./model.owl.ttl" + queryParams }];
 
-      dsvMetadata["https://w3id.org/dsv#artefact"].push({
+      dsvMetadata["https://w3id.org/dsv#artefact"].push({ //TODO: remove when every known instance is updated to prof:hasResource
+        "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
+        "http://www.w3.org/ns/dx/prof/hasArtifact": [
+          {
+            "@id": "./model.owl.ttl" + queryParams,
+          },
+        ],
+        "http://www.w3.org/ns/dx/prof/hasRole": [
+          {
+            "@id": "http://www.w3.org/ns/dx/prof/role/vocabulary",
+          },
+        ],
+      });
+      dsvMetadata["http://www.w3.org/ns/dx/prof/hasResource"].push({
         "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
         "http://www.w3.org/ns/dx/prof/hasArtifact": [
           {
@@ -299,7 +314,20 @@ export async function generateSpecification(packageId: string, context: Generate
     await writeFile("dsv.ttl", dsv);
     externalArtifacts["dsv-profile"] = [{ type: "dsv.ttl", URL: "./dsv.ttl" + queryParams }];
 
-    dsvMetadata["https://w3id.org/dsv#artefact"].push({
+    dsvMetadata["https://w3id.org/dsv#artefact"].push({ //TODO: remove when every known instance is updated to prof:hasResource
+      "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
+      "http://www.w3.org/ns/dx/prof/hasArtifact": [
+        {
+          "@id": "./dsv.ttl" + queryParams,
+        },
+      ],
+      "http://www.w3.org/ns/dx/prof/hasRole": [
+        {
+          "@id": "http://www.w3.org/ns/dx/prof/role/schema",
+        },
+      ],
+    });
+    dsvMetadata["http://www.w3.org/ns/dx/prof/hasResource"].push({
       "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
       "http://www.w3.org/ns/dx/prof/hasArtifact": [
         {
@@ -332,7 +360,20 @@ export async function generateSpecification(packageId: string, context: Generate
   }
 
   // HTML
-  dsvMetadata["https://w3id.org/dsv#artefact"].push({
+  dsvMetadata["https://w3id.org/dsv#artefact"].push({ //TODO: remove when every known instance is updated to prof:hasResource
+    "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
+    "http://www.w3.org/ns/dx/prof/hasArtifact": [
+      {
+        "@id": options.queryParams ?? ".",
+      },
+    ],
+    "http://www.w3.org/ns/dx/prof/hasRole": [
+      {
+        "@id": "http://www.w3.org/ns/dx/prof/role/specification",
+      },
+    ],
+  });
+  dsvMetadata["http://www.w3.org/ns/dx/prof/hasResource"].push({
     "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
     "http://www.w3.org/ns/dx/prof/hasArtifact": [
       {

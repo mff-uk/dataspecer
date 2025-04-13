@@ -5,9 +5,10 @@ import { EDGE_IRI_BASE, NODE_IRI_BASE, STRUCTURE_IRI_BASE } from "./constants";
 import { ApplicationGraphEdgeType, ApplicationGraphNode, ApplicationGraphNodeType } from "../src/engine/graph";
 import { AggregateMetadata } from "../src/application-config";
 import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
+import { vi } from 'vitest'
 
 function mockGetStructureModelInfoMethod(instance: ApplicationGraphNode, dataPsm: DataPsmSchema) {
-    return jest.spyOn(instance!, "getNodeStructureModel")
+    return vi.spyOn(instance!, "getNodeStructureModel")
         .mockReturnValue(Promise.resolve(
             new AggregateMetadata(
                 "",

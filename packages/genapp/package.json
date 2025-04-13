@@ -8,7 +8,7 @@
     "dev": "tsc -w",
     "prebuild": "rimraf lib generated",
     "start": "node ./lib/engine/app-generator.js",
-    "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests"
+    "test": "vitest run --pass-with-no-tests"
   },
   "author": "Viktor Bujko",
   "license": "ISC",
@@ -18,21 +18,19 @@
     "@types/command-line-args": "^5.2.3",
     "archiver": "^7.0.1",
     "axios": "^1.6.8",
-    "babel-jest": "^29.7.0",
     "copyfiles": "^2.4.1",
     "eta": "^3.4.0",
-    "jest": "^29.7.0",
     "jszip": "^3.10.1",
     "ts-command-line-args": "^2.5.1",
     "ts-json-schema-generator": "^2.3.0"
   },
   "devDependencies": {
     "@types/node": "^20.16.5",
-    "babel-plugin-module-resolver": "^5.0.2",
     "dotenv": "^16.4.5",
     "dotenv-webpack": "^8.1.0",
-    "rimraf": "^5.0.5",
-    "typescript": "^5.3.3"
+    "rimraf": "^6.0.1",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.1"
   },
   "exports": {
     ".": "./lib/index.js",

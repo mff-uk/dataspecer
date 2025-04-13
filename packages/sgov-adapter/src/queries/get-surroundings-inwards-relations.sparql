@@ -34,15 +34,17 @@ CONSTRUCT {
         skos:inScheme ?inwardsRelationGlossary .
 
     {
-        ?inwardsRelation rdfs:subClassOf ?rangeDefinition .
-        ?rangeDefinition owl:allValuesFrom %NODE% ;
-            owl:onProperty z:má-vztažený-prvek-2 .
+        ?inwardsRelation rdfs:subClassOf [
+            owl:allValuesFrom %NODE% ;
+            owl:onProperty z:má-vztažený-prvek-2
+        ] .
     }
 
     {
-        ?inwardsRelation rdfs:subClassOf ?domainDefinition .
-        ?domainDefinition owl:allValuesFrom ?domainElement ;
-            owl:onProperty z:má-vztažený-prvek-1 .
+        ?inwardsRelation rdfs:subClassOf [
+            owl:allValuesFrom ?domainElement ;
+            owl:onProperty z:má-vztažený-prvek-1
+        ] .
     }
 
     OPTIONAL { ?inwardsRelation skos:definition ?inwardsRelationDefinition }

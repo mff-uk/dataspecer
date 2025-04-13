@@ -14,6 +14,7 @@ import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usag
 import { ShiftAttributeDirection, shiftAttributePositionAction } from "./shift-attribute";
 import { notificationMockup } from "./test/actions-test-suite";
 import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
+import { fail } from "@/utilities/fail-test";
 
 test("Test shift attribute - up and down", () => {
   const {
