@@ -39,7 +39,7 @@ const ConfigDialogAlgorithmNameCombobox = (props: DialogProps<PerformLayoutDialo
       </div>
       <div className="flex flex-row">
         <select id="main-layout-alg"
-                className="px-2 py-1 text-sm text-gray-900 bg-gray-100 border border-gray-500 shadow-[inset_1px_1px_0_#fff] focus:outline-none focus:ring-0 focus:border-black"
+                className="px-2 py-1 text-base text-gray-900 bg-gray-100 border border-gray-300 shadow-[inset_1px_1px_0_#fff] focus:outline-none focus:ring-0 "
                 value={state.chosenAlgorithm}
           onChange={(event) => controller.setChosenAlgorithm(event.target.value as AlgorithmName)}>
           <option value="elk_layered">{t("layout-dialog-algorithm-elk-layered")}</option>
@@ -91,7 +91,10 @@ const ConfigDialogAlgorithmConfiguration = (props: DialogProps<PerformLayoutDial
     }
   };
 
-  return algorithmConfigurationToDialogMap[props.state.chosenAlgorithm](props) ?? null;
+  return <div className="flex flex-col">
+    <div className="font-black text-base">{t("layout-dialog-algorithm-configuration-label")}:</div>
+      {algorithmConfigurationToDialogMap[props.state.chosenAlgorithm](props) ?? null}
+  </div>
 };
 
 
@@ -132,8 +135,15 @@ const ElkLayeredConfig = (props: {controller: PerformLayoutDialogController, con
             max={1000}
             step={10}
             fieldToSet="in_layer_gap" />
-    <LayoutEdgeRoutingCombobox configuration={props.configuration} controller={props.controller} reactComponentId="layered" />
-    <LayeredAlgorithmDirectionDropdown direction={props.configuration.alg_direction} setDirection={(direction) => props.controller.setAlgorithmConfigurationValue("alg_direction", direction)} />
+
+    <HorizontalSeparator/>
+    <div className="flex flex-row ml-4 mt-2 mb-4">
+      <div className="mr-8">
+        <LayoutEdgeRoutingCombobox configuration={props.configuration} controller={props.controller} reactComponentId="layered" />
+      </div>
+      <LayeredAlgorithmDirectionDropdown direction={props.configuration.alg_direction} setDirection={(direction) => props.controller.setAlgorithmConfigurationValue("alg_direction", direction)} />
+    </div>
+    <HorizontalSeparator/>
     <InteractiveCheckbox configuration={props.configuration} controller={props.controller} />
   </div>
 };
@@ -177,7 +187,7 @@ const ElkStressConfig = (
 
 const HorizontalSeparator = () => <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
 
-const VerticalSeparator = () => <hr className="w-4 h-24 border-0 rounded dark:bg-gray-700" />
+const VerticalSeparator = () => <hr className="w-px mx-8 h-84 bg-gray-200 border-0 mx-4" />
 
 
 
@@ -316,7 +326,9 @@ const LayoutEdgeRoutingCombobox = (
       <label htmlFor={`${props.reactComponentId}-edge-routing`}>{t("layout-layered-edge-routing")}</label>
     </div>
     <div className="flex flex-row">
-      <select id="edge-routing" value={props.configuration.edge_routing}
+      <select id="edge-routing"
+              value={props.configuration.edge_routing}
+              className="border p-3 border-gray-300"
               onChange={(event) => props.controller.setAlgorithmConfigurationValue("edge_routing", event.target.value as EdgeRouting)}>
         <option value="ORTHOGONAL">{t("layout-layered-edge-routing-orthogonal-option")}</option>
         <option value="POLYLINE">{t("layout-layered-edge-routing-polyline-option")}</option>

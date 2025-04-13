@@ -1,22 +1,22 @@
 .custom-select {
     position: relative;
     display: inline-block;
-    width: 100px;
   }
 
   .select-box {
-    background-color: #f9f9f9;
-    border: 1px solid #ccc;
+    background-color: #FFFFFF;
+    border: 1px solid #FFFFFF;
     padding: 10px;
-    cursor: pointer;
+    padding-right: 89px;
+    border: 1px solid #ccc;
     font-size: 16px;
   }
 
   .dropdown-content {
     position: absolute;
-    background-color: #f1f1f1;
+    background-color: #FFFFFF;
     width: 100%;
-    border: 1px solid #ccc;
+    border: 1px solid #000000;
     box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
     z-index: 1;
   }
@@ -25,7 +25,6 @@
     display: flex;
     align-items: center;
     padding: 10px;
-    cursor: pointer;
   }
 
   .dropdown-item svg {

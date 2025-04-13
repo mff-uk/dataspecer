@@ -33,11 +33,6 @@ export function usePerformLayoutDialogController({ changeState }: DialogProps<Pe
       }));
     };
 
-    const setAlgorithmConfiguration = (setter: UserGivenAlgorithmConfigurationsMapSetter) => changeState(state => ({
-      ...state,
-      configurations: setter(state.configurations),
-    }));
-
     const setAlgorithmConfigurationValue = <T>(fieldToSet: string, newValue: T) => {
       changeState(state => ({
         ...state,
@@ -53,7 +48,6 @@ export function usePerformLayoutDialogController({ changeState }: DialogProps<Pe
 
     return {
       setChosenAlgorithm,
-      setAlgorithmConfiguration,
       setAlgorithmConfigurationValue,
     };
   }, [changeState]);

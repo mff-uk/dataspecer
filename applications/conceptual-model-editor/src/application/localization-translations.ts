@@ -333,6 +333,7 @@ export const translations: Record<string, string | Function> = {
   "align-vertical-mid.text": "Align to middle",
   "align-bot.text": "Align to bottom",
   //
+  "layout-dialog-algorithm-configuration-label": "Algorithm configuration",
   "layout-minimal-distance-between-nodes": "Minimal distance between nodes",
   "layout-number-of-runs-text": "Number of runs (may take several seconds for high numbers)",
   "layout-number-of-runs-tooltip": "Specifies the number of times the algorithm should run. The one with best metrics is chosen. For huge diagrams (hundreds of classes) use low values like 1-2, otherwise 10 seems to find not-perfect but good enough layouts.",
@@ -344,6 +345,7 @@ export const translations: Record<string, string | Function> = {
   "layout-layered-edge-routing-orthogonal-option": "Orthogonal",
   "layout-layered-edge-routing-splines-option": "Splines",
   "layout-layered-edge-routing-polyline-option": "Polyline",
+  "layout-direction-string": "Direction",
   "layout-edge-direction": "Preferred edge direction",
   "layout-edge-direction-up": "Up",
   "layout-edge-direction-right": "Right",
