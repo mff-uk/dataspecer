@@ -10,6 +10,7 @@
     padding-right: 89px;
     border: 1px solid #ccc;
     font-size: 16px;
+    cursor: default;
   }
 
   .dropdown-content {
@@ -35,4 +36,5 @@
 
   .dropdown-item:hover {
     background-color: #ddd;
+    cursor: default;
   }

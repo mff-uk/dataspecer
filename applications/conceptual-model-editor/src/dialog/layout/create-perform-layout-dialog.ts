@@ -27,5 +27,6 @@ export const createPerformLayoutDialog = (
     validate: () => true,
     onConfirm,
     onClose: null,
+    dialogClassNames: "m-auto base-dialog z-30 flex flex-col min-h-[50%] w-[97%] p-1 xl:w-[50%] md:max-h-[95%] md:p-8"
   };
 };
