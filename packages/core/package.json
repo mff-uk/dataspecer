@@ -7,7 +7,7 @@
     "dev": "tsc -w",
     "lint": "eslint ./src",
     "prettier": "prettier -w ./src",
-    "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests"
+    "test": "vitest run --pass-with-no-tests"
   },
   "exports": {
     ".": "./lib/conceptual-model/index.js",
@@ -713,17 +713,14 @@
     "rdfxml-streaming-parser": "^2.2.2"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.12",
     "@typescript-eslint/eslint-plugin": "^5.57.1",
     "@typescript-eslint/parser": "^5.57.1",
     "eslint": "^8.37.0",
-    "eslint-plugin-jest": "^27.2.1",
     "eslint-plugin-unused-imports": "^2.0.0",
-    "jest": "^29.5.0",
     "prettier": "^2.8.7",
-    "rimraf": "^5.0.5",
-    "ts-jest": "^29.1.2",
-    "typescript": "^5.6.3"
+    "rimraf": "^6.0.1",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.1"
   },
   "peerDependencies": {
     "@dataspecer/core-v2": "*"

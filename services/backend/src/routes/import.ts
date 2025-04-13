@@ -238,7 +238,11 @@ async function importFromUrl(parentIri: string, url: string): Promise<[BaseResou
     let rdfsUrl = null;
     let dsvUrl = null;
 
-    const artefacts = store.getObjects(baseIri, "https://w3id.org/dsv#artefact", null);
+    const artefacts = [
+      ...store.getObjects(baseIri, "https://w3id.org/dsv#artefact", null),  // TODO: remove when every known specification contains prof:hasResource
+      ...store.getObjects(baseIri, "http://www.w3.org/ns/dx/prof/hasResource", null),
+    ];
+
     for (const artefact of artefacts) {
       console.log(artefact);
       const artefactUrl = store.getObjects(artefact, "http://www.w3.org/ns/dx/prof/hasArtifact", null)[0].id;
@@ -252,8 +256,9 @@ async function importFromUrl(parentIri: string, url: string): Promise<[BaseResou
     }
 
     const vocabularies = [...new Set([
-      ...store.getObjects(baseIri, "https://w3id.org/dsv#usedVocabularies", null).map(v => v.id),
-      ...store.getObjects(baseIri, "http://purl.org/dc/terms/references", null).map(v => v.id),
+      ...store.getObjects(baseIri, "https://w3id.org/dsv#usedVocabularies", null).map(v => v.id), // TODO: remove when every known specification contains prof:isProfileOF
+      ...store.getObjects(baseIri, "http://purl.org/dc/terms/references", null).map(v => v.id), // TODO: remove when every known specification contains prof:isProfileOF
+      ...store.getObjects(baseIri, "http://www.w3.org/ns/dx/prof/isProfileOf", null).map(v => v.id),
     ])];
     const entities: SemanticModelEntity[] = [];
     for (const vocabularyId of vocabularies) {

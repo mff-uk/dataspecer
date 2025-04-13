@@ -60,7 +60,7 @@
     "i18next-parser": "^9.0.2",
     "postcss": "^8.4.34",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5.6.3",
+    "typescript": "^5.8.3",
     "vite": "^5.0.8",
     "vite-plugin-i18next-loader": "^2.0.12"
   }

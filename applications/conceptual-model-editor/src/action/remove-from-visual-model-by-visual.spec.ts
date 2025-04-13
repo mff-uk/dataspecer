@@ -21,6 +21,7 @@ import { ClassesContextType } from "../context/classes-context";
 import { ActionsTestSuite } from "./test/actions-test-suite";
 import { removeFromVisualModelByVisualAction } from "./remove-from-visual-model-by-visual";
 import { CmeSpecialization } from "../dataspecer/cme-model/model";
+import { fail } from "@/utilities/fail-test";
 
 test("removeFromVisualModelAction - relationship", () => {
   const {

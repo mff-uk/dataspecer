@@ -21,6 +21,7 @@ import { isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic
 import { createCmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 import { notificationMockup } from "./test/actions-test-suite";
 import { CmeReference, CmeSpecialization } from "../dataspecer/cme-model/model";
+import { fail } from "@/utilities/fail-test";
 
 // TODO RadStr: For now - since layout prints a lot of debug stuff
 //             (based on https://stackoverflow.com/questions/44467657/better-way-to-disable-console-inside-unit-tests)

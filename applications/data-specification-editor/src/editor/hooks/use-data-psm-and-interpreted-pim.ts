@@ -1,6 +1,6 @@
 import { SemanticModelEntity, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import {DataPsmResource} from "@dataspecer/core/data-psm/model";
-import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
+import { DataPsmAssociationEnd, DataPsmResource } from "@dataspecer/core/data-psm/model";
+import { useResource } from "@dataspecer/federated-observable-store-react/use-resource";
 
 /**
  * For the given data-PSM IRI it returns {@link DataPsmResource} object along with {@link SemanticModelEntity} object if
@@ -15,6 +15,6 @@ export const useDataPsmAndInterpretedPim = <DataPsmResourceType extends DataPsmR
         dataPsmResource: dataPsmResource.resource,
         pimResource: pimResource.resource,
         isLoading: dataPsmResource.isLoading || pimResource.isLoading,
-        relationshipEnd: (pimResource.resource && isSemanticModelRelationship(pimResource.resource)) ? pimResource.resource.ends[1] : null,
+        relationshipEnd: (pimResource.resource && isSemanticModelRelationship(pimResource.resource)) ? pimResource.resource.ends[(dataPsmResource.resource as unknown as DataPsmAssociationEnd).dataPsmIsReverse === true ? 0 : 1] : null,
     };
 }

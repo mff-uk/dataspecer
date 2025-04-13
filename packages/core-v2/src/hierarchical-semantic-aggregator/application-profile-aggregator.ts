@@ -600,7 +600,11 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
     const classProfileId = isAttribute ? conceptId : this.createClassProfile([conceptId!]).aggregatedEntity.id;
 
     // Create the relationship
-    return this.createRelationshipProfile(fromEntity, classProfileId!, [sourceEntity.aggregatedEntity.id]);
+    if (direction) {
+      return this.createRelationshipProfile(fromEntity, classProfileId!, [sourceEntity.aggregatedEntity.id]);
+    } else {
+      return this.createRelationshipProfile(classProfileId!, fromEntity, [sourceEntity.aggregatedEntity.id]);
+    }
   }
 
   private createRelationshipProfile(firstEnd: string, secondEnd: string, profiling: string[]) {

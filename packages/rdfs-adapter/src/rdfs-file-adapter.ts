@@ -283,13 +283,13 @@ export class RdfsFileAdapter implements CimAdapter {
             rangeNodes.push(...entity.nodes(rangeProp));
         }
 
-        // Treat rdfs:Resource as owl:Thing
-        if (domainNodes.includes(RDFS.Resource)) {
-            domainNodes = domainNodes.map((n, i) => n === RDFS.Resource ? OWL.Thing : n);
-        }
-        if (rangeNodes.includes(RDFS.Resource)) {
-            rangeNodes = rangeNodes.map((n, i) => n === RDFS.Resource ? OWL.Thing : n);
-        }
+        // // Treat rdfs:Resource as owl:Thing
+        // if (domainNodes.includes(RDFS.Resource)) {
+        //     domainNodes = domainNodes.map((n, i) => n === RDFS.Resource ? OWL.Thing : n);
+        // }
+        // if (rangeNodes.includes(RDFS.Resource)) {
+        //     rangeNodes = rangeNodes.map((n, i) => n === RDFS.Resource ? OWL.Thing : n);
+        // }
 
         // CIM IRI of the domain class
         let domainClassIri: string;
