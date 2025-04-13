@@ -12,13 +12,15 @@ import {
   DatatypePropertyProfileType,
   Cardinality,
   Profile,
+  ClassRole,
+  RequirementLevel,
 } from "./dsv-model";
 
 import {
   stringN3ToRdf,
 } from "./n3-reader";
 
-import { RDF, DSV, SKOS, VANN, DCT } from "./vocabulary";
+import { RDF, DSV, SKOS, VANN, DCT, DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL } from "./vocabulary";
 
 export async function rdfToConceptualModel(
   rdfAsString: string,
@@ -136,11 +138,13 @@ class ClassProfilesReader {
       usageNote: reader.languageString(VANN.usageNote),
       profileOfIri: reader.iris(DSV.profileOf),
       reusesPropertyValue: [],
+      specializationOfIri: reader.iris(DSV.specializationOf),
+      externalDocumentationUrl: reader.iri(DSV.externalDocumentation),
       // ClassProfile
       $type: [ClassProfileType],
       profiledClassIri: reader.iris(DSV.class),
       properties: [],
-      specializationOfIri: reader.iris(DSV.specializationOf),
+      classRole: iriToClassRole(reader.iri(DSV.classRole)),
     };
     // Load inherited values.
     for (const node of reader.irisAsSubjects(DSV.reusesPropertyValue)) {
@@ -161,6 +165,20 @@ class ClassProfilesReader {
     return classProfile;
   }
 
+}
+
+function iriToClassRole(iri: string | null): ClassRole {
+  if (iri === null) {
+    return ClassRole.undefined;
+  }
+  switch (iri) {
+    case DSV_CLASS_ROLE.main:
+      return ClassRole.main;
+    case DSV_CLASS_ROLE.supportive:
+      return ClassRole.supportive;
+    default:
+      return ClassRole.undefined;
+  }
 }
 
 /**
@@ -288,11 +306,13 @@ class PropertyProfilesReader {
       definition: reader.languageString(SKOS.definition),
       usageNote: reader.languageString(VANN.usageNote),
       profileOfIri: reader.iris(DSV.profileOf),
+      reusesPropertyValue: [],
       specializationOfIri: reader.iris(DSV.specializationOf),
+      externalDocumentationUrl: reader.iri(DSV.externalDocumentation),
       // PropertyProfile
       cardinality: this.loadCardinality(reader),
       profiledPropertyIri: reader.iris(DSV.property),
-      reusesPropertyValue: [],
+      requirementLevel: iriToRequirementLevel(reader.iri(DSV.requirementLevel)),
     };
     // Load inherited values.
     for (const node of reader.irisAsSubjects(DSV.reusesPropertyValue)) {
@@ -357,5 +377,21 @@ class PropertyProfilesReader {
     this.addToClass(reader, propertyProfile);
   }
 
+}
+
+function iriToRequirementLevel(iri: string | null): RequirementLevel {
+  if (iri === null) {
+    return RequirementLevel.undefined;
+  }
+  switch (iri) {
+    case DSV_MANDATORY_LEVEL.mandatory:
+      return RequirementLevel.mandatory;
+    case DSV_MANDATORY_LEVEL.optional:
+      return RequirementLevel.optional;
+    case DSV_MANDATORY_LEVEL.recommended:
+      return RequirementLevel.recommended;
+    default:
+      return RequirementLevel.undefined;
+  }
 }
 

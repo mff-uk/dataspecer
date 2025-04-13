@@ -45,4 +45,9 @@ export interface SemanticModelRelationshipEndProfile extends NamedThingProfile, 
    */
   cardinality: [number, number | null] | null;
 
+  /**
+   * Collections of IRIs tagging this resources.
+   */
+  tags: string[];
+
 }

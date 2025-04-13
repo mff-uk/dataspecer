@@ -504,6 +504,8 @@ function createSemanticAttributeProfileTestVariant(
       domainCardinality: null,
       range: range.identifier,
       rangeCardinality: null,
+      externalDocumentationUrl: null,
+      mandatoryLevel: null,
     });
 
   return {

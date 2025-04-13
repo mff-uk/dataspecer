@@ -11,6 +11,7 @@ import {
 } from "../utilities/dialog-utilities";
 import { validationNoProblem, validationNotEvaluated, ValidationState } from "../utilities/validation-utilities";
 import { validateBaseRelationshipDialogState } from "../base-relationship/base-relationship-dialog-validation";
+import { CmeRelationshipProfileMandatoryLevel } from "@/dataspecer/cme-model/model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -55,7 +56,39 @@ export interface BaseRelationshipProfileDialogState<RangeType>
 
   rangeCardinalityValidation: ValidationState;
 
+  // Mandatory level
+
+  availableMandatoryLevels: {
+
+    value: string;
+
+    label: string;
+
+    cme: CmeRelationshipProfileMandatoryLevel | null;
+
+  }[];
+
+  mandatoryLevel: string;
+
 }
+
+const MANDATORY_LEVELS = [{
+  value: "undefined",
+  label: "relationship-profile.mandatory-level.undefined",
+  cme: null,
+}, {
+  value: "mandatory",
+  label: "relationship-profile.mandatory-level.mandatory",
+  cme: CmeRelationshipProfileMandatoryLevel.Mandatory,
+}, {
+  value: "recommended",
+  label: "relationship-profile.mandatory-level.recommended",
+  cme: CmeRelationshipProfileMandatoryLevel.Recommended,
+}, {
+  value: "optional",
+  label: "relationship-profile.mandatory-level.optional",
+  cme: CmeRelationshipProfileMandatoryLevel.Optional
+}];
 
 export function createBaseRelationshipProfileDialogState<RangeType extends {
   identifier: string,
@@ -129,5 +162,8 @@ export function createBaseRelationshipProfileDialogState<RangeType extends {
     rangeCardinalityValidation: validationNoProblem(),
     //
     availableCardinalities: listProfileCardinalities(),
+    // Mandatory level
+    availableMandatoryLevels: MANDATORY_LEVELS,
+    mandatoryLevel: MANDATORY_LEVELS[0].value,
   });
 }

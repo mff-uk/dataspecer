@@ -32,6 +32,17 @@ export interface SemanticModelClass extends NamedThing, SemanticModelEntity {
     type: [typeof SEMANTIC_MODEL_CLASS];
 
     // todo: is it class, enumeration, datatype, code list, ...
+
+    /**
+     * URL of external documentation.
+     *
+     * The URL can be absolute or relative.
+     *
+     * This value is optional as it can be missing in the source data.
+     * You should not set the value to undefined manually.
+     * Use null to indicate an absence of a value.
+     */
+    externalDocumentationUrl?: string | null;
 }
 
 /**
@@ -51,6 +62,17 @@ export interface SemanticModelRelationshipEnd extends NamedThing {
 
     /** {@link SemanticModelClass} */
     concept: string | null;
+
+    /**
+     * URL of external documentation.
+     *
+     * The URL can be absolute or relative.
+     *
+     * This value is optional as it can be missing in the source data.
+     * You should not set the value to undefined manually.
+     * Use null to indicate an absence of a value.
+     */
+    externalDocumentationUrl?: string | null;
 }
 
 /**

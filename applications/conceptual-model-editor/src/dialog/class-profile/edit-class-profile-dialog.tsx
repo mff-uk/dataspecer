@@ -11,6 +11,8 @@ import { SpecializationSelect } from "../components/select-specialization";
 import { isValid } from "../utilities/validation-utilities";
 import { ClassProfileDialogState } from "./edit-class-profile-dialog-state";
 import { useClassProfileDialogController } from "./edit-class-profile-dialog-controller";
+import { InputText } from "../components/input-test";
+import { SelectBuildIn } from "../components/select-build-in";
 
 export const EditClassProfileDialog = (props: DialogProps<ClassProfileDialogState>) => {
   const controller = useClassProfileDialogController(props);
@@ -118,6 +120,19 @@ export const EditClassProfileDialog = (props: DialogProps<ClassProfileDialogStat
               className="grow"
             />
           </ProfiledValueWithSource>
+        </DialogDetailRow>
+        <DialogDetailRow detailKey={t("create-class-dialog.external-documentation-url")}>
+          <InputText
+            value={state.externalDocumentationUrl}
+            onChange={controller.setExternalDocumentationUrl}
+          />
+        </DialogDetailRow>
+        <DialogDetailRow detailKey={t("create-class-dialog.class-role")}>
+          <SelectBuildIn
+            items={state.availableRoles}
+            value={state.role}
+            onChange={controller.setRole}
+          />
         </DialogDetailRow>
       </div>
     </>

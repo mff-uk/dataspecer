@@ -14,6 +14,8 @@ import { AttributeProfileDialogState } from "./edit-attribute-profile-dialog-sta
 import { isValid } from "../utilities/validation-utilities";
 import { useAttributeProfileDialogController } from "./edit-attribute-profile-dialog-controller";
 import { SpecializationSelect } from "../components/select-specialization";
+import { InputText } from "../components/input-test";
+import { SelectBuildIn } from "../components/select-build-in";
 
 export const EditAttributeProfileDialog = (props: DialogProps<AttributeProfileDialogState>) => {
   const controller = useAttributeProfileDialogController(props);
@@ -170,6 +172,19 @@ export const EditAttributeProfileDialog = (props: DialogProps<AttributeProfileDi
             />
           </ProfiledValue>
           <ValidationMessage value={state.rangeCardinalityValidation} />
+        </DialogDetailRow>
+        <DialogDetailRow detailKey={t("create-class-dialog.external-documentation-url")}>
+          <InputText
+            value={state.externalDocumentationUrl}
+            onChange={controller.setExternalDocumentationUrl}
+          />
+        </DialogDetailRow>
+        <DialogDetailRow detailKey={t("relationship-profile.mandatory-level")}>
+          <SelectBuildIn
+            items={state.availableMandatoryLevels}
+            value={state.mandatoryLevel}
+            onChange={controller.setMandatoryLevel}
+          />
         </DialogDetailRow>
       </div>
     </>

@@ -7,6 +7,11 @@ export interface SemanticModelClassProfile extends SemanticModelEntity, Profile,
 
   type: [typeof SEMANTIC_MODEL_CLASS_PROFILE];
 
+  /**
+   * Collections of IRIs tagging this resources.
+   */
+  tags: string[];
+
 }
 
 export const SEMANTIC_MODEL_CLASS_PROFILE = "class-profile";

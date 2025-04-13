@@ -1,10 +1,14 @@
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { HexColor, VisualModel } from "@dataspecer/core-v2/visual-model";
+
 import { SemanticModel } from "../../semantic-model";
 import { CmeSemanticModel, CmeSemanticModelType } from "../model";
 import { LanguageString } from "../../entity-model";
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 
+/**
+ * This function shall be removed once we do not need to work with Map os models.
+ */
 export function semanticModelMapToCmeSemanticModel(
   models: Map<string, SemanticModel>,
   visualModel: VisualModel | null,

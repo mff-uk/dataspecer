@@ -22,4 +22,9 @@ export interface Profile {
    */
   usageNoteFromProfiled: string | null;
 
+  /**
+   * URL to external documentation.
+   */
+  externalDocumentationUrl: string | null;
+
 }

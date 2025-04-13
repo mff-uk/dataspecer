@@ -21,6 +21,8 @@ export interface BaseRelationshipProfileDialogController<RangeType>
 
   toggleRangeCardinalityOverride: () => void;
 
+  setMandatoryLevel: (value: string) => void;
+
 }
 
 export function createBaseRelationshipProfileDialogController<
@@ -95,10 +97,16 @@ export function createBaseRelationshipProfileDialogController<
     }));
   };
 
+  const setMandatoryLevel = (value: string) => changeState(state => ({
+    ...state,
+    mandatoryLevel: value,
+  }));
+
   return {
     ...relationshipController,
     onModelDidChange,
     toggleDomainCardinalityOverride,
     toggleRangeCardinalityOverride,
+    setMandatoryLevel,
   };
 }

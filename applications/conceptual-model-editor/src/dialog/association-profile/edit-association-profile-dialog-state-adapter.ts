@@ -25,5 +25,9 @@ export function associationProfileDialogStateToNewCmeRelationshipProfile(
     rangeCardinality:
       state.overrideRangeCardinality ?
         state.rangeCardinality.cardinality : null,
+    //
+    externalDocumentationUrl: state.externalDocumentationUrl,
+    mandatoryLevel: state.availableMandatoryLevels.find(
+      item => item.value === state.mandatoryLevel)?.cme ?? null,
   }
 }
