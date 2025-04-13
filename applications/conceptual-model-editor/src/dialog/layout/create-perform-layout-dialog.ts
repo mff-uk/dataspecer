@@ -6,11 +6,11 @@ import { PerformLayoutDialog } from "./perform-layout-dialog";
 // TODO RadStr: The passed in values should be from layout configuration model
 export function createPerformLayoutDialogState(
   chosenAlgorithm?: AlgorithmName,
-  configurationsm?: UserGivenAlgorithmConfigurationsMap,
+  configurations?: UserGivenAlgorithmConfigurationsMap,
 ): PerformLayoutDialogState {
   return {
-    chosenAlgorithm: "elk_stress_advanced_using_clusters",
-    configurations: getDefaultUserGivenAlgorithmConfigurationsFull().main,
+    chosenAlgorithm: chosenAlgorithm ?? "elk_stress_advanced_using_clusters",
+    configurations: configurations ?? getDefaultUserGivenAlgorithmConfigurationsFull().main,
   };
 }
 

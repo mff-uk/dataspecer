@@ -7,7 +7,7 @@ import { ClassesContextType } from "@/context/classes-context";
 import { UseNotificationServiceWriterType } from "@/notification/notification-service-context";
 import { UseDiagramType } from "@/diagram/diagram-hook";
 import { ModelGraphContextType } from "@/context/model-context";
-import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualProfileRelationship, isVisualRelationship, VisualModel, VisualProfileRelationship, VisualRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 /**
  * Open and handle create class dialog.
@@ -23,7 +23,9 @@ export function openLayoutSelectionDialogAction(
   edgeSelection: string[],
 ) {
   const onConfirm = (state: PerformLayoutDialogState) => {
-    const visualEntitiesToLayout = nodeSelection.concat(edgeSelection);
+    const filteredEdgeSelection = getOnlyEdgesWithBothEndsInGivenNodes(
+      visualModel, nodeSelection, edgeSelection);
+    const visualEntitiesToLayout = nodeSelection.concat(filteredEdgeSelection);
     const fullConfiguration = getDefaultUserGivenAlgorithmConfigurationsFull();
     fullConfiguration.main = state.configurations;
     fullConfiguration.chosenMainAlgorithm = state.chosenAlgorithm;
@@ -32,6 +34,22 @@ export function openLayoutSelectionDialogAction(
       fullConfiguration, visualEntitiesToLayout);
   }
 
-  const state = createPerformLayoutDialogState();
+  const state = createPerformLayoutDialogState("elk_layered");
   dialogs?.openDialog(createPerformLayoutDialog(state, onConfirm));
+}
+
+function getOnlyEdgesWithBothEndsInGivenNodes(
+  visualModel: VisualModel,
+  nodes: string[],
+  edgeIdentifiers: string[]
+): string[] {
+  const edges = edgeIdentifiers
+    .map(edgeIdentifier => visualModel.getVisualEntity(edgeIdentifier))
+    .filter(edge => edge !== null)
+    .filter(edge => isVisualRelationship(edge) || isVisualProfileRelationship(edge));
+  const result = edges
+    .filter(edge => nodes.includes(edge.visualSource) && nodes.includes(edge.visualTarget))
+    .map(edge => edge.identifier);
+
+  return result;
 }
