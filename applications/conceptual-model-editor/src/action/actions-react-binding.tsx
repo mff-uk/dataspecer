@@ -71,6 +71,8 @@ import { isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic
 import { openEditAssociationProfileDialogAction } from "./open-edit-association-profile-dialog";
 import { alignHorizontallyAction, AlignmentHorizontalPosition, AlignmentVerticalPosition, alignVerticallyAction } from "./align-nodes";
 import { createPerformLayoutDialog, createPerformLayoutDialogState } from "@/dialog/layout/create-perform-layout-dialog";
+import { openLayoutSelectionDialogAction } from "./open-layout-selection-dialog";
+import { openLayoutVisualModelDialogAction } from "./open-layout-visual-model-dialog";
 
 const LOG = createLogger(import.meta.url);
 
@@ -148,7 +150,7 @@ interface DialogActions {
   /**
    * Open dialog to layout visual model.
    */
-  openPerformLayoutDialog: () => void;
+  openPerformLayoutVisualModelDialog: () => void;
 }
 
 /**
@@ -361,7 +363,7 @@ const noOperationActionsContext = {
   //
   openExtendSelectionDialog: noOperation,
   openFilterSelectionDialog: noOperation,
-  openPerformLayoutDialog: noOperation,
+  openPerformLayoutVisualModelDialog: noOperation,
   // TODO PRQuestion: How to define this - Should actions return values?, shouldn't it be just function defined in utils?
   extendSelection: async () => ({ nodeSelection: [], edgeSelection: [] }),
   filterSelection: () => ({ nodeSelection: [], edgeSelection: [] }),
@@ -825,30 +827,29 @@ function createActionsContext(
   };
 
   const openFilterSelectionDialog = (selections: SelectionsWithIdInfo) => {
-    const state = createPerformLayoutDialogState();
-    dialogs?.openDialog(createPerformLayoutDialog(state, null));
-    // const onConfirm = (state: SelectionFilterState) => {
-    //   const relevantSelectionFilters = state.selectionFilters.map(selectionFilter => {
-    //     if (selectionFilter.checked) {
-    //       return selectionFilter.selectionFilter;
-    //     }
-    //     return null;
-    //   }).filter(selectionFilter => selectionFilter !== null);
+    const onConfirm = (state: SelectionFilterState) => {
+      const relevantSelectionFilters = state.selectionFilters.map(selectionFilter => {
+        if (selectionFilter.checked) {
+          return selectionFilter.selectionFilter;
+        }
+        return null;
+      }).filter(selectionFilter => selectionFilter !== null);
 
-    //   const filteredSelection = filterSelection(
-    //     state.selections, relevantSelectionFilters, VisibilityFilter.OnlyVisible, null);
-    //   setSelectionsInDiagram(filteredSelection, diagram);
-    // };
+      const filteredSelection = filterSelection(
+        state.selections, relevantSelectionFilters, VisibilityFilter.OnlyVisible, null);
+      setSelectionsInDiagram(filteredSelection, diagram);
+    };
 
-    // const setSelections = (selections: Selections) => {
-    //   setSelectionsInDiagram(selections, diagram);
-    // };
-    // dialogs?.openDialog(createFilterSelectionDialog(onConfirm, selections, setSelections));
+    const setSelections = (selections: Selections) => {
+      setSelectionsInDiagram(selections, diagram);
+    };
+    dialogs?.openDialog(createFilterSelectionDialog(onConfirm, selections, setSelections));
   };
 
-  const openPerformLayoutDialog = () => {
-    const state = createPerformLayoutDialogState();
-    dialogs?.openDialog(createPerformLayoutDialog(state, null));
+  const openPerformLayoutVisualModelDialog = () => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      openLayoutVisualModelDialogAction(notifications, dialogs, classes, diagram, graph, visualModel);
+    });
   };
 
   const extendSelection = async (
@@ -961,11 +962,10 @@ function createActionsContext(
     },
     onLayoutSelection: () => {
       const selection = getSelections(diagram, false, true);
-      const visualEntitiesToLayout = selection.nodeSelection.concat(selection.edgeSelection);
       withVisualModel(notifications, graph, (visualModel) => {
-        layoutGivenVisualEntitiesAdvancedAction(
-          notifications, classes, diagram, graph, visualModel,
-          getDefaultUserGivenAlgorithmConfigurationsFull(), visualEntitiesToLayout);
+      openLayoutSelectionDialogAction(
+        notifications, dialogs, classes, diagram, graph,
+        visualModel, selection.nodeSelection, selection.edgeSelection);
       });
     },
 
@@ -1153,7 +1153,7 @@ function createActionsContext(
     removeEntitiesInSemanticModelFromVisualModel,
     addClassNeighborhoodToVisualModel,
     //
-    openPerformLayoutDialog,
+    openPerformLayoutVisualModelDialog,
     layoutActiveVisualModel,
     //
     openExtendSelectionDialog,

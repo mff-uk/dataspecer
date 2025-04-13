@@ -333,6 +333,8 @@ export const translations: Record<string, string | Function> = {
   "align-vertical-mid.text": "Align to middle",
   "align-bot.text": "Align to bottom",
   //
+  "layout-dialog-open-button": "Layout",
+
   "layout-dialog-algorithm-configuration-label": "Algorithm configuration",
   "layout-minimal-distance-between-nodes": "Minimal distance between nodes",
   "layout-number-of-runs-text": "Number of runs (may take several seconds for high numbers)",
