@@ -10,7 +10,7 @@ import { notificationMockup } from "./test/actions-test-suite";
 import { ActionsTestSuite } from "./test/actions-test-suite";
 import { addVisualDiagramNodeForNewModelToVisualModelAction } from "./add-visual-diagram-node-to-visual-model";
 
-test("Test creation of model without edges", () => {
+test("Put 4 visual nodes without edges into visual model with visual diagram node reference to it", () => {
   const {
     visualModel,
     graph,
@@ -37,7 +37,7 @@ test("Test creation of model without edges", () => {
 });
 
 
-test("Test creation of model with edges", () => {
+test("Put visual nodes with edges into visual model with visual diagram node reference to it", () => {
   const {
     visualModel,
     modelsAsArray,

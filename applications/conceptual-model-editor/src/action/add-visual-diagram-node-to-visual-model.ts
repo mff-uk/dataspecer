@@ -15,7 +15,7 @@ import { removeFromVisualModelByVisualAction } from "./remove-from-visual-model-
 import { UseDiagramType } from "@/diagram/diagram-hook";
 
 /**
- * @returns Identifiers of the created visual diagram node
+ * @returns Identifier of the created visual diagram node
  */
 export function addVisualDiagramNodeForNewModelToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
