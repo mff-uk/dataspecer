@@ -1,6 +1,6 @@
-import { LanguageString } from "../semantic-model/concepts.ts";
 import { Entity, EntityIdentifier } from "./entity-model/entity.ts";
 import { ModelIdentifier } from "./entity-model/entity-model.ts";
+import { LanguageString } from "../semantic-model/concepts/concepts.ts";
 
 /**
  * Color in hexadecimal, must start with "#" character.
