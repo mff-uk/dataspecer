@@ -332,15 +332,15 @@ class PropertyProfilesReader {
         return Cardinality.ManyToOne;
       } else if (DSV.ManyToZero.equals(object)) {
         return Cardinality.ManyToZero;
-      } else if (DSV.OneToMany.equals(object)) {
+      } else if (DSV.OneToManyV1.equals(object) || DSV.OneToMany.equals(object)) {
         return Cardinality.OneToMany;
-      } else if (DSV.OneToOne.equals(object)) {
+      } else if (DSV.OneToOneV1.equals(object) || DSV.OneToOne.equals(object)) {
         return Cardinality.OneToOne;
       } else if (DSV.OneToZero.equals(object)) {
         return Cardinality.OneToZero;
-      } else if (DSV.ZeroToMany.equals(object)) {
+      } else if (DSV.ZeroToManyV1.equals(object) || DSV.ZeroToMany.equals(object)) {
         return Cardinality.ZeroToMany;
-      } else if (DSV.ZeroToOne.equals(object)) {
+      } else if (DSV.ZeroToOneV1.equals(object) || DSV.ZeroToOne.equals(object)) {
         return Cardinality.ZeroToOne;
       } else if (DSV.ZeroToZero.equals(object)) {
         return Cardinality.ZeroToZero;
