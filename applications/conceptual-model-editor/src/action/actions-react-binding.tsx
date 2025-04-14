@@ -41,7 +41,7 @@ import { createDefaultProfilesAction } from "./create-default-profiles";
 import { openCreateClassDialogWithModelDerivedFromClassAction } from "./open-create-class-dialog-with-derived-model";
 import { EntityToAddToVisualModel, addSemanticEntitiesToVisualModelAction } from "./add-semantic-entities-to-visual-model";
 import { UserGivenAlgorithmConfigurations, getDefaultUserGivenAlgorithmConfigurationsFull, LayoutedVisualEntities } from "@dataspecer/layout";
-import { layoutActiveVisualModelAction, layoutGivenVisualEntitiesAdvancedAction } from "./layout-visual-model";
+import { layoutActiveVisualModelAction } from "./layout-visual-model";
 import { toggleAnchorAction } from "./toggle-anchor";
 import { SelectionFilterState } from "../dialog/selection/filter-selection-dialog-controller";
 import { SelectionFilter, Selections, SelectionsWithIdInfo, filterSelectionAction } from "./filter-selection-action";
@@ -78,7 +78,6 @@ import { openEditAssociationProfileDialogAction } from "./open-edit-association-
 import { changeVisualModelAction } from "./change-visual-model";
 import { QueryParamsContextType, useQueryParamsContext } from "@/context/query-params-context";
 import { openCreateVisualModelDialogAction } from "./open-create-new-visual-model-dialog";
-import { alignHorizontallyAction, AlignmentHorizontalPosition, AlignmentVerticalPosition, alignVerticallyAction } from "./align-nodes";
 
 const LOG = createLogger(import.meta.url);
 
@@ -987,18 +986,8 @@ function createActionsContext(
       console.log("Application.onShowSelectionActions", { source, canvasPosition });
       diagram.actions().openSelectionActionsMenu(source, canvasPosition);
     },
-    onOpenAlignmentMenu: (source, canvasPosition) => {
-      console.log("Application.onOpenAlignmentMenu", { source, canvasPosition });
-      diagram.actions().openAlignmentMenu(source, canvasPosition);
-    },
     onLayoutSelection: () => {
-      const selection = getSelections(diagram, false, true);
-      const visualEntitiesToLayout = selection.nodeSelection.concat(selection.edgeSelection);
-      withVisualModel(notifications, graph, (visualModel) => {
-        layoutGivenVisualEntitiesAdvancedAction(
-          notifications, classes, diagram, graph, visualModel,
-          getDefaultUserGivenAlgorithmConfigurationsFull(), visualEntitiesToLayout);
-      });
+      // TODO RadStr: Currently does nothing
     },
 
     onCreateGroup: () => {
@@ -1134,20 +1123,6 @@ function createActionsContext(
     onMoveAttributeDown: function (attribute: string, nodeIdentifier: string): void {
       shiftAttributeDown(attribute, nodeIdentifier);
     },
-    onAlignSelectionHorizontally: function (alignmentHorizontalPosition: AlignmentHorizontalPosition): void {
-      withVisualModel(notifications, graph, (visualModel) => {
-        const nodeSelection = getSelections(diagram, true, true).nodeSelection;
-        alignHorizontallyAction(
-          notifications, diagram, visualModel, nodeSelection, alignmentHorizontalPosition);
-      });
-    },
-    onAlignSelectionVertically: (alignmentVerticalPosition: AlignmentVerticalPosition) => {
-      withVisualModel(notifications, graph, (visualModel) => {
-        const nodeSelection = getSelections(diagram, true, true).nodeSelection;
-        alignVerticallyAction(
-          notifications, diagram, visualModel, nodeSelection, alignmentVerticalPosition);
-      });
-    }
   };
 
   diagram.setCallbacks(callbacks);
