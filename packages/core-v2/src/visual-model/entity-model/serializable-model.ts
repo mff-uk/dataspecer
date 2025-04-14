@@ -1,4 +1,4 @@
-import { TypedObject, isTypedObject } from "./typed-object";
+import { TypedObject, isTypedObject } from "./typed-object.ts";
 
 export interface SerializableModel extends TypedObject {
 

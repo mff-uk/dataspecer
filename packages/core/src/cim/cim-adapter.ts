@@ -1,6 +1,6 @@
-import { PimClass } from "../pim/model";
-import { CoreResourceReader } from "../core";
-import { IriProvider } from "./iri-provider";
+import { PimClass } from "../pim/model/index.ts";
+import { CoreResourceReader } from "../core/index.ts";
+import { IriProvider } from "./iri-provider.ts";
 
 /**
  * Reads the ontology from the CIM layer.

@@ -1,4 +1,4 @@
-import { DocumentationConfiguration } from "./configuration";
+import { DocumentationConfiguration } from "./configuration.ts";
 
 export const defaultConfiguration: DocumentationConfiguration = {
   partials: {
@@ -21,10 +21,12 @@ export const defaultConfiguration: DocumentationConfiguration = {
         <h2>{{#iflng "cs"}}Přehled{{lng}}Overview{{/iflng}}</h2>
 
         {{#each externalArtifacts.svg}}
-          <figure>
-            <img src="{{{URL}}}" alt="{{translate ./label}}" />
-            <figcaption>{{translate ./label}}</figcaption>
-          </figure>
+          <a href="{{{URL}}}">
+            <figure>
+              <img src="{{{URL}}}" alt="{{translate ./label}}" />
+              <figcaption>{{translate ./label}}</figcaption>
+            </figure>
+          </a>
         {{/each}}
       </section>
 

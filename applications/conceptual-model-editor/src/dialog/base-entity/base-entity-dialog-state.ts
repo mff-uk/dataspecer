@@ -83,6 +83,11 @@ export interface BaseEntityDialogState {
    */
   specializations: NewCmeSpecialization[];
 
+  /**
+   * Link to external documentation.
+   */
+  externalDocumentationUrl: string;
+
 }
 
 /**
@@ -127,6 +132,8 @@ export function createNewBaseEntityDialogState(
     // Specialization
     availableSpecializations,
     specializations: [],
+    // Documentation
+    externalDocumentationUrl: "",
   };
 }
 
@@ -167,6 +174,7 @@ export function createEditBaseEntityDialogState(
   iri: string,
   name: LanguageString,
   description: LanguageString,
+  externalDocumentationUrl: string,
   allSpecializations: EntityRepresentative[],
 ): BaseEntityDialogState {
 
@@ -205,6 +213,8 @@ export function createEditBaseEntityDialogState(
     availableSpecializations,
     specializations: representSpecializations(
       entity.identifier, allSpecializations, semanticModels),
+    // Documentation
+    externalDocumentationUrl,
   };
 }
 

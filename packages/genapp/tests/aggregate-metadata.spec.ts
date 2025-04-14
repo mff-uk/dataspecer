@@ -1,8 +1,8 @@
 import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
-import { ApplicationGraphNode } from "../src/engine/graph";
-import { AggregateMetadata, AggregateMetadataCache } from "../src/application-config";
-import { simpleNodeGraph } from "./app-graphs";
-import { NODE_IRI_BASE } from "./constants";
+import { ApplicationGraphNode } from "../src/engine/graph/index.ts";
+import { AggregateMetadata, AggregateMetadataCache } from "../src/application-config.ts";
+import { simpleNodeGraph } from "./app-graphs.ts";
+import { NODE_IRI_BASE } from "./constants.ts";
 
 beforeEach(() => { AggregateMetadataCache.resetCacheContent() });
 

@@ -1,4 +1,4 @@
-import { WdEntityDescOnly, WdEntityIdsList } from "../../wikidata-entities/wd-entity";
+import { WdEntityDescOnly, WdEntityIdsList } from "../../wikidata-entities/wd-entity.ts";
 
 // Property identifiers
 

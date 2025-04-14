@@ -64,17 +64,17 @@ export function getSchemaArtifacts(
         artifacts.push(jsonLd);
     }
 
-    const xmlSchemaLocation = XmlConfigurator.getFromObject(configuration).commonXmlSchemaExternalLocation;
-    const xsdCoreSchema = new DataSpecificationSchema();
-    xsdCoreSchema.generator = XML_COMMON_SCHEMA_GENERATOR;
-    xsdCoreSchema.iri = `${psmSchemaIri}#xsdCoreSchema`;
-    xsdCoreSchema.outputPath = xmlSchemaLocation ? null : `${basePath}/2022-07.xsd`;
-    xsdCoreSchema.publicUrl = xmlSchemaLocation ?? `${baseUrl}/2022-07.xsd`;
-    xsdCoreSchema.psm = psmSchemaIri;
-    xsdCoreSchema.configuration = configuration;
-    if ((dataSpecificationConfiguration.useGenerators?.["xml"] ?? generatorsEnabledByDefault) !== false) {
-        artifacts.push(xsdCoreSchema);
-    }
+    // const xmlSchemaLocation = XmlConfigurator.getFromObject(configuration).commonXmlSchemaExternalLocation;
+    // const xsdCoreSchema = new DataSpecificationSchema();
+    // xsdCoreSchema.generator = XML_COMMON_SCHEMA_GENERATOR;
+    // xsdCoreSchema.iri = `${psmSchemaIri}#xsdCoreSchema`;
+    // xsdCoreSchema.outputPath = xmlSchemaLocation ? null : `${basePath}/2022-07.xsd`;
+    // xsdCoreSchema.publicUrl = xmlSchemaLocation ?? `${baseUrl}/2022-07.xsd`;
+    // xsdCoreSchema.psm = psmSchemaIri;
+    // xsdCoreSchema.configuration = configuration;
+    // if ((dataSpecificationConfiguration.useGenerators?.["xml"] ?? generatorsEnabledByDefault) !== false) {
+    //     artifacts.push(xsdCoreSchema);
+    // }
 
     const xmlSchema = new DataSpecificationSchema();
     xmlSchema.iri = `${psmSchemaIri}#xmlschema`;

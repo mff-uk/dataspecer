@@ -1,2 +1,1 @@
-export * from "./datatypes";
-export * from "./datatypes-utils";
+export * from "./datatypes.ts";

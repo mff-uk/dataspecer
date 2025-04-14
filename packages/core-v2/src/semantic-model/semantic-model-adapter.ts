@@ -1,4 +1,4 @@
-import { Entities, Entity, EntityModel } from "../entity-model";
+import { Entities, Entity, EntityModel } from "../entity-model/index.ts";
 
 /**
  * Provides entities as semantic model.

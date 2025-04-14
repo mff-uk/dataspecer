@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { PimCreateAssociation, PimCreateAssociationResult } from "../operation";
-import { executesPimCreateAssociation } from "./pim-create-association-executor";
-import * as PIM from "../pim-vocabulary";
+} from "../../core/index.ts";
+import { PimCreateAssociation, PimCreateAssociationResult } from "../operation/index.ts";
+import { executesPimCreateAssociation } from "./pim-create-association-executor.ts";
+import * as PIM from "../pim-vocabulary.ts";
 
 test("Create association.", async () => {
   const operation = new PimCreateAssociation();

@@ -1,7 +1,7 @@
-import { CoreExecutorResult, CoreResourceReader, CreateNewIdentifier } from "../../core";
-import { DataPsmAssociationEnd, DataPsmAttribute, DataPsmContainer, DataPsmSchema } from "../model";
-import { DataPsmSetCardinality } from "../operation";
-import { DataPsmExecutorResultFactory } from "./data-psm-executor-utils";
+import { CoreExecutorResult, CoreResourceReader, CreateNewIdentifier } from "../../core/index.ts";
+import { DataPsmAssociationEnd, DataPsmAttribute, DataPsmContainer, DataPsmSchema } from "../model/index.ts";
+import { DataPsmSetCardinality } from "../operation/index.ts";
+import { DataPsmExecutorResultFactory } from "./data-psm-executor-utils.ts";
 
 type CardinalityType = DataPsmSchema | DataPsmAttribute | DataPsmAssociationEnd | DataPsmContainer;
 

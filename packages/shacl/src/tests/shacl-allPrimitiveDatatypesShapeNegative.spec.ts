@@ -1,6 +1,6 @@
-import * as Support from "./support/testSupport";
-import AllPrimitiveTypesModelCreator from "./support/AllPrimitiveTypesModelCreator";
-import generate, {fromJsonToTurtle} from "./support/FakeDataCreator";
+import * as Support from "./support/testSupport.ts";
+import AllPrimitiveTypesModelCreator from "./support/AllPrimitiveTypesModelCreator.ts";
+import generate, {fromJsonToTurtle} from "./support/FakeDataCreator.ts";
 
 const testType = "allPrimitiveDatatypesNegative";
 const modelCreator = new AllPrimitiveTypesModelCreator();

@@ -1,5 +1,5 @@
-import * as PSM from "../data-psm-vocabulary";
-import { DataPsmResource } from "./data-psm-resource";
+import * as PSM from "../data-psm-vocabulary.ts";
+import { DataPsmResource } from "./data-psm-resource.ts";
 /**
  * Represents PSM OR construct that select one entity from the given set of
  * entities. So far, this OR is "specialization or", meaning that we can derive

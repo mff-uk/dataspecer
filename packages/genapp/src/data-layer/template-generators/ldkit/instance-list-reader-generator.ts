@@ -1,9 +1,9 @@
-import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/templates/template-consumer";
-import { BaseListLdkitReaderGenerator } from "./base-list-reader-generator";
-import { DataLayerTemplateDescription, ImportRelativePath } from "../../../engine/templates/template-interfaces";
-import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy";
-import { ReadWriteEndpointUri } from "../../../engine/graph/datasource";
+import { LayerArtifact } from "../../../engine/layer-artifact.ts";
+import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/templates/template-consumer.ts";
+import { BaseListLdkitReaderGenerator } from "./base-list-reader-generator.ts";
+import { DataLayerTemplateDescription, ImportRelativePath } from "../../../engine/templates/template-interfaces.ts";
+import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy.ts";
+import { ReadWriteEndpointUri } from "../../../engine/graph/datasource.ts";
 
 export interface InstanceListLdkitReaderTemplate extends DataLayerTemplateDescription {
     placeholders: {

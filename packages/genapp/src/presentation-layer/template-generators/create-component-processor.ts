@@ -1,9 +1,9 @@
-import { LayerArtifact } from "../../engine/layer-artifact";
-import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "./presentation-layer-template-generator";
-import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
-import { ApplicationGraphEdgeType } from "../../engine/graph";
-import { AllowedTransition } from "../../engine/transitions/transitions-generator";
-import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
+import { LayerArtifact } from "../../engine/layer-artifact.ts";
+import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "./presentation-layer-template-generator.ts";
+import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces.ts";
+import { ApplicationGraphEdgeType } from "../../engine/graph/index.ts";
+import { AllowedTransition } from "../../engine/transitions/transitions-generator.ts";
+import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator.ts";
 
 interface CreateInstanceReactComponentTemplate extends TemplateModel {
     placeholders: {

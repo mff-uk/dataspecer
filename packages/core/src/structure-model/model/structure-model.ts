@@ -1,6 +1,6 @@
-import {LanguageString} from "../../core";
-import {StructureModelSchemaRoot} from "./structure-model-schema-root";
-import {StructureModelClass} from "./structure-model-class";
+import {LanguageString} from "../../core/index.ts";
+import {StructureModelSchemaRoot} from "./structure-model-schema-root.ts";
+import {StructureModelClass} from "./structure-model-class.ts";
 
 /**
  * Schema is the root object that is used to identify a collection of classes.
@@ -40,6 +40,11 @@ export class StructureModel {
    * List of defined IRI prefixes for JSON-LD context.
    */
   jsonLdDefinedPrefixes: { [prefix: string]: string } = {};
+
+  /**
+   * Type iri to label used for @types.
+   */
+  jsonLdTypeMapping: { [iri: string]: string } = {};
 
   /**
    * Returns a list of classes in the model.

@@ -1,8 +1,8 @@
-import { LayerArtifact } from "../engine/layer-artifact";
-import { ImportRelativePath, TemplateModel } from "../engine/templates/template-interfaces";
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../engine/templates/template-consumer";
-import { CopyTemplateProcessor } from "../capabilities/template-generators/capability-interface-generator";
-import { SidebarComponentTemplateProcessor } from "../presentation-layer/template-generators/sidebar-template-processor";
+import { LayerArtifact } from "../engine/layer-artifact.ts";
+import { ImportRelativePath, TemplateModel } from "../engine/templates/template-interfaces.ts";
+import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../engine/templates/template-consumer.ts";
+import { CopyTemplateProcessor } from "../capabilities/template-generators/capability-interface-generator.ts";
+import { SidebarComponentTemplateProcessor } from "../presentation-layer/template-generators/sidebar-template-processor.ts";
 
 interface ReactAppBaseTemplate extends TemplateModel {
     placeholders: {

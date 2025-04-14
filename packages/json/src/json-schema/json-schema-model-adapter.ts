@@ -11,7 +11,7 @@ import {
   JsonSchemaRef,
   JsonSchemaString,
   JsonSchemaStringFormats,
-} from "./json-schema-model";
+} from "./json-schema-model.ts";
 import {
   assert,
   assertFailed,
@@ -32,9 +32,10 @@ import {
   DataSpecificationArtefact,
   DataSpecificationSchema,
 } from "@dataspecer/core/data-specification/model";
-import { JSON_SCHEMA } from "./json-schema-vocabulary";
-import { JsonConfiguration } from "../configuration";
+import { JSON_SCHEMA } from "./json-schema-vocabulary.ts";
+import { JsonConfiguration } from "../configuration.ts";
 import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
+import { JsonStructureModelClass } from "../json-structure-model/structure-model-class.ts";
 
 interface Context {
   /**
@@ -188,7 +189,8 @@ function findArtefactForImport(
 }
 
 function structureModelClassPrimitive(modelClass: StructureModelClass): JsonSchemaDefinition {
-  const str = new JsonSchemaString(JsonSchemaStringFormats.iri);
+  const useStringInsteadOfIri = !!(modelClass as JsonStructureModelClass).iriUsesPrefixes
+  const str = new JsonSchemaString(useStringInsteadOfIri ? null : JsonSchemaStringFormats.iri);
   if (modelClass.regex) {
     str.pattern = modelClass.regex;
   }

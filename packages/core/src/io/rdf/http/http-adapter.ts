@@ -1,8 +1,8 @@
-import { HttpFetch } from "../../fetch/fetch-api";
-import { RdfQuad } from "../../../core/adapter/rdf";
-import { parseRdfQuadsWithJsonLd } from "../jsonld/jsonld-adapter";
-import { parseRdfQuadsWithN3 } from "../n3/n3-adapter";
-import {parseRdfXml} from "../xml/rdfxml-adapter";
+import { HttpFetch } from "../../fetch/fetch-api.ts";
+import { RdfQuad } from "../../../core/adapter/rdf/index.ts";
+import { parseRdfQuadsWithJsonLd } from "../jsonld/jsonld-adapter.ts";
+import { parseRdfQuadsWithN3 } from "../n3/n3-adapter.ts";
+import {parseRdfXml} from "../xml/rdfxml-adapter.ts";
 
 enum MimeType {
   JsonLd = "application/ld+json",

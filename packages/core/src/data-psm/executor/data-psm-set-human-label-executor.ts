@@ -3,15 +3,15 @@ import {
   CoreExecutorResult,
   CreateNewIdentifier,
   CoreResource,
-} from "../../core";
-import { DataPsmSetHumanLabel } from "../operation";
+} from "../../core/index.ts";
+import { DataPsmSetHumanLabel } from "../operation/index.ts";
 import {
   DataPsmAssociationEnd,
   DataPsmAttribute,
   DataPsmClass,
   DataPsmResource,
   DataPsmSchema,
-} from "../model";
+} from "../model/index.ts";
 
 export async function executeDataPsmSetHumanLabel(
   reader: CoreResourceReader,

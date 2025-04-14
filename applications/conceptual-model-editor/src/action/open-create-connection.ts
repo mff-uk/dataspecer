@@ -170,6 +170,7 @@ function createRelationship(
     domainCardinality: state.sourceCardinality,
     range: state.target.id,
     rangeCardinality: state.targetCardinality,
+    externalDocumentationUrl: null,
   });
 
   visualExecutor.addRelationshipWithSpecifiedVisualEnds(

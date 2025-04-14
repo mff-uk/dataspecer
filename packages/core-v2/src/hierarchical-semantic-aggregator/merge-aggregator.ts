@@ -1,7 +1,8 @@
-import { isSemanticModelClass, isSemanticModelRelationship, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "../semantic-model/concepts";
-import { SemanticEntityIdMerger, StrongerWinsSemanticEntityIdMerger } from "../semantic-model/merge/merger";
-import { ExternalEntityWrapped, LocalEntityWrapped, SemanticModelAggregator } from "./interfaces";
-import { TupleSet } from "./utils/tuple-set";
+import { Entity } from "../entity-model/index.ts";
+import { isSemanticModelClass, isSemanticModelRelationship, SemanticModelClass, SemanticModelRelationship } from "../semantic-model/concepts/index.ts";
+import { SemanticEntityIdMerger, StrongerWinsSemanticEntityIdMerger } from "../semantic-model/merge/merger/index.ts";
+import { ExternalEntityWrapped, LocalEntityWrapped, SemanticModelAggregator } from "./interfaces.ts";
+import { TupleSet } from "./utils/tuple-set.ts";
 
 type MergeAggregatorExternalEntityData = {
   parentModel: SemanticModelAggregator;
@@ -193,7 +194,7 @@ export class MergeAggregator implements SemanticModelAggregator {
     return finalResults;
   }
 
-  private unwrapExternalEntity<T extends SemanticModelEntity>(entity: ExternalEntityWrapped<T>): [ExternalEntityWrapped<T>, MergeAggregatorExternalEntityData] {
+  private unwrapExternalEntity<T extends Entity>(entity: ExternalEntityWrapped<T>): [ExternalEntityWrapped<T>, MergeAggregatorExternalEntityData] {
     const unwrappedEntity = {
       ...entity,
       originatingModel: [...entity.originatingModel].splice(-1)

@@ -1,7 +1,10 @@
-import {StructureModel, StructureModelClass, StructureModelComplexType, StructureModelCustomType, StructureModelProperty} from "@dataspecer/core/structure-model/model";
-import {clone} from "@dataspecer/core/core";
-import {JsonConfiguration} from "../configuration";
-import { getClassTypeKey } from "../json-ld/json-ld-adapter";
+import { LocalEntityWrapped } from "@dataspecer/core-v2/hierarchical-semantic-aggregator";
+import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { clone } from "@dataspecer/core/core";
+import { StructureModel, StructureModelClass, StructureModelComplexType, StructureModelCustomType, StructureModelProperty } from "@dataspecer/core/structure-model/model";
+import { JsonConfiguration } from "../configuration.ts";
+import { getClassTypeKey } from "../json-ld/json-ld-adapter.ts";
 
 /**
  * For each PSM class with CIM interpretation, it adds iri and type property
@@ -11,6 +14,7 @@ import { getClassTypeKey } from "../json-ld/json-ld-adapter";
 export function structureModelAddIdAndTypeProperties(
   structure: StructureModel,
   configuration: JsonConfiguration,
+  semanticModel: Record<string, LocalEntityWrapped>,
 ): StructureModel {
   const result = clone(structure) as StructureModel;
   const classes = result.getClasses();
@@ -30,19 +34,20 @@ export function structureModelAddIdAndTypeProperties(
     // todo: properties are added only to non-empty classes as empty are treated differently
     if (structureClass.cimIri !== null && (structureClass.properties.length > 0 || structureClass.emptyAsComplex)) {
       if (localClassConfiguration.jsonTypeKeyAlias !== null) {
-        const typeKeyValue = getClassTypeKey(structureClass, configuration);
+        const typeKeyValue = getClassTypeKey(semanticModel[structureClass.pimIri] as LocalEntityWrapped<SemanticModelClass | SemanticModelClassProfile>, structureClass, configuration, structure.jsonLdTypeMapping);
 
         const datatype = new StructureModelCustomType();
         if (typeKeyValue.length === 1) {
+          const type = typeKeyValue[0];
           datatype.data = {
             oneOf: [
               {
-                const: typeKeyValue
+                const: type
               },
               {
                 type: "array",
                 contains: {
-                  const: typeKeyValue
+                  const: type
                 },
                 items: {
                   type: "string"

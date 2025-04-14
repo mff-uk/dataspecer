@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { DataPsmSetHumanLabel } from "../operation";
-import { executeDataPsmSetHumanLabel } from "./data-psm-set-human-label-executor";
-import * as PSM from "../data-psm-vocabulary";
+} from "../../core/index.ts";
+import { DataPsmSetHumanLabel } from "../operation/index.ts";
+import { executeDataPsmSetHumanLabel } from "./data-psm-set-human-label-executor.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 test("Update data PSM resource human label.", async () => {
   const operation = new DataPsmSetHumanLabel();

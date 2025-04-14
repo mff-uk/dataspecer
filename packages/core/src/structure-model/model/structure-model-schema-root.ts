@@ -1,4 +1,4 @@
-import {StructureModelClass} from "./structure-model-class";
+import {StructureModelClass} from "./structure-model-class.ts";
 
 /**
  * Root of the data-psm tree in structure model.

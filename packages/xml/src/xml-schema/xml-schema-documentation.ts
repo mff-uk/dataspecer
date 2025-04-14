@@ -13,14 +13,14 @@ import {
   XmlSchemaElement,
   XmlSchemaType,
   xmlSchemaTypeIsComplex,
-} from "./xml-schema-model";
+} from "./xml-schema-model.ts";
 import { ArtefactGeneratorContext } from "@dataspecer/core/generator/artefact-generator-context";
 import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
-import { QName } from "../conventions";
-import { NEW_DOC_GENERATOR } from "./xml-schema-generator";
+import { QName } from "../conventions.ts";
+import { NEW_DOC_GENERATOR } from "./xml-schema-generator.ts";
 import { getMustacheView } from "@dataspecer/documentation";
-import { HandlebarsAdapter } from "../../../handlebars-adapter/lib/interface";
-import { MAIN_XML_PARTIAL } from "../documentation";
+import { HandlebarsAdapter } from "../../../handlebars-adapter/lib/interface.js";
+import { MAIN_XML_PARTIAL } from "../documentation/index.ts";
 
 /**
  * Recursively traverses the complex content container and returns all elements.
@@ -214,6 +214,9 @@ class XmlSchemaDocumentationGenerator {
       return this.getElementUniqueId(element, options.hash.type);
     };
     result["xml-href"] = (element: XmlSchemaElement | XmlSchemaType | QName | string, options: any) => {
+      if (!element) {
+        return "";
+      }
       // Use structure to link to other documentation of structure model
       if (options.hash.structure) {
         const specification = Object.values(this.context.specifications).find(specification => specification.psms.includes(options.hash.structure));

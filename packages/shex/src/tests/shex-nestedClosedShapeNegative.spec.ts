@@ -1,5 +1,5 @@
-import * as Support from "./support/testSupport";
-import NestedClosedShapeModelCreator from "./support/NestedClosedModelCreator";
+import * as Support from "./support/testSupport.ts";
+import NestedClosedShapeModelCreator from "./support/NestedClosedModelCreator.ts";
 
 const testType = "nestedClosedNegative";
 const modelCreator = new NestedClosedShapeModelCreator();

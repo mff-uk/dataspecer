@@ -1,8 +1,8 @@
-import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/templates/template-consumer";
-import { ListReaderInterfaceGenerator } from "../reader-interface-generator";
-import { ListResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
-import { TemplateModel, ImportRelativePath } from "../../../engine/templates/template-interfaces";
+import { LayerArtifact } from "../../../engine/layer-artifact.ts";
+import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/templates/template-consumer.ts";
+import { ListReaderInterfaceGenerator } from "../reader-interface-generator.ts";
+import { ListResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator.ts";
+import { TemplateModel, ImportRelativePath } from "../../../engine/templates/template-interfaces.ts";
 
 export interface BaseLdkitReaderTemplate extends TemplateModel {
     templatePath: string;

@@ -4,8 +4,8 @@ import {
   CoreResource,
   CoreTyped,
   LanguageString,
-} from "../../core";
-import * as PSM from "../data-psm-vocabulary";
+} from "../../core/index.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 export class DataPsmCreateSchema extends CoreOperation {
   static readonly TYPE = PSM.CREATE_SCHEMA;

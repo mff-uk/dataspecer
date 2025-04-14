@@ -1,5 +1,5 @@
-import * as Support from "./support/testSupport";
-import TargetCase1ModelCreator from "./support/TargetCase1ModelCreator";
+import * as Support from "./support/testSupport.ts";
+import TargetCase1ModelCreator from "./support/TargetCase1ModelCreator.ts";
 
 const testType = "targetCase1";
 const modelCreator = new TargetCase1ModelCreator();

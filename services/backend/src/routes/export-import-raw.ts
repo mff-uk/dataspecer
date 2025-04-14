@@ -1,9 +1,9 @@
 import express from "express";
-import { asyncHandler } from "../utils/async-handler";
-import { PackageExporter } from "../export-import/export";
-import { resourceModel } from "../main";
+import { asyncHandler } from "../utils/async-handler.ts";
+import { PackageExporter } from "../export-import/export.ts";
+import { resourceModel } from "../main.ts";
 import z from "zod";
-import { PackageImporter } from "../export-import/import";
+import { PackageImporter } from "../export-import/import.ts";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
 
 function getName(name: LanguageString | undefined, defaultName: string) {

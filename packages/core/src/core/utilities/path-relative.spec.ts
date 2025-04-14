@@ -1,4 +1,4 @@
-import {pathRelative} from "./path-relative";
+import {pathRelative} from "./path-relative.ts";
 
 describe("pathRelative() util function", () => {
     test("absolute filesystem paths", () => {

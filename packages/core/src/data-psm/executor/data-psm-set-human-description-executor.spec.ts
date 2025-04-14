@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { DataPsmSetHumanDescription } from "../operation";
-import { executeDataPsmSetHumanDescription } from "./data-psm-set-human-description-executor";
-import * as PSM from "../data-psm-vocabulary";
+} from "../../core/index.ts";
+import { DataPsmSetHumanDescription } from "../operation/index.ts";
+import { executeDataPsmSetHumanDescription } from "./data-psm-set-human-description-executor.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 test("Update data PSM resource human description.", async () => {
   const operation = new DataPsmSetHumanDescription();

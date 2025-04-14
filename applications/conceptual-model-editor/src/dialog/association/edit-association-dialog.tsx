@@ -11,6 +11,7 @@ import { isValid } from "../utilities/validation-utilities";
 import { AssociationDialogState } from "./edit-association-dialog-state";
 import { useAssociationDialogController } from "./edit-association-dialog-controller";
 import { SpecializationSelect } from "../components/select-specialization";
+import { InputText } from "../components/input-test";
 
 export const EditAssociationDialog = (props: DialogProps<AssociationDialogState>) => {
   const controller = useAssociationDialogController(props);
@@ -103,6 +104,12 @@ export const EditAssociationDialog = (props: DialogProps<AssociationDialogState>
             />
           </DialogDetailRow>
         }
+        <DialogDetailRow detailKey={t("create-class-dialog.external-documentation-url")}>
+          <InputText
+            value={state.externalDocumentationUrl}
+            onChange={controller.setExternalDocumentationUrl}
+          />
+        </DialogDetailRow>
       </div>
     </>
   );

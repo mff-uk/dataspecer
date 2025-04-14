@@ -1,6 +1,6 @@
-import { SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_RELATIONSHIP, SemanticModelClass, SemanticModelRelationship } from "../../concepts";
-import { SEMANTIC_MODEL_CLASS_PROFILE, SEMANTIC_MODEL_RELATIONSHIP_PROFILE, SemanticModelClassProfile } from "../concepts";
-import { AggregatedProfiledSemanticModelClass, createDefaultProfileEntityAggregator } from "./aggregator";
+import { SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_RELATIONSHIP, SemanticModelClass, SemanticModelRelationship } from "../../concepts/index.ts";
+import { SEMANTIC_MODEL_CLASS_PROFILE, SEMANTIC_MODEL_RELATIONSHIP_PROFILE, SemanticModelClassProfile } from "../concepts/index.ts";
+import { AggregatedProfiledSemanticModelClass, createDefaultProfileEntityAggregator } from "./aggregator.ts";
 
 test("Aggregate class with no profiles.", () => {
   const aggregator = createDefaultProfileEntityAggregator();
@@ -16,6 +16,8 @@ test("Aggregate class with no profiles.", () => {
     usageNote: { "": "note" },
     usageNoteFromProfiled: null,
     conceptIris: [],
+    externalDocumentationUrl: null,
+    tags: [],
   };
   const actual = aggregator.aggregateSemanticModelClassProfile(profile, []);
   expect(actual).toStrictEqual(actual);
@@ -35,6 +37,8 @@ test("Aggregate class with multiple profiles.", () => {
       profiling: ["2", "3"],
       usageNote: { "": "note" },
       usageNoteFromProfiled: "3",
+      externalDocumentationUrl: "1-document",
+      tags: ["1-role"],
     },
     [
       {
@@ -43,6 +47,7 @@ test("Aggregate class with multiple profiles.", () => {
         iri: "",
         name: { "": "name-2" },
         description: { "": "description-2" },
+        externalDocumentationUrl: "2-document",
       },
       {
         id: "3",
@@ -55,6 +60,8 @@ test("Aggregate class with multiple profiles.", () => {
         usageNote: { "": "note-3" },
         usageNoteFromProfiled: null,
         profiling: [],
+        externalDocumentationUrl: "3-document",
+        tags: ["3-role"],
       },
     ]
   );
@@ -70,6 +77,8 @@ test("Aggregate class with multiple profiles.", () => {
     usageNote: { "": "note-3" },
     usageNoteFromProfiled: "3",
     conceptIris: [],
+    externalDocumentationUrl: "1-document",
+    tags: ["1-role"],
   });
 });
 
@@ -91,6 +100,8 @@ test("Aggregate relationship with a profiles.", () => {
           profiling: ["2", "4"],
           usageNote: null,
           usageNoteFromProfiled: "2",
+          externalDocumentationUrl: "1-1-document",
+          tags: ["1-1-level"],
         },
         {
           iri: "1-2-iri",
@@ -103,6 +114,8 @@ test("Aggregate relationship with a profiles.", () => {
           profiling: ["3"],
           usageNote: null,
           usageNoteFromProfiled: "3",
+          externalDocumentationUrl: "1-2-document",
+          tags: ["1-2-level"],
         },
       ],
     },
@@ -123,6 +136,8 @@ test("Aggregate relationship with a profiles.", () => {
             profiling: [],
             usageNote: { "": "2-note" },
             usageNoteFromProfiled: null,
+            externalDocumentationUrl: "2-document",
+            tags: ["2-level"],
           },
         ],
       },
@@ -143,6 +158,8 @@ test("Aggregate relationship with a profiles.", () => {
             profiling: [],
             usageNote: { "": "3-note" },
             usageNoteFromProfiled: null,
+            externalDocumentationUrl: "3-document",
+            tags: ["3-level"],
           },
         ],
       },
@@ -162,6 +179,8 @@ test("Aggregate relationship with a profiles.", () => {
             profiling: [],
             usageNote: { "": "4-note" },
             usageNoteFromProfiled: null,
+            externalDocumentationUrl: "4-document",
+            tags: ["4-level"],
           },
         ],
       },
@@ -183,6 +202,8 @@ test("Aggregate relationship with a profiles.", () => {
         usageNote: { "": "2-note" },
         usageNoteFromProfiled: "2",
         conceptIris: [],
+        externalDocumentationUrl: "1-1-document",
+        tags: ["1-1-level"],
       },
       {
         iri: "1-2-iri",
@@ -196,6 +217,8 @@ test("Aggregate relationship with a profiles.", () => {
         usageNote: { "": "3-note" },
         usageNoteFromProfiled: "3",
         conceptIris: [],
+        externalDocumentationUrl: "1-2-document",
+        tags: ["1-2-level"],
       },
     ],
   });
@@ -215,6 +238,8 @@ test("Aggregate class without profiling name and description.", () => {
       profiling: ["2", "3"],
       usageNote: { "": "note" },
       usageNoteFromProfiled: null,
+      externalDocumentationUrl: "1-document",
+      tags: ["1-role"],
     } satisfies SemanticModelClassProfile,
     [
       {
@@ -223,6 +248,7 @@ test("Aggregate class without profiling name and description.", () => {
         iri: "",
         name: { cs: "name-2" },
         description: { cs: "description-2" },
+        externalDocumentationUrl: "2-document",
       } satisfies SemanticModelClass,
     ]
   );
@@ -239,6 +265,8 @@ test("Aggregate class without profiling name and description.", () => {
     usageNote: { "": "note" },
     usageNoteFromProfiled: null,
     conceptIris: [],
+    externalDocumentationUrl: "1-document",
+    tags: ["1-role"],
   });
 });
 
@@ -260,6 +288,8 @@ test("Aggregate relationship without profiling name and description.", () => {
           profiling: ["2"],
           usageNote: null,
           usageNoteFromProfiled: "2",
+          externalDocumentationUrl: "1-1-document",
+          tags: ["1-1-level"],
         },
         {
           iri: "1-2-iri",
@@ -272,6 +302,8 @@ test("Aggregate relationship without profiling name and description.", () => {
           profiling: ["2"],
           usageNote: null,
           usageNoteFromProfiled: "3",
+          externalDocumentationUrl: "1-2-document",
+          tags: ["1-2-level"],
         },
       ],
     },
@@ -290,6 +322,7 @@ test("Aggregate relationship without profiling name and description.", () => {
             descriptionFromProfiled: null,
             cardinality: null,
             concept: "concept",
+            externalDocumentationUrl: "2-1-document",
           },
           {
             iri: "2-iri",
@@ -297,6 +330,7 @@ test("Aggregate relationship without profiling name and description.", () => {
             description: { "": "2-description" },
             cardinality: [1, 2],
             concept: "2-concept",
+            externalDocumentationUrl: "2-2-document",
           },
         ],
       } as SemanticModelRelationship,
@@ -319,6 +353,8 @@ test("Aggregate relationship without profiling name and description.", () => {
         usageNote: null,
         usageNoteFromProfiled: "2",
         conceptIris: [],
+        externalDocumentationUrl: "1-1-document",
+        tags: ["1-1-level"],
       },
       {
         iri: "1-2-iri",
@@ -332,6 +368,8 @@ test("Aggregate relationship without profiling name and description.", () => {
         usageNote: null,
         usageNoteFromProfiled: "3",
         conceptIris: ["2-iri"],
+        externalDocumentationUrl: "1-2-document",
+        tags: ["1-2-level"],
       },
     ],
   });

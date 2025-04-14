@@ -1,5 +1,5 @@
-import { DataPsmResource } from "../../model";
-import { XML_EXTENSION } from "../vocabulary";
+import { DataPsmResource } from "../../model/index.ts";
+import { XML_EXTENSION } from "../vocabulary.ts";
 
 class XmlPropertyExtension {
   isAttribute: boolean = false;

@@ -1,1 +1,1 @@
-export * from "./xml-common-schema-generator";
+export * from "./xml-common-schema-generator.ts";

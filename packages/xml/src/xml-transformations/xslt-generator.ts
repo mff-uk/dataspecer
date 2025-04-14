@@ -5,14 +5,14 @@ import {
 } from "@dataspecer/core/data-specification/model";
 import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
 import { ArtefactGenerator, ArtefactGeneratorContext } from "@dataspecer/core/generator";
-import { XmlTransformation } from "./xslt-model";
-import { writeXsltLifting } from "./xslt-lifting-writer";
-import { writeXsltLowering } from "./xslt-lowering-writer";
-import { structureModelToXslt } from "./xslt-model-adapter";
+import { XmlTransformation } from "./xslt-model.ts";
+import { writeXsltLifting } from "./xslt-lifting-writer.ts";
+import { writeXsltLowering } from "./xslt-lowering-writer.ts";
+import { structureModelToXslt } from "./xslt-model-adapter.ts";
 import { assertFailed, assertNot } from "@dataspecer/core/core";
 import { defaultStructureTransformations, structureModelDematerialize, transformStructureModel } from "@dataspecer/core/structure-model/transformation";
-import { XSLT_LIFTING, XSLT_LOWERING } from "./xslt-vocabulary";
-import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties";
+import { XSLT_LIFTING, XSLT_LOWERING } from "./xslt-vocabulary.ts";
+import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties.ts";
 
 class XsltGenerator implements ArtefactGenerator {
   isLifting: boolean;

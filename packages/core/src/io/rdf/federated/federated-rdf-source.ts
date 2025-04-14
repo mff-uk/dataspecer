@@ -1,4 +1,4 @@
-import { RdfSource, RdfObject, RdfNode } from "../rdf-api";
+import { RdfSource, RdfObject, RdfNode } from "../rdf-api.ts";
 
 export class FederatedSource implements RdfSource {
   private readonly sources: RdfSource[];

@@ -1,3 +1,3 @@
 export {
   ShaclGenerator,
-} from "./shacl-generator";
+} from "./shacl-generator.ts";

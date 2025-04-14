@@ -1,5 +1,5 @@
-import { SemanticModelClass } from "../../concepts";
-import { StrongerWinsSemanticEntityIdMerger } from "./stronger-wins";
+import { SemanticModelClass } from "../../concepts/index.ts";
+import { StrongerWinsSemanticEntityIdMerger } from "./stronger-wins.ts";
 
 test("merge two classes", () => {
   const cName: SemanticModelClass = {

@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { currentVersion, migrations } from "../tools/migrations";
+import { currentVersion, migrations } from "../tools/migrations/index.ts";
 
 export class Migrate {
   private prismaClient: PrismaClient;

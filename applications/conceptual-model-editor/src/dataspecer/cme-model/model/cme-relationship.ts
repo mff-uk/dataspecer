@@ -20,6 +20,8 @@ export interface NewCmeRelationship {
 
   rangeCardinality: CmeCardinality | null;
 
+  externalDocumentationUrl: string | null;
+
 }
 
 export interface CmeRelationship extends NewCmeRelationship {

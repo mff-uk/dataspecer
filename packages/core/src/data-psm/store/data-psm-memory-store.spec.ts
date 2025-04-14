@@ -1,7 +1,7 @@
-import * as Operations from "../operation";
-import { MemoryStore } from "../../core";
-import { baseDataPsmExecutors } from "../executor";
-import * as PSM from "../data-psm-vocabulary";
+import * as Operations from "../operation/index.ts";
+import { MemoryStore } from "../../core/index.ts";
+import { baseDataPsmExecutors } from "../executor/index.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 test("Create data PSM schema with class and attribute.", async () => {
   let counter = 0;

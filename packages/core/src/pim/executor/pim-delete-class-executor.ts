@@ -3,10 +3,10 @@ import {
   CoreExecutorResult,
   CreateNewIdentifier,
   CoreResource,
-} from "../../core";
-import { PimDeleteClass } from "../operation";
-import { PimExecutorResultFactory, loadPimSchema } from "./pim-executor-utils";
-import { PimAssociationEnd, PimAttribute, PimClass } from "../model";
+} from "../../core/index.ts";
+import { PimDeleteClass } from "../operation/index.ts";
+import { PimExecutorResultFactory, loadPimSchema } from "./pim-executor-utils.ts";
+import { PimAssociationEnd, PimAttribute, PimClass } from "../model/index.ts";
 
 export async function executePimDeleteClass(
   reader: CoreResourceReader,

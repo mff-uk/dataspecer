@@ -5,7 +5,7 @@ import {
     StructureModelPrimitiveType,
     StructureModelSchemaRoot,
   } from "@dataspecer/core/structure-model/model";
-  import ModelCreator from "./ModelCreatorInterface";
+  import ModelCreator from "./ModelCreatorInterface.ts";
 
 class MaxMinCardinalityModelCreator implements ModelCreator{
 

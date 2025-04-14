@@ -1,6 +1,6 @@
-import { Entity } from "../../../entity-model";
-import { SemanticModelRelationship, isSemanticModelRelationPrimitive } from "../../concepts";
-import { SemanticModelClassUsage, SemanticModelRelationshipUsage } from "./concepts";
+import { Entity } from "../../../entity-model/index.ts";
+import { SemanticModelRelationship, isSemanticModelRelationPrimitive } from "../../concepts/index.ts";
+import { SemanticModelClassUsage, SemanticModelRelationshipUsage } from "./concepts.ts";
 
 /**
  * @deprecated

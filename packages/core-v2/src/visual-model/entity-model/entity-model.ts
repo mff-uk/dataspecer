@@ -1,5 +1,5 @@
-import { Entity, EntityIdentifier } from "./entity";
-import { TypedObject } from "./typed-object";
+import { Entity, EntityIdentifier } from "./entity.ts";
+import { TypedObject } from "./typed-object.ts";
 
 export type ModelIdentifier = string;
 

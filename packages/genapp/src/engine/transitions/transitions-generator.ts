@@ -2,7 +2,7 @@ import {
     ApplicationGraph,
     ApplicationGraphEdgeType,
     ApplicationGraphNode
-} from "../graph";
+} from "../graph/index.ts";
 import {
     CapabilityIdentifier,
     CapabilityType,
@@ -12,12 +12,12 @@ import {
     EDIT_CAPABILITY_ID,
     getCapabilityMetadata,
     LIST_CAPABILITY_ID
-} from "../../capabilities";
-import { ListCapabilityMetadata } from "../../capabilities/list";
-import { DetailCapabilityMetadata } from "../../capabilities/detail";
-import { CreateInstanceCapabilityMetadata } from "../../capabilities/create-instance";
-import { DeleteInstanceCapabilityMetadata } from "../../capabilities/delete-instance";
-import { EditInstanceCapabilityMetadata } from "../../capabilities/edit-instance";
+} from "../../capabilities/index.ts";
+import { ListCapabilityMetadata } from "../../capabilities/list.ts";
+import { DetailCapabilityMetadata } from "../../capabilities/detail.ts";
+import { CreateInstanceCapabilityMetadata } from "../../capabilities/create-instance.ts";
+import { DeleteInstanceCapabilityMetadata } from "../../capabilities/delete-instance.ts";
+import { EditInstanceCapabilityMetadata } from "../../capabilities/edit-instance.ts";
 
 export type AllowedTransition = {
     label: string,

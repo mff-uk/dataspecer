@@ -1,8 +1,8 @@
-import { ImportRelativePath, DataLayerTemplateDescription } from "../../../engine/templates/template-interfaces";
-import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/templates/template-consumer";
-import { ArtifactCache } from "../../../utils/artifact-saver";
-import { ObjectModelTypeGeneratorHelper } from "./object-model-generator-helper";
+import { ImportRelativePath, DataLayerTemplateDescription } from "../../../engine/templates/template-interfaces.ts";
+import { LayerArtifact } from "../../../engine/layer-artifact.ts";
+import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/templates/template-consumer.ts";
+import { ArtifactCache } from "../../../utils/artifact-saver.ts";
+import { ObjectModelTypeGeneratorHelper } from "./object-model-generator-helper.ts";
 
 interface LdkitObjectModelTypeTemplate extends DataLayerTemplateDescription {
     placeholders: {

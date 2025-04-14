@@ -1,11 +1,12 @@
 {
   "name": "@dataspecer/federated-observable-store",
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "dev": "tsc -w",
     "prebuild": "rimraf lib",
-    "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests"
+    "test": "vitest run --pass-with-no-tests"
   },
   "exports": {
     ".": "./lib/index.js",
@@ -17,15 +18,10 @@
     "./resource": "./lib/resource.js"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.21.4",
-    "@babel/preset-typescript": "^7.21.4",
-    "@types/jest": "^29.5.12",
     "@types/lodash": "^4.14.192",
-    "babel": "^6.23.0",
-    "babel-jest": "^29.5.0",
-    "jest": "^29.5.0",
-    "rimraf": "^5.0.5",
-    "typescript": "^5.6.3"
+    "rimraf": "^6.0.1",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.1"
   },
   "dependencies": {
     "@dataspecer/core": "*",

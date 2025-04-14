@@ -1,4 +1,4 @@
-import {StructureModel, StructureModelClass} from "../model";
+import {StructureModel, StructureModelClass} from "../model/index.ts";
 
 /**
  * Checks if the structure is infinitely recursive

@@ -1,7 +1,7 @@
 import path from "path";
 import { Eta } from "eta";
-import { getRelativePath } from "../utils/utils";
-import { ImportRelativePath, TemplateModel } from "./templates/template-interfaces";
+import { getRelativePath } from "../utils/utils.ts";
+import { ImportRelativePath, TemplateModel } from "./templates/template-interfaces.ts";
 
 function isImportRelativePath(obj: any): obj is ImportRelativePath {
     if (!obj) {

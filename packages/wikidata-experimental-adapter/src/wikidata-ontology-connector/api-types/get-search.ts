@@ -1,4 +1,4 @@
-import { WdClassHierarchyDescOnly } from "../../wikidata-entities/wd-class";
+import { WdClassHierarchyDescOnly } from "../../wikidata-entities/wd-class.ts";
 
 export interface WdGetSearchResponseResults {
     readonly classes: WdClassHierarchyDescOnly[];

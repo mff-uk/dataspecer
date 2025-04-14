@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { DataPsmSetJsonSchemaPrefixesInIriRegex } from "../operation";
-import { executeDataPsmSetJsonSchemaPrefixesInIriRegex } from "./data-psm-set-json-schema-prefixes-in-iri-regex-executor";
-import * as PSM from "../data-psm-vocabulary";
+} from "../../core/index.ts";
+import { DataPsmSetJsonSchemaPrefixesInIriRegex } from "../operation/index.ts";
+import { executeDataPsmSetJsonSchemaPrefixesInIriRegex } from "./data-psm-set-json-schema-prefixes-in-iri-regex-executor.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 test("Update jsonSchemaPrefixesInIriRegex property.", async () => {
   const operation = new DataPsmSetJsonSchemaPrefixesInIriRegex();

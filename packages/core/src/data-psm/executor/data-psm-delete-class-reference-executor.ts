@@ -3,13 +3,13 @@ import {
   CoreExecutorResult,
   CreateNewIdentifier,
   CoreResource,
-} from "../../core";
-import { DataPsmDeleteClassReference } from "../operation";
+} from "../../core/index.ts";
+import { DataPsmDeleteClassReference } from "../operation/index.ts";
 import {
   DataPsmExecutorResultFactory,
   loadDataPsmSchema,
-} from "./data-psm-executor-utils";
-import { DataPsmClassReference, DataPsmSchema } from "../model";
+} from "./data-psm-executor-utils.ts";
+import { DataPsmClassReference, DataPsmSchema } from "../model/index.ts";
 
 export async function executeDataPsmDeleteClassReference(
   reader: CoreResourceReader,

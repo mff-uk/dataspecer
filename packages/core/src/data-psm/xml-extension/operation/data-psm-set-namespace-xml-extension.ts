@@ -1,5 +1,5 @@
-import {CoreOperation, CoreResource} from "../../../core";
-import {SET_NAMESPACE} from "../vocabulary";
+import {CoreOperation, CoreResource} from "../../../core/index.ts";
+import {SET_NAMESPACE} from "../vocabulary.ts";
 
 export class DataPsmSetNamespaceXmlExtension extends CoreOperation {
   static readonly TYPE = SET_NAMESPACE;

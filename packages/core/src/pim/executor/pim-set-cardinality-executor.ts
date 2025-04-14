@@ -2,10 +2,10 @@ import {
   CoreResourceReader,
   CoreExecutorResult,
   CreateNewIdentifier,
-} from "../../core";
-import { PimAssociationEnd, PimAttribute } from "../model";
-import { PimExecutorResultFactory } from "./pim-executor-utils";
-import { PimSetCardinality } from "../operation";
+} from "../../core/index.ts";
+import { PimAssociationEnd, PimAttribute } from "../model/index.ts";
+import { PimExecutorResultFactory } from "./pim-executor-utils.ts";
+import { PimSetCardinality } from "../operation/index.ts";
 
 export async function executePimSetCardinality(
   reader: CoreResourceReader,

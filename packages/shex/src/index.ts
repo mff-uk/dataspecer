@@ -1,7 +1,7 @@
 export {
   ShexGenerator,
-} from "./shex-generator";
+} from "./shex-generator.ts";
 
 export {
   ShexMapGenerator,
-} from "./shex-map-generator";
+} from "./shex-map-generator.ts";

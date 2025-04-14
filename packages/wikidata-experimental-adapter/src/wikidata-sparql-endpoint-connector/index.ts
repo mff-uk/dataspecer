@@ -1,1 +1,1 @@
-export * from "./api-types/get-example-instances";
+export * from "./api-types/get-example-instances.ts";

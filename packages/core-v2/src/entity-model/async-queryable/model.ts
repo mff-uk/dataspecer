@@ -1,5 +1,5 @@
-import {Entity} from "../entity";
-import {EntityModel} from "../entity-model";
+import {Entity} from "../entity.ts";
+import {EntityModel} from "../entity-model.ts";
 
 /**
  * Model that contains entities and can be queried. An example is a large conceptual model that is in non-dataspecer

@@ -1,6 +1,7 @@
 {
   "name": "@dataspecer/federated-observable-store-react",
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "dev": "tsc -w",
@@ -18,7 +19,7 @@
   },
   "devDependencies": {
     "@types/react": "^19.0.7",
-    "rimraf": "^5.0.5",
-    "typescript": "^5.6.3"
+    "rimraf": "^6.0.1",
+    "typescript": "^5.8.3"
   }
 }

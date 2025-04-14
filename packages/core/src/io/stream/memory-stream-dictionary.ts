@@ -1,8 +1,8 @@
-import { StreamDictionary } from "./stream-dictionary";
-import { MemoryOutputStream } from "./memory-output-stream";
-import { MemoryInputStream } from "./memory-input-stream";
-import { InputStream } from "./input-stream";
-import { OutputStream } from "./output-stream";
+import { StreamDictionary } from "./stream-dictionary.ts";
+import { MemoryOutputStream } from "./memory-output-stream.ts";
+import { MemoryInputStream } from "./memory-input-stream.ts";
+import { InputStream } from "./input-stream.ts";
+import { OutputStream } from "./output-stream.ts";
 
 export class MemoryStreamDictionary implements StreamDictionary {
   private readonly contentMap: { [path: string]: string } = {};

@@ -1,4 +1,4 @@
-import { LocalStore } from "../models/local-store";
+import { LocalStore } from "../models/local-store.ts";
 
 function createUniqueIdentifier(): string {
     return Date.now() +

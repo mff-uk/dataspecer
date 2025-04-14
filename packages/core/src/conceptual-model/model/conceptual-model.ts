@@ -1,5 +1,5 @@
-import { ConceptualModelClass } from "./conceptual-model-class";
-import { LanguageString } from "../../core";
+import { ConceptualModelClass } from "./conceptual-model-class.ts";
+import { LanguageString } from "../../core/index.ts";
 
 export class ConceptualModel {
   pimIri: string | null = null;

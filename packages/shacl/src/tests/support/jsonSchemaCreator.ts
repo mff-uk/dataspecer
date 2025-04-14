@@ -1,6 +1,6 @@
-import { structureModelToJsonSchema } from "../../../../json/src/json-schema/json-schema-model-adapter";
+import { structureModelToJsonSchema } from "../../../../json/src/json-schema/json-schema-model-adapter.ts";
 import {OutputStream} from "@dataspecer/core/io/stream/output-stream";
-import * as Support from "./testSupport";
+import * as Support from "./testSupport.ts";
 import {
     StructureModel,
     StructureModelClass,
@@ -24,23 +24,23 @@ import {
   import { DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
   import { DataSpecificationSchema } from "@dataspecer/core/data-specification/model";
   import { DataSpecification } from "@dataspecer/core/data-specification/model/data-specification";
-  import { DefaultJsonConfiguration } from "../../../../json/src/configuration";
-  import { JsonConfiguration } from "../../../../json/src/configuration";
-  import {JSON_SCHEMA} from "../../../../json/src/json-schema";
-  import { ShaclAdapter } from "../../shacl-adapter";
-  import  ModelCreator  from "./SimpleObjectModelCreator";
-  import  ConceptualModelCreator  from "./conceptualModelCreator";
+  import { DefaultJsonConfiguration } from "../../../../json/src/configuration.ts";
+  import { JsonConfiguration } from "../../../../json/src/configuration.ts";
+  import {JSON_SCHEMA} from "../../../../json/src/json-schema/index.ts";
+  import { ShaclAdapter } from "../../shacl-adapter.ts";
+  import  ModelCreator  from "./SimpleObjectModelCreator.ts";
+  import  ConceptualModelCreator  from "./conceptualModelCreator.ts";
   import {ArtefactGenerator, ArtefactGeneratorContext, StructureClassLocation} from "@dataspecer/core/generator";
-import { JsonSchema } from "../../../../json/src/json-schema/json-schema-model";
+import { JsonSchema } from "../../../../json/src/json-schema/json-schema-model.ts";
 import { CoreResourceReader } from "@dataspecer/core/core/core-reader";
-import { JsonLdGenerator } from "../../../../json/src/json-ld/json-ld-generator";
-import { JsonSchemaGenerator } from "../../../../json/src/json-schema/json-schema-generator";
+import { JsonLdGenerator } from "../../../../json/src/json-ld/json-ld-generator.ts";
+import { JsonSchemaGenerator } from "../../../../json/src/json-schema/json-schema-generator.ts";
 import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
 import {MemoryStreamDictionary} from "@dataspecer/core/io/stream/memory-stream-dictionary";
 import { MemoryOutputStream } from "@dataspecer/core/io/stream/memory-output-stream";
 import { baseDataPsmExecutors } from "@dataspecer/core/data-psm/executor";
 import { ConceptualModelClass } from "@dataspecer/core/conceptual-model";
-import { writeJsonSchema } from "../../../../json/src/json-schema/json-schema-writer";
+import { writeJsonSchema } from "../../../../json/src/json-schema/json-schema-writer.ts";
 import { pimExecutors } from "@dataspecer/core/pim/executor";
 import * as PSM from "@dataspecer/core/data-psm/data-psm-vocabulary";
 

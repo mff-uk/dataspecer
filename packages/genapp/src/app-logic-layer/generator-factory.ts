@@ -5,15 +5,15 @@ import {
     CREATE_CAPABILITY_ID,
     EDIT_CAPABILITY_ID,
 
- } from "../capabilities";
-import { ApplicationLayerGenerator } from "./strategy-interface";
+ } from "../capabilities/index.ts";
+import { ApplicationLayerGenerator } from "./strategy-interface.ts";
 import {
     ListAppLayerGenerator,
     CreateAppLayerGenerator,
     DeleteAppLayerGenerator,
     DetailAppLayerGenerator,
     EditAppLayerGenerator
-} from "./template-generators";
+} from "./template-generators/index.ts";
 
 export type ApplicationLayerGeneratorFactory = {
     getApplicationLayerGenerator: (technicalAggregateName: string, capabilityIri: string) => ApplicationLayerGenerator;

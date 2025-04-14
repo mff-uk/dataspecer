@@ -3,9 +3,9 @@ import {
   CoreExecutorResult,
   CreateNewIdentifier,
   CoreResource,
-} from "../../core";
-import { PimSetTechnicalLabel } from "../operation";
-import { PimAssociation, PimAttribute, PimClass, PimResource } from "../model";
+} from "../../core/index.ts";
+import { PimSetTechnicalLabel } from "../operation/index.ts";
+import { PimAssociation, PimAttribute, PimClass, PimResource } from "../model/index.ts";
 
 export async function executePimSetTechnicalLabel(
   reader: CoreResourceReader,

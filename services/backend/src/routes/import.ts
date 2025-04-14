@@ -11,10 +11,10 @@ import N3, { Quad_Object } from 'n3';
 import { parse } from 'node-html-parser';
 import { v4 as uuidv4 } from 'uuid';
 import z from 'zod';
-import { resourceModel } from '../main';
-import { asyncHandler } from './../utils/async-handler';
+import { resourceModel } from '../main.ts';
+import { asyncHandler } from './../utils/async-handler.ts';
 import { DataTypeURIs, isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
-import { BaseResource } from '../models/resource-model';
+import { BaseResource } from '../models/resource-model.ts';
 
 function getIriToIdMapping(knownMapping: Record<string, string> = {}) {
   const mapping = {...knownMapping};
@@ -238,7 +238,11 @@ async function importFromUrl(parentIri: string, url: string): Promise<[BaseResou
     let rdfsUrl = null;
     let dsvUrl = null;
 
-    const artefacts = store.getObjects(baseIri, "https://w3id.org/dsv#artefact", null);
+    const artefacts = [
+      ...store.getObjects(baseIri, "https://w3id.org/dsv#artefact", null),  // TODO: remove when every known specification contains prof:hasResource
+      ...store.getObjects(baseIri, "http://www.w3.org/ns/dx/prof/hasResource", null),
+    ];
+
     for (const artefact of artefacts) {
       console.log(artefact);
       const artefactUrl = store.getObjects(artefact, "http://www.w3.org/ns/dx/prof/hasArtifact", null)[0].id;
@@ -252,8 +256,9 @@ async function importFromUrl(parentIri: string, url: string): Promise<[BaseResou
     }
 
     const vocabularies = [...new Set([
-      ...store.getObjects(baseIri, "https://w3id.org/dsv#usedVocabularies", null).map(v => v.id),
-      ...store.getObjects(baseIri, "http://purl.org/dc/terms/references", null).map(v => v.id),
+      ...store.getObjects(baseIri, "https://w3id.org/dsv#usedVocabularies", null).map(v => v.id), // TODO: remove when every known specification contains prof:isProfileOF
+      ...store.getObjects(baseIri, "http://purl.org/dc/terms/references", null).map(v => v.id), // TODO: remove when every known specification contains prof:isProfileOF
+      ...store.getObjects(baseIri, "http://www.w3.org/ns/dx/prof/isProfileOf", null).map(v => v.id),
     ])];
     const entities: SemanticModelEntity[] = [];
     for (const vocabularyId of vocabularies) {

@@ -1,6 +1,6 @@
-import { LanguageString } from "../../core";
-import * as PSM from "../data-psm-vocabulary";
-import { ExtendableCoreResource } from "./extendable-core-resource";
+import { LanguageString } from "../../core/index.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
+import { ExtendableCoreResource } from "./extendable-core-resource.ts";
 
 /**
  * Originally the schema point only to root classes. The rest of the diagram
@@ -48,6 +48,13 @@ export class DataPsmSchema extends ExtendableCoreResource {
    */
   jsonLdDefinedPrefixes: {
     [prefix: string]: string;
+  } | undefined = undefined;
+
+  /**
+   * Defines mapping of types in JSON-LD from IRI to label
+   */
+  jsonLdDefinedTypeMapping: {
+    [iri: string]: string;
   } | undefined = undefined;
 
   /*

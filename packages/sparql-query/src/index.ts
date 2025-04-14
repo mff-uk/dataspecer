@@ -1,5 +1,5 @@
-export * from "./sparql-model-adapter";
-export { writeSparqlQuery } from "./sparql-writer";
-export { SparqlGenerator } from "./sparql-generator";
-export * from "./sparql-vocabulary";
-export * from "./sparql-model";
+export * from "./sparql-model-adapter.ts";
+export { writeSparqlQuery } from "./sparql-writer.ts";
+export { SparqlGenerator } from "./sparql-generator.ts";
+export * from "./sparql-vocabulary.ts";
+export * from "./sparql-model.ts";

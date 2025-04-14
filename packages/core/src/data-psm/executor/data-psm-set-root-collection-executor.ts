@@ -1,7 +1,7 @@
-import { CoreExecutorResult, CoreResourceReader, CreateNewIdentifier } from "../../core";
-import { DataPsmSchema } from "../model";
-import { DataPsmSetRootCollection } from "../operation";
-import { DataPsmExecutorResultFactory } from "./data-psm-executor-utils";
+import { CoreExecutorResult, CoreResourceReader, CreateNewIdentifier } from "../../core/index.ts";
+import { DataPsmSchema } from "../model/index.ts";
+import { DataPsmSetRootCollection } from "../operation/index.ts";
+import { DataPsmExecutorResultFactory } from "./data-psm-executor-utils.ts";
 
 type RootCollectionType = DataPsmSchema;
 

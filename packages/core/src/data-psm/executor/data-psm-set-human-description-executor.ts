@@ -3,15 +3,15 @@ import {
   CoreExecutorResult,
   CreateNewIdentifier,
   CoreResource,
-} from "../../core";
-import { DataPsmSetHumanDescription } from "../operation";
+} from "../../core/index.ts";
+import { DataPsmSetHumanDescription } from "../operation/index.ts";
 import {
   DataPsmAssociationEnd,
   DataPsmAttribute,
   DataPsmClass,
   DataPsmResource,
   DataPsmSchema,
-} from "../model";
+} from "../model/index.ts";
 
 export async function executeDataPsmSetHumanDescription(
   reader: CoreResourceReader,

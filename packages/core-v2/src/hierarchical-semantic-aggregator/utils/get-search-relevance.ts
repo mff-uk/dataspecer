@@ -1,4 +1,4 @@
-import { NamedThing } from "../../semantic-model/concepts";
+import { NamedThing } from "../../semantic-model/concepts/index.ts";
 
 export function getSearchRelevance(query: RegExp, entity: NamedThing): number | false {
   let result: number | false = false;

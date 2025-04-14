@@ -1,2 +1,2 @@
-export { MemoryStore } from "./memory-store";
-export { ReadOnlyMemoryStore } from "./read-only-memory-store";
+export { MemoryStore } from "./memory-store.ts";
+export { ReadOnlyMemoryStore } from "./read-only-memory-store.ts";

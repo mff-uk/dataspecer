@@ -1,6 +1,17 @@
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 
 /**
+ * Return a null when given value is null or an empty string,
+ * else return the given value.
+ */
+export function emptyAsNull(value: string | null) : string | null {
+  if (value === null || value.trim().length === 0) {
+    return null;
+  }
+  return value;
+}
+
+/**
  * Return a string value to show to the user.
  * When the value does not match the required language add information
  * about the language.

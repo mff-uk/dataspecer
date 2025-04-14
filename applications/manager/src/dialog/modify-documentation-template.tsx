@@ -145,7 +145,7 @@ export const ModifyDocumentationTemplate = ({ isOpen, resolve, iri }: { iri: str
     (async () => {
       const data = (await packageService.getResourceJsonData(iri)) ?? {};
       const configuration = createDefaultConfigurationModelFromJsonObject(data);
-      const documentationConfiguration = createPartialDocumentationConfiguration(configuration);
+      const documentationConfiguration = structuredClone(createPartialDocumentationConfiguration(configuration));
       currentPartials.current = documentationConfiguration.partials;
       setPartialsState(getNewPartialsState(defaultPartials, currentPartials.current));
       selectNewPartial(MAIN_TEMPLATE);
@@ -201,7 +201,7 @@ export const ModifyDocumentationTemplate = ({ isOpen, resolve, iri }: { iri: str
   return (
     // Forbid modal auto close
     <Modal open={isOpen}>
-      <ModalContent className="max-w-none h-[100%] py-0 !rounded-none !border-none">
+      <ModalContent className="max-w-none h-[100%] py-0 !rounded-none !border-none" disableClose>
         <ModalBody className="grow flex overflow-hidden">
           <ResizablePanelGroup direction="horizontal" className="overflow-hidden">
             <ResizablePanel defaultSize={20} className="flex flex-col pr-5 pl-1 my-6">

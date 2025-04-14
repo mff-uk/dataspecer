@@ -1,7 +1,7 @@
-import { buildEntityMap } from "./utils/build-entity-map";
-import { WdClass, WdClassDescOnly, WdClassHierarchyDescOnly } from "../../wikidata-entities/wd-class";
-import { WdEntityId, WdEntityIdsList } from "../../wikidata-entities/wd-entity";
-import { WdPropertyDescOnly } from "../../wikidata-entities/wd-property";
+import { buildEntityMap } from "./utils/build-entity-map.ts";
+import { WdClass, WdClassDescOnly, WdClassHierarchyDescOnly } from "../../wikidata-entities/wd-class.ts";
+import { WdEntityId, WdEntityIdsList } from "../../wikidata-entities/wd-entity.ts";
+import { WdPropertyDescOnly } from "../../wikidata-entities/wd-property.ts";
 
 export interface WdGetClassWithSurroundingsDescResponseResults {
     readonly startClass: WdClass;

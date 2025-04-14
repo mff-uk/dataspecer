@@ -1,7 +1,7 @@
 import {HttpFetch} from "@dataspecer/core/io/fetch/fetch-api";
-import {InMemoryEntityModel} from "./in-memory-entity-model";
+import {InMemoryEntityModel} from "./in-memory-entity-model.ts";
 import {HttpSynchronizedStoreConnector} from "@dataspecer/backend-utils/connectors";
-import {Entity} from "./entity";
+import {Entity} from "./entity.ts";
 import {HttpStoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
 import {HttpSynchronizedStore} from "@dataspecer/backend-utils/stores";
 

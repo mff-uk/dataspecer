@@ -1,2 +1,2 @@
-export * from "./adapter/conceptual-model-adapter";
-export * from "./model";
+export * from "./adapter/conceptual-model-adapter.ts";
+export * from "./model/index.ts";

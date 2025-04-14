@@ -93,7 +93,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
         semanticRelationshipEndIndex = 1;
         semanticRelationshipEnd = (pimResource as ExtendedSemanticModelRelationship)?.ends[semanticRelationshipEndIndex] ?? null;
     } else if (isAssociationEnd) {
-        semanticRelationshipEndIndex = 1;// todo
+        semanticRelationshipEndIndex = resource.dataPsmIsReverse === true ? 0 : 1;
         semanticRelationshipEnd = (pimResource as ExtendedSemanticModelRelationship)?.ends[semanticRelationshipEndIndex] ?? null;
     }
 

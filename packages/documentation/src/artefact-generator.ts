@@ -1,10 +1,10 @@
 import { DataSpecification, DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
 import { ArtefactGenerator, ArtefactGeneratorContext } from "@dataspecer/core/generator";
 import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
-import { getMustacheView } from "./mustache-view/views";
+import { getMustacheView } from "./mustache-view/views.ts";
 import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
-import { DocumentationGeneratorConfiguration, DocumentationGeneratorInputModel, generateDocumentation } from "./documentation-generator";
-import { DOCUMENTATION_MAIN_TEMPLATE_PARTIAL, internalDefaultDocumentationConfiguration } from "./configuration";
+import { DocumentationGeneratorConfiguration, DocumentationGeneratorInputModel, generateDocumentation } from "./documentation-generator/index.ts";
+import { DOCUMENTATION_MAIN_TEMPLATE_PARTIAL, internalDefaultDocumentationConfiguration } from "./configuration.ts";
 
 /**
  * ArtefactGenerator implementation for template artifact generator.

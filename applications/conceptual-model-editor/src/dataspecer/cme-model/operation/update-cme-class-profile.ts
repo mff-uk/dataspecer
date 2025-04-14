@@ -2,7 +2,6 @@ import { createDefaultSemanticModelProfileOperationFactory } from "@dataspecer/c
 import { CmeClassProfile } from "../model/cme-class-profile";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { DataspecerError } from "../../dataspecer-error";
-import { CmeReference } from "../model";
 
 const factory = createDefaultSemanticModelProfileOperationFactory();
 
@@ -11,8 +10,13 @@ const factory = createDefaultSemanticModelProfileOperationFactory();
  */
 export function updateCmeClassProfile(
   model: InMemorySemanticModel,
-  next: CmeReference & Partial<CmeClassProfile>,
+  next: CmeClassProfile,
 ) {
+  const tags: string[] = [];
+  if (next.role !== null) {
+    tags.push(next.role);
+  }
+
   const operation = factory.modifyClassProfile(
     next.identifier, {
       iri: next.iri,
@@ -23,6 +27,8 @@ export function updateCmeClassProfile(
       descriptionFromProfiled: next.descriptionSource,
       usageNote: next.usageNote,
       usageNoteFromProfiled: next.usageNoteSource,
+      externalDocumentationUrl: next.externalDocumentationUrl,
+      tags,
     });
 
   const result = model.executeOperation(operation);

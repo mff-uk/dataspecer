@@ -203,6 +203,8 @@ export function createNewBaseEntityProfileDialogState<
     usageNoteSourceValue: usageNoteSource.usageNote ?? {},
     availableUsageNoteSources,
     hideUsageNoteProfile: usageNoteSource === noProfile,
+    //
+    externalDocumentationUrl: "",
   };
 }
 
@@ -292,6 +294,7 @@ export function createEditBaseEntityProfileDialogState
   nameSourceIdentifier: string | null,
   description: LanguageString | null,
   descriptionSourceIdentifier: string | null,
+  externalDocumentationUrl: string,
   usageNote: LanguageString | null,
   usageNoteSourceIdentifier: string | null,
   allSpecializations: EntityRepresentative[],
@@ -372,6 +375,8 @@ export function createEditBaseEntityProfileDialogState
     availableSpecializations,
     specializations: representSpecializations(
       entity.identifier, allSpecializations, semanticModels),
+    //
+    externalDocumentationUrl,
   };
 }
 

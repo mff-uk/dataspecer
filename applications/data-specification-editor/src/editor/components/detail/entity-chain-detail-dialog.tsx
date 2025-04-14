@@ -128,7 +128,7 @@ const TitleItemAssociation: FC<{iri: string}> = ({iri}) => {
         <div>
             <strong>{t("title association")}: </strong>
             {selectLanguage(associationEndLabel, i18n.languages) ?? <i>{t("no label")}</i>}
-            {associationEnd.relationshipEnd?.iri && <CimLinks iri={associationEnd.relationshipEnd.iri}/>}
+            {associationEnd.relationshipEnd?.["conceptIris"] && associationEnd.relationshipEnd["conceptIris"].map((iri: string) => <CimLinks iri={iri} key={iri} />)}
         </div>
 
         <DialogContentText>
@@ -147,7 +147,7 @@ const TitleItemClass: FC<{iri: string}> = ({iri}) => {
         <div>
             <strong>{t("title class")}: </strong>
             {selectLanguage(label, i18n.languages) ?? <i>{t("no label")}</i>}
-            {resources.pimResource?.iri && <CimLinks iri={resources.pimResource.iri}/>}
+            {resources.pimResource?.["conceptIris"] && resources.pimResource["conceptIris"].map((iri: string) => <CimLinks iri={iri} key={iri} />)}
         </div>
 
         <DialogContentText>
@@ -166,7 +166,7 @@ const TitleItemAttribute: FC<{iri: string}> = ({iri}) => {
         <div>
             <strong>{t("title attribute")}: </strong>
             {selectLanguage(label, i18n.languages) ?? <i>{t("no label")}</i>}
-            {pimAttribute?.ends[1]?.iri && <CimLinks iri={pimAttribute.ends[1].iri}/>}
+            {pimAttribute?.ends[1]?.["conceptIris"] && pimAttribute?.ends[1]["conceptIris"].map((iri: string) => <CimLinks iri={iri} key={iri} />)}
         </div>
 
         <DialogContentText>

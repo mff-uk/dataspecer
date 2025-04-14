@@ -1,4 +1,4 @@
-import {Configurator} from "./configurator";
+import {Configurator} from "./configurator.ts";
 
 /**
  * Returns the configuration object of default configurations from given

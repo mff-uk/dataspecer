@@ -1,12 +1,12 @@
 // @ts-ignore
 import { ExtendedSemanticModelRelationship, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import {CoreResourceReader} from "../../core";
-import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmClassReference, DataPsmContainer, DataPsmExternalRoot, DataPsmInclude, DataPsmOr, DataPsmSchema,} from "../../data-psm/model";
-import {StructureModel, StructureModelClass, StructureModelComplexType, StructureModelPrimitiveType, StructureModelProperty, StructureModelSchemaRoot} from "../model";
+import {CoreResourceReader} from "../../core/index.ts";
+import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmClassReference, DataPsmContainer, DataPsmExternalRoot, DataPsmInclude, DataPsmOr, DataPsmSchema,} from "../../data-psm/model/index.ts";
+import {StructureModel, StructureModelClass, StructureModelComplexType, StructureModelPrimitiveType, StructureModelProperty, StructureModelSchemaRoot} from "../model/index.ts";
 // @ts-ignore
 import { Entity } from "@dataspecer/core-v2";
-import { DataPsmXmlPropertyExtension } from "../../data-psm/xml-extension/model";
-import { DataPsmJsonPropertyExtension } from "../../data-psm/json-extension/model";
+import { DataPsmXmlPropertyExtension } from "../../data-psm/xml-extension/model/index.ts";
+import { DataPsmJsonPropertyExtension } from "../../data-psm/json-extension/model/index.ts";
 
 /**
  * Adapter that converts given schema from PIM and Data PSM models to Structure
@@ -46,6 +46,7 @@ class StructureModelAdapter {
     model.humanDescription = psmSchema.dataPsmHumanDescription;
     model.technicalLabel = psmSchema.dataPsmTechnicalLabel;
     model.jsonLdDefinedPrefixes = psmSchema.jsonLdDefinedPrefixes ?? {};
+    model.jsonLdTypeMapping = psmSchema.jsonLdDefinedTypeMapping ?? {};
     model.roots = roots;
 
     return model;
@@ -94,6 +95,7 @@ class StructureModelAdapter {
     model = new StructureModelClass();
     if (DataPsmClass.is(classData)) {
       model.jsonLdDefinedPrefixes = classData.jsonLdDefinedPrefixes ?? {};
+      model.jsonLdTypeMapping = classData.jsonLdDefinedTypeMapping ?? {};
     }
     this.classes[classData.iri] = model;
     //

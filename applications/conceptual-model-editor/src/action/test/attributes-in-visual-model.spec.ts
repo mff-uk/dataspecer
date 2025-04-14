@@ -13,6 +13,7 @@ import { SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/co
 import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
 import { createCmeRelationshipProfile } from "../../dataspecer/cme-model/operation/create-cme-relationship-profile";
 import { representRdfsLiteral } from "../../dialog/utilities/dialog-utilities";
+import { fail } from "@/utilities/fail-test";
 
 test("Test change attribute - Visibility", () => {
   const {
@@ -503,6 +504,8 @@ function createSemanticAttributeProfileTestVariant(
       domainCardinality: null,
       range: range.identifier,
       rangeCardinality: null,
+      externalDocumentationUrl: null,
+      mandatoryLevel: null,
     });
 
   return {

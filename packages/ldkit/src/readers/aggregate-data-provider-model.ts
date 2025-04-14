@@ -1,4 +1,4 @@
-import { LdkitSchema, LdkitSchemaPropertyMap } from "../ldkit-schema-model";
+import { LdkitSchema, LdkitSchemaPropertyMap } from "../ldkit-schema-model.ts";
 
 export interface AggregateIdentifier {
     name: string,

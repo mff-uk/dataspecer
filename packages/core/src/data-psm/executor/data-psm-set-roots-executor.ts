@@ -3,12 +3,12 @@ import {
   CoreExecutorResult,
   CreateNewIdentifier,
   CoreResource,
-} from "../../core";
-import { DataPsmSetRoots } from "../operation";
+} from "../../core/index.ts";
+import { DataPsmSetRoots } from "../operation/index.ts";
 import {
   DataPsmExecutorResultFactory,
   loadDataPsmSchema,
-} from "./data-psm-executor-utils";
+} from "./data-psm-executor-utils.ts";
 
 export async function executeDataPsmSetRoots(
   reader: CoreResourceReader,

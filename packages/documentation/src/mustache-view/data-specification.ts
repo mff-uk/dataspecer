@@ -2,8 +2,8 @@ import { ConceptualModelComplexType } from "@dataspecer/core/conceptual-model/mo
 import { filterByStructural } from "@dataspecer/core/conceptual-model/transformation/filter-by-structural";
 import { assertNot } from "@dataspecer/core/core/utilities/assert";
 import { DataSpecificationSchema } from "@dataspecer/core/data-specification/model";
-import { getArtifactsView } from "./artifacts";
-import { PackageContext } from "./views";
+import { getArtifactsView } from "./artifacts.ts";
+import { PackageContext } from "./views.ts";
 import { HandlebarsAdapter } from "@dataspecer/handlebars-adapter";
 
 /**

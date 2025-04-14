@@ -1,5 +1,5 @@
-import { DataPsmResource } from "./data-psm-resource";
-import * as PSM from "../data-psm-vocabulary";
+import { DataPsmResource } from "./data-psm-resource.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 /**
  * Class on the PSM level points to all its parts, e.g.: association ends,
@@ -70,6 +70,13 @@ export class DataPsmClass extends DataPsmResource {
    */
   jsonLdDefinedPrefixes: {
     [prefix: string]: string;
+  } | undefined = undefined;
+
+  /**
+   * Defines mapping of types in JSON-LD from IRI to label
+   */
+  jsonLdDefinedTypeMapping: {
+    [iri: string]: string;
   } | undefined = undefined;
 
   /**

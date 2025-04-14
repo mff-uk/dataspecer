@@ -1,6 +1,6 @@
-import {AsyncQueryableEntityModel, AsyncQueryableObservableEntityModel} from "./model";
-import {Entity} from "../entity";
-import {InMemoryEntityModel} from "../in-memory-entity-model";
+import {AsyncQueryableEntityModel, AsyncQueryableObservableEntityModel} from "./model.ts";
+import {Entity} from "../entity.ts";
+import {InMemoryEntityModel} from "../in-memory-entity-model.ts";
 
 export class SimpleAsyncQueryableObservableEntityModel extends InMemoryEntityModel implements AsyncQueryableObservableEntityModel {
     protected model: AsyncQueryableEntityModel;

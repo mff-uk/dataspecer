@@ -1,5 +1,5 @@
-import { ReadableConfigurationModel, WritableConfigurationModel } from "./model";
-import { mergePatch } from "./utils";
+import { ReadableConfigurationModel, WritableConfigurationModel } from "./model.ts";
+import { mergePatch } from "./utils/index.ts";
 
 export function interpretConfigurationModelSimple<T extends any>(configuration: ReadableConfigurationModel, key: string, initialValue: any = {}): T {
   const rawData = configuration.getRawData()[key] ?? {};

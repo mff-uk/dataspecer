@@ -1,3 +1,3 @@
-import {InMemorySemanticModel} from "./in-memory-semantic-model";
+import {InMemorySemanticModel} from "./in-memory-semantic-model.ts";
 
 export {InMemorySemanticModel};

@@ -1,7 +1,7 @@
 import { Entity } from '@dataspecer/core-v2';
 import {CoreResource} from "@dataspecer/core/core";
 import {useCallback, useContext, useEffect, useState} from "react";
-import {StoreContext} from "./store";
+import {StoreContext} from "./store.ts";
 import {Resource} from "@dataspecer/federated-observable-store/resource";
 import {Subscriber} from "@dataspecer/federated-observable-store/federated-observable-store";
 

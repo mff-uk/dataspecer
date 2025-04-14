@@ -2,8 +2,8 @@ import { LOCAL_PACKAGE, V1 } from "@dataspecer/core-v2/model/known-models";
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { PrismaClient, Resource as PrismaResource } from "@prisma/client";
 import { v4 as uuidv4 } from 'uuid';
-import { storeModel } from './../main';
-import { LocalStoreModel, ModelStore } from "./local-store-model";
+import { storeModel } from './../main.ts';
+import { LocalStoreModel, ModelStore } from "./local-store-model.ts";
 import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
 import { CoreResource } from "@dataspecer/core/core/core-resource";
 

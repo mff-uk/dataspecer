@@ -4,11 +4,11 @@ import { join } from 'path';
 import factory  from "rdf-ext";
 import  ParserN3  from "@rdfjs/parser-n3";
 import  SHACLValidator  from "rdf-validate-shacl";
-import * as Support from "./testSupport";
-import  ShapeCreator  from "./shapeCreator";
-import   ModelCreator   from "./ModelCreatorInterface";
+import * as Support from "./testSupport.ts";
+import  ShapeCreator  from "./shapeCreator.ts";
+import   ModelCreator   from "./ModelCreatorInterface.ts";
 import { ValidationReport } from 'rdf-validate-shacl/src/validation-report';
-import generate, {fromJsonToTurtle} from "./FakeDataCreator";
+import generate, {fromJsonToTurtle} from "./FakeDataCreator.ts";
 
 export const shapeToValidateShapesFile = "src/tests/shapes/shapeToValidateShapes.ttl";
 
@@ -47,7 +47,7 @@ export async function syncWriteFile(filename: string, data: any): Promise<boolea
   });
 
   const contents = readFileSync(join(__dirname, filename), 'utf-8');
-  //console.log(contents); 
+  //console.log(contents);
 
   return true;
 }
@@ -59,7 +59,7 @@ export async function loadDataset (filePath) {
 }
 
 export async function testPositive(testType : string, modelCreator : ModelCreator): Promise<ValidationReport<typeof factory>> {
-  const dataPart = await generate('./src/tests/data/' + testType + 'Schema.json');  
+  const dataPart = await generate('./src/tests/data/' + testType + 'Schema.json');
   await fromJsonToTurtle(dataPart.toString(), testType);
   await Support.prepareShape(modelCreator, '../shapes/' + testType + 'Shape.ttl');
   const validation = await Support.validateDataAgainstShape("src/tests/data/" + testType + "FakeDataTurtle.ttl", "src/tests/shapes/" + testType + "Shape.ttl");
@@ -67,17 +67,17 @@ export async function testPositive(testType : string, modelCreator : ModelCreato
 }
 
 export async function testNegative(testType : string, modelCreator : ModelCreator): Promise<ValidationReport<typeof factory>>{
-  //const dataPart = await generate('./src/tests/data/' + testType + 'Schema.json');  
+  //const dataPart = await generate('./src/tests/data/' + testType + 'Schema.json');
   // Transform the raw json data to Turtle format with the help of JSON-LD Context from file
   //await fromJsonToTurtle(dataPart.toString(), testType);
-  const slicedName = testType.slice(0, -8);
+  const slicedName = testType;
   await Support.prepareShape(modelCreator, '../shapes/' + slicedName + 'Shape.ttl');
   const validation = await Support.validateDataAgainstShape("src/tests/data/" + testType + ".ttl", "src/tests/shapes/" + slicedName + "Shape.ttl");
   return validation;
 }
 
 export async function testFromData(testType : string, modelCreator : ModelCreator): Promise<ValidationReport<typeof factory>>{
-  const slicedName = (testType.endsWith("Negative")) ? testType.slice(0, -8) : testType;
+  const slicedName = (testType.endsWith("Negative")) ? testType : testType;
   await Support.prepareShape(modelCreator, '../shapes/' + slicedName + 'Shape.ttl');
   const validation = await Support.validateDataAgainstShape("src/tests/data/" + testType + ".ttl", "src/tests/shapes/" + slicedName + "Shape.ttl");
   return validation;
@@ -97,7 +97,7 @@ export async function validateDataAgainstShape( dataFileName : string, shapeFile
     const report = await validator.validate(data);
     // Check conformance: `true` or `false`
     //console.log("Validation conforms :" + report.conforms)
-    
+
     for (const result of report.results) {
       // See https://www.w3.org/TR/shacl/#results-validation-result for details
       // about each property
@@ -105,7 +105,7 @@ export async function validateDataAgainstShape( dataFileName : string, shapeFile
     }
 
     //return conforms;
-    return report; 
+    return report;
 }
 
 

@@ -1,4 +1,4 @@
-import { LanguageString, CoreOperation } from "../../core";
+import { LanguageString, CoreOperation } from "../../core/index.ts";
 
 export class PimCreate extends CoreOperation {
   /**

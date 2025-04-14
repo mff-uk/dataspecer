@@ -1,5 +1,5 @@
-import { CoreOperation, CoreResource } from "../../core";
-import * as PIM from "../pim-vocabulary";
+import { CoreOperation, CoreResource } from "../../core/index.ts";
+import * as PIM from "../pim-vocabulary.ts";
 
 export class PimSetExample extends CoreOperation {
   static readonly TYPE = PIM.SET_EXAMPLE;

@@ -1,1 +1,1 @@
-export { mergePatch } from "./merge-patch";
+export { mergePatch } from "./merge-patch.ts";

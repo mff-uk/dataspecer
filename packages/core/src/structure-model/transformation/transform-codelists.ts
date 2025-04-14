@@ -1,6 +1,6 @@
-import {clone} from "../../core";
-import { OFN } from "../../well-known";
-import {StructureModel, StructureModelPrimitiveType} from "../model";
+import {clone} from "../../core/index.ts";
+import { OFN } from "../../well-known/index.ts";
+import {StructureModel, StructureModelPrimitiveType} from "../model/index.ts";
 
 /**
  * Transforms codelist into property.

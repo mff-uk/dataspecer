@@ -1,4 +1,4 @@
-import { QName } from "../conventions";
+import { QName } from "../conventions.ts";
 
 /**
  * Represents an XSL transformation, used for lifting or lowering.

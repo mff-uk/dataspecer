@@ -1,4 +1,4 @@
-import { CoreOperation, CoreOperationResult } from "./operation";
+import { CoreOperation, CoreOperationResult } from "./operation/index.ts";
 
 export interface CoreResourceWriter {
   /**

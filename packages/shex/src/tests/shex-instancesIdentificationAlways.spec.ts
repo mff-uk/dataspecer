@@ -1,5 +1,5 @@
-import * as Support from "./support/testSupport";
-import  MultipurposeModelCreator from "./support/MultipurposeModelCreator";
+import * as Support from "./support/testSupport.ts";
+import  MultipurposeModelCreator from "./support/MultipurposeModelCreator.ts";
 import * as fs from "fs";
 
 const testType = "instancesIdentificationAlways";

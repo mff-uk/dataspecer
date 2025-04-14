@@ -1,4 +1,4 @@
-import {SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship} from "../concepts";
+import {SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship} from "../concepts/index.ts";
 
 /**
  * Each operation is a single JS serializable object identified by its type. The type is a single string as the

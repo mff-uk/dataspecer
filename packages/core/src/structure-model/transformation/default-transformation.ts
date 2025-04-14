@@ -1,18 +1,18 @@
-import { ConceptualModel } from "../../conceptual-model";
-import { propagateCardinality } from "./propagate-cardinality";
-import { structureModelAddCodelists } from "./add-codelists";
-import { structureModelFlattenInheritance } from "./instantiate-properties";
-import { structureModelDematerialize } from "./dematerialize";
-import { propagateLabel } from "./propagate-label";
-import { DataSpecification } from "../../data-specification/model";
-import { addDataSpecification } from "./add-data-specification";
-import { propagateCimIri } from "./propagate-cim-iri";
-import { StructureModel } from "../model";
-import { propagateReverse } from "./propagate-reverse";
-import { propagateRegex } from "./propagate-regex";
-import { propagateExample } from "./propagate-example";
-import { propagateLanguageStringRequiredLanguages } from "./propagate-language-string-required-languages";
-import { addSemanticPaths } from "./add-semantic-paths";
+import { ConceptualModel } from "../../conceptual-model/index.ts";
+import { propagateCardinality } from "./propagate-cardinality.ts";
+import { structureModelAddCodelists } from "./add-codelists.ts";
+import { structureModelFlattenInheritance } from "./instantiate-properties.ts";
+import { structureModelDematerialize } from "./dematerialize.ts";
+import { propagateLabel } from "./propagate-label.ts";
+import { DataSpecification } from "../../data-specification/model/index.ts";
+import { addDataSpecification } from "./add-data-specification.ts";
+import { propagateCimIri } from "./propagate-cim-iri.ts";
+import { StructureModel } from "../model/index.ts";
+import { propagateReverse } from "./propagate-reverse.ts";
+import { propagateRegex } from "./propagate-regex.ts";
+import { propagateExample } from "./propagate-example.ts";
+import { propagateLanguageStringRequiredLanguages } from "./propagate-language-string-required-languages.ts";
+import { addSemanticPaths } from "./add-semantic-paths.ts";
 
 type ConceptualTransformation = (
   conceptualModel: ConceptualModel,

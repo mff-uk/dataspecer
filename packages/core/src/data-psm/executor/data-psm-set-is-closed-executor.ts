@@ -2,11 +2,11 @@ import {
   CoreResourceReader,
   CoreExecutorResult,
   CreateNewIdentifier,
-} from "../../core";
-import { DataPsmSetIsClosed } from "../operation";
+} from "../../core/index.ts";
+import { DataPsmSetIsClosed } from "../operation/index.ts";
 import {
   DataPsmClass,
-} from "../model";
+} from "../model/index.ts";
 
 export async function executeDataPsmSetIsClosed(
   reader: CoreResourceReader,

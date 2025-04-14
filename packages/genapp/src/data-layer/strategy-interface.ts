@@ -1,6 +1,6 @@
 import { type AxiosResponse } from "axios";
-import { LayerArtifact } from "../engine/layer-artifact";
-import { GenerationContext } from "../engine/generator-stage-interface";
+import { LayerArtifact } from "../engine/layer-artifact.ts";
+import { GenerationContext } from "../engine/generator-stage-interface.ts";
 
 export interface DalGeneratorStrategy {
     strategyIdentifier: string;

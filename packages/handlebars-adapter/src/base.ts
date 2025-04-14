@@ -1,5 +1,5 @@
 import Handlebars from "handlebars";
-import { HandlebarsAdapter } from "./interface";
+import { HandlebarsAdapter } from "./interface.ts";
 import { Name } from "ajv";
 
 export class BaseHandlebarsAdapter implements HandlebarsAdapter {

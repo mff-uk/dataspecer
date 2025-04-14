@@ -1,4 +1,4 @@
-import { asyncHandler } from "../utils/async-handler";
+import { asyncHandler } from "../utils/async-handler.ts";
 import JSZip from "jszip";
 import fs from "fs";
 import path from "path";

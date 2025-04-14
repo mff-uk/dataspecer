@@ -1,11 +1,11 @@
-import { LayerArtifact } from "../../engine/layer-artifact";
-import { TemplateConsumer, TemplateMetadata } from "../../engine/templates/template-consumer";
+import { LayerArtifact } from "../../engine/layer-artifact.ts";
+import { TemplateConsumer, TemplateMetadata } from "../../engine/templates/template-consumer.ts";
 import {
     InstanceResultReturnInterfaceGenerator,
     ListResultReturnInterfaceGenerator,
     CapabilityInterfaceGeneratorType
-} from "../../capabilities/template-generators/capability-interface-generator";
-import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
+} from "../../capabilities/template-generators/capability-interface-generator.ts";
+import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces.ts";
 
 // TODO: Change / use more generic interfaceTemplate and placeholder names (e.g. InterfaceTemplate and return_type)
 interface ReaderInterfaceTemplate extends TemplateModel {
