@@ -1,5 +1,5 @@
 import { LayoutOptions } from "elkjs";
-import { AlgorithmName, UserGivenAlgorithmConfigurationOnlyData } from "../..";
+import { AlgorithmName, UserGivenAlgorithmConfigurationOnlyData } from "../../index.ts";
 
 
 // Note for myself: alternatively could define the type as Omit<Record<keyof UserGivenConstraints, string[]>, "double_run" | "process_general_separately">

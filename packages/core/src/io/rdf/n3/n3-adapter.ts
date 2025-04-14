@@ -1,18 +1,18 @@
 import * as N3 from "n3";
-import { RdfObject, RdfQuad, RdfTermType } from "../rdf-api";
-import {
+import { RdfObject, RdfQuad, RdfTermType } from "../rdf-api.ts";
+import type {
   BlankNode,
   DefaultGraph,
   Literal,
   NamedNode,
   Term,
-} from "rdflib/lib/tf-types";
+} from "rdflib/lib/tf-types.ts"; // Importing types only
 import {
   DefaultGraphTermType,
   BlankNodeTermType,
   LiteralTermType,
   NamedNodeTermType,
-} from "rdflib/lib/types";
+} from "rdflib/lib/types.js"; // Importing from non-standard export
 
 export async function parseRdfQuadsWithN3(content: string): Promise<RdfQuad[]> {
   return await n3Adapter(content, parseN3QuadAsRdfQuad);

@@ -1,4 +1,4 @@
-import { CoreResource } from "./core-resource";
+import { CoreResource } from "./core-resource.ts";
 
 export interface CoreResourceReader {
   /**

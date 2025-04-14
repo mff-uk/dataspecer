@@ -14,13 +14,13 @@ import {
   Profile,
   ClassRole,
   RequirementLevel,
-} from "./dsv-model";
+} from "./dsv-model.ts";
 
 import {
   stringN3ToRdf,
-} from "./n3-reader";
+} from "./n3-reader.ts";
 
-import { RDF, DSV, SKOS, VANN, DCT, DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL } from "./vocabulary";
+import { RDF, DSV, SKOS, VANN, DCT, DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL } from "./vocabulary.ts";
 
 export async function rdfToConceptualModel(
   rdfAsString: string,

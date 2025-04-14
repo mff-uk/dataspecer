@@ -1,4 +1,4 @@
-import { DataSpecificationArtefact } from "./data-specification-artefact";
+import { DataSpecificationArtefact } from "./data-specification-artefact.ts";
 
 export class DataSpecification {
   iri: string | null = null;

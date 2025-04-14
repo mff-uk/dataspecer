@@ -2,8 +2,8 @@ import {
   CoreResourceReader,
   CoreResource,
   CoreExecutorResult,
-} from "../../core";
-import { DataPsmSchema, DataPsmClass, DataPsmContainer } from "../model";
+} from "../../core/index.ts";
+import { DataPsmSchema, DataPsmClass, DataPsmContainer } from "../model/index.ts";
 
 export async function loadDataPsmSchema(
   reader: CoreResourceReader

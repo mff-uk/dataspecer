@@ -11,7 +11,7 @@ import {
   DataSpecificationArtefact
 } from "@dataspecer/core/data-specification/model";
 import {fixPrefixPosition, fixTurtleFileWithBase, isUniqueClass, hasUniquePredicates, getUniquePredicate, anyPredicateHasUniqueType, anyPredicateHasUniquePredicates,
-  getAnyPredicateUniquePredicate, getAnyPredicateUniqueType} from "./shacl-support";
+  getAnyPredicateUniquePredicate, getAnyPredicateUniqueType} from "./shacl-support.ts";
 import { OFN } from "@dataspecer/core/well-known";
 import * as N3 from "n3";
 import { LanguageString } from "@dataspecer/core/core";

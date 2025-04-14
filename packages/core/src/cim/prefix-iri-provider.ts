@@ -1,4 +1,4 @@
-import { IriProvider } from "./iri-provider";
+import { IriProvider } from "./iri-provider.ts";
 
 const PREFIX = "pim:";
 

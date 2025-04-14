@@ -1,5 +1,5 @@
 import JSZip from "jszip";
-import { ResourceModel } from "../models/resource-model";
+import { ResourceModel } from "../models/resource-model.ts";
 
 const FILE_EXTENSION_REGEX = /^\.([-0-9a-zA-Z]+)\.json$/;
 const RESOURCE_IN_PACKAGE_REGEX = /^([-0-9a-zA-Z]+)\.meta\.json$/;

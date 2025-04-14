@@ -1,8 +1,8 @@
-import { ExtendedSemanticModelClass, SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "../concepts";
-import { Entities } from "../../entity-model";
+import { ExtendedSemanticModelClass, SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "../concepts/index.ts";
+import { Entities } from "../../entity-model/index.ts";
 import { PimAssociation, PimAssociationEnd, PimAttribute, PimClass } from "@dataspecer/core/pim/model";
 import { CoreResource } from "@dataspecer/core/core";
-import { SemanticModelEntity } from "../concepts/concepts";
+import { SemanticModelEntity } from "../concepts/concepts.ts";
 
 const GENERALIZATION_PREFIX = "https://dataspecer.com/semantic-models/generalization";
 

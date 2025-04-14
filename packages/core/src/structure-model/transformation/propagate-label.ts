@@ -1,6 +1,6 @@
-import {ConceptualModel, ConceptualModelProperty,} from "../../conceptual-model";
-import {clone} from "../../core";
-import {StructureModel} from "../model";
+import {ConceptualModel, ConceptualModelProperty,} from "../../conceptual-model/index.ts";
+import {clone} from "../../core/index.ts";
+import {StructureModel} from "../model/index.ts";
 
 /**
  * Add labels from {@link ConceptualModel} if they are missing.

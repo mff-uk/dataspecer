@@ -3,16 +3,16 @@ import {
   CreateNewIdentifier,
   CoreExecutorResult,
   CoreResource,
-} from "../../core";
+} from "../../core/index.ts";
 import {
   DataPsmCreateOr,
   DataPsmCreateOrResult,
-} from "../operation";
+} from "../operation/index.ts";
 import {
   DataPsmExecutorResultFactory,
   loadDataPsmSchema,
-} from "./data-psm-executor-utils";
-import { DataPsmOr } from "../model";
+} from "./data-psm-executor-utils.ts";
+import { DataPsmOr } from "../model/index.ts";
 
 export async function executeDataPsmCreateOr(
   reader: CoreResourceReader,

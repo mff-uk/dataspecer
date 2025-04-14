@@ -1,7 +1,7 @@
-import { Entity, EntityIdentifier } from "../../../entity-model/entity";
-import { createDefaultSemanticModelProfileOperationExecutor } from "./operations-executor";
-import { createDefaultSemanticModelProfileOperationFactory } from "./operations-factory";
-import { SEMANTIC_MODEL_CLASS_PROFILE, SEMANTIC_MODEL_RELATIONSHIP_PROFILE, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "../concepts";
+import { Entity, EntityIdentifier } from "../../../entity-model/entity.ts";
+import { createDefaultSemanticModelProfileOperationExecutor } from "./operations-executor.ts";
+import { createDefaultSemanticModelProfileOperationFactory } from "./operations-factory.ts";
+import { SEMANTIC_MODEL_CLASS_PROFILE, SEMANTIC_MODEL_RELATIONSHIP_PROFILE, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "../concepts/index.ts";
 
 interface ChangeEntry {
 

@@ -5,8 +5,8 @@ import { DataSpecification, DataSpecificationArtefact, DataSpecificationSchema }
 import { ArtefactGenerator, ArtefactGeneratorContext } from "@dataspecer/core/generator";
 import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
 import { structureModelAddDefaultValues, transformStructureModel } from "@dataspecer/core/structure-model/transformation";
-import { JsonLdAdapter } from "./json-ld-adapter";
-import { writeJsonLd } from "./json-ld-writer";
+import { JsonLdAdapter } from "./json-ld-adapter.ts";
+import { writeJsonLd } from "./json-ld-writer.ts";
 
 export const JSON_LD_GENERATOR = "http://dataspecer.com/generator/json-ld"
 

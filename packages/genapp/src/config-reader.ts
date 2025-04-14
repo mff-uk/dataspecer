@@ -1,6 +1,6 @@
 import * as fs from "fs";
-import { ApplicationGraph, ApplicationGraphType } from "./engine/graph/application-graph";
-import { GenappConfiguration } from "./engine/app-generator";
+import { ApplicationGraph, ApplicationGraphType } from "./engine/graph/application-graph.ts";
+import { GenappConfiguration } from "./engine/app-generator.ts";
 
 export interface ConfigurationReader {
     getAppConfiguration(): ApplicationGraph;

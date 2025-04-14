@@ -56,8 +56,5 @@ export function vitestSparqlPlugin() {
 }
 
 function processSparqlFile(content) {
-  return `"use strict";\n` +
-    `Object.defineProperty(exports, "__esModule", { value: true });\n` +
-    `var a = p => ${processSparql(content)};\n` +
-    `exports.default = a;\n`;
+  return `export default p => ${processSparql(content)};\n`;
 }

@@ -1,4 +1,4 @@
-import { CoreResource, LanguageString } from "../../core";
+import { CoreResource, LanguageString } from "../../core/index.ts";
 
 export class PimResource extends CoreResource {
   /**

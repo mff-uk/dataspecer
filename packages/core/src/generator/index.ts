@@ -1,3 +1,3 @@
-export * from "./artefact-generator";
-export * from "./artefact-generator-context";
-export * from "./generator";
+export * from "./artefact-generator.ts";
+export * from "./artefact-generator-context.ts";
+export * from "./generator.ts";

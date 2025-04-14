@@ -2,11 +2,11 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { DataPsmSetDematerialized } from "../operation";
-import { executeDataPsmSetDematerialize } from "./data-psm-set-dematerialize-executor";
-import * as PSM from "../data-psm-vocabulary";
-import { DataPsmAssociationEnd, DataPsmClassReference } from "../model";
+} from "../../core/index.ts";
+import { DataPsmSetDematerialized } from "../operation/index.ts";
+import { executeDataPsmSetDematerialize } from "./data-psm-set-dematerialize-executor.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
+import { DataPsmAssociationEnd, DataPsmClassReference } from "../model/index.ts";
 
 test("Update data PSM association materialized.", async () => {
   const operation = new DataPsmSetDematerialized();

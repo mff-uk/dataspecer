@@ -1,12 +1,12 @@
-import { ConceptualModel, ConceptualModelClass } from "../../conceptual-model";
-import { clone } from "../../core";
+import { ConceptualModel, ConceptualModelClass } from "../../conceptual-model/index.ts";
+import { clone } from "../../core/index.ts";
 import {
   SemanticPathStep,
   SemanticPathStepClass,
   SemanticPathStepGeneralization,
   SemanticPathStepProperty,
   StructureModel,
-} from "../model";
+} from "../model/index.ts";
 
 export function addSemanticPaths(conceptual: ConceptualModel, structure: StructureModel): StructureModel {
   const result = clone(structure) as StructureModel;

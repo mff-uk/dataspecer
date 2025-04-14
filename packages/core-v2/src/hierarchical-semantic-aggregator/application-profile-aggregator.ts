@@ -1,14 +1,14 @@
-import { Entity } from "../entity-model";
-import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationPrimitive, isSemanticModelRelationship, SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, SemanticModelRelationship } from "../semantic-model/concepts";
-import { InMemorySemanticModel } from "../semantic-model/in-memory";
-import { CreatedEntityOperationResult } from "../semantic-model/operations";
-import { createDefaultProfileEntityAggregator, ProfileAggregator } from "../semantic-model/profile/aggregator";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "../semantic-model/profile/concepts";
-import { createDefaultSemanticModelProfileOperationFactory, SemanticModelProfileOperationFactory } from "../semantic-model/profile/operations";
-import { ExternalEntityWrapped, SemanticModelAggregator, LocalEntityWrapped } from "./interfaces";
-import { getSearchRelevance } from "./utils/get-search-relevance";
-import { TupleSet } from "./utils/tuple-set";
-import { withAbsoluteIri } from "../semantic-model/utils";
+import { Entity } from "../entity-model/index.ts";
+import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationPrimitive, isSemanticModelRelationship, SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, SemanticModelRelationship } from "../semantic-model/concepts/index.ts";
+import { InMemorySemanticModel } from "../semantic-model/in-memory/index.ts";
+import { CreatedEntityOperationResult } from "../semantic-model/operations/index.ts";
+import { createDefaultProfileEntityAggregator, ProfileAggregator } from "../semantic-model/profile/aggregator/index.ts";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "../semantic-model/profile/concepts/index.ts";
+import { createDefaultSemanticModelProfileOperationFactory, SemanticModelProfileOperationFactory } from "../semantic-model/profile/operations/index.ts";
+import { ExternalEntityWrapped, SemanticModelAggregator, LocalEntityWrapped } from "./interfaces.ts";
+import { getSearchRelevance } from "./utils/get-search-relevance.ts";
+import { TupleSet } from "./utils/tuple-set.ts";
+import { withAbsoluteIri } from "../semantic-model/utils/index.ts";
 
 const APPLICATION_PROFILE_AGGREGATOR_TYPE = "application-profile-aggregator";
 

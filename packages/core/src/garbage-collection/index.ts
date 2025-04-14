@@ -1,2 +1,2 @@
-export {pimGarbageCollection} from "./pim-garbage-collection";
-export {dataPsmGarbageCollection} from "./data-psm-garbage-collection";
+export {pimGarbageCollection} from "./pim-garbage-collection.ts";
+export {dataPsmGarbageCollection} from "./data-psm-garbage-collection.ts";

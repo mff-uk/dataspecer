@@ -7,7 +7,7 @@ import {
 import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary.js";
 import {assertFailed, assertNot} from "@dataspecer/core/core";
 import {transformStructureModel, structureModelAddDefaultValues} from "@dataspecer/core/structure-model/transformation";
-import {ShaclAdapter} from "./shacl-adapter.js";
+import {ShaclAdapter} from "./shacl-adapter.ts";
 import {DataSpecificationConfigurator, DefaultDataSpecificationConfiguration, DataSpecificationConfiguration} from "@dataspecer/core/data-specification/configuration";
 import {StructureModel} from "@dataspecer/core/structure-model/model";
 import {clone} from "@dataspecer/core/core";

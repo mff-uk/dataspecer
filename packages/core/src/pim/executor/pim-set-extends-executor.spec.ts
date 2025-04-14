@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { PimSetExtends } from "../operation";
-import * as PIM from "../pim-vocabulary";
-import { executePimSetExtends } from "./pim-set-extends-executor";
+} from "../../core/index.ts";
+import { PimSetExtends } from "../operation/index.ts";
+import * as PIM from "../pim-vocabulary.ts";
+import { executePimSetExtends } from "./pim-set-extends-executor.ts";
 
 test("Update resource extends.", async () => {
   const operation = new PimSetExtends();

@@ -1,2 +1,2 @@
-export { createHandlebarsAdapter } from "./implementation";
-export type { HandlebarsAdapter } from "./interface";
+export { createHandlebarsAdapter } from "./implementation.ts";
+export type { HandlebarsAdapter } from "./interface.ts";

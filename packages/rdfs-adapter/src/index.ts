@@ -1,2 +1,2 @@
-export * from "./rdfs-file-adapter";
-export * from "./rdfs-vocabulary";
+export * from "./rdfs-file-adapter.ts";
+export * from "./rdfs-vocabulary.ts";

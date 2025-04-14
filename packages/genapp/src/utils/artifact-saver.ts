@@ -1,8 +1,8 @@
 import * as fs from "fs";
 import path from "path";
-import { GenappEnvConfig } from "../engine/app-generator";
-import { LayerArtifact } from "../engine/layer-artifact";
-import { Cache } from "./cache";
+import { GenappEnvConfig } from "../engine/app-generator.ts";
+import { LayerArtifact } from "../engine/layer-artifact.ts";
+import { Cache } from "./cache.ts";
 
 export const ArtifactCache: Cache<string> = {
     content: {},

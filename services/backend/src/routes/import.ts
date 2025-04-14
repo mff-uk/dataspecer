@@ -11,10 +11,10 @@ import N3, { Quad_Object } from 'n3';
 import { parse } from 'node-html-parser';
 import { v4 as uuidv4 } from 'uuid';
 import z from 'zod';
-import { resourceModel } from '../main';
-import { asyncHandler } from './../utils/async-handler';
+import { resourceModel } from '../main.ts';
+import { asyncHandler } from './../utils/async-handler.ts';
 import { DataTypeURIs, isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
-import { BaseResource } from '../models/resource-model';
+import { BaseResource } from '../models/resource-model.ts';
 
 function getIriToIdMapping(knownMapping: Record<string, string> = {}) {
   const mapping = {...knownMapping};

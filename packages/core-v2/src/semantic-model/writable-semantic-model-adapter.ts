@@ -1,5 +1,5 @@
-import { SemanticModelAdapter } from "./semantic-model-adapter";
-import { Entity, InMemoryEntityModel } from "../entity-model";
+import { SemanticModelAdapter } from "./semantic-model-adapter.ts";
+import { Entity, InMemoryEntityModel } from "../entity-model/index.ts";
 import {
     CreateClassOperation,
     CreatedEntityOperationResult,
@@ -18,8 +18,8 @@ import {
     ModifyRelationOperation,
     Operation,
     OperationResult,
-} from "./operations";
-import { SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "./concepts";
+} from "./operations/index.ts";
+import { SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "./concepts/index.ts";
 import {
     CreateClassUsageOperation,
     CreateRelationshipUsageOperation,
@@ -29,9 +29,9 @@ import {
     isModifyRelationshipUsageOperation,
     ModifyClassUsageOperation,
     ModifyRelationshipUsageOperation,
-} from "./usage/operations";
-import { SemanticModelClassUsage, SemanticModelRelationshipUsage } from "./usage/concepts";
-import { createDefaultSemanticModelProfileOperationExecutor } from "./profile/operations";
+} from "./usage/operations/index.ts";
+import { SemanticModelClassUsage, SemanticModelRelationshipUsage } from "./usage/concepts/index.ts";
+import { createDefaultSemanticModelProfileOperationExecutor } from "./profile/operations/index.ts";
 
 function uuid() {
     return Math.random().toString(36).substring(2) + Date.now().toString(36);

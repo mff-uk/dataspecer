@@ -9,7 +9,7 @@ import {
 
 import {
   XmlStructureModel as StructureModel
-} from "../xml-structure-model/model/xml-structure-model";
+} from "../xml-structure-model/model/xml-structure-model.ts";
 
 import {
   XmlTransformation,
@@ -21,7 +21,7 @@ import {
   XmlTransformationImport,
   XmlCodelistMatch,
   XmlClassTargetTemplate,
-} from "./xslt-model";
+} from "./xslt-model.ts";
 
 import {
   DataSpecification,
@@ -30,11 +30,11 @@ import {
 } from "@dataspecer/core/data-specification/model";
 
 import { OFN } from "@dataspecer/core/well-known";
-import { XSLT_LIFTING, XSLT_LOWERING } from "./xslt-vocabulary";
-import { namespaceFromIri, QName, simpleTypeMapIri } from "../conventions";
+import { XSLT_LIFTING, XSLT_LOWERING } from "./xslt-vocabulary.ts";
+import { namespaceFromIri, QName, simpleTypeMapIri } from "../conventions.ts";
 import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
 import { ArtefactGeneratorContext } from "@dataspecer/core/generator";
-import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties";
+import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties.ts";
 
 /**
  * Converts a {@link StructureModel} to an {@link XmlTransformation}.

@@ -1,5 +1,5 @@
-import { CoreOperation, CoreResource } from "../../core";
-import * as PIM from "../pim-vocabulary";
+import { CoreOperation, CoreResource } from "../../core/index.ts";
+import * as PIM from "../pim-vocabulary.ts";
 
 export class PimDeleteAssociation extends CoreOperation {
   static readonly TYPE = PIM.DELETE_ASSOCIATION;

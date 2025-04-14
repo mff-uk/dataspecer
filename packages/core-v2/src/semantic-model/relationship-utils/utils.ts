@@ -1,4 +1,4 @@
-import { SemanticModelRelationship, SemanticModelRelationshipEnd } from "../concepts";
+import { SemanticModelRelationship, SemanticModelRelationshipEnd } from "../concepts/index.ts";
 
 /**
  * Gets domain and range of a relationship.

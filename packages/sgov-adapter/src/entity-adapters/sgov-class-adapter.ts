@@ -1,7 +1,7 @@
 import { RdfSourceWrap } from "@dataspecer/core/core/adapter/rdf";
 import { PimClass } from "@dataspecer/core/pim/model";
-import { POJEM, RDFS } from "../sgov-vocabulary";
-import { loadSgovEntityToResource } from "./sgov-entity-adapter";
+import { POJEM, RDFS } from "../sgov-vocabulary.ts";
+import { loadSgovEntityToResource } from "./sgov-entity-adapter.ts";
 import { IriProvider } from "@dataspecer/core/cim";
 
 export async function isSgovClass(entity: RdfSourceWrap): Promise<boolean> {

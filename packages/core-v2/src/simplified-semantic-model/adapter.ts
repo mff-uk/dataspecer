@@ -1,6 +1,6 @@
-import { NamedThing, SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_RELATIONSHIP, SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, SemanticModelRelationship, SemanticModelRelationshipEnd, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "../semantic-model/concepts";
-import { getDomainAndRange } from "../semantic-model/relationship-utils";
-import { Cardinality, SimplifiedSemanticModel } from "./schema";
+import { NamedThing, SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_RELATIONSHIP, SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, SemanticModelRelationship, SemanticModelRelationshipEnd, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "../semantic-model/concepts/index.ts";
+import { getDomainAndRange } from "../semantic-model/relationship-utils/index.ts";
+import { Cardinality, SimplifiedSemanticModel } from "./schema.ts";
 import { v4 as uuidv4 } from "uuid";
 
 interface Context {

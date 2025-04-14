@@ -1,9 +1,9 @@
 
-import { IGraphConversionConstraint, ConstraintedNodesGroupingsType, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraint, IConstraintSimple, GraphConversionConstraint } from "./constraints";
-import { LayoutAlgorithm } from "../layout-iface";
-import { ElkLayout } from "../elk-layouts";
-import { RandomLayout } from "../basic-layouts";
-import { ElkConstraint } from "./elk/elk-constraints";
+import { IGraphConversionConstraint, ConstraintedNodesGroupingsType, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraint, IConstraintSimple, GraphConversionConstraint } from "./constraints.ts";
+import { LayoutAlgorithm } from "../layout-iface.ts";
+import { ElkLayout } from "../elk-layouts.ts";
+import { RandomLayout } from "../basic-layouts.ts";
+import { ElkConstraint } from "./elk/elk-constraints.ts";
 
 export type AlgorithmName = "elk_stress" | "elk_layered" | "elk_force" | "random" | "d3_force" | "sporeCompaction" | "elk_radial";
 

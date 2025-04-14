@@ -2,7 +2,7 @@ import { ConceptualModel } from "@dataspecer/core";
 import { clone } from "@dataspecer/core/core/index";
 import { StructureModel } from "@dataspecer/core/structure-model/model/structure-model";
 import { StructureModelClass } from "@dataspecer/core/structure-model/model/structure-model-class";
-import { JsonStructureModelClass } from "../json-structure-model/structure-model-class";
+import { JsonStructureModelClass } from "../json-structure-model/structure-model-class.ts";
 
 /**
  * Add regex from {@link ConceptualModel} and examples for classes with iris.

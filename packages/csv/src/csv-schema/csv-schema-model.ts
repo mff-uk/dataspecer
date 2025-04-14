@@ -1,5 +1,5 @@
 import { assertFailed } from "@dataspecer/core/core";
-import { csvwContext } from "./csvw-context";
+import { csvwContext } from "./csvw-context.ts";
 
 export abstract class CsvSchema {
     "@context": [ SimpleIri, { "@language": string } ] = [ new SimpleIri("http://www.w3.org/ns/csvw"), { "@language": "cs" } ];

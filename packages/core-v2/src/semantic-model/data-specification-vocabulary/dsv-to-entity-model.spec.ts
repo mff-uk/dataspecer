@@ -1,10 +1,10 @@
-import { SemanticModelEntity, SemanticModelRelationship } from "../concepts";
-import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "../profile/concepts";
-import { ClassRole, DsvModel, PropertyProfile, RequirementLevel } from "./dsv-model";
-import { conceptualModelToEntityListContainer } from "./dsv-to-entity-model";
-import { EntityListContainer } from "./entity-model";
-import { entityListContainerToDsvModel, createContext } from "./entity-model-to-dsv";
-import { DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL, VANN } from "./vocabulary";
+import { SemanticModelEntity, SemanticModelRelationship } from "../concepts/index.ts";
+import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "../profile/concepts/index.ts";
+import { ClassRole, DsvModel, PropertyProfile, RequirementLevel } from "./dsv-model.ts";
+import { conceptualModelToEntityListContainer } from "./dsv-to-entity-model.ts";
+import { EntityListContainer } from "./entity-model.ts";
+import { entityListContainerToDsvModel, createContext } from "./entity-model-to-dsv.ts";
+import { DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL, VANN } from "./vocabulary.ts";
 
 test("From DSV to entity model and back.", async () => {
 

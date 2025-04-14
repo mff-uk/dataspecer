@@ -3,8 +3,8 @@ import {
   CoreExecutorResult,
   CreateNewIdentifier,
   CoreResource,
-} from "../../core";
-import { DataPsmSetTechnicalLabel } from "../operation";
+} from "../../core/index.ts";
+import { DataPsmSetTechnicalLabel } from "../operation/index.ts";
 import {
   DataPsmAssociationEnd,
   DataPsmAttribute,
@@ -13,7 +13,7 @@ import {
   DataPsmSchema,
   DataPsmOr,
   DataPsmResource,
-} from "../model";
+} from "../model/index.ts";
 
 export async function executeDataPsmSetTechnicalLabel(
   reader: CoreResourceReader,

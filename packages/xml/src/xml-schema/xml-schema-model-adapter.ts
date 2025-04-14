@@ -11,11 +11,11 @@ import {
 } from "@dataspecer/core/structure-model/model";
 import { structureModelAddDefaultValues } from "@dataspecer/core/structure-model/transformation/add-default-values";
 import { OFN, XSD, XSD_PREFIX } from "@dataspecer/core/well-known";
-import { DefaultXmlConfiguration, XmlConfiguration, XmlConfigurator } from "../configuration";
-import { commonXmlNamespace, commonXmlPrefix, iriElementName, langStringName, QName, simpleTypeMapQName } from "../conventions";
-import { XML_COMMON_SCHEMA_GENERATOR } from "../xml-common-schema/index";
-import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties";
-import { XmlStructureModel as StructureModel, XmlStructureModel } from "../xml-structure-model/model/xml-structure-model";
+import { DefaultXmlConfiguration, XmlConfiguration, XmlConfigurator } from "../configuration.ts";
+import { commonXmlNamespace, commonXmlPrefix, iriElementName, langStringName, QName, simpleTypeMapQName } from "../conventions.ts";
+import { XML_COMMON_SCHEMA_GENERATOR } from "../xml-common-schema/index.ts";
+import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties.ts";
+import { XmlStructureModel as StructureModel, XmlStructureModel } from "../xml-structure-model/model/xml-structure-model.ts";
 import {
   XmlSchema,
   XmlSchemaAnnotation,
@@ -36,8 +36,8 @@ import {
   XmlSchemaType,
   xmlSchemaTypeIsComplex,
   xmlSchemaTypeIsSimple,
-} from "./xml-schema-model";
-import { XML_SCHEMA } from "./xml-schema-vocabulary";
+} from "./xml-schema-model.ts";
+import { XML_SCHEMA } from "./xml-schema-vocabulary.ts";
 
 function multiplyMinCardinality(a: number, b: number): number {
   return a * b;

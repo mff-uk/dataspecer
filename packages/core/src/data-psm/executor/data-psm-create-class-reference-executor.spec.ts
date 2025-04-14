@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { DataPsmCreateClassReference } from "../operation";
-import { executeDataPsmCreateClassReference } from "./data-psm-create-class-reference-executor";
-import * as PSM from "../data-psm-vocabulary";
+} from "../../core/index.ts";
+import { DataPsmCreateClassReference } from "../operation/index.ts";
+import { executeDataPsmCreateClassReference } from "./data-psm-create-class-reference-executor.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 test("Create data PSM class reference.", async () => {
   const operation = new DataPsmCreateClassReference();

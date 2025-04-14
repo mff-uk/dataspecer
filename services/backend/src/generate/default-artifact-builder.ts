@@ -1,10 +1,10 @@
 import {CoreResource, CoreResourceReader} from "@dataspecer/core/core";
 import {Generator} from "@dataspecer/core/generator";
-import {ZipStreamDictionary} from "./zip-stream-dictionary";
+import {ZipStreamDictionary} from "./zip-stream-dictionary.ts";
 import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
-import {ArtifactConfigurator} from "./artifact-configurator";
-import {getArtefactGenerators} from "./artefact-generators";
-import {getDefaultConfigurators} from "./configurators";
+import {ArtifactConfigurator} from "./artifact-configurator.ts";
+import {getArtefactGenerators} from "./artefact-generators.ts";
+import {getDefaultConfigurators} from "./configurators.ts";
 import { DataSpecification } from "@dataspecer/core/data-specification/model/data-specification";
 import { DataSpecificationWithMetadata, DataSpecificationWithStores } from "@dataspecer/backend-utils/interfaces";
 

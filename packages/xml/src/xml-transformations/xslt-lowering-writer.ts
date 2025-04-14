@@ -8,12 +8,12 @@ import {
   XmlRootTemplate,
   XmlMatch,
   xmlMatchIsCodelist,
-} from "./xslt-model";
+} from "./xslt-model.ts";
 
-import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
+import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer.ts";
 
-import { XSLT_LOWERING } from "./xslt-vocabulary";
-import { commonXmlNamespace, commonXmlPrefix, iriElementName, QName } from "../conventions";
+import { XSLT_LOWERING } from "./xslt-vocabulary.ts";
+import { commonXmlNamespace, commonXmlPrefix, iriElementName, QName } from "../conventions.ts";
 
 const xslNamespace = "http://www.w3.org/1999/XSL/Transform";
 

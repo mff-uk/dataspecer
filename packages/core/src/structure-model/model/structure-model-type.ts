@@ -1,5 +1,5 @@
-import {StructureModelClass} from "./structure-model-class";
-import { SemanticPathStep } from "./structure-model-property";
+import {StructureModelClass} from "./structure-model-class.ts";
+import { SemanticPathStep } from "./structure-model-property.ts";
 
 export interface StructureModelType {
   isAttribute(): this is StructureModelPrimitiveType;

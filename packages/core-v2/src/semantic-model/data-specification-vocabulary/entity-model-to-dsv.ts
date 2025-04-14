@@ -1,14 +1,14 @@
-import { Entity } from "../../entity-model";
+import { Entity } from "../../entity-model/index.ts";
 
 import {
   isSemanticModelClass,
   isSemanticModelGeneralization,
   isSemanticModelRelationship,
-} from "../concepts";
+} from "../concepts/index.ts";
 
 import {
   EntityListContainer,
-} from "./entity-model";
+} from "./entity-model.ts";
 
 import {
   LanguageString,
@@ -24,16 +24,16 @@ import {
   Profile,
   ClassRole,
   RequirementLevel,
-} from "./dsv-model";
+} from "./dsv-model.ts";
 import {
   isSemanticModelClassProfile,
   isSemanticModelRelationshipProfile,
   SemanticModelClassProfile,
   SemanticModelRelationshipEndProfile,
   SemanticModelRelationshipProfile,
-} from "../profile/concepts";
-import { DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL, SKOS, VANN } from "./vocabulary";
-import { isPrimitiveType } from "../datatypes";
+} from "../profile/concepts/index.ts";
+import { DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL, SKOS, VANN } from "./vocabulary.ts";
+import { isPrimitiveType } from "../datatypes/index.ts";
 
 interface EntityListContainerToConceptualModelContext {
 

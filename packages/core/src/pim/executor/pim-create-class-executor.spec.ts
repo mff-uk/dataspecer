@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { PimCreateClass, PimCreateClassResult } from "../operation";
-import { executePimCreateClass } from "./pim-create-class-executor";
-import * as PIM from "../pim-vocabulary";
+} from "../../core/index.ts";
+import { PimCreateClass, PimCreateClassResult } from "../operation/index.ts";
+import { executePimCreateClass } from "./pim-create-class-executor.ts";
+import * as PIM from "../pim-vocabulary.ts";
 
 test("Create class.", async () => {
   const operation = new PimCreateClass();

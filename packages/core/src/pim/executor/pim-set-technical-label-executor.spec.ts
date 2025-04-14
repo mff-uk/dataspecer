@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { PimSetTechnicalLabel } from "../operation";
-import { executePimSetTechnicalLabel } from "./pim-set-technical-label-executor";
-import * as PIM from "../pim-vocabulary";
+} from "../../core/index.ts";
+import { PimSetTechnicalLabel } from "../operation/index.ts";
+import { executePimSetTechnicalLabel } from "./pim-set-technical-label-executor.ts";
+import * as PIM from "../pim-vocabulary.ts";
 
 test("Update resource technical label.", async () => {
   const operation = new PimSetTechnicalLabel();

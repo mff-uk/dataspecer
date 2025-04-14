@@ -1,5 +1,5 @@
-import { SemanticModelClass, SemanticModelRelationship } from "../../concepts";
-import { SemanticEntityIdMerger } from "./interface";
+import { SemanticModelClass, SemanticModelRelationship } from "../../concepts/index.ts";
+import { SemanticEntityIdMerger } from "./interface.ts";
 
 function compareVectors(a: number[], b: number[]) {
   for (let i = 0; i < a.length; i++) {

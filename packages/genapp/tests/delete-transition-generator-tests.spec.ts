@@ -1,9 +1,9 @@
-import { AllowedTransition, TransitionsGenerator } from "../src/engine/transitions/transitions-generator"
-import { CapabilityType, DELETE_CAPABILITY_ID, LIST_CAPABILITY_ID } from "../src/capabilities";
-import { ApplicationGraph } from "../src/engine/graph/application-graph";
-import { EDGE_IRI_BASE, NODE_IRI_BASE, STRUCTURE_IRI_BASE } from "./constants";
-import { ApplicationGraphEdgeType, ApplicationGraphNode, ApplicationGraphNodeType } from "../src/engine/graph";
-import { AggregateMetadata } from "../src/application-config";
+import { AllowedTransition, TransitionsGenerator } from "../src/engine/transitions/transitions-generator.ts"
+import { CapabilityType, DELETE_CAPABILITY_ID, LIST_CAPABILITY_ID } from "../src/capabilities/index.ts";
+import { ApplicationGraph } from "../src/engine/graph/application-graph.ts";
+import { EDGE_IRI_BASE, NODE_IRI_BASE, STRUCTURE_IRI_BASE } from "./constants.ts";
+import { ApplicationGraphEdgeType, ApplicationGraphNode, ApplicationGraphNodeType } from "../src/engine/graph/index.ts";
+import { AggregateMetadata } from "../src/application-config.ts";
 import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
 import { vi } from 'vitest'
 

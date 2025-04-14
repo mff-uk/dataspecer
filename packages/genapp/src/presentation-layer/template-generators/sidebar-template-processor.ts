@@ -1,7 +1,7 @@
-import { TemplateModel } from "../../engine/templates/template-interfaces";
-import { LayerArtifact } from "../../engine/layer-artifact";
-import { CapabilityRouteComponentMap } from "../../react-base/react-app-base-generator";
-import { TemplateConsumer, TemplateDependencyMap } from "../../engine/templates/template-consumer";
+import { TemplateModel } from "../../engine/templates/template-interfaces.ts";
+import { LayerArtifact } from "../../engine/layer-artifact.ts";
+import { CapabilityRouteComponentMap } from "../../react-base/react-app-base-generator.ts";
+import { TemplateConsumer, TemplateDependencyMap } from "../../engine/templates/template-consumer.ts";
 
 export interface SidebarComponentTemplate extends TemplateModel {
     placeholders: {

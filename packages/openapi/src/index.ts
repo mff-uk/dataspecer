@@ -1,3 +1,3 @@
 export {
     OpenapiGenerator,
-} from "./generator";
+} from "./generator.ts";

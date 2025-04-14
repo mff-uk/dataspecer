@@ -1,7 +1,7 @@
-import { ApplicationGraph } from "./application-graph";
-export * from "./application-graph-node";
-export * from "./application-graph-edge";
-import { Datasource, DatasourceConfig, DataSourceType } from "./datasource";
+import { ApplicationGraph } from "./application-graph.ts";
+export * from "./application-graph-node.ts";
+export * from "./application-graph-edge.ts";
+import { Datasource, DatasourceConfig, DataSourceType } from "./datasource.ts";
 
 export {
     ApplicationGraph,

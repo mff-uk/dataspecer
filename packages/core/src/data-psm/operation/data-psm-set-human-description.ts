@@ -1,5 +1,5 @@
-import { CoreResource, CoreOperation, LanguageString } from "../../core";
-import * as PSM from "../data-psm-vocabulary";
+import { CoreResource, CoreOperation, LanguageString } from "../../core/index.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 export class DataPsmSetHumanDescription extends CoreOperation {
   static readonly TYPE = PSM.SET_HUMAN_DESCRIPTION;

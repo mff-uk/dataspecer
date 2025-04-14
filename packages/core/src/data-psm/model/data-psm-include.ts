@@ -1,5 +1,5 @@
-import {ExtendableCoreResource} from "./extendable-core-resource";
-import * as PSM from "../data-psm-vocabulary";
+import {ExtendableCoreResource} from "./extendable-core-resource.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 export class DataPsmInclude extends ExtendableCoreResource {
   private static readonly TYPE = PSM.INCLUDE;

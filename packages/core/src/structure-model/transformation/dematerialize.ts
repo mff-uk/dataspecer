@@ -3,8 +3,8 @@ import {
   StructureModelClass,
   StructureModelComplexType,
   StructureModelProperty,
-} from "../model";
-import {assertFailed, assertNot, clone} from "../../core";
+} from "../model/index.ts";
+import {assertFailed, assertNot, clone} from "../../core/index.ts";
 
 /**
  * Dematerialize association by moving their content to their owner.

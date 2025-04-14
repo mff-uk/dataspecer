@@ -2,12 +2,12 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../../core";
-import { DataPsmSetNamespaceXmlExtension } from "../operation";
-import { executeDataPsmSetNamespaceXmlExtension } from "./data-psm-set-namespace-executor-xml-extension";
-import * as PSM from "../../data-psm-vocabulary";
-import {DataPsmSchemaXmlExtension} from "../model";
-import {XML_EXTENSION} from "../vocabulary";
+} from "../../../core/index.ts";
+import { DataPsmSetNamespaceXmlExtension } from "../operation/index.ts";
+import { executeDataPsmSetNamespaceXmlExtension } from "./data-psm-set-namespace-executor-xml-extension.ts";
+import * as PSM from "../../data-psm-vocabulary.ts";
+import {DataPsmSchemaXmlExtension} from "../model/index.ts";
+import {XML_EXTENSION} from "../vocabulary.ts";
 
 test("Update data PSM namespace and namespace prefix.", async () => {
   const operation = new DataPsmSetNamespaceXmlExtension();

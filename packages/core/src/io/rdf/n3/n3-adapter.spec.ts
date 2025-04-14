@@ -1,5 +1,5 @@
-import { parseRdfQuadsWithN3 } from "./n3-adapter";
-import { RdfNode, RdfObject } from "../rdf-api";
+import { parseRdfQuadsWithN3 } from "./n3-adapter.ts";
+import { RdfNode, RdfObject } from "../rdf-api.ts";
 
 test("Load sample TRIG.", async () => {
   const input = `

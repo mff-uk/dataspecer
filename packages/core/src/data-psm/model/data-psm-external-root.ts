@@ -1,5 +1,5 @@
-import * as PSM from "../data-psm-vocabulary";
-import {ExtendableCoreResource} from "./extendable-core-resource";
+import * as PSM from "../data-psm-vocabulary.ts";
+import {ExtendableCoreResource} from "./extendable-core-resource.ts";
 
 /**
  * Represents a root of a schema that is external, hence it has no underlying

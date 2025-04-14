@@ -1,7 +1,7 @@
-import { ArtifactSaver } from "../utils/artifact-saver";
-import { DalGeneratorStrategy } from "./strategy-interface";
-import { LayerArtifact, isLayerArtifact } from "../engine/layer-artifact";
-import { GeneratorStage, type GenerationContext } from "../engine/generator-stage-interface";
+import { ArtifactSaver } from "../utils/artifact-saver.ts";
+import { DalGeneratorStrategy } from "./strategy-interface.ts";
+import { LayerArtifact, isLayerArtifact } from "../engine/layer-artifact.ts";
+import { GeneratorStage, type GenerationContext } from "../engine/generator-stage-interface.ts";
 
 export class DataLayerGeneratorStage implements GeneratorStage {
 

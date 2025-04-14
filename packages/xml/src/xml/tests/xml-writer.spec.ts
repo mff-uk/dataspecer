@@ -1,5 +1,5 @@
 import { OutputStream } from "@dataspecer/core/io/stream/output-stream";
-import { XmlStreamWriter } from "../xml-writer";
+import { XmlStreamWriter } from "../xml-writer.ts";
 
 const testPrefix = "XML writer: ";
 

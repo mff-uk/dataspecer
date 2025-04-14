@@ -1,10 +1,10 @@
-import { LayerArtifact } from "../../../engine/layer-artifact";
-import { InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
-import { ImportRelativePath, DataLayerTemplateDescription } from "../../../engine/templates/template-interfaces";
-import { DeleteInstanceMutatorInterfaceGenerator } from "../reader-interface-generator";
-import { TemplateConsumer } from "../../../engine/templates/template-consumer";
-import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy";
-import { ReadWriteEndpointUri } from "../../../engine/graph/datasource";
+import { LayerArtifact } from "../../../engine/layer-artifact.ts";
+import { InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator.ts";
+import { ImportRelativePath, DataLayerTemplateDescription } from "../../../engine/templates/template-interfaces.ts";
+import { DeleteInstanceMutatorInterfaceGenerator } from "../reader-interface-generator.ts";
+import { TemplateConsumer } from "../../../engine/templates/template-consumer.ts";
+import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy.ts";
+import { ReadWriteEndpointUri } from "../../../engine/graph/datasource.ts";
 
 export interface InstanceDeleteLdkitTemplate extends DataLayerTemplateDescription {
     placeholders: {

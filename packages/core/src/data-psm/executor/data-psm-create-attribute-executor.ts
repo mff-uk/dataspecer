@@ -3,17 +3,17 @@ import {
   CreateNewIdentifier,
   CoreExecutorResult,
   CoreResource,
-} from "../../core";
+} from "../../core/index.ts";
 import {
   DataPsmCreateAttribute,
   DataPsmCreateAttributeResult,
-} from "../operation";
+} from "../operation/index.ts";
 import {
   DataPsmExecutorResultFactory,
   loadDataPsmClass,
   loadDataPsmSchema,
-} from "./data-psm-executor-utils";
-import { DataPsmAttribute, DataPsmClass } from "../model";
+} from "./data-psm-executor-utils.ts";
+import { DataPsmAttribute, DataPsmClass } from "../model/index.ts";
 
 export async function executeDataPsmCreateAttribute(
   reader: CoreResourceReader,

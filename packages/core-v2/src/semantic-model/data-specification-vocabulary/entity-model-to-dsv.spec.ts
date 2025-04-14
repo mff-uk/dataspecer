@@ -1,11 +1,11 @@
-import { SemanticModelClass, SemanticModelRelationship } from "../concepts";
-import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "../profile/concepts";
-import { ClassRole, DsvModel, PropertyProfile, RequirementLevel } from "./dsv-model";
-import { EntityListContainer } from "./entity-model";
+import { SemanticModelClass, SemanticModelRelationship } from "../concepts/index.ts";
+import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "../profile/concepts/index.ts";
+import { ClassRole, DsvModel, PropertyProfile, RequirementLevel } from "./dsv-model.ts";
+import { EntityListContainer } from "./entity-model.ts";
 import {
     createContext,
     entityListContainerToDsvModel,
-} from "./entity-model-to-dsv";
+} from "./entity-model-to-dsv.ts";
 
 test("Issue #608", () => {
 

@@ -1,6 +1,6 @@
-import { TemplateModel } from "../../engine/templates/template-interfaces";
-import { LayerArtifact } from "../../engine/layer-artifact";
-import { TemplateConsumer, TemplateMetadata } from "../../engine/templates/template-consumer";
+import { TemplateModel } from "../../engine/templates/template-interfaces.ts";
+import { LayerArtifact } from "../../engine/layer-artifact.ts";
+import { TemplateConsumer, TemplateMetadata } from "../../engine/templates/template-consumer.ts";
 
 export interface CapabilityInterfaceTemplate extends TemplateModel {
     templatePath: string

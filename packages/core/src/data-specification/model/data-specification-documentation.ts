@@ -1,4 +1,4 @@
-import { DataSpecificationArtefact } from "./data-specification-artefact";
+import { DataSpecificationArtefact } from "./data-specification-artefact.ts";
 
 /**
  * Documentation may include other artefacts, such as schemas or examples.

@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { DataPsmSetOrder } from "../operation";
-import { executeDataPsmSetOrder } from "./data-psm-set-order-executor";
-import * as PSM from "../data-psm-vocabulary";
+} from "../../core/index.ts";
+import { DataPsmSetOrder } from "../operation/index.ts";
+import { executeDataPsmSetOrder } from "./data-psm-set-order-executor.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 describe("Change order in data PSM class.", () => {
   let resources: Record<string, CoreResource>;

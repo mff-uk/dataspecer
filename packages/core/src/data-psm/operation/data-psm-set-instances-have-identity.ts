@@ -1,5 +1,5 @@
-import { CoreOperation, CoreResource } from "../../core";
-import * as PSM from "../data-psm-vocabulary";
+import { CoreOperation, CoreResource } from "../../core/index.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 export class DataPsmSetInstancesHaveIdentity extends CoreOperation {
   static readonly TYPE = PSM.SET_INSTANCES_HAVE_IDENTITY;

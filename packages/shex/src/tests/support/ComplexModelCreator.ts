@@ -8,7 +8,7 @@ import {
 } from "@dataspecer/core/structure-model/model";
 import { ArtefactGeneratorContext } from "@dataspecer/core/generator";
 import { DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
-import ModelCreator from "./ModelCreatorInterface";
+import ModelCreator from "./ModelCreatorInterface.ts";
 
 class ComplexModelCreator  implements ModelCreator{
 

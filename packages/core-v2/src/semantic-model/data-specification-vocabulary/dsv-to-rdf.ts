@@ -14,9 +14,9 @@ import {
   Cardinality,
   ClassRole,
   RequirementLevel,
-} from "./dsv-model";
+} from "./dsv-model.ts";
 
-import { RDF, DSV, DCT, SKOS, VANN, DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL } from "./vocabulary";
+import { RDF, DSV, DCT, SKOS, VANN, DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL } from "./vocabulary.ts";
 
 const IRI = DataFactory.namedNode;
 

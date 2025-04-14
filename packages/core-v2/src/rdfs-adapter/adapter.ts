@@ -1,7 +1,7 @@
 import { OWL, RDF, RDFS, SCHEMAORG } from '@dataspecer/rdfs-adapter/';
 import { NamedNode, Store } from 'n3';
-import { NamedThing, SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_RELATIONSHIP, SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, SemanticModelRelationship } from '../semantic-model/concepts';
-import { getQuadsByMany, objectsToLanguageString } from './better-n3-store';
+import { NamedThing, SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_RELATIONSHIP, SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, SemanticModelRelationship } from '../semantic-model/concepts/index.ts';
+import { getQuadsByMany, objectsToLanguageString } from './better-n3-store.ts';
 
 /**
  * Adapter from RDFS, OWL to the semantic model.

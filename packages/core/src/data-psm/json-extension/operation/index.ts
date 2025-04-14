@@ -1,1 +1,1 @@
-export * from "./data-psm-set-use-key-value-for-lang-string";
+export * from "./data-psm-set-use-key-value-for-lang-string.ts";

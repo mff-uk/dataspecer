@@ -2,11 +2,11 @@ import {
   CoreResourceReader,
   CoreExecutorResult,
   CreateNewIdentifier,
-} from "../../core";
-import { DataPsmSetEmptyAsComplex } from "../operation";
+} from "../../core/index.ts";
+import { DataPsmSetEmptyAsComplex } from "../operation/index.ts";
 import {
   DataPsmClass,
-} from "../model";
+} from "../model/index.ts";
 
 export async function executeDataPsmSetEmptyAsComplex(
   reader: CoreResourceReader,

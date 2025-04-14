@@ -1,6 +1,6 @@
-import {StructureModel} from "../model";
-import {clone} from "../../core";
-import {DataSpecificationConfiguration} from "../../data-specification/configuration";
+import {StructureModel} from "../model/index.ts";
+import {clone} from "../../core/index.ts";
+import {DataSpecificationConfiguration} from "../../data-specification/configuration.ts";
 
 export function structureModelAddDefaultValues(
     structure: StructureModel,

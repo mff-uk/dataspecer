@@ -1,8 +1,8 @@
-import {CoreResource, CoreResourceReader, ReadOnlyMemoryStore,} from "../../core";
-import {DataPsmReplaceAlongInheritance} from "../operation";
-import * as PSM from "../data-psm-vocabulary";
-import {DataPsmAssociationEnd, DataPsmClass, DataPsmSchema} from "../model";
-import {executeDataPsmReplaceAlongInheritance} from "./data-psm-replace-along-inheritance";
+import {CoreResource, CoreResourceReader, ReadOnlyMemoryStore,} from "../../core/index.ts";
+import {DataPsmReplaceAlongInheritance} from "../operation/index.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
+import {DataPsmAssociationEnd, DataPsmClass, DataPsmSchema} from "../model/index.ts";
+import {executeDataPsmReplaceAlongInheritance} from "./data-psm-replace-along-inheritance.ts";
 
 describe("Replace class along its hierarchy.", () => {
   let resources: Record<string, CoreResource>;

@@ -1,6 +1,6 @@
-import { CoreOperationResult, CoreResource, CoreTyped } from "../../core";
-import { DataPsmCreate } from "./data-psm-create";
-import * as PSM from "../data-psm-vocabulary";
+import { CoreOperationResult, CoreResource, CoreTyped } from "../../core/index.ts";
+import { DataPsmCreate } from "./data-psm-create.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 export class DataPsmCreateContainer extends DataPsmCreate {
   static readonly TYPE = PSM.CREATE_CONTAINER;

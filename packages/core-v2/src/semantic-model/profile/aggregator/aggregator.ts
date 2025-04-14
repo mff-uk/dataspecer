@@ -1,6 +1,6 @@
-import { Entity, EntityIdentifier } from "../../../entity-model/entity";
-import { isSemanticModelClass, isSemanticModelRelationship, LanguageString, SemanticModelClass, SemanticModelRelationship } from "../../concepts";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipEndProfile, SemanticModelRelationshipProfile } from "../concepts";
+import { Entity, EntityIdentifier } from "../../../entity-model/entity.ts";
+import { isSemanticModelClass, isSemanticModelRelationship, LanguageString, SemanticModelClass, SemanticModelRelationship } from "../../concepts/index.ts";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipEndProfile, SemanticModelRelationshipProfile } from "../concepts/index.ts";
 
 /**
  * Given an entity analyze and return dependencies to other entities.

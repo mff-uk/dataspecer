@@ -1,6 +1,6 @@
-import { SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_RELATIONSHIP, SemanticModelClass, SemanticModelRelationship } from "../../concepts";
-import { SEMANTIC_MODEL_CLASS_PROFILE, SEMANTIC_MODEL_RELATIONSHIP_PROFILE, SemanticModelClassProfile } from "../concepts";
-import { AggregatedProfiledSemanticModelClass, createDefaultProfileEntityAggregator } from "./aggregator";
+import { SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_RELATIONSHIP, SemanticModelClass, SemanticModelRelationship } from "../../concepts/index.ts";
+import { SEMANTIC_MODEL_CLASS_PROFILE, SEMANTIC_MODEL_RELATIONSHIP_PROFILE, SemanticModelClassProfile } from "../concepts/index.ts";
+import { AggregatedProfiledSemanticModelClass, createDefaultProfileEntityAggregator } from "./aggregator.ts";
 
 test("Aggregate class with no profiles.", () => {
   const aggregator = createDefaultProfileEntityAggregator();

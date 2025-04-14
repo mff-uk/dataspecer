@@ -20,10 +20,10 @@ import {
   xmlSchemaComplexTypeDefinitionIsExtension,
   xmlSchemaSimpleTypeDefinitionIsRestriction,
   XmlSchemaAttribute,
-} from "./xml-schema-model";
+} from "./xml-schema-model.ts";
 
-import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
-import { langStringName } from "../conventions";
+import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer.ts";
+import { langStringName } from "../conventions.ts";
 
 const xsNamespace = "http://www.w3.org/2001/XMLSchema";
 const xsVerNamespace = "http://www.w3.org/2007/XMLSchema-versioning";

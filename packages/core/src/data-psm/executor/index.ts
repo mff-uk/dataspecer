@@ -1,1 +1,1 @@
-export * from "./base-data-psm-executor";
+export * from "./base-data-psm-executor.ts";

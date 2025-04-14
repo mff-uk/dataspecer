@@ -1,8 +1,8 @@
 import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { NodeDimensionQueryHandler } from "..";
-import { INodeClassic } from "../graph-iface";
-import { getEdgeSourceAndTargetRelationship } from "../layout-iface";
-import { ReactflowDimensionsConstantEstimator } from "./constant-dimension-estimator";
+import { NodeDimensionQueryHandler } from "../index.ts";
+import { INodeClassic } from "../graph-iface.ts";
+import { getEdgeSourceAndTargetRelationship } from "../layout-iface.ts";
+import { ReactflowDimensionsConstantEstimator } from "./constant-dimension-estimator.ts";
 
 
 /**

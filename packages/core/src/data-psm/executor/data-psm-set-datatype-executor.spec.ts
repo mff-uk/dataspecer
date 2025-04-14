@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { DataPsmSetDatatype } from "../operation";
-import { executeDataPsmSetDatatype } from "./data-psm-set-datatype-executor";
-import * as PSM from "../data-psm-vocabulary";
+} from "../../core/index.ts";
+import { DataPsmSetDatatype } from "../operation/index.ts";
+import { executeDataPsmSetDatatype } from "./data-psm-set-datatype-executor.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 test("Update data PSM attribute datatype.", async () => {
   const operation = new DataPsmSetDatatype();

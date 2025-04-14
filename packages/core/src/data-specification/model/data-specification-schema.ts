@@ -1,4 +1,4 @@
-import { DataSpecificationArtefact } from "./data-specification-artefact";
+import { DataSpecificationArtefact } from "./data-specification-artefact.ts";
 
 /**
  * Schema represent structure defined by a single structural model, like

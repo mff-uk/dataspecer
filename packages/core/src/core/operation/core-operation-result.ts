@@ -1,5 +1,5 @@
-import { CoreOperation } from "./core-operation";
-import { CoreTyped } from "../core-resource";
+import { CoreOperation } from "./core-operation.ts";
+import { CoreTyped } from "../core-resource.ts";
 
 /**
  * Base class for operation results as should be returned by CoreResourceWriter.

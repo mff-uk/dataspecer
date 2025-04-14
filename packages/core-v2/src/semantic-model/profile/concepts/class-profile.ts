@@ -1,7 +1,7 @@
-import { Entity } from "../../../entity-model";
-import { SemanticModelEntity } from "../../concepts";
-import { NamedThingProfile } from "./named-thing-profile";
-import { Profile } from "./profile";
+import { Entity } from "../../../entity-model/index.ts";
+import { SemanticModelEntity } from "../../concepts/index.ts";
+import { NamedThingProfile } from "./named-thing-profile.ts";
+import { Profile } from "./profile.ts";
 
 export interface SemanticModelClassProfile extends SemanticModelEntity, Profile, NamedThingProfile {
 

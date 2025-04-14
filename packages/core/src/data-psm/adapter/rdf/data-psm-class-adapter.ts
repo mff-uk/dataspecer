@@ -2,10 +2,10 @@ import {
   RdfSourceWrap,
   RdfResourceLoader,
   RdfResourceLoaderResult,
-} from "../../../core/adapter/rdf";
-import { DataPsmClass } from "../../model";
-import { loadDataPsmResource } from "./data-psm-resource-adapter";
-import * as PSM from "../../data-psm-vocabulary";
+} from "../../../core/adapter/rdf/index.ts";
+import { DataPsmClass } from "../../model/index.ts";
+import { loadDataPsmResource } from "./data-psm-resource-adapter.ts";
+import * as PSM from "../../data-psm-vocabulary.ts";
 
 export class DataPsmClassAdapter implements RdfResourceLoader {
   async shouldLoadResource(source: RdfSourceWrap): Promise<boolean> {

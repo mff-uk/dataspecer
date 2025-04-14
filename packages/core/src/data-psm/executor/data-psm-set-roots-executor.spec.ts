@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { DataPsmSetRoots } from "../operation";
-import { executeDataPsmSetRoots } from "./data-psm-set-roots-executor";
-import * as PSM from "../data-psm-vocabulary";
+} from "../../core/index.ts";
+import { DataPsmSetRoots } from "../operation/index.ts";
+import { executeDataPsmSetRoots } from "./data-psm-set-roots-executor.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 test("Set data PSM class as a schema root.", async () => {
   const operation = new DataPsmSetRoots();

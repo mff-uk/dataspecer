@@ -1,1 +1,1 @@
-export * from "./pim-executor";
+export * from "./pim-executor.ts";

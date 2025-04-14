@@ -1,4 +1,4 @@
-import {CoreResource} from "../../core";
+import {CoreResource} from "../../core/index.ts";
 
 /**
  * {@link CoreResource} that support extensions object that adds properties

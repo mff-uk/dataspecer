@@ -1,5 +1,5 @@
-import { Entity } from "./entity";
-import { TypedObject, isTypedObject } from "./typed-object";
+import { Entity } from "./entity.ts";
+import { TypedObject, isTypedObject } from "./typed-object.ts";
 
 export type NewEntity <T extends Entity> = Omit<T, "identifier">;
 

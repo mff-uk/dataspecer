@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { PimSetClassCodelist } from "../operation";
-import { executePimSetClassCodelist } from "./pim-set-class-codelist-executor";
-import * as PIM from "../pim-vocabulary";
+} from "../../core/index.ts";
+import { PimSetClassCodelist } from "../operation/index.ts";
+import { executePimSetClassCodelist } from "./pim-set-class-codelist-executor.ts";
+import * as PIM from "../pim-vocabulary.ts";
 
 test("Update class codelist.", async () => {
   const operation = new PimSetClassCodelist();

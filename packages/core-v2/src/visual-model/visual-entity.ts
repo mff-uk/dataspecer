@@ -1,5 +1,5 @@
-import { Entity, EntityIdentifier } from "./entity-model/entity";
-import { ModelIdentifier } from "./entity-model/entity-model";
+import { Entity, EntityIdentifier } from "./entity-model/entity.ts";
+import { ModelIdentifier } from "./entity-model/entity-model.ts";
 
 /**
  * Color in hexadecimal, must start with "#" character.

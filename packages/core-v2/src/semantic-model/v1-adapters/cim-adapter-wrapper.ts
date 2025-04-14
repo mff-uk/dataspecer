@@ -1,8 +1,8 @@
 import {CimAdapter} from "@dataspecer/core/cim/cim-adapter";
-import {AsyncQueryableEntityModel, AsyncQueryableObservableEntityModel} from "../../entity-model/async-queryable/model";
-import {Entities} from "../../entity-model/entity";
-import {SearchQueryEntity} from "../async-queryable/queries";
-import {transformCoreResources, transformPimClass} from "./transform-core-resources";
+import {AsyncQueryableEntityModel, AsyncQueryableObservableEntityModel} from "../../entity-model/async-queryable/model.ts";
+import {Entities} from "../../entity-model/entity.ts";
+import {SearchQueryEntity} from "../async-queryable/queries.ts";
+import {transformCoreResources, transformPimClass} from "./transform-core-resources.ts";
 
 
 /**

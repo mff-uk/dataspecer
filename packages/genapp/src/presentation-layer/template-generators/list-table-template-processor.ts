@@ -1,11 +1,11 @@
 // TODO: merge / reduce imports
-import { LayerArtifact } from "../../engine/layer-artifact";
-import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "./presentation-layer-template-generator";
-import { ListItemCapabilityOptionsDependencyMap, ListItemCapabilityOptionsGenerator as ListItemOptionsGenerator } from "./list-item-options-processor";
-import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
-import { JsonSchemaProvider } from "../../data-layer/schema-providers/json-schema-provider";
-import { CapabilityType } from "../../capabilities";
-import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
+import { LayerArtifact } from "../../engine/layer-artifact.ts";
+import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "./presentation-layer-template-generator.ts";
+import { ListItemCapabilityOptionsDependencyMap, ListItemCapabilityOptionsGenerator as ListItemOptionsGenerator } from "./list-item-options-processor.ts";
+import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces.ts";
+import { JsonSchemaProvider } from "../../data-layer/schema-providers/json-schema-provider.ts";
+import { CapabilityType } from "../../capabilities/index.ts";
+import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator.ts";
 
 interface ListTableTemplate extends TemplateModel {
     placeholders: {

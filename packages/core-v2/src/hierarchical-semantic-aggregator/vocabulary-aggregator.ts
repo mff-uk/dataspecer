@@ -1,9 +1,9 @@
-import { Entity, EntityModel } from "../entity-model";
-import { isSemanticModelClass, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "../semantic-model/concepts";
-import { InMemorySemanticModel } from "../semantic-model/in-memory";
-import { ExternalEntityWrapped, LocalEntityWrapped, SemanticModelAggregator } from "./interfaces";
-import { getSearchRelevance } from "./utils/get-search-relevance";
-import { withAbsoluteIri } from "../semantic-model/utils";
+import { Entity, EntityModel } from "../entity-model/index.ts";
+import { isSemanticModelClass, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "../semantic-model/concepts/index.ts";
+import { InMemorySemanticModel } from "../semantic-model/in-memory/index.ts";
+import { ExternalEntityWrapped, LocalEntityWrapped, SemanticModelAggregator } from "./interfaces.ts";
+import { getSearchRelevance } from "./utils/get-search-relevance.ts";
+import { withAbsoluteIri } from "../semantic-model/utils/index.ts";
 
 const VOCABULARY_AGGREGATOR_TYPE = "vocabulary-aggregator";
 

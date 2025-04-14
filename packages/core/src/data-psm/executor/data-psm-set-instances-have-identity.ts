@@ -1,6 +1,6 @@
-import {CoreExecutorResult, CoreResourceReader, CreateNewIdentifier,} from "../../core";
-import {DataPsmSetInstancesHaveIdentity} from "../operation";
-import {DataPsmClass,} from "../model";
+import {CoreExecutorResult, CoreResourceReader, CreateNewIdentifier,} from "../../core/index.ts";
+import {DataPsmSetInstancesHaveIdentity} from "../operation/index.ts";
+import {DataPsmClass,} from "../model/index.ts";
 
 export async function executeDataPsmSetInstancesHaveIdentity(
   reader: CoreResourceReader,

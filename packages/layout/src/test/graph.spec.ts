@@ -4,11 +4,11 @@ test("Test for sake of test", () => {
 
 
 // import { LanguageString, NamedThing, SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-// import { GraphClassic, GraphFactory, MainGraphClassic } from "../graph-iface";
-// import { ExtractedModel, extractModelObjects } from "../layout-iface";
-// import { DIRECTION, doFindBestLayout, UserGivenConstraintsVersion2 } from "..";
-// import { ReactflowDimensionsEstimator } from "../dimension-estimators/reactflow-dimension-estimator";
-// import { VisualEntities } from "../../../core-v2/lib/visual-model/visual-entity";
+// import { GraphClassic, GraphFactory, MainGraphClassic } from "../graph-iface.ts";
+// import { ExtractedModel, extractModelObjects } from "../layout-iface.ts";
+// import { DIRECTION, doFindBestLayout, UserGivenConstraintsVersion2 } from "../index.ts";
+// import { ReactflowDimensionsEstimator } from "../dimension-estimators/reactflow-dimension-estimator.ts";
+// import { VisualEntities } from "../../../core-v2/lib/visual-model/visual-entity.js";
 
 // type PossibleSemanticModelEntity = SemanticModelClass | SemanticModelRelationship | SemanticModelGeneralization;
 

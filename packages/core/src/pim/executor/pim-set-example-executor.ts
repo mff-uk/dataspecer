@@ -2,10 +2,10 @@ import {
   CoreResourceReader,
   CoreExecutorResult,
   CreateNewIdentifier,
-} from "../../core";
-import { PimAttribute, PimClass } from "../model";
-import { PimSetExample } from "../operation";
-import { PimExecutorResultFactory } from "./pim-executor-utils";
+} from "../../core/index.ts";
+import { PimAttribute, PimClass } from "../model/index.ts";
+import { PimSetExample } from "../operation/index.ts";
+import { PimExecutorResultFactory } from "./pim-executor-utils.ts";
 
 export async function executePimSetExample(
   reader: CoreResourceReader,

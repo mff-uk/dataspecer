@@ -1,6 +1,6 @@
-import { CoreOperation } from "../operation";
-import { CoreResourceReader } from "../core-reader";
-import { CoreExecutorResult } from "./core-executor-result";
+import { CoreOperation } from "../operation/index.ts";
+import { CoreResourceReader } from "../core-reader.ts";
+import { CoreExecutorResult } from "./core-executor-result.ts";
 
 /**
  * Given a CoreOperation check if operation is of given sub-type.

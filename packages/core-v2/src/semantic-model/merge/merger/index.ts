@@ -1,2 +1,2 @@
-export * from "./interface";
-export * from "./stronger-wins";
+export * from "./interface.ts";
+export * from "./stronger-wins.ts";

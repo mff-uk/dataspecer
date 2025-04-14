@@ -10,10 +10,10 @@ import {
     InstanceDetailLdkitReaderGenerator,
     InstanceListLdkitReaderGenerator
 }
-from "./template-generators/ldkit";
-import { DalGeneratorStrategy } from "./strategy-interface";
-import { DataSourceType, DatasourceConfig } from "../engine/graph/datasource";
-import { TemplateDataLayerGeneratorStrategy } from "./strategies/ldkit-template-strategy";
+from "./template-generators/ldkit/index.ts";
+import { DalGeneratorStrategy } from "./strategy-interface.ts";
+import { DataSourceType, DatasourceConfig } from "../engine/graph/datasource.ts";
+import { TemplateDataLayerGeneratorStrategy } from "./strategies/ldkit-template-strategy.ts";
 
 export type DataAccessLayerGeneratorFactory = {
     getDalGeneratorStrategy: (technicalLabel: string, specificationIri: string, datasourceConfig: DatasourceConfig) => DalGeneratorStrategy;

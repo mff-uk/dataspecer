@@ -2,7 +2,7 @@ import axios, { AxiosResponse, HttpStatusCode } from "axios";
 import { DataSpecification } from "@dataspecer/core/data-specification/model/data-specification";
 import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
 import { CoreResource } from "@dataspecer/core/core/core-resource";
-import { GenappEnvConfig } from "../engine/app-generator";
+import { GenappEnvConfig } from "../engine/app-generator.ts";
 
 type ResourceMap<TResource extends CoreResource> = {
     [resourceIri: string]: TResource

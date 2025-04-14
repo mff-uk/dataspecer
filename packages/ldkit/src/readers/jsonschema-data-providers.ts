@@ -1,9 +1,9 @@
-import { CatalogSchema } from "../schemas/catalog-schema";
-import { DatasetSchema } from "../schemas/dataset-schema";
-import * as catalogContext from "../data/context/catalogContext.json";
-import * as datasetContext from "../data/context/datasetContext.json";
-import { AggregateDefinitionProvider, AggregateIdentifier } from "./aggregate-data-provider-model";
-import { LdkitSchemaProperty, LdkitSchemaPropertyMap } from "../ldkit-schema-model";
+import { CatalogSchema } from "../schemas/catalog-schema.ts";
+import { DatasetSchema } from "../schemas/dataset-schema.ts";
+import catalogContext from "../data/context/catalogContext.json" with { type: "json" };
+import datasetContext from "../data/context/datasetContext.json" with { type: "json" };
+import { AggregateDefinitionProvider, AggregateIdentifier } from "./aggregate-data-provider-model.ts";
+import { LdkitSchemaProperty, LdkitSchemaPropertyMap } from "../ldkit-schema-model.ts";
 
 type SchemaObject = {
     $schema: string;
@@ -68,7 +68,7 @@ export class JsonSchemaDataProvider implements AggregateDefinitionProvider {
 
         const aggregateName: string | undefined = this.schemas[lowerCaseAggregateName]?.title;
         //console.log(`Found name: "${aggregateName}"`);
-        
+
         const matchingContextObject: { "@context": object; } | undefined = this.contexts[lowerCaseAggregateName];
         if (!matchingContextObject || !aggregateName) {
             throw new Error("");
@@ -124,7 +124,7 @@ export class JsonSchemaDataProvider implements AggregateDefinitionProvider {
                 // }
 
                 const generatedPropertyObject = this.generateSchemaPropertyObject(propertyContext);
-                
+
                 if (!generatedPropertyObject) {
                     return;
                 }
@@ -148,7 +148,7 @@ export class JsonSchemaDataProvider implements AggregateDefinitionProvider {
     }
 
     private convertPropertyContextToLdkitSchemaProperty(propertyContext: any): LdkitSchemaProperty | null {
-        
+
         if (!propertyContext["@id"]) {
             throw new Error("Property context without @id.");
         }

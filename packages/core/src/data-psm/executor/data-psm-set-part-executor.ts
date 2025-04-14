@@ -2,14 +2,14 @@ import {
   CoreResourceReader,
   CoreExecutorResult,
   CreateNewIdentifier,
-} from "../../core";
-import { DataPsmSetPart } from "../operation";
+} from "../../core/index.ts";
+import { DataPsmSetPart } from "../operation/index.ts";
 import {
   DataPsmAssociationEnd,
   DataPsmClass,
   DataPsmClassReference,
-} from "../model";
-import { DataPsmExecutorResultFactory } from "./data-psm-executor-utils";
+} from "../model/index.ts";
+import { DataPsmExecutorResultFactory } from "./data-psm-executor-utils.ts";
 
 export async function executeDataPsmSetPart(
   reader: CoreResourceReader,

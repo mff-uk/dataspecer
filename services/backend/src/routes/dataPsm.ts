@@ -1,7 +1,7 @@
 import express from "express";
-import { dataSpecificationModel } from "../main";
-import { replaceStoreDescriptorsInDataSpecification } from "../models/data-specification-model-adapted";
-import { asyncHandler } from "../utils/async-handler";
+import { dataSpecificationModel } from "../main.ts";
+import { replaceStoreDescriptorsInDataSpecification } from "../models/data-specification-model-adapted.ts";
+import { asyncHandler } from "../utils/async-handler.ts";
 
 export const createDataPsm = asyncHandler(async (request: express.Request, response: express.Response) => {
     const dataSpecificationIri = String(request.body.dataSpecificationIri);

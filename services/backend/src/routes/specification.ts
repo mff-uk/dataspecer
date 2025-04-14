@@ -5,10 +5,10 @@ import { dataPsmGarbageCollection, pimGarbageCollection } from "@dataspecer/core
 import { PimSchema } from "@dataspecer/core/pim/model";
 import { normalizePim } from "@dataspecer/core/processing-utils/normalize-pim";
 import express from "express";
-import { dataSpecificationModel, storeModel } from "../main";
-import { replaceStoreDescriptorsInDataSpecification } from "../models/data-specification-model-adapted";
-import { LocalStoreDescriptor } from "../models/local-store-descriptor";
-import { asyncHandler } from "../utils/async-handler";
+import { dataSpecificationModel, storeModel } from "../main.ts";
+import { replaceStoreDescriptorsInDataSpecification } from "../models/data-specification-model-adapted.ts";
+import { LocalStoreDescriptor } from "../models/local-store-descriptor.ts";
+import { asyncHandler } from "../utils/async-handler.ts";
 
 export const listSpecifications = asyncHandler(async (request: express.Request, response: express.Response) => {
     if (request.query.dataSpecificationIri) {

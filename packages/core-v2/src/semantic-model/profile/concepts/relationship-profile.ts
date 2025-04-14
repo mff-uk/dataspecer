@@ -1,6 +1,6 @@
-import { Entity } from "../../../entity-model";
-import { NamedThingProfile } from "./named-thing-profile";
-import { Profile } from "./profile";
+import { Entity } from "../../../entity-model/index.ts";
+import { NamedThingProfile } from "./named-thing-profile.ts";
+import { Profile } from "./profile.ts";
 
 /**
  * For now we do not extend {@link NamedThingProfile} here.

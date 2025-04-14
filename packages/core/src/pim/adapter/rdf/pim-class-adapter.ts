@@ -2,10 +2,10 @@ import {
   RdfSourceWrap,
   RdfResourceLoader,
   RdfResourceLoaderResult,
-} from "../../../core/adapter/rdf";
-import { PimClass } from "../../model";
-import { loadPimResource } from "./pim-resource-adapter";
-import * as PIM from "../../pim-vocabulary";
+} from "../../../core/adapter/rdf/index.ts";
+import { PimClass } from "../../model/index.ts";
+import { loadPimResource } from "./pim-resource-adapter.ts";
+import * as PIM from "../../pim-vocabulary.ts";
 
 export class PimClassAdapter implements RdfResourceLoader {
   async shouldLoadResource(source: RdfSourceWrap): Promise<boolean> {

@@ -1,6 +1,6 @@
 import{ JSONSchemaFaker } from "json-schema-faker";
 import * as jsonld from 'jsonld';
-import * as Support from "./testSupport";
+import * as Support from "./testSupport.ts";
 import * as N3 from "n3";
 import * as fs from "fs";
 

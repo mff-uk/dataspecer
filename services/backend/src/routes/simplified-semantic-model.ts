@@ -1,6 +1,6 @@
 import { LOCAL_SEMANTIC_MODEL } from "@dataspecer/core-v2/model/known-models";
-import { resourceModel } from "../main";
-import { asyncHandler } from "../utils/async-handler";
+import { resourceModel } from "../main.ts";
+import { asyncHandler } from "../utils/async-handler.ts";
 import express from "express";
 import { z } from "zod";
 import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";

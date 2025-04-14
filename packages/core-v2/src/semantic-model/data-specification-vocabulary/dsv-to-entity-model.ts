@@ -1,6 +1,6 @@
-import { Entity } from "../../entity-model";
+import { Entity } from "../../entity-model/index.ts";
 
-import { EntityListContainer } from "./entity-model";
+import { EntityListContainer } from "./entity-model.ts";
 
 import {
   DsvModel,
@@ -13,7 +13,7 @@ import {
   Profile,
   RequirementLevel,
   ClassRole,
-} from "./dsv-model";
+} from "./dsv-model.ts";
 
 import {
   SEMANTIC_MODEL_CLASS_PROFILE,
@@ -21,9 +21,9 @@ import {
   SemanticModelClassProfile,
   SemanticModelRelationshipEndProfile,
   SemanticModelRelationshipProfile,
-} from "../profile/concepts";
-import { DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL, SKOS, VANN } from "./vocabulary";
-import { SEMANTIC_MODEL_GENERALIZATION, SemanticModelGeneralization } from "../concepts";
+} from "../profile/concepts/index.ts";
+import { DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL, SKOS, VANN } from "./vocabulary.ts";
+import { SEMANTIC_MODEL_GENERALIZATION, SemanticModelGeneralization } from "../concepts/index.ts";
 
 interface MandatoryConceptualModelToEntityListContainerContext {
 

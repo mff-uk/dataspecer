@@ -1,1 +1,1 @@
-export * from "./documentation";
+export * from "./documentation.ts";

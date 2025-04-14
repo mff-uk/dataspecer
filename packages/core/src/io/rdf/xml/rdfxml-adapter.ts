@@ -1,4 +1,4 @@
-import { RdfQuad } from "../../../core/adapter/rdf";
+import { RdfQuad } from "../../../core/adapter/rdf/index.ts";
 import {RdfXmlParser} from "rdfxml-streaming-parser";
 
 export function parseRdfXml(

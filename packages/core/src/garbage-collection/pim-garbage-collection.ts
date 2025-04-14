@@ -1,4 +1,4 @@
-import {CoreResourceReader, CoreResourceWriter} from "../core";
+import {CoreResourceReader, CoreResourceWriter} from "../core/index.ts";
 import {
     DataPsmAssociationEnd,
     DataPsmAttribute,
@@ -8,11 +8,11 @@ import {
     DataPsmInclude,
     DataPsmOr,
     DataPsmSchema
-} from "../data-psm/model";
-import * as PSM from "../data-psm/data-psm-vocabulary";
-import * as PIM from "../pim/pim-vocabulary";
-import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass, PimSchema} from "../pim/model";
-import {PimDeleteAssociation, PimDeleteAttribute, PimDeleteClass, PimSetExtends} from "../pim/operation";
+} from "../data-psm/model/index.ts";
+import * as PSM from "../data-psm/data-psm-vocabulary.ts";
+import * as PIM from "../pim/pim-vocabulary.ts";
+import {PimAssociation, PimAssociationEnd, PimAttribute, PimClass, PimSchema} from "../pim/model/index.ts";
+import {PimDeleteAssociation, PimDeleteAttribute, PimDeleteClass, PimSetExtends} from "../pim/operation/index.ts";
 
 // todo use memory store withou async
 async function getOwningPsmClass(store: CoreResourceReader, entityIri: string): Promise<DataPsmClass | null> {

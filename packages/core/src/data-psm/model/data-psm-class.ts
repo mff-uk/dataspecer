@@ -1,5 +1,5 @@
-import { DataPsmResource } from "./data-psm-resource";
-import * as PSM from "../data-psm-vocabulary";
+import { DataPsmResource } from "./data-psm-resource.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 /**
  * Class on the PSM level points to all its parts, e.g.: association ends,

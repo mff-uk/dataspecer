@@ -1,8 +1,8 @@
 import { PimClass } from "@dataspecer/core/pim/model";
 import { IriProvider } from "@dataspecer/core/cim";
-import { loadWikidataEntityToResource } from "./wd-entity-adapter";
-import { WdClassHierarchyDescOnly } from "../wikidata-entities/wd-class";
-import { WdEntityId, concatWdPrefixWithId } from "../wikidata-entities/wd-entity";
+import { loadWikidataEntityToResource } from "./wd-entity-adapter.ts";
+import { WdClassHierarchyDescOnly } from "../wikidata-entities/wd-class.ts";
+import { WdEntityId, concatWdPrefixWithId } from "../wikidata-entities/wd-entity.ts";
 
 export function loadWikidataClass(
     cls: WdClassHierarchyDescOnly,

@@ -1,4 +1,4 @@
-import {StoreDescriptor} from "./index";
+import {StoreDescriptor} from "./index.ts";
 
 /**
  * Describes a store, that can be accessed and modified via HTTP protocol.

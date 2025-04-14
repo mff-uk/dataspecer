@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { AlgorithmPhases, StressConfiguration, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationStress } from "../constraints";
+import { AlgorithmPhases, StressConfiguration, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationStress } from "../constraints.ts";
 
 
 /**

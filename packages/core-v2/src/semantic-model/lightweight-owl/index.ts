@@ -1,3 +1,3 @@
-import {generate} from "./generator";
+import {generate} from "./generator.ts";
 
 export {generate};

@@ -1,7 +1,7 @@
 import { StructureModel} from "@dataspecer/core/structure-model/model";
 import { DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
-import { ShexAdapter } from "../../shex-adapter";
-import { ShexMapAdapter } from "../../shex-map-adapter";
+import { ShexAdapter } from "../../shex-adapter.ts";
+import { ShexMapAdapter } from "../../shex-map-adapter.ts";
 
 class ShapeCreator{   
 
