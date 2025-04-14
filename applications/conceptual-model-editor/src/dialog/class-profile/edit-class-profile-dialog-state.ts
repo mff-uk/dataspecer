@@ -154,6 +154,7 @@ export function createEditClassProfileDialogState(
     entity.iri ?? "",
     entity.name, entity.nameFromProfiled,
     entity.description, entity.descriptionFromProfiled,
+    entity.externalDocumentationUrl ?? "",
     entity.usageNote, entity.usageNoteFromProfiled,
     allSpecializations);
 
@@ -161,6 +162,7 @@ export function createEditClassProfileDialogState(
     ...entityProfileState,
     // Role
     availableRoles: ROLES,
-    role: ROLES[0].value
+    role: ROLES.find(item => entity.tags?.includes(item.cme ?? ""))?.value
+      ?? ROLES[0].value,
   };
 }

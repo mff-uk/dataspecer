@@ -1,7 +1,5 @@
 import {
-  SemanticModelGeneralization,
   type SemanticModelRelationship,
-  isSemanticModelGeneralization,
   isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";

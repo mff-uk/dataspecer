@@ -23,6 +23,7 @@ export function createCmeRelationship(
       concept: value.range,
       cardinality: value.rangeCardinality ?? undefined,
       iri: value.iri,
+      externalDocumentationUrl: value.externalDocumentationUrl ?? null,
     }]
   });
 

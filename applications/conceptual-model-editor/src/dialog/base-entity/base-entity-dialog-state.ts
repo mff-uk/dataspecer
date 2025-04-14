@@ -174,6 +174,7 @@ export function createEditBaseEntityDialogState(
   iri: string,
   name: LanguageString,
   description: LanguageString,
+  externalDocumentationUrl: string,
   allSpecializations: EntityRepresentative[],
 ): BaseEntityDialogState {
 
@@ -213,7 +214,7 @@ export function createEditBaseEntityDialogState(
     specializations: representSpecializations(
       entity.identifier, allSpecializations, semanticModels),
     // Documentation
-    externalDocumentationUrl: "",
+    externalDocumentationUrl,
   };
 }
 

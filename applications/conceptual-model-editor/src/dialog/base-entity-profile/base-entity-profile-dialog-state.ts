@@ -294,6 +294,7 @@ export function createEditBaseEntityProfileDialogState
   nameSourceIdentifier: string | null,
   description: LanguageString | null,
   descriptionSourceIdentifier: string | null,
+  externalDocumentationUrl: string,
   usageNote: LanguageString | null,
   usageNoteSourceIdentifier: string | null,
   allSpecializations: EntityRepresentative[],
@@ -375,7 +376,7 @@ export function createEditBaseEntityProfileDialogState
     specializations: representSpecializations(
       entity.identifier, allSpecializations, semanticModels),
     //
-    externalDocumentationUrl: "",
+    externalDocumentationUrl,
   };
 }
 

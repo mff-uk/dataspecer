@@ -146,10 +146,10 @@ function mergeFromProfiled<T>(
   next: T | undefined,
   previous: T,
 ): T {
+  // We need to store null, if next is null.
   if (next === undefined) {
     return previous;
   }
-  // We actually need to store null, if next is null
   return next;
 }
 

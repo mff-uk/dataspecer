@@ -21,6 +21,7 @@ import { updateCmeRelationshipProfile } from "./operation/update-cme-relationshi
 import { CmeSpecialization, NewCmeSpecialization } from "./model/cme-specialization";
 import { updateCmeSpecialization } from "./operation/update-cme-entity-specialization";
 import { updateCmeRelationship } from "./operation/update-cme-relationship";
+import { changeCmeClassProfile } from "./operation/change-cme-class-profile";
 
 const LOG = createLogger(import.meta.url);
 
@@ -47,6 +48,8 @@ export interface CmeModelOperationExecutor {
   deleteClassProfile(value: CmeReference): void;
 
   /**
+   * Change values of only the given properties.
+   *
    * @throws {InvalidState}
    * @throws {DataspecerError}
    */
@@ -179,7 +182,7 @@ class DefaultCmeModelOperationExecutor implements CmeModelOperationExecutor {
   changeClassProfile(value: CmeReference & Partial<CmeClassProfile>): void {
     LOG.trace("DefaultCmeModelOperationExecutor.changeClassProfile", {value});
     const model = this.findModel(value.model);
-    updateCmeClassProfile(model, value);
+    changeCmeClassProfile(model, value);
   }
 
   deleteClassProfile(value: CmeReference): void {

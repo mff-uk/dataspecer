@@ -108,6 +108,7 @@ export function createBaseRelationshipProfileDialogState<RangeType extends {
   allRanges: RangeType[],
   rangeFilter: ItemFilter<RangeType>,
   invalidRange: RangeType,
+  tags: string[],
 ): BaseRelationshipProfileDialogState<RangeType> {
 
   // Filter domains for given model.
@@ -164,6 +165,7 @@ export function createBaseRelationshipProfileDialogState<RangeType extends {
     availableCardinalities: listProfileCardinalities(),
     // Mandatory level
     availableMandatoryLevels: MANDATORY_LEVELS,
-    mandatoryLevel: MANDATORY_LEVELS[0].value,
+    mandatoryLevel: MANDATORY_LEVELS.find(item => tags.includes(item.cme ?? ""))?.value
+      ?? MANDATORY_LEVELS[0].value,
   });
 }
