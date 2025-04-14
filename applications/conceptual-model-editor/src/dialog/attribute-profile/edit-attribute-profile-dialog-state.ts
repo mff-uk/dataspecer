@@ -269,7 +269,7 @@ export function createAddAttributeProfileDialogState(
     domainIdentifier, profile.domainCardinality.cardinality, allDomains,
     filterByModel, representUndefinedClassProfile(),
     profile.range, profile.rangeCardinality.cardinality, allRanges,
-    items => items, representUndefinedDataType());
+    items => items, representUndefinedDataType(), []);
 
   const result = {
     ...entityProfileState,
