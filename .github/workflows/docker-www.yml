@@ -1,4 +1,4 @@
-name: Docker image
+name: Documentation
 
 on:
   push:
@@ -30,4 +30,4 @@ jobs:
           context: ./www
           file: ./www/Dockerfile
           push: true
-          tags: ${{env.IMAGE_NAME}}:latest
+          tags: ${{env.REGISTRY}}/${{env.IMAGE_NAME}}:latest
