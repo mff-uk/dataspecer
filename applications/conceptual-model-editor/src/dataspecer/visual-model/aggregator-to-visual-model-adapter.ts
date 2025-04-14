@@ -206,6 +206,15 @@ function updateVisualRelationship(
     return;
   }
 
+  // If there was no relevant change, since the semantic ends are the same
+  const givenVisualSource = visualModel.getVisualEntity(visual.visualSource);
+  const isSourceSame = givenVisualSource !== null && visualSources.includes(givenVisualSource);
+  const givenVisualTarget = visualModel.getVisualEntity(visual.visualTarget);
+  const isTargetSame = givenVisualTarget !== null && visualTargets.includes(givenVisualTarget);
+  if(isSourceSame && isTargetSame) {
+    return;
+  }
+
   for(const visualSource of visualSources) {
     for(const visualTarget of visualTargets) {
       if (visual.visualSource === visualSource.identifier
