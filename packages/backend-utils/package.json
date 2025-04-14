@@ -1,6 +1,7 @@
 {
   "name": "@dataspecer/backend-utils",
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "dev": "tsc -w",

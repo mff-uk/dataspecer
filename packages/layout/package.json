@@ -1,23 +1,23 @@
 {
-    "name": "@dataspecer/layout",
-    "version": "0.0.0",
-    "scripts": {
-      "build": "tsc",
-      "dev": "tsc -w",
-      "prebuild": "rimraf lib",
-      "test": "vitest run --pass-with-no-tests"
-    },
-    "exports": {
-      ".": "./lib/index.js"
-    },
-    "type": "module",
-    "dependencies": {
-      "elkjs": "0.9.3",
-      "@dataspecer/core-v2": "*"
-    },
-    "devDependencies": {
-      "rimraf": "^6.0.1",
-      "typescript": "^5.8.3",
-      "vitest": "^3.1.1"
-    }
+  "name": "@dataspecer/layout",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "prebuild": "rimraf lib",
+    "test": "vitest run --pass-with-no-tests"
+  },
+  "exports": {
+    ".": "./lib/index.js"
+  },
+  "dependencies": {
+    "elkjs": "0.9.3",
+    "@dataspecer/core-v2": "*"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.1"
   }
+}

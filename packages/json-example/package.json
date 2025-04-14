@@ -1,6 +1,7 @@
 {
   "name": "@dataspecer/json-example",
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "dev": "tsc -w",

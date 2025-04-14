@@ -1,6 +1,7 @@
 {
   "name": "@dataspecer/core",
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "prebuild": "node ./build/prebuild.js",
