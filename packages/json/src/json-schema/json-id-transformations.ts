@@ -38,15 +38,16 @@ export function structureModelAddIdAndTypeProperties(
 
         const datatype = new StructureModelCustomType();
         if (typeKeyValue.length === 1) {
+          const type = typeKeyValue[0];
           datatype.data = {
             oneOf: [
               {
-                const: typeKeyValue
+                const: type
               },
               {
                 type: "array",
                 contains: {
-                  const: typeKeyValue
+                  const: type
                 },
                 items: {
                   type: "string"
