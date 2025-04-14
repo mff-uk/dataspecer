@@ -155,12 +155,6 @@ class XmlSchemaAdapter {
     };
   };
 
-  private getLangStringType(): XmlSchemaType {
-    return {
-
-    }
-  }
-
   /**
    * Generates full XML Schema from the structure model, provided configuration and other models.
    */
