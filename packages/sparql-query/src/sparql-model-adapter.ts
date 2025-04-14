@@ -15,7 +15,7 @@ import {
   SparqlUnionPattern,
   SparqlUriNode,
   SparqlVariableNode,
-} from "./sparql-model";
+} from "./sparql-model.ts";
 
 import {
   DataSpecification,

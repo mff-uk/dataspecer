@@ -1,4 +1,4 @@
-import {ConceptualModel, ConceptualModelProperty} from "./model";
+import {ConceptualModel, ConceptualModelProperty} from "./model/index.ts";
 
 /**
  * Returns all the properties from the conceptual model as a map indexed by

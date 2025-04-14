@@ -61,13 +61,31 @@ export const DSV = {
   "ManyToMany": IRI(DSV_PREFIX + "nn"),
   "ManyToOne": IRI(DSV_PREFIX + "n1"),
   "ManyToZero": IRI(DSV_PREFIX + "n0"),
-  "OneToMany": IRI(DSV_PREFIX + "1n"),
-  "OneToOne": IRI(DSV_PREFIX + "11"),
+  "OneToManyV1": IRI(DSV_PREFIX + "1n"),
+  "OneToOneV1": IRI(DSV_PREFIX + "11"),
   "OneToZero": IRI(DSV_PREFIX + "10"),
-  "ZeroToMany": IRI(DSV_PREFIX + "0n"),
-  "ZeroToOne": IRI(DSV_PREFIX + "01"),
+  "ZeroToManyV1": IRI(DSV_PREFIX + "0n"),
+  "ZeroToOneV1": IRI(DSV_PREFIX + "01"),
   "ZeroToZero": IRI(DSV_PREFIX + "00"),
+  "OneToMany": IRI("https://w3id.org/dsv/cardinality#1n"),
+  "OneToOne": IRI("https://w3id.org/dsv/cardinality#11"),
+  "ZeroToMany": IRI("https://w3id.org/dsv/cardinality#0n"),
+  "ZeroToOne": IRI("https://w3id.org/dsv/cardinality#01"),
   "specializationOf": IRI(DSV_PREFIX + "specializes"),
+  "classRole": IRI(DSV_PREFIX + "classRole"),
+  "requirementLevel": IRI(DSV_PREFIX + "requirementLevel"),
+  "externalDocumentation": IRI(DSV_PREFIX + "externalDocumentation"),
+};
+
+export const DSV_CLASS_ROLE = {
+  "main": "https://w3id.org/dsv/class-role#main",
+  "supportive": "https://w3id.org/dsv/class-role#supportive",
+};
+
+export const DSV_MANDATORY_LEVEL = {
+  "mandatory": "https://w3id.org/dsv/requirement-level#mandatory",
+  "optional": "https://w3id.org/dsv/requirement-level#optional",
+  "recommended": "https://w3id.org/dsv/requirement-level#recommended",
 };
 
 const OWL_PREFIX = "http://www.w3.org/2002/07/owl#";

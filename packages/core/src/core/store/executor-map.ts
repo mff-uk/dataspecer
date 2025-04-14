@@ -1,6 +1,6 @@
-import {CoreOperationExecutor} from "../executor";
-import {CoreOperation} from "../operation";
-import {assert} from "../utilities/assert";
+import {CoreOperationExecutor} from "../executor/index.ts";
+import {CoreOperation} from "../operation/index.ts";
+import {assert} from "../utilities/assert.ts";
 
 export function createExecutorMap(executors: CoreOperationExecutor<CoreOperation>[]) {
   const executorForTypes: ExecutorMap = {};

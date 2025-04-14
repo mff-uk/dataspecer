@@ -10,17 +10,17 @@ import {
     CREATE_CAPABILITY_ID,
     DELETE_CAPABILITY_ID,
     EDIT_CAPABILITY_ID
-} from "../capabilities";
+} from "../capabilities/index.ts";
 import archiver from "archiver";
 import { once } from "events";
-import { ConfigurationReaderFactory } from "../config-reader";
-import { LayerArtifact } from "./layer-artifact";
-import { ReactAppBaseGeneratorStage } from "../react-base/react-app-base-stage";
-import { CapabilityConstructorInput } from "../capabilities/constructor-input";
-import { ApplicationGraph, ApplicationGraphNode } from "./graph";
-import { AggregateMetadata, AggregateMetadataCache } from "../application-config";
-import { ArtifactCache } from "../utils/artifact-saver";
-import { EditInstanceCapability } from "../capabilities/edit-instance";
+import { ConfigurationReaderFactory } from "../config-reader.ts";
+import { LayerArtifact } from "./layer-artifact.ts";
+import { ReactAppBaseGeneratorStage } from "../react-base/react-app-base-stage.ts";
+import { CapabilityConstructorInput } from "../capabilities/constructor-input.ts";
+import { ApplicationGraph, ApplicationGraphNode } from "./graph/index.ts";
+import { AggregateMetadata, AggregateMetadataCache } from "../application-config.ts";
+import { ArtifactCache } from "../utils/artifact-saver.ts";
+import { EditInstanceCapability } from "../capabilities/edit-instance.ts";
 
 export type NodeResult = {
     structure: AggregateMetadata;

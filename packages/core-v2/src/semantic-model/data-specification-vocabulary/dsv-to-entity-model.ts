@@ -1,6 +1,6 @@
-import { Entity } from "../../entity-model";
+import { Entity } from "../../entity-model/index.ts";
 
-import { EntityListContainer } from "./entity-model";
+import { EntityListContainer } from "./entity-model.ts";
 
 import {
   DsvModel,
@@ -11,7 +11,9 @@ import {
   isDatatypePropertyProfile,
   PropertyValueReuse,
   Profile,
-} from "./dsv-model";
+  RequirementLevel,
+  ClassRole,
+} from "./dsv-model.ts";
 
 import {
   SEMANTIC_MODEL_CLASS_PROFILE,
@@ -19,9 +21,9 @@ import {
   SemanticModelClassProfile,
   SemanticModelRelationshipEndProfile,
   SemanticModelRelationshipProfile,
-} from "../profile/concepts";
-import { SKOS, VANN } from "./vocabulary";
-import { SEMANTIC_MODEL_GENERALIZATION, SemanticModelGeneralization } from "../concepts";
+} from "../profile/concepts/index.ts";
+import { DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL, SKOS, VANN } from "./vocabulary.ts";
+import { SEMANTIC_MODEL_GENERALIZATION, SemanticModelGeneralization } from "../concepts/index.ts";
 
 interface MandatoryConceptualModelToEntityListContainerContext {
 
@@ -116,9 +118,21 @@ class ConceptualModelToEntityModel {
       ...this.profilesToIdentifier(profile.profileOfIri),
       ...this.classToIdentifier(profile.profiledClassIri),
     ];
+
+    const tags: string[] = [];
+    switch (profile.classRole) {
+      case ClassRole.main:
+        tags.push(DSV_CLASS_ROLE.main);
+        break;
+      case ClassRole.supportive:
+        tags.push(DSV_CLASS_ROLE.supportive);
+        break;
+    }
+
     const classProfile: SemanticModelClassProfile = {
       // SemanticModelEntity
       iri: this.context.iriUpdate(profile.iri),
+      tags,
       // Entity
       id: this.context.iriToIdentifier(profile.iri),
       type: [SEMANTIC_MODEL_CLASS_PROFILE],
@@ -126,6 +140,7 @@ class ConceptualModelToEntityModel {
       profiling,
       usageNote: profile.usageNote ?? {},
       usageNoteFromProfiled: this.selectFromProfiled(profile, VANN.usageNote.id),
+      externalDocumentationUrl: profile.externalDocumentationUrl,
       // NamedThingProfile
       name: profile.prefLabel ?? {},
       nameFromProfiled: this.selectFromProfiled(profile, SKOS.prefLabel.id),
@@ -206,6 +221,7 @@ class ConceptualModelToEntityModel {
       iri: null,
       concept: owner.id,
       cardinality: null,
+      tags: [],
       // NamedThingProfile
       name: {},
       nameFromProfiled: null,
@@ -215,12 +231,27 @@ class ConceptualModelToEntityModel {
       profiling: [],
       usageNote: {},
       usageNoteFromProfiled: null,
+      externalDocumentationUrl: null,
     };
+
+    const tags: string[] = [];
+    switch (profile.requirementLevel) {
+      case RequirementLevel.mandatory:
+        tags.push(DSV_MANDATORY_LEVEL.mandatory);
+        break;
+      case RequirementLevel.optional:
+        tags.push(DSV_MANDATORY_LEVEL.optional);
+        break;
+      case RequirementLevel.recommended:
+        tags.push(DSV_MANDATORY_LEVEL.recommended);
+        break;
+    }
 
     const range: SemanticModelRelationshipEndProfile = {
       iri: this.context.iriUpdate(profile.iri),
       concept: rangeConcept,
       cardinality: cardinalityEnumToCardinality(profile.cardinality),
+      tags,
       // NamedThingProfile
       name: profile.prefLabel ?? {},
       nameFromProfiled: this.selectFromPropertyProfiled(
@@ -233,6 +264,7 @@ class ConceptualModelToEntityModel {
       usageNote: profile.usageNote ?? {},
       usageNoteFromProfiled: this.selectFromPropertyProfiled(
         profile, VANN.usageNote.id, rangeConcept),
+      externalDocumentationUrl: profile.externalDocumentationUrl,
     };
 
     const propertyUsage: SemanticModelRelationshipProfile = {

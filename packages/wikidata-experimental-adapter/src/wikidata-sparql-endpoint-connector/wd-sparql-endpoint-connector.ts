@@ -1,11 +1,11 @@
 import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
-import { WdClassDescOnly } from "../wikidata-entities/wd-class";
-import { WdExampleInstance } from "./api-types/get-example-instances";
+import { WdClassDescOnly } from "../wikidata-entities/wd-class.ts";
+import { WdExampleInstance } from "./api-types/get-example-instances.ts";
 import { SparqlQueryRdfSource } from "@dataspecer/core/io/rdf/sparql/sparql-query-rdf-source";
-import getExampleInstancesChildren from "./sparql-queries/get-example-instances-children.sparql";
-import getExampleInstancesAncestors from "./sparql-queries/get-example-instances-ancestors.sparql";
+import getExampleInstancesChildren from "./sparql-queries/get-example-instances-children.sparql.ts";
+import getExampleInstancesAncestors from "./sparql-queries/get-example-instances-ancestors.sparql.ts";
 import { RdfSourceWrap } from "@dataspecer/core/core/adapter/rdf/rdf-source-wrap";
-import { RDFS } from "../vocabulary";
+import { RDFS } from "../vocabulary.ts";
 
 const getExampleInstancesChildrenQuery = (wdClassIri: string) => getExampleInstancesChildren({ class: `<${wdClassIri}>`});
 const getExampleInstancesAncestorsQuery = (wdClassIri: string) => getExampleInstancesAncestors({ class: `<${wdClassIri}>`});

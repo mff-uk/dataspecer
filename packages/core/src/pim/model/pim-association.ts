@@ -1,6 +1,6 @@
-import { CoreResource } from "../../core";
-import { PimResource } from "./pim-resource";
-import * as PIM from "../pim-vocabulary";
+import { CoreResource } from "../../core/index.ts";
+import { PimResource } from "./pim-resource.ts";
+import * as PIM from "../pim-vocabulary.ts";
 
 /**
  * An association connects two entities, but it does not point to entities

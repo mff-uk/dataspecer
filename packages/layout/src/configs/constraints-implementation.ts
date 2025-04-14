@@ -1,8 +1,8 @@
-import { getDefaultUserGivenConstraintsVersion2, getDefaultUserGivenConstraintsVersion4, NodeDimensionQueryHandler, UserGivenConstraintsVersion2, UserGivenConstraintsVersion4 } from "..";
-import { IMainGraphClassic } from "../graph-iface";
-import { LayoutAlgorithm } from "../layout-iface";
-import { ALGORITHM_NAME_TO_LAYOUT_MAPPING, ConstraintContainer } from "./constraint-container";
-import { ConstraintFactory } from "./constraint-factories";
+import { getDefaultUserGivenConstraintsVersion2, getDefaultUserGivenConstraintsVersion4, NodeDimensionQueryHandler, UserGivenConstraintsVersion2, UserGivenConstraintsVersion4 } from "../index.ts";
+import { IMainGraphClassic } from "../graph-iface.ts";
+import { LayoutAlgorithm } from "../layout-iface.ts";
+import { ALGORITHM_NAME_TO_LAYOUT_MAPPING, ConstraintContainer } from "./constraint-container.ts";
+import { ConstraintFactory } from "./constraint-factories.ts";
 
 export const compactify = async (graph: IMainGraphClassic, mainConstraintContainer: ConstraintContainer) => {
     // TODO: Remake this !!!!!!!!

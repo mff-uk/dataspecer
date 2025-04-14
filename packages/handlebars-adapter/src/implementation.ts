@@ -1,6 +1,6 @@
 import { LanguageString } from "@dataspecer/core/core";
-import { BaseHandlebarsAdapter } from "./base";
-import { HandlebarsAdapter } from "./interface";
+import { BaseHandlebarsAdapter } from "./base.ts";
+import { HandlebarsAdapter } from "./interface.ts";
 import Handlebars from "handlebars";
 
 export class RichHandlebarsAdapter extends BaseHandlebarsAdapter {

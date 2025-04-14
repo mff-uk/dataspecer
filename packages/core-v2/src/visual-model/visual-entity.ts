@@ -1,6 +1,6 @@
-import { LanguageString } from "../semantic-model/concepts";
-import { Entity, EntityIdentifier } from "./entity-model/entity";
-import { ModelIdentifier } from "./entity-model/entity-model";
+import { LanguageString } from "../semantic-model/concepts.ts";
+import { Entity, EntityIdentifier } from "./entity-model/entity.ts";
+import { ModelIdentifier } from "./entity-model/entity-model.ts";
 
 /**
  * Color in hexadecimal, must start with "#" character.
@@ -232,4 +232,29 @@ export const MODEL_VISUAL_TYPE = "http://dataspecer.com/resources/local/visual-m
 
 export function isModelVisualInformation(what: Entity): what is ModelVisualInformation {
     return what.type.includes(MODEL_VISUAL_TYPE);
+}
+
+/**
+ * We use this entity to store view options for the visual model.
+ * For example we can store the initial viewport position.
+ */
+export interface VisualView extends VisualEntity {
+
+    /**
+     * Initial position to set for viewport.
+     */
+    initialPositions: {
+
+        x: number;
+
+        y: number;
+
+    } | null;
+
+}
+
+export const VISUAL_VIEW_TYPE = "visual-view";
+
+export function isVisualView(what: Entity): what is VisualView {
+    return what.type.includes(VISUAL_VIEW_TYPE);
 }

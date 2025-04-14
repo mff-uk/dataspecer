@@ -1,6 +1,6 @@
-import { Entity, EntityIdentifier } from "./entity";
-import { TypedObject, isTypedObject } from "./typed-object";
-import { ChangeEntity, NewEntity } from "./writable-entity-model";
+import { Entity, EntityIdentifier } from "./entity.ts";
+import { TypedObject, isTypedObject } from "./typed-object.ts";
+import { ChangeEntity, NewEntity } from "./writable-entity-model.ts";
 
 /**
  * Allow for synchronous modification of entities.

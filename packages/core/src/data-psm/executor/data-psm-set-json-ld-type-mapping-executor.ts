@@ -1,7 +1,7 @@
-import { CoreExecutorResult, CoreResourceReader, CreateNewIdentifier } from "../../core";
-import { DataPsmExecutorResultFactory } from "./data-psm-executor-utils";
-import { DataPsmClass, DataPsmSchema } from "../model";
-import { DataPsmSetJsonLdDefinedTypeMapping } from "../operation";
+import { CoreExecutorResult, CoreResourceReader, CreateNewIdentifier } from "../../core/index.ts";
+import { DataPsmExecutorResultFactory } from "./data-psm-executor-utils.ts";
+import { DataPsmClass, DataPsmSchema } from "../model/index.ts";
+import { DataPsmSetJsonLdDefinedTypeMapping } from "../operation/index.ts";
 
 export async function executeDataPsmSetJsonLdTypeMapping(
   reader: CoreResourceReader,

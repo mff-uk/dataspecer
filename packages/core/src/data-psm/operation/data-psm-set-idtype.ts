@@ -1,5 +1,5 @@
-import { CoreResource, CoreOperation } from "../../core";
-import * as PSM from "../data-psm-vocabulary";
+import { CoreResource, CoreOperation } from "../../core/index.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 /**
  * Overrides default @id and @type settings for JSON generators

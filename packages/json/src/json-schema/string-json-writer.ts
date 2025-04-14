@@ -1,5 +1,5 @@
 import { OutputStream } from "@dataspecer/core/io/stream/output-stream";
-import { JsonArrayWriter, JsonObjectWriter } from "./json-writer";
+import { JsonArrayWriter, JsonObjectWriter } from "./json-writer.ts";
 
 class StringJsonWriterContext {
   private readonly stream: OutputStream;

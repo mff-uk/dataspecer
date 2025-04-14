@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { DataPsmSetJsonLdDefinedPrefixes } from "../operation";
-import { executeDataPsmSetJsonLdDefinedPrefixes } from "./data-psm-set-json-ld-defined-prefixes-executor";
-import * as PSM from "../data-psm-vocabulary";
+} from "../../core/index.ts";
+import { DataPsmSetJsonLdDefinedPrefixes } from "../operation/index.ts";
+import { executeDataPsmSetJsonLdDefinedPrefixes } from "./data-psm-set-json-ld-defined-prefixes-executor.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 test("Update jsonLdDefinedPrefixes in data PSM schema.", async () => {
   const operation = new DataPsmSetJsonLdDefinedPrefixes();

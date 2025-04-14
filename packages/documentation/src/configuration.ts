@@ -1,5 +1,5 @@
 import { applyConfigurationModelSimple, interpretConfigurationModelSimple, ReadableConfigurationModel, WritableConfigurationModel } from "@dataspecer/core-v2/configuration-model";
-import { defaultConfiguration } from "./default-configuration";
+import { defaultConfiguration } from "./default-configuration.ts";
 
 /**
  * Configuration key for the documentation generator.

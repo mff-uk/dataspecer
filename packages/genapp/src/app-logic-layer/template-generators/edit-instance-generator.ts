@@ -1,8 +1,8 @@
-import { LayerArtifact } from "../../engine/layer-artifact";
-import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGenerator } from "../../capabilities/template-generators/capability-interface-generator";
-import { InstanceEditorInterfaceGenerator } from "../../data-layer/template-generators/reader-interface-generator";
-import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "./template-app-layer-generator";
-import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
+import { LayerArtifact } from "../../engine/layer-artifact.ts";
+import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGenerator } from "../../capabilities/template-generators/capability-interface-generator.ts";
+import { InstanceEditorInterfaceGenerator } from "../../data-layer/template-generators/reader-interface-generator.ts";
+import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "./template-app-layer-generator.ts";
+import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces.ts";
 
 interface EditInstanceCapabilityAppLayerTemplate extends TemplateModel {
     placeholders: {

@@ -1,8 +1,8 @@
 import { LanguageString } from "@dataspecer/core/core/core-resource";
-import { AggregateMetadata } from "../application-config";
-import { TemplateGenerator } from "./eta-template-renderer";
-import { TemplateModel } from "./templates/template-interfaces";
-import { LayerArtifact } from "./layer-artifact";
+import { AggregateMetadata } from "../application-config.ts";
+import { TemplateGenerator } from "./eta-template-renderer.ts";
+import { TemplateModel } from "./templates/template-interfaces.ts";
+import { LayerArtifact } from "./layer-artifact.ts";
 
 export type TemplateDependencyMap = Record<"aggregate", AggregateMetadata> & Record<string, any>;
 

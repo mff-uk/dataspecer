@@ -2,10 +2,10 @@ import {
   CoreResourceReader,
   CoreExecutorResult,
   CreateNewIdentifier,
-} from "../../core";
-import { PimAttribute, PimClass } from "../model";
-import { PimSetRegex } from "../operation";
-import { PimExecutorResultFactory } from "./pim-executor-utils";
+} from "../../core/index.ts";
+import { PimAttribute, PimClass } from "../model/index.ts";
+import { PimSetRegex } from "../operation/index.ts";
+import { PimExecutorResultFactory } from "./pim-executor-utils.ts";
 
 export async function executePimSetRegex(
   reader: CoreResourceReader,

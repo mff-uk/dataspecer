@@ -1,2 +1,2 @@
-export * from "./http-synchronized-store";
-export * from "./eager-http-synchronized-store";
+export * from "./http-synchronized-store.ts";
+export * from "./eager-http-synchronized-store.ts";

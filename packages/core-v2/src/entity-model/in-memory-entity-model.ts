@@ -1,5 +1,5 @@
-import { Entity } from "./entity";
-import { EntityModel } from "./entity-model";
+import { Entity } from "./entity.ts";
+import { EntityModel } from "./entity-model.ts";
 
 /**
  * Implementation of the entity model that stores entities in the memory.

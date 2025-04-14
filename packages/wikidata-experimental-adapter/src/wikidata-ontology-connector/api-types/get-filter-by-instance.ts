@@ -1,4 +1,4 @@
-import { WdEntityId, WdEntityIdsList } from "../../wikidata-entities/wd-entity";
+import { WdEntityId, WdEntityIdsList } from "../../wikidata-entities/wd-entity.ts";
 
 export interface WdGetFilterPropertyRecordResponseResults {
     readonly propertyId: WdEntityId;

@@ -1,5 +1,5 @@
-import * as Support from "./support/testSupport";
-import TargetCase5ModelCreator from "./support/TargetCase5ModelCreator";
+import * as Support from "./support/testSupport.ts";
+import TargetCase5ModelCreator from "./support/TargetCase5ModelCreator.ts";
 import { readFileSync } from 'fs';
 import { join } from 'path';
 

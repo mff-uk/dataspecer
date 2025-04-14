@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { PimSetHumanDescription } from "../operation";
-import { executePimSetHumanDescription } from "./pim-set-human-description-executor";
-import * as PIM from "../pim-vocabulary";
+} from "../../core/index.ts";
+import { PimSetHumanDescription } from "../operation/index.ts";
+import { executePimSetHumanDescription } from "./pim-set-human-description-executor.ts";
+import * as PIM from "../pim-vocabulary.ts";
 
 test("Update resource human description.", async () => {
   const operation = new PimSetHumanDescription();

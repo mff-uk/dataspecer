@@ -1,11 +1,11 @@
-import { PimCreateSchema, PimCreateSchemaResult } from "../operation";
+import { PimCreateSchema, PimCreateSchemaResult } from "../operation/index.ts";
 import {
   CoreResourceReader,
   CreateNewIdentifier,
   CoreExecutorResult,
-} from "../../core";
-import { loadPimSchema } from "./pim-executor-utils";
-import { PimSchema } from "../model";
+} from "../../core/index.ts";
+import { loadPimSchema } from "./pim-executor-utils.ts";
+import { PimSchema } from "../model/index.ts";
 
 export async function executePimCreateSchema(
   reader: CoreResourceReader,

@@ -1,12 +1,12 @@
-import { PimDeleteAssociation } from "../operation";
+import { PimDeleteAssociation } from "../operation/index.ts";
 import {
   CoreResourceReader,
   CoreExecutorResult,
   CreateNewIdentifier,
   CoreResource,
-} from "../../core";
-import { PimExecutorResultFactory, loadPimSchema } from "./pim-executor-utils";
-import { PimAssociation } from "../model";
+} from "../../core/index.ts";
+import { PimExecutorResultFactory, loadPimSchema } from "./pim-executor-utils.ts";
+import { PimAssociation } from "../model/index.ts";
 
 export async function executePimDeleteAssociation(
   reader: CoreResourceReader,

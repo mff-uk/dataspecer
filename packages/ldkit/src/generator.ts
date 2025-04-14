@@ -6,13 +6,13 @@ import {
 import { ArtefactGenerator, ArtefactGeneratorContext } from "@dataspecer/core/generator";
 import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary.js";
 import { transformStructureModel } from "@dataspecer/core/structure-model/transformation/default-transformation";
-import { LdkitSchema } from "./ldkit-schema-model";
+import { LdkitSchema } from "./ldkit-schema-model.ts";
 import { assertFailed, assertNot } from "@dataspecer/core/core/index";
 import { ConceptualModel } from "@dataspecer/core/conceptual-model/index";
 import { StructureModel } from "@dataspecer/core/structure-model/model/structure-model";
-import { LdkitSchemaAdapter, StructureClassToSchemaAdapter } from "./ldkit-schema-adapter";
-import { LdkitArtefactGenerator } from "./ldkit-generator";
-import { convertToPascalCase } from "./utils/utils";
+import { LdkitSchemaAdapter, StructureClassToSchemaAdapter } from "./ldkit-schema-adapter.ts";
+import { LdkitArtefactGenerator } from "./ldkit-generator.ts";
+import { convertToPascalCase } from "./utils/utils.ts";
 
 type LdkitSchemaGeneratorOutput = {
     schema: LdkitSchema;

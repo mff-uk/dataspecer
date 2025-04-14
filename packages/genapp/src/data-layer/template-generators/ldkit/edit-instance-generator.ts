@@ -1,9 +1,9 @@
-import { InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
-import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateConsumer } from "../../../engine/templates/template-consumer";
-import { InstanceEditorInterfaceGenerator } from "../reader-interface-generator";
-import { ImportRelativePath, DataLayerTemplateDescription } from "../../../engine/templates/template-interfaces";
-import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy";
+import { InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator.ts";
+import { LayerArtifact } from "../../../engine/layer-artifact.ts";
+import { TemplateConsumer } from "../../../engine/templates/template-consumer.ts";
+import { InstanceEditorInterfaceGenerator } from "../reader-interface-generator.ts";
+import { ImportRelativePath, DataLayerTemplateDescription } from "../../../engine/templates/template-interfaces.ts";
+import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy.ts";
 
 export interface EditLdkitInstanceTemplate extends DataLayerTemplateDescription {
     placeholders: {

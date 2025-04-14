@@ -1,11 +1,11 @@
-import { IGraphClassic, IMainGraphClassic } from "../graph-iface"
-import { Direction } from "../util/utils";
-import { AlgorithmName } from "./constraint-container";
+import { IGraphClassic, IMainGraphClassic } from "../graph-iface.ts"
+import { Direction } from "../util/utils.ts";
+import { AlgorithmName } from "./constraint-container.ts";
 import _ from "lodash";
-import { ElkForceAlgType } from "./elk/elk-constraints";
-import { NodeDimensionQueryHandler, UserGivenConstraintsVersion2 } from "..";
-import { compactify } from "./constraints-implementation";
-import { GraphAlgorithms } from "../graph-algoritms";
+import { ElkForceAlgType } from "./elk/elk-constraints.ts";
+import { NodeDimensionQueryHandler, UserGivenConstraintsVersion2 } from "../index.ts";
+import { compactify } from "./constraints-implementation.ts";
+import { GraphAlgorithms } from "../graph-algoritms.ts";
 
 
 export type ConstraintedNodesGroupingsType = "ALL" | "GENERALIZATION" | "PROFILE";

@@ -9,8 +9,8 @@ export function addVisualNode(
   model: ModelDsIdentifier,
   position: { x: number, y: number },
   content: string[],
-) {
-  visualModel.addVisualNode({
+): string {
+  return visualModel.addVisualNode({
     model: model,
     representedEntity: entity.id,
     position: {

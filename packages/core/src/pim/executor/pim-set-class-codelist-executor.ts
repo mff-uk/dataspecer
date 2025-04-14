@@ -3,9 +3,9 @@ import {
   CoreExecutorResult,
   CreateNewIdentifier,
   CoreResource,
-} from "../../core";
-import { PimSetClassCodelist } from "../operation";
-import { PimClass } from "../model";
+} from "../../core/index.ts";
+import { PimSetClassCodelist } from "../operation/index.ts";
+import { PimClass } from "../model/index.ts";
 
 export async function executePimSetClassCodelist(
   reader: CoreResourceReader,

@@ -1,6 +1,6 @@
-import {CoreExecutorResult, CoreResourceReader, CreateNewIdentifier,} from "../../core";
-import {DataPsmSetExternalRootTypes} from "../operation";
-import {DataPsmExternalRoot,} from "../model";
+import {CoreExecutorResult, CoreResourceReader, CreateNewIdentifier,} from "../../core/index.ts";
+import {DataPsmSetExternalRootTypes} from "../operation/index.ts";
+import {DataPsmExternalRoot,} from "../model/index.ts";
 
 export async function executeDataPsmSetExternalRootTypes(
   reader: CoreResourceReader,

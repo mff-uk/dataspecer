@@ -1,4 +1,4 @@
-import { Model } from "./model";
+import { Model } from "./model.ts";
 
 /**
  * Model consisting of blob data.

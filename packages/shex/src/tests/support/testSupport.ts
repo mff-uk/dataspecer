@@ -3,9 +3,9 @@ import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import factory  from "rdf-ext";
 import  ParserN3  from "@rdfjs/parser-n3";
-import * as Support from "./testSupport";
-import  ShapeCreator  from "./shapeCreator";
-import   ModelCreator   from "./ModelCreatorInterface";
+import * as Support from "./testSupport.ts";
+import  ShapeCreator  from "./shapeCreator.ts";
+import   ModelCreator   from "./ModelCreatorInterface.ts";
 import {ShExValidator} from "@shexjs/validator";
 
 export const shapeToValidateShapesFile = "src/tests/shapes/shapeToValidateShapes.ttl";

@@ -1,4 +1,4 @@
-import { prismaClient, resourceModel } from "../../main";
+import { prismaClient, resourceModel } from "../../main.ts";
 import { LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL } from "@dataspecer/core-v2/model/known-models";
 import { LanguageString, ReadOnlyMemoryStore } from "@dataspecer/core/core/index";
 import { PimStoreWrapper } from "@dataspecer/core-v2/semantic-model/v1-adapters";

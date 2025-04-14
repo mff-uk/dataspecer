@@ -1,5 +1,5 @@
-import {StructureModel, StructureModelClass, StructureModelProperty,} from "../model";
-import {clone} from "../../core";
+import {StructureModel, StructureModelClass, StructureModelProperty,} from "../model/index.ts";
+import {clone} from "../../core/index.ts";
 
 /**
  * Copy properties from extending classes to the specializations, effectively

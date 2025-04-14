@@ -1,22 +1,22 @@
-import { CoreOperation, CoreOperationExecutor } from "../../core";
-import * as Operations from "../operation";
-import { executesPimCreateAssociation } from "./pim-create-association-executor";
-import { executePimCreateAttribute } from "./pim-create-attribute-executor";
-import { executePimCreateClass } from "./pim-create-class-executor";
-import { executePimCreateSchema } from "./pim-create-schema-executor";
-import { executePimDeleteAssociation } from "./pim-delete-association-executor";
-import { executePimDeleteAttribute } from "./pim-delete-attribute-executor";
-import { executePimDeleteClass } from "./pim-delete-class-executor";
-import { executePimSetDataType } from "./pim-set-datatype-executor";
-import { executePimSetHumanLabel } from "./pim-set-human-label-executor";
-import { executePimSetHumanDescription } from "./pim-set-human-description-executor";
-import { executePimSetTechnicalLabel } from "./pim-set-technical-label-executor";
-import { executePimSetExtends } from "./pim-set-extends-executor";
-import { executePimSetClassCodelist } from "./pim-set-class-codelist-executor";
-import { executePimSetCardinality } from "./pim-set-cardinality-executor";
-import { executePimSetExample } from "./pim-set-example-executor";
-import { executePimSetRegex } from "./pim-set-regex-executor";
-import { executePimSetObjectExample } from "./pim-set-object-example-executor";
+import { CoreOperation, CoreOperationExecutor } from "../../core/index.ts";
+import * as Operations from "../operation/index.ts";
+import { executesPimCreateAssociation } from "./pim-create-association-executor.ts";
+import { executePimCreateAttribute } from "./pim-create-attribute-executor.ts";
+import { executePimCreateClass } from "./pim-create-class-executor.ts";
+import { executePimCreateSchema } from "./pim-create-schema-executor.ts";
+import { executePimDeleteAssociation } from "./pim-delete-association-executor.ts";
+import { executePimDeleteAttribute } from "./pim-delete-attribute-executor.ts";
+import { executePimDeleteClass } from "./pim-delete-class-executor.ts";
+import { executePimSetDataType } from "./pim-set-datatype-executor.ts";
+import { executePimSetHumanLabel } from "./pim-set-human-label-executor.ts";
+import { executePimSetHumanDescription } from "./pim-set-human-description-executor.ts";
+import { executePimSetTechnicalLabel } from "./pim-set-technical-label-executor.ts";
+import { executePimSetExtends } from "./pim-set-extends-executor.ts";
+import { executePimSetClassCodelist } from "./pim-set-class-codelist-executor.ts";
+import { executePimSetCardinality } from "./pim-set-cardinality-executor.ts";
+import { executePimSetExample } from "./pim-set-example-executor.ts";
+import { executePimSetRegex } from "./pim-set-regex-executor.ts";
+import { executePimSetObjectExample } from "./pim-set-object-example-executor.ts";
 
 export const pimExecutors: CoreOperationExecutor<CoreOperation>[] = [
   CoreOperationExecutor.create(

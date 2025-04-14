@@ -1,5 +1,5 @@
-import { ConfigurationModelSerialization, RawConfigurationData } from "./serialization";
-import { mergePatch } from "./utils/merge-patch";
+import { ConfigurationModelSerialization, RawConfigurationData } from "./serialization.ts";
+import { mergePatch } from "./utils/merge-patch.ts";
 
 export interface ReadableConfigurationModel {
   getRawData(): RawConfigurationData;

@@ -1,13 +1,13 @@
-import { LIST_CAPABILITY_ID } from ".";
-import { TemplateApplicationLayerGeneratorFactory } from "../app-logic-layer/generator-factory";
-import { ApplicationLayerStage } from "../app-logic-layer/pipeline-stage";
-import { ListTemplateDalGeneratorFactory } from "../data-layer/generator-factory";
-import { DataLayerGeneratorStage } from "../data-layer/pipeline-stage";
-import { GeneratorPipeline } from "../engine/generator-pipeline";
-import { PresentationLayerTemplateGeneratorFactory } from "../presentation-layer/generator-factory";
-import { PresentationLayerStage } from "../presentation-layer/pipeline-stage";
-import { AggregateCapabilityMetadata, BaseCapabilityGenerator } from "./capability-generator-interface";
-import { CapabilityConstructorInput } from "./constructor-input";
+import { LIST_CAPABILITY_ID } from "./index.ts";
+import { TemplateApplicationLayerGeneratorFactory } from "../app-logic-layer/generator-factory.ts";
+import { ApplicationLayerStage } from "../app-logic-layer/pipeline-stage.ts";
+import { ListTemplateDalGeneratorFactory } from "../data-layer/generator-factory.ts";
+import { DataLayerGeneratorStage } from "../data-layer/pipeline-stage.ts";
+import { GeneratorPipeline } from "../engine/generator-pipeline.ts";
+import { PresentationLayerTemplateGeneratorFactory } from "../presentation-layer/generator-factory.ts";
+import { PresentationLayerStage } from "../presentation-layer/pipeline-stage.ts";
+import { AggregateCapabilityMetadata, BaseCapabilityGenerator } from "./capability-generator-interface.ts";
+import { CapabilityConstructorInput } from "./constructor-input.ts";
 
 export class ListCapabilityMetadata extends AggregateCapabilityMetadata {
     constructor(humanLabel: string | undefined) {

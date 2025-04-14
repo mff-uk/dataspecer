@@ -149,6 +149,7 @@ export function createEditAttributeDialogState(
     language, graphContext.models, allModels,
     { identifier: entity.id, model: model.getId() },
     range.iri ?? "", range.name, range.description,
+    range.externalDocumentationUrl ?? "",
     allSpecializations);
 
   // RelationshipState

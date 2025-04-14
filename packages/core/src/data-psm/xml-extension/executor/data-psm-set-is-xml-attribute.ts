@@ -1,9 +1,9 @@
-import { CoreExecutorResult, CoreResourceReader, CreateNewIdentifier, } from "../../../core";
-import { DataPsmExecutorResultFactory } from "../../executor/data-psm-executor-utils";
-import { DataPsmAssociationEnd, DataPsmAttribute } from "../../model";
-import { DataPsmXmlPropertyExtension } from "../model";
-import { DataPsmSetIsXmlAttribute } from "../operation";
-import { XML_EXTENSION } from "../vocabulary";
+import { CoreExecutorResult, CoreResourceReader, CreateNewIdentifier, } from "../../../core/index.ts";
+import { DataPsmExecutorResultFactory } from "../../executor/data-psm-executor-utils.ts";
+import { DataPsmAssociationEnd, DataPsmAttribute } from "../../model/index.ts";
+import { DataPsmXmlPropertyExtension } from "../model/index.ts";
+import { DataPsmSetIsXmlAttribute } from "../operation/index.ts";
+import { XML_EXTENSION } from "../vocabulary.ts";
 
 export async function executeDataPsmSetIsXmlAttribute(
   reader: CoreResourceReader,

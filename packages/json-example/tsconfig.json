@@ -3,7 +3,7 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "target": "es2022",
+    "target": "ESNext",
     "allowJs": true,
     "resolveJsonModule": true,
     "moduleDetection": "force",
@@ -13,16 +13,17 @@
     "strict": false,
     "noUncheckedIndexedAccess": false,
 
-    "moduleResolution": "Bundler",
-    "module": "ESNext",
+    "moduleResolution": "nodenext",
+    "module": "NodeNext",
+    "rewriteRelativeImportExtensions": true,
     "outDir": "lib",
     "sourceMap": true,
 
     "declaration": true,
 
     "declarationMap": true,
-    
-    "lib": ["es2022"]
+
+    "lib": ["ESNext"]
   },
   "include": ["src/**/*"]
 }

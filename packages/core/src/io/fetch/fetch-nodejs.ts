@@ -1,6 +1,6 @@
 import { createReadStream } from "fs";
 import minipassFetch from "minipass-fetch";
-import { FetchOptions, FetchResponse, HttpFetch } from "./fetch-api";
+import { FetchOptions, FetchResponse, HttpFetch } from "./fetch-api.ts";
 
 export const httpFetch: HttpFetch = function fetch(
   url: string,

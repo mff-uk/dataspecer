@@ -1,7 +1,7 @@
 import {BackendConnector} from "@dataspecer/backend-utils/connectors";
 import {HttpFetch} from "@dataspecer/core/io/fetch/fetch-api";
 import {HttpSynchronizedStore} from "@dataspecer/backend-utils/stores";
-import {PimStoreWrapper} from "../v1-adapters/pim-store-wrapper";
+import {PimStoreWrapper} from "../v1-adapters/pim-store-wrapper.ts";
 
 export async function createPimModel(dataspecerBackendUrl: string, dataSpecificationIri: string, httpFetch: HttpFetch): Promise<PimStoreWrapper> {
     const connector = new BackendConnector(dataspecerBackendUrl, httpFetch);

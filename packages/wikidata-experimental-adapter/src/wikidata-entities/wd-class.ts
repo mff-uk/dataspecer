@@ -1,4 +1,4 @@
-import { WdEntity, WdEntityIdsList, WdExternalOntologyMappings } from "./wd-entity";
+import { WdEntity, WdEntityIdsList, WdExternalOntologyMappings } from "./wd-entity.ts";
 
 export const ROOT_CLASS_ID = 35120;
 

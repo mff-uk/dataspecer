@@ -11,11 +11,11 @@ import {
 } from "@dataspecer/core/structure-model/model";
 import { structureModelAddDefaultValues } from "@dataspecer/core/structure-model/transformation/add-default-values";
 import { OFN, XSD, XSD_PREFIX } from "@dataspecer/core/well-known";
-import { DefaultXmlConfiguration, XmlConfiguration, XmlConfigurator } from "../configuration";
-import { commonXmlNamespace, commonXmlPrefix, iriElementName, langStringName, QName, simpleTypeMapQName } from "../conventions";
-import { XML_COMMON_SCHEMA_GENERATOR } from "../xml-common-schema/index";
-import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties";
-import { XmlStructureModel as StructureModel, XmlStructureModel } from "../xml-structure-model/model/xml-structure-model";
+import { DefaultXmlConfiguration, XmlConfiguration, XmlConfigurator } from "../configuration.ts";
+import { commonXmlNamespace, commonXmlPrefix, iriElementName, langStringName, QName, simpleTypeMapQName } from "../conventions.ts";
+import { XML_COMMON_SCHEMA_GENERATOR } from "../xml-common-schema/index.ts";
+import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties.ts";
+import { XmlStructureModel as StructureModel, XmlStructureModel } from "../xml-structure-model/model/xml-structure-model.ts";
 import {
   XmlSchema,
   XmlSchemaAnnotation,
@@ -27,17 +27,20 @@ import {
   xmlSchemaComplexContentIsElement,
   xmlSchemaComplexContentIsItem,
   XmlSchemaComplexContentItem,
+  XmlSchemaComplexExtension,
+  XmlSchemaComplexItem,
   XmlSchemaComplexSequence,
   XmlSchemaComplexType,
   XmlSchemaElement,
   XmlSchemaImportDeclaration,
+  XmlSchemaLangStringType,
   XmlSchemaSimpleItem,
   XmlSchemaSimpleType,
   XmlSchemaType,
   xmlSchemaTypeIsComplex,
   xmlSchemaTypeIsSimple,
-} from "./xml-schema-model";
-import { XML_SCHEMA } from "./xml-schema-vocabulary";
+} from "./xml-schema-model.ts";
+import { XML_SCHEMA } from "./xml-schema-vocabulary.ts";
 
 function multiplyMinCardinality(a: number, b: number): number {
   return a * b;
@@ -68,37 +71,21 @@ export async function structureModelToXmlSchema(
   ) as DataSpecificationConfiguration;
   model = structureModelAddDefaultValues(model, globalConfiguration) as StructureModel;
 
-  // Find common XML artifact
-  const commonXmlArtefact = specification.artefacts.find((a) => a.generator === XML_COMMON_SCHEMA_GENERATOR);
-  if (!commonXmlArtefact) {
-    throw new Error("XML generator requires common xml schema artifact");
-  }
-  const commonXmlSchemaLocation = pathRelative(
-    artifact.publicUrl,
-    commonXmlArtefact.publicUrl,
-    true // todo: we need better resolution whether the path should be absolute or not
-  );
+  // // Find common XML artifact
+  // const commonXmlArtefact = specification.artefacts.find((a) => a.generator === XML_COMMON_SCHEMA_GENERATOR);
+  // if (!commonXmlArtefact) {
+  //   throw new Error("XML generator requires common xml schema artifact");
+  // }
+  // const commonXmlSchemaLocation = pathRelative(
+  //   artifact.publicUrl,
+  //   commonXmlArtefact.publicUrl,
+  //   true // todo: we need better resolution whether the path should be absolute or not
+  // );
+  const commonXmlSchemaLocation = null;
 
   const adapter = new XmlSchemaAdapter(context, specification, artifact, model, options, commonXmlSchemaLocation);
   return await adapter.fromStructureModel();
 }
-
-/**
- * The &lt;iri&gt; property defined at the beginning of every element.
- */
-const iriProperty: XmlSchemaComplexContentElement = {
-  cardinalityMin: 0,
-  effectiveCardinalityMin: 0,
-  cardinalityMax: 1,
-  effectiveCardinalityMax: 1,
-  semanticRelationToParentElement: null,
-  element: {
-    entityType: "element",
-    name: iriElementName,
-    annotation: null,
-    type: null,
-  } satisfies XmlSchemaElement,
-};
 
 /**
  * This class contains functions to process all parts of a {@link StructureModel}
@@ -140,6 +127,33 @@ class XmlSchemaAdapter {
     this.options = options;
     this.commonXmlSchemaLocation = commonXmlSchemaLocation;
   }
+
+  private getIriElement(): XmlSchemaComplexContentElement {
+    // Todo implement configuration for this.
+    const useIriFromExternalXsd = false;
+
+    if (useIriFromExternalXsd) {
+      this.wasCommonXmlImportUsed = true
+    }
+
+    return {
+      cardinalityMin: 0,
+      effectiveCardinalityMin: 0,
+      cardinalityMax: 1,
+      effectiveCardinalityMax: 1,
+      semanticRelationToParentElement: null,
+      element: {
+        entityType: "element",
+        name: iriElementName,
+        annotation: null,
+        type: useIriFromExternalXsd ? null : {
+          entityType: "type",
+          name: ["xs", "anyURI"],
+          annotation: null,
+        } satisfies XmlSchemaType,
+      } satisfies XmlSchemaElement,
+    };
+  };
 
   /**
    * Generates full XML Schema from the structure model, provided configuration and other models.
@@ -322,8 +336,7 @@ class XmlSchemaAdapter {
 
       // Inject IRI into the sequence as hardcoded first element
       if (!skipIri && complexDefinition) {
-        complexDefinition.contents = [iriProperty, ...complexDefinition.contents];
-        this.wasCommonXmlImportUsed = true;
+        complexDefinition.contents = [this.getIriElement(), ...complexDefinition.contents];
       }
 
       const type = {
@@ -546,6 +559,17 @@ class XmlSchemaAdapter {
    */
   private datatypePropertyToType(propertyData: StructureModelProperty, dataTypes: StructureModelPrimitiveType[]): XmlSchemaType {
     if (dataTypes.length === 1 && !propertyData.isInOr) {
+      if ([OFN.text].includes(dataTypes[0].dataType)) {
+        // This is language string
+        const langStringType: XmlSchemaLangStringType = {
+          entityType: "type",
+          specialType: "langString",
+          name: null,
+          annotation: null,
+        };
+        return langStringType;
+      }
+
       if (dataTypes[0].regex && [OFN.string, XSD.anyURI, OFN.url].includes(dataTypes[0].dataType)) {
         // todo: check whether regex is shown
         return {
@@ -593,6 +617,7 @@ class XmlSchemaAdapter {
       : // An internally mapped type (from OFN) is used, if defined.
         simpleTypeMapQName[primitiveData.dataType] ?? ["xs", "anySimpleType"];
     if (type === langStringName) {
+      // todo: For now this wont happen as language string shall be caught by the parent function
       // Defined langString if it is used.
       this.usesLangString = true;
       if (type[0] == null) {

@@ -4,11 +4,11 @@ import { join } from 'path';
 import factory  from "rdf-ext";
 import  ParserN3  from "@rdfjs/parser-n3";
 import  SHACLValidator  from "rdf-validate-shacl";
-import * as Support from "./testSupport";
-import  ShapeCreator  from "./shapeCreator";
-import   ModelCreator   from "./ModelCreatorInterface";
+import * as Support from "./testSupport.ts";
+import  ShapeCreator  from "./shapeCreator.ts";
+import   ModelCreator   from "./ModelCreatorInterface.ts";
 import { ValidationReport } from 'rdf-validate-shacl/src/validation-report';
-import generate, {fromJsonToTurtle} from "./FakeDataCreator";
+import generate, {fromJsonToTurtle} from "./FakeDataCreator.ts";
 
 export const shapeToValidateShapesFile = "src/tests/shapes/shapeToValidateShapes.ttl";
 

@@ -11,7 +11,7 @@ import {
     Iri,
     SimpleIri,
     CompactIri
-} from "./csv-schema-model";
+} from "./csv-schema-model.ts";
 import {
     StructureModel,
     StructureModelPrimitiveType,
@@ -24,7 +24,7 @@ import {
     LanguageString
 } from "@dataspecer/core/core";
 import { OFN } from "@dataspecer/core/well-known";
-import { CsvConfiguration } from "../configuration";
+import { CsvConfiguration } from "../configuration.ts";
 
 const referenceDatatype = "string";
 export const idColumnTitle = "RowId";

@@ -1,12 +1,12 @@
-import { Entity } from "../../entity-model";
-import { isDataType } from "../datatypes";
+import { Entity } from "../../entity-model/index.ts";
+import { isDataType } from "../datatypes/index.ts";
 import {
     LanguageString,
     SemanticModelClass,
     SemanticModelGeneralization,
     SemanticModelRelationship,
     SemanticModelRelationshipEnd,
-} from "./concepts";
+} from "./concepts.ts";
 
 export const SEMANTIC_MODEL_CLASS = "class"; // todo use proper IRI
 export function isSemanticModelClass(resource: Entity | null): resource is SemanticModelClass {

@@ -1,4 +1,4 @@
-import { VisualEntity } from "../../core-v2/lib/visual-model/visual-entity";
+import { VisualEntity } from "../../core-v2/lib/visual-model/visual-entity.js";
 
 import { SemanticModelEntity, isSemanticModelClass, isSemanticModelRelationship, isSemanticModelGeneralization,
     SemanticModelClass,
@@ -7,10 +7,10 @@ import { SemanticModelEntity, isSemanticModelClass, isSemanticModelRelationship,
     isSemanticModelAttribute
  } from "@dataspecer/core-v2/semantic-model/concepts";
 
-import { IGraphClassic, IMainGraphClassic, IVisualNodeComplete } from "./graph-iface";
-import { ConstraintContainer } from "./configs/constraint-container";
-import { NodeDimensionQueryHandler } from ".";
-import { VisualEntities } from "./migration-to-cme-v2";
+import { IGraphClassic, IMainGraphClassic, IVisualNodeComplete } from "./graph-iface.ts";
+import { ConstraintContainer } from "./configs/constraint-container.ts";
+import { NodeDimensionQueryHandler } from "./index.ts";
+import { VisualEntities } from "./migration-to-cme-v2.ts";
 import { Entity, EntityModel } from "@dataspecer/core-v2";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 

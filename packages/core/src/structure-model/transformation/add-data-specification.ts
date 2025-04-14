@@ -1,6 +1,6 @@
-import { DataSpecification } from "../../data-specification/model";
-import {clone} from "../../core";
-import {StructureModel} from "../model";
+import { DataSpecification } from "../../data-specification/model/index.ts";
+import {clone} from "../../core/index.ts";
+import {StructureModel} from "../model/index.ts";
 
 /**
  * For each class set the owner specification.

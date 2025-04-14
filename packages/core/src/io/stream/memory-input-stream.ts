@@ -1,4 +1,4 @@
-import { InputStream } from "./input-stream";
+import { InputStream } from "./input-stream.ts";
 
 export class MemoryInputStream implements InputStream {
   private readonly content: string;

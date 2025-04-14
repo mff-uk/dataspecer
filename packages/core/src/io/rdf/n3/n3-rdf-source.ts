@@ -1,5 +1,5 @@
-import { RdfMemorySource } from "../rdf-memory-source";
-import { parseRdfQuadsWithN3 } from "./n3-adapter";
+import { RdfMemorySource } from "../rdf-memory-source.ts";
+import { parseRdfQuadsWithN3 } from "./n3-adapter.ts";
 
 export class RdfN3Source extends RdfMemorySource {
   /**

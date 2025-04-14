@@ -1,4 +1,4 @@
-import {PSM_EXTENSIONS} from "../data-psm-vocabulary";
+import {PSM_EXTENSIONS} from "../data-psm-vocabulary.ts";
 
 export const JSON_EXTENSION = PSM_EXTENSIONS + "json" as `${typeof PSM_EXTENSIONS}json`; // as const
 

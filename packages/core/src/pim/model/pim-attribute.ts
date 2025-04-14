@@ -1,6 +1,6 @@
-import { CoreResource } from "../../core";
-import { PimResource } from "./pim-resource";
-import * as PIM from "../pim-vocabulary";
+import { CoreResource } from "../../core/index.ts";
+import { PimResource } from "./pim-resource.ts";
+import * as PIM from "../pim-vocabulary.ts";
 
 /**
  * An attribute is a primitive property that belongs to a class. It may be

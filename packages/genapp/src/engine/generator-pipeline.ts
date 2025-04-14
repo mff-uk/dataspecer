@@ -1,5 +1,5 @@
-import { GenerationContext, GeneratorStage } from "./generator-stage-interface";
-import { LayerArtifact } from "./layer-artifact";
+import { GenerationContext, GeneratorStage } from "./generator-stage-interface.ts";
+import { LayerArtifact } from "./layer-artifact.ts";
 
 export class GeneratorPipeline {
     private readonly _pipelineStages: GeneratorStage[];

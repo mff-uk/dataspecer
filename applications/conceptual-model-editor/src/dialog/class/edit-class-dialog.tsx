@@ -9,6 +9,7 @@ import { useClassDialogController } from "./edit-class-dialog-controller";
 import { ValidationMessage } from "../components/validation-message";
 import { ClassDialogState } from "./edit-class-dialog-state";
 import { isValid } from "../utilities/validation-utilities";
+import { InputText } from "../components/input-test";
 
 const ClassDialog = (props: DialogProps<ClassDialogState>) => {
   const controller = useClassDialogController(props);
@@ -63,6 +64,12 @@ const ClassDialog = (props: DialogProps<ClassDialogState>) => {
             setLs={controller.setDescription}
             defaultLang={state.language}
             inputType="textarea"
+          />
+        </DialogDetailRow>
+        <DialogDetailRow detailKey={t("create-class-dialog.external-documentation-url")}>
+          <InputText
+            value={state.externalDocumentationUrl}
+            onChange={controller.setExternalDocumentationUrl}
           />
         </DialogDetailRow>
       </div>

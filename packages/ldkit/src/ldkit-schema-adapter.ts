@@ -1,4 +1,4 @@
-import { LdkitSchema, LdkitSchemaProperty, LdkitSchemaPropertyMap } from "./ldkit-schema-model";
+import { LdkitSchema, LdkitSchemaProperty, LdkitSchemaPropertyMap } from "./ldkit-schema-model.ts";
 import { StructureModelProperty } from "@dataspecer/core/structure-model/model/structure-model-property";
 import { StructureModelComplexType, StructureModelPrimitiveType } from "@dataspecer/core/structure-model/model/structure-model-type";
 import { assert } from "@dataspecer/core/core";

@@ -66,6 +66,7 @@ export function createEditClassDialogState(
     language, graphContext.models, allModels,
     { identifier: entity.id, model: model.getId()},
     entity.iri ?? "", entity.name, entity.description,
+    entity.externalDocumentationUrl ?? "",
     allSpecializations);
 
   return {

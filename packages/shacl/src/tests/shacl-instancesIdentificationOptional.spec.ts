@@ -1,5 +1,5 @@
-import * as Support from "./support/testSupport";
-import OptionalModelCreator from "./support/OptionalModelCreator";
+import * as Support from "./support/testSupport.ts";
+import OptionalModelCreator from "./support/OptionalModelCreator.ts";
 import * as fs from "fs";
 
 

@@ -1,5 +1,5 @@
-import { WdClassDescOnly } from "./wd-class";
-import { WdPropertyDescOnly } from "./wd-property";
+import { WdClassDescOnly } from "./wd-class.ts";
+import { WdPropertyDescOnly } from "./wd-property.ts";
 
 export type WdLanguageMap = Record<string, string>;
 

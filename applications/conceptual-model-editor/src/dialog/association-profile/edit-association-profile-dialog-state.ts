@@ -89,7 +89,9 @@ export function createNewAssociationProfileDialogState(
     profile.domain, profile.domainCardinality.cardinality, allDomains,
     filterByModel, representUndefinedClassProfile(),
     profile.range, profile.rangeCardinality.cardinality, allRanges,
-    filterByModel, representUndefinedClassProfile());
+    filterByModel, representUndefinedClassProfile(),
+    []
+  );
 
   const result = {
     ...entityProfileState,
@@ -209,6 +211,7 @@ export function createEditAssociationProfileDialogState(
     allProfiles, range.profiling, noProfile, range.iri ?? "",
     range.name, range.nameFromProfiled,
     range.description, range.descriptionFromProfiled,
+    range.externalDocumentationUrl ?? "",
     range.usageNote, range.usageNoteFromProfiled,
     allSpecializations);
 
@@ -220,7 +223,9 @@ export function createEditAssociationProfileDialogState(
     domain.concept, domain.cardinality, allDomains,
     filterByModel, representUndefinedClassProfile(),
     range.concept, range.cardinality, allRanges,
-    filterByModel, representUndefinedClassProfile());
+    filterByModel, representUndefinedClassProfile(),
+    range.tags ?? [],
+  );
 
   return {
     ...entityProfileState,

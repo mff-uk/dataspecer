@@ -1,3 +1,3 @@
 export {
     LDkitGenerator,
-} from "./generator";
+} from "./generator.ts";

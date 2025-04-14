@@ -1,5 +1,5 @@
 import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
-import { PackageContext } from "./views";
+import { PackageContext } from "./views.ts";
 import { OFN_LABELS } from "@dataspecer/core/well-known";
 
 /**

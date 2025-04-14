@@ -1,5 +1,5 @@
-import * as Support from "./support/testSupport";
-import  MaxMinCardinalityModelCreator from "./support/MaxMinCardinalityModelCreator";
+import * as Support from "./support/testSupport.ts";
+import  MaxMinCardinalityModelCreator from "./support/MaxMinCardinalityModelCreator.ts";
 
 const testType = "maxMinCardinality";
 const modelCreator = new MaxMinCardinalityModelCreator();

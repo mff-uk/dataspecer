@@ -1,7 +1,7 @@
-import {ConceptualModel, ConceptualModelClass} from "../model";
-import {StructureModel} from "../../structure-model/model";
-import {clone} from "../../core";
-import {structureModelFlattenInheritance} from "../../structure-model/transformation";
+import {ConceptualModel, ConceptualModelClass} from "../model/index.ts";
+import {StructureModel} from "../../structure-model/model/index.ts";
+import {clone} from "../../core/index.ts";
+import {structureModelFlattenInheritance} from "../../structure-model/transformation/index.ts";
 
 /**
  * Removes all entities from the conceptual model that are not used in the

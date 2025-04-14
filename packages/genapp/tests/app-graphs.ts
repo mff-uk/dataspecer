@@ -1,7 +1,7 @@
-import { EDIT_CAPABILITY_ID } from "../src/capabilities";
-import { ApplicationGraphEdgeType } from "../src/engine/graph";
-import { ApplicationGraphType } from "../src/engine/graph/application-graph";
-import { EDGE_IRI_BASE, NODE_IRI_BASE } from "./constants";
+import { EDIT_CAPABILITY_ID } from "../src/capabilities/index.ts";
+import { ApplicationGraphEdgeType } from "../src/engine/graph/index.ts";
+import { ApplicationGraphType } from "../src/engine/graph/application-graph.ts";
+import { EDGE_IRI_BASE, NODE_IRI_BASE } from "./constants.ts";
 
 export const emptyAppGraph: ApplicationGraphType = {
     label: "Empty graph",

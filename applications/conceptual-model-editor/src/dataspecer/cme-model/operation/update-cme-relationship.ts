@@ -23,6 +23,7 @@ export function updateCmeRelationship(
       description: next.description ?? {},
       concept: next.range,
       cardinality: next.rangeCardinality ?? undefined,
+      externalDocumentationUrl: next.externalDocumentationUrl ?? null,
     }]
   })
 

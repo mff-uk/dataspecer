@@ -1,6 +1,6 @@
 import { StructureModel} from "@dataspecer/core/structure-model/model";
 import { DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
-import { ShaclAdapter } from "../../shacl-adapter";
+import { ShaclAdapter } from "../../shacl-adapter.ts";
 
 class ShapeCreator{
     

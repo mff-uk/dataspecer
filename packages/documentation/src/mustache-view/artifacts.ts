@@ -1,7 +1,7 @@
 import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
 import { MemoryStreamDictionary } from "@dataspecer/core/io/stream/memory-stream-dictionary";
-import { TemplateArtifactGenerator } from "..";
-import { PackageContext } from "./views";
+import { TemplateArtifactGenerator } from "../index.ts";
+import { PackageContext } from "./views.ts";
 import { HandlebarsAdapter } from "@dataspecer/handlebars-adapter";
 
 // TODO: This is temporary workaroud for mapping artefacts to text.

@@ -1,5 +1,5 @@
-import {CoreOperation, CoreOperationResult, CoreResource, CoreTyped} from "../../core";
-import * as PSM from "../data-psm-vocabulary";
+import {CoreOperation, CoreOperationResult, CoreResource, CoreTyped} from "../../core/index.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 export class DataPsmCreateExternalRoot extends CoreOperation {
   static readonly TYPE = PSM.CREATE_EXTERNAL_ROOT;

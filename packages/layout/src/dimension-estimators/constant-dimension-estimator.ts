@@ -1,5 +1,5 @@
-import { NodeDimensionQueryHandler } from "..";
-import { INodeClassic } from "../graph-iface";
+import { NodeDimensionQueryHandler } from "../index.ts";
+import { INodeClassic } from "../graph-iface.ts";
 
 /**
  * Simple dimension query handler, which returns constant values as estimation of node dimensions.

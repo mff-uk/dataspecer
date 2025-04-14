@@ -15,15 +15,15 @@ import {
   structureModelAddDefaultValues,
   transformStructureModel
 } from "@dataspecer/core/structure-model/transformation";
-import { DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator } from "../configuration";
-import { MAIN_JSON_PARTIAL } from "../documentation/configuration";
-import { structureModelAddJsonProperties } from "../json-structure-model/add-json-properties";
-import { structureModelAddIdAndTypeProperties } from "./json-id-transformations";
-import { JsonSchema } from "./json-schema-model";
-import { structureModelToJsonSchema } from "./json-schema-model-adapter";
-import { JSON_SCHEMA } from "./json-schema-vocabulary";
-import { writeJsonSchema } from "./json-schema-writer";
-import { shortenByIriPrefixes } from "./propagate-iri-regex";
+import { DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator } from "../configuration.ts";
+import { MAIN_JSON_PARTIAL } from "../documentation/configuration.ts";
+import { structureModelAddJsonProperties } from "../json-structure-model/add-json-properties.ts";
+import { structureModelAddIdAndTypeProperties } from "./json-id-transformations.ts";
+import { JsonSchema } from "./json-schema-model.ts";
+import { structureModelToJsonSchema } from "./json-schema-model-adapter.ts";
+import { JSON_SCHEMA } from "./json-schema-vocabulary.ts";
+import { writeJsonSchema } from "./json-schema-writer.ts";
+import { shortenByIriPrefixes } from "./propagate-iri-regex.ts";
 
 export class JsonSchemaGenerator implements ArtefactGenerator {
   identifier(): string {

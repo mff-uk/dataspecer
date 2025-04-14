@@ -1,7 +1,13 @@
 import React, { useContext, useMemo } from "react";
 
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { Waypoint, WritableVisualModel, isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import {
+  Waypoint,
+  WritableVisualModel,
+  isVisualProfileRelationship,
+  isVisualRelationship,
+  isWritableVisualModel
+} from "@dataspecer/core-v2/visual-model";
 
 import { type DialogApiContextType } from "../dialog/dialog-service";
 import { DialogApiContext } from "../dialog/dialog-context";
@@ -9,7 +15,7 @@ import { createLogger } from "../application";
 import { ClassesContext, type ClassesContextType, UseClassesContextType, useClassesContext } from "../context/classes-context";
 import { useNotificationServiceWriter } from "../notification";
 import { type UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { ModelGraphContext, type ModelGraphContextType } from "../context/model-context";
+import { ModelGraphContext, useModelGraphContext, UseModelGraphContextType, type ModelGraphContextType } from "../context/model-context";
 import { type DiagramCallbacks, type Waypoint as DiagramWaypoint, Edge, Position, useDiagram } from "../diagram/";
 import type { UseDiagramType } from "../diagram/diagram-hook";
 import { type Options, useOptions } from "../configuration/options";
@@ -29,7 +35,6 @@ import { removeFromSemanticModelsAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
 import { openCreateAssociationDialogAction } from "./open-create-association-dialog";
 import { addEntitiesFromSemanticModelToVisualModelAction } from "./add-entities-from-semantic-model-to-visual-model";
-import { createNewVisualModelFromSelectionAction } from "./create-new-visual-model-from-selection";
 import { addClassNeighborhoodToVisualModelAction } from "./add-class-neighborhood-to-visual-model";
 import { createDefaultProfilesAction } from "./create-default-profiles";
 import { openCreateClassDialogWithModelDerivedFromClassAction } from "./open-create-class-dialog-with-derived-model";
@@ -69,6 +74,9 @@ import { AttributeProfileDialogState } from "../dialog/attribute-profile/edit-at
 import { openEditAssociationDialogAction } from "./open-edit-association-dialog";
 import { isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { openEditAssociationProfileDialogAction } from "./open-edit-association-profile-dialog";
+import { changeVisualModelAction } from "./change-visual-model";
+import { QueryParamsContextType, useQueryParamsContext } from "@/context/query-params-context";
+import { openCreateVisualModelDialogAction } from "./open-create-new-visual-model-dialog";
 
 const LOG = createLogger(import.meta.url);
 
@@ -237,18 +245,25 @@ interface VisualModelActions {
 
   //
 
-  //
-  // TODO RadStr: We will see what will this do, maybe will be openDialog instead, where we provide options as mentioned in code review by PeSk:
-  //              I would even imagine that this would open the dialog where user can provide:
-  //              - name of the new model
-  //              - whether to copy model colors
-  //              - whether to keep position (relative / absolute)
-  // TODO RadStr: The API should be probably nodes and edges, because what should happen if we select edge without ends? - then probably the ends should be put to the model
-  //              So we have to differ between the nodes and edges, but that can be decided in future, since creation of new views doesn't work right now anyways
   /**
-   * Creates new visual model with content equal to {@link selectionIdentifiers}.
+   * Opens dialog, which after confirmation creates new visual model with content equal to {@link nodeSelection} and
+   * relevant edges from {@link edgeSelection}.
    */
-  createNewVisualModelFromSelection: (selectionIdentifiers: string[]) => void;
+  openCreateNewVisualModelFromSelectionDialog: (
+    nodeSelection: string[],
+    edgeSelection: string[],
+    shouldSwitchToCreatedModel: boolean
+  ) => void;
+
+  /**
+   * Changes active visual model to the one given in {@link newVisualModel}.
+   */
+  changeVisualModel: (newVisualModel: string) => void;
+
+  /**
+   * Opens dialog, which after confirmation creates new empty visual model.
+   */
+  openCreateNewVisualModelDialog: (shouldSwitchToCreatedModel: boolean) => void;
 
   //
   // TODO PRQuestion: Again document using {@link .*Action} or not?
@@ -346,7 +361,9 @@ const noOperationActionsContext = {
   createVisualNodeDuplicate: noOperation,
   centerViewportToVisualEntityByRepresented: noOperation,
   //
-  createNewVisualModelFromSelection: noOperation,
+  openCreateNewVisualModelFromSelectionDialog: noOperation,
+  changeVisualModel: noOperation,
+  openCreateNewVisualModelDialog: noOperation,
   //
   addEntitiesFromSemanticModelToVisualModel: async () => {},
   removeEntitiesInSemanticModelFromVisualModel: noOperation,
@@ -383,12 +400,15 @@ export const ActionsContextProvider = (props: {
   const useClasses = useClassesContext();
   const notifications = useNotificationServiceWriter();
   const graph = useContext(ModelGraphContext);
+  const useGraph = useModelGraphContext();
   const diagram = useDiagram();
+
+  const queryParamsContext = useQueryParamsContext();
 
   const actions = useMemo(
     () => createActionsContext(
-      options, dialogs, classes, useClasses, notifications, graph, diagram),
-    [options, dialogs, classes, useClasses, notifications, graph, diagram]
+      options, dialogs, classes, useClasses, notifications, graph, useGraph, diagram, queryParamsContext),
+    [options, dialogs, classes, useClasses, notifications, graph, useGraph, diagram, queryParamsContext]
   );
 
   return (
@@ -404,7 +424,9 @@ let prevClasses: ClassesContextType | null = null;
 let prevUseClasses: UseClassesContextType | null = null;
 let prevNotifications: UseNotificationServiceWriterType | null = null;
 let prevGraph: ModelGraphContextType | null = null;
+let prevUseGraph: UseModelGraphContextType | null = null;
 let prevDiagram: UseDiagramType | null = null;
+let prevQueryParamsContext: QueryParamsContextType | null = null;
 
 function createActionsContext(
   options: Options | null,
@@ -413,12 +435,14 @@ function createActionsContext(
   useClasses: UseClassesContextType | null,
   notifications: UseNotificationServiceWriterType | null,
   graph: ModelGraphContextType | null,
+  useGraph: UseModelGraphContextType | null,
   diagram: UseDiagramType,
+  queryParamsContext: QueryParamsContextType | null,
 ): ActionsContextType {
 
   if (options === null || dialogs === null || classes === null ||
     useClasses === null || notifications === null || graph === null ||
-    !diagram.areActionsReady) {
+    !diagram.areActionsReady || queryParamsContext === null || useGraph === null) {
     // We need to return the diagram object so it can be consumed by
     // the Diagram component and initialized.
     return {
@@ -435,7 +459,9 @@ function createActionsContext(
   if (prevUseClasses !== useClasses) changed.push("prevUseClasses");
   if (prevNotifications !== notifications) changed.push("notifications");
   if (prevGraph !== graph) changed.push("graph");
+  if (prevUseGraph !== useGraph) changed.push("useGraph");
   if (prevDiagram !== diagram) changed.push("diagram");
+  if (prevQueryParamsContext !== queryParamsContext) changed.push("queryParamsContext");
   console.info("[ACTIONS] Creating new context object. ", { changed });
   prevOptions = options;
   prevDialogs = dialogs;
@@ -443,7 +469,9 @@ function createActionsContext(
   prevUseClasses = useClasses;
   prevNotifications = notifications;
   prevGraph = graph;
+  prevUseGraph = useGraph;
   prevDiagram = diagram;
+  prevQueryParamsContext = queryParamsContext;
 
   // For now we create derived state here, till is is available
   // as a context.
@@ -798,8 +826,24 @@ function createActionsContext(
     return promise;
   };
 
-  const createNewVisualModelFromSelection = (selectionIdentifiers: string[]) => {
-    createNewVisualModelFromSelectionAction(notifications, graph, selectionIdentifiers);
+  const openCreateNewVisualModelFromSelectionDialog = (
+    nodeSelection: string[],
+    edgeSelection: string[],
+    shouldSwitchToCreatedModel: boolean
+  ) => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      openCreateVisualModelDialogAction(
+        notifications, options, dialogs, graph, useGraph, queryParamsContext,
+        visualModel, nodeSelection, edgeSelection, shouldSwitchToCreatedModel);
+    });
+  };
+
+  const changeVisualModel = (newVisualModel: string) => {
+    changeVisualModelAction(graph, queryParamsContext, newVisualModel);
+  };
+
+  const openCreateNewVisualModelDialog = (shouldSwitchToCreatedModel: boolean) => {
+    return openCreateNewVisualModelFromSelectionDialog([], [], shouldSwitchToCreatedModel);
   };
 
   const openExtendSelectionDialog = (selections: Selections) => {
@@ -1008,8 +1052,8 @@ function createActionsContext(
     },
 
     onCreateNewViewFromSelection: () => {
-      const { nodeSelection, edgeSelection } = getSelections(diagram, true, false);
-      createNewVisualModelFromSelection(nodeSelection.concat(edgeSelection));
+      const { nodeSelection, edgeSelection } = getSelections(diagram, false, true);
+      openCreateNewVisualModelFromSelectionDialog(nodeSelection, edgeSelection, false);
     },
 
     onProfileSelection: () => {
@@ -1111,7 +1155,9 @@ function createActionsContext(
     createVisualNodeDuplicate,
     centerViewportToVisualEntityByRepresented,
 
-    createNewVisualModelFromSelection,
+    openCreateNewVisualModelFromSelectionDialog,
+    changeVisualModel,
+    openCreateNewVisualModelDialog,
     addEntitiesFromSemanticModelToVisualModel,
     removeEntitiesInSemanticModelFromVisualModel,
     addClassNeighborhoodToVisualModel,

@@ -1,16 +1,16 @@
-import { DataSpecification } from "../data-specification/model";
-import { assertFailed, assertNot, CoreResourceReader } from "../core";
-import { StreamDictionary } from "../io/stream/stream-dictionary";
-import { ArtefactGenerator } from "./artefact-generator";
+import { DataSpecification } from "../data-specification/model/index.ts";
+import { assertFailed, assertNot, CoreResourceReader } from "../core/index.ts";
+import { StreamDictionary } from "../io/stream/stream-dictionary.ts";
+import { ArtefactGenerator } from "./artefact-generator.ts";
 import {
   ArtefactGeneratorContext,
   StructureClassLocation,
-} from "./artefact-generator-context";
-import { coreResourcesToConceptualModel } from "../conceptual-model";
+} from "./artefact-generator-context.ts";
+import { coreResourcesToConceptualModel } from "../conceptual-model/index.ts";
 import {
   StructureModel,
-} from "../structure-model/model";
-import {coreResourcesToStructuralModel} from "../structure-model";
+} from "../structure-model/model/index.ts";
+import {coreResourcesToStructuralModel} from "../structure-model/index.ts";
 
 export class Generator {
   private readonly specifications: { [iri: string]: DataSpecification } = {};

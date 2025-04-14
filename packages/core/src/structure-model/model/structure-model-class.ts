@@ -1,5 +1,5 @@
-import {LanguageString} from "../../core";
-import {StructureModelProperty} from "./structure-model-property";
+import {LanguageString} from "../../core/index.ts";
+import {StructureModelProperty} from "./structure-model-property.ts";
 
 export class StructureModelClass {
   /**

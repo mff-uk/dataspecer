@@ -1,5 +1,5 @@
-import { CoreOperation, CoreResource } from "../../core";
-import * as PSM from "../data-psm-vocabulary";
+import { CoreOperation, CoreResource } from "../../core/index.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 /**
  * Moves property (association, attribute or include) to another container.

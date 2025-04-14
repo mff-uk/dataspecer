@@ -1,5 +1,5 @@
 import * as jsonld from "jsonld";
-import { RdfQuad } from "../../../core/adapter/rdf";
+import { RdfQuad } from "../../../core/adapter/rdf/index.ts";
 
 export async function parseRdfQuadsWithJsonLd(
   content: string

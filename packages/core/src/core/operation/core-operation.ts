@@ -1,4 +1,4 @@
-import { CoreResource } from "../core-resource";
+import { CoreResource } from "../core-resource.ts";
 
 /**
  * Operation can be applied to change data model. Any data model, like

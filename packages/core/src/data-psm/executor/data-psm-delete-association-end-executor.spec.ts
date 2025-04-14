@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { DataPsmDeleteAssociationEnd } from "../operation";
-import { executeDataPsmDeleteAssociationEnd } from "./data-psm-delete-association-end-executor";
-import * as PSM from "../data-psm-vocabulary";
+} from "../../core/index.ts";
+import { DataPsmDeleteAssociationEnd } from "../operation/index.ts";
+import { executeDataPsmDeleteAssociationEnd } from "./data-psm-delete-association-end-executor.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 test("Delete data PSM association-end.", async () => {
   const operation = new DataPsmDeleteAssociationEnd();

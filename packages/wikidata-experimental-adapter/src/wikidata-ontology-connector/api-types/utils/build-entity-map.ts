@@ -1,4 +1,4 @@
-import { WdEntityDescOnly, WdEntityId } from "../../../wikidata-entities/wd-entity";
+import { WdEntityDescOnly, WdEntityId } from "../../../wikidata-entities/wd-entity.ts";
 
 export function buildEntityMap<T extends WdEntityDescOnly>(
     entities: T[],

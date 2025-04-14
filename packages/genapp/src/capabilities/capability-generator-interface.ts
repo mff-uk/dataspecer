@@ -1,9 +1,9 @@
-import { LayerArtifact } from "../engine/layer-artifact";
-import { GenerationContext } from "../engine/generator-stage-interface";
-import { GeneratorPipeline } from "../engine/generator-pipeline";
-import { AggregateMetadata } from "../application-config";
-import { CapabilityType } from ".";
-import { ApplicationGraph, ApplicationGraphNode, NodeConfiguration } from "../engine/graph";
+import { LayerArtifact } from "../engine/layer-artifact.ts";
+import { GenerationContext } from "../engine/generator-stage-interface.ts";
+import { GeneratorPipeline } from "../engine/generator-pipeline.ts";
+import { AggregateMetadata } from "../application-config.ts";
+import { CapabilityType } from "./index.ts";
+import { ApplicationGraph, ApplicationGraphNode, NodeConfiguration } from "../engine/graph/index.ts";
 
 export interface CapabilityGeneratorMetadata {
     getType(): CapabilityType;

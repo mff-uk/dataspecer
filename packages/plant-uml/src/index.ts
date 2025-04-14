@@ -1,3 +1,3 @@
-export { PlantUmlGenerator } from "./plant-uml-generator";
-export type { PlantUmlGeneratorObject } from "./plant-uml-generator";
+export { PlantUmlGenerator } from "./plant-uml-generator.ts";
+export type { PlantUmlGeneratorObject } from "./plant-uml-generator.ts";
 

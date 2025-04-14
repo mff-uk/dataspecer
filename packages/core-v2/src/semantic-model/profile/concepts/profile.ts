@@ -1,4 +1,4 @@
-import { LanguageString } from "../../concepts";
+import { LanguageString } from "../../concepts/index.ts";
 
 /**
  * The idea of profile is to put certain entity, or a profile, into given context.
@@ -21,5 +21,10 @@ export interface Profile {
    * If set, the value of respective property must be load from the profile.
    */
   usageNoteFromProfiled: string | null;
+
+  /**
+   * URL to external documentation.
+   */
+  externalDocumentationUrl: string | null;
 
 }

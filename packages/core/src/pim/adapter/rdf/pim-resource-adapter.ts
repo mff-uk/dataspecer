@@ -1,6 +1,6 @@
-import { RdfSourceWrap } from "../../../core/adapter/rdf";
-import { PimResource } from "../../model";
-import * as PIM from "../../pim-vocabulary";
+import { RdfSourceWrap } from "../../../core/adapter/rdf/index.ts";
+import { PimResource } from "../../model/index.ts";
+import * as PIM from "../../pim-vocabulary.ts";
 
 export async function loadPimResource(
   source: RdfSourceWrap,

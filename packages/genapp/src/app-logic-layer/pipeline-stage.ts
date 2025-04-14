@@ -1,7 +1,7 @@
-import { isLayerArtifact, LayerArtifact } from "../engine/layer-artifact";
-import { GeneratorStage, GenerationContext } from "../engine/generator-stage-interface";
-import { ArtifactSaver, GeneratedFilePathCalculator } from "../utils/artifact-saver";
-import { ApplicationLayerGenerator } from "./strategy-interface";
+import { isLayerArtifact, LayerArtifact } from "../engine/layer-artifact.ts";
+import { GeneratorStage, GenerationContext } from "../engine/generator-stage-interface.ts";
+import { ArtifactSaver, GeneratedFilePathCalculator } from "../utils/artifact-saver.ts";
+import { ApplicationLayerGenerator } from "./strategy-interface.ts";
 
 export class ApplicationLayerStage implements GeneratorStage {
 

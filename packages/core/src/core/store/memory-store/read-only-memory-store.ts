@@ -1,6 +1,6 @@
-import { clone } from "../../utilities/clone";
-import { CoreResourceReader } from "../../core-reader";
-import { CoreResource } from "../../core-resource";
+import { clone } from "../../utilities/clone.ts";
+import { CoreResourceReader } from "../../core-reader.ts";
+import { CoreResource } from "../../core-resource.ts";
 
 export class ReadOnlyMemoryStore implements CoreResourceReader {
   private readonly resources: { [iri: string]: CoreResource };

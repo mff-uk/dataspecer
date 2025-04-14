@@ -10,10 +10,10 @@ import ts, {
     VariableDeclarationList,
     ObjectLiteralElementLike
 } from "typescript";
-import { LdkitSchema, LdkitSchemaProperty } from "../ldkit-schema-model";
-import { convertToKebabCase } from "../utils/utils";
-import { SourceCodeWriter } from "./source-code-writer-model";
-import { AggregateMetadata } from "../readers/aggregate-data-provider-model";
+import { LdkitSchema, LdkitSchemaProperty } from "../ldkit-schema-model.ts";
+import { convertToKebabCase } from "../utils/utils.ts";
+import { SourceCodeWriter } from "./source-code-writer-model.ts";
+import { AggregateMetadata } from "../readers/aggregate-data-provider-model.ts";
 
 export class TypescriptWriter implements SourceCodeWriter {
 

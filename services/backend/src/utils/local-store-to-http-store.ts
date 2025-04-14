@@ -1,5 +1,5 @@
 import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
-import {LocalStoreDescriptor} from "../models/local-store-descriptor";
+import {LocalStoreDescriptor} from "../models/local-store-descriptor.ts";
 import {HttpStoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
 
 export function convertLocalStoresToHttpStores(storeDescriptors: StoreDescriptor[], storeUrlTemplate: string): StoreDescriptor[] {

@@ -1,6 +1,6 @@
-import { RdfSource, RdfObject, RdfNode } from "../rdf-api";
-import { fetchRdfQuadsBySparqlConstruct } from "./sparql-adapter";
-import { HttpFetch } from "../../fetch/fetch-api";
+import { RdfSource, RdfObject, RdfNode } from "../rdf-api.ts";
+import { fetchRdfQuadsBySparqlConstruct } from "./sparql-adapter.ts";
+import { HttpFetch } from "../../fetch/fetch-api.ts";
 
 /**
  * Implementation of an RdfSource to a triplestore using a SPARQL query

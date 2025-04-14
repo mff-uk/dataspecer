@@ -1,9 +1,9 @@
-import { rdfToConceptualModel } from "./rdf-to-dsv";
-import { conceptualModelToRdf } from "./dsv-to-rdf";
-import { Cardinality, DsvModel, ObjectPropertyProfile } from "./dsv-model";
-import { conceptualModelToEntityListContainer } from "./dsv-to-entity-model";
-import { DataTypeURIs, isDataType } from "../datatypes";
-import { isSemanticModelClass, isSemanticModelRelationship } from "../concepts";
+import { rdfToConceptualModel } from "./rdf-to-dsv.ts";
+import { conceptualModelToRdf } from "./dsv-to-rdf.ts";
+import { Cardinality, ClassRole, DsvModel, ObjectPropertyProfile, RequirementLevel } from "./dsv-model.ts";
+import { conceptualModelToEntityListContainer } from "./dsv-to-entity-model.ts";
+import { DataTypeURIs, isDataType } from "../datatypes/index.ts";
+import { isSemanticModelClass, isSemanticModelRelationship } from "../concepts/index.ts";
 
 test("From RDF to DSV and back.", async () => {
 
@@ -28,8 +28,10 @@ test("From RDF to DSV and back.", async () => {
   dsv:reusedProperty <http://purl.org/vocab/vann/usageNote>;
   dsv:reusedFromResource <http://www.w3.org/ns/dcat#Dataset>
 ];
+    dsv:externalDocumentation <http://documentation>;
     a dsv:ClassProfile;
-    dsv:class <http://www.w3.org/ns/dcat#Dataset>.
+    dsv:class <http://www.w3.org/ns/dcat#Dataset>;
+    dsv:classRole <https://w3id.org/dsv/class-role#main>.
 
 <http://www.w3.org/ns/dcat#distribution-profile> dsv:domain <https://dcat-ap/#Dataset>;
     dct:isPartOf <http://dcat-ap-cz/model>;
@@ -43,7 +45,7 @@ test("From RDF to DSV and back.", async () => {
   dsv:reusedProperty <http://purl.org/vocab/vann/usageNote>;
   dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution>
 ];
-    dsv:cardinality <https://w3id.org/dsv#0n>;
+    dsv:cardinality <https://w3id.org/dsv/cardinality#0n>;
     dsv:property <http://www.w3.org/ns/dcat#distribution>;
     a dsv:ObjectPropertyProfile;
     dsv:objectPropertyRange <http://dcat-ap/ns/dcat#Distribution>.
@@ -51,11 +53,13 @@ test("From RDF to DSV and back.", async () => {
 <https://dcat-ap-cz/#Dataset> dct:isPartOf <http://dcat-ap-cz/model>;
     a dsv:Profile;
     dsv:profileOf <https://dcat-ap/#Dataset>;
-    a dsv:ClassProfile.
+    a dsv:ClassProfile;
+    dsv:classRole <https://w3id.org/dsv/class-role#main>.
 
 <http://dcat-ap/ns/dcat#Distribution> dct:isPartOf <http://dcat-ap-cz/model>;
     a dsv:Profile, dsv:ClassProfile;
-    dsv:class <http://www.w3.org/ns/dcat#Distribution>.
+    dsv:class <http://www.w3.org/ns/dcat#Distribution>;
+    dsv:classRole <https://w3id.org/dsv/class-role#supportive>.
 `;
 
   const actualModels = await rdfToConceptualModel(inputRdf);
@@ -78,6 +82,8 @@ test("From RDF to DSV and back.", async () => {
         "reusedPropertyIri": "http://purl.org/vocab/vann/usageNote",
         "propertyReusedFromResourceIri": "http://www.w3.org/ns/dcat#Dataset",
       }],
+      "externalDocumentationUrl": "http://documentation",
+      "classRole": ClassRole.main,
       "properties": [{
         "iri": "http://www.w3.org/ns/dcat#distribution-profile",
         "cardinality": Cardinality.ZeroToMany,
@@ -98,6 +104,8 @@ test("From RDF to DSV and back.", async () => {
           "propertyReusedFromResourceIri": "http://dcat-ap/ns/dcat#Distribution",
         }],
         "specializationOfIri": [],
+        "externalDocumentationUrl": null,
+        "requirementLevel": RequirementLevel.undefined,
       } as ObjectPropertyProfile],
       "specializationOfIri": [],
     }, {
@@ -111,6 +119,8 @@ test("From RDF to DSV and back.", async () => {
       "properties": [],
       "reusesPropertyValue": [],
       "specializationOfIri": [],
+      "externalDocumentationUrl": null,
+      "classRole": ClassRole.main,
     }, {
       "iri": "http://dcat-ap/ns/dcat#Distribution",
       "prefLabel": {},
@@ -122,6 +132,8 @@ test("From RDF to DSV and back.", async () => {
       "properties": [],
       "reusesPropertyValue": [],
       "specializationOfIri": [],
+      "externalDocumentationUrl": null,
+      "classRole": ClassRole.supportive,
     }],
   };
   expect(actualModels[0]).toStrictEqual(expectedModel);
@@ -271,9 +283,9 @@ _:n3-813 a dsv:PropertyValueReuse;
     iriToIdentifier: iri => knownMapping[iri] ?? iri,
     //
     iriPropertyToIdentifier: (iri, rangeConcept) => {
-       const isAttribute = isDataType(rangeConcept);
-       const key = isAttribute + ":" + iri;
-       return knownRelationshipMapping[key] ?? iri;
+      const isAttribute = isDataType(rangeConcept);
+      const key = isAttribute + ":" + iri;
+      return knownRelationshipMapping[key] ?? iri;
     },
   });
 
@@ -290,6 +302,8 @@ _:n3-813 a dsv:PropertyValueReuse;
       "type": ["class-profile"],
       "usageNote": {},
       "usageNoteFromProfiled": null,
+      "externalDocumentationUrl": null,
+      "tags": [],
     }, {
       "ends": [{
         "cardinality": null,
@@ -302,6 +316,8 @@ _:n3-813 a dsv:PropertyValueReuse;
         "profiling": [],
         "usageNote": {},
         "usageNoteFromProfiled": null,
+        "externalDocumentationUrl": null,
+        "tags": [],
       }, {
         "cardinality": null,
         "concept": "http://www.w3.org/2000/01/rdf-schema#Literal",
@@ -315,6 +331,8 @@ _:n3-813 a dsv:PropertyValueReuse;
         "profiling": ["y8u9pfm70wlm7i2dbug"],
         "usageNote": {},
         "usageNoteFromProfiled": null,
+        "externalDocumentationUrl": null,
+        "tags": [],
       },
       ],
       "id": "http://localhost/Source[profile].attribute[profile]",
@@ -330,6 +348,8 @@ _:n3-813 a dsv:PropertyValueReuse;
       "type": ["class-profile"],
       "usageNote": {},
       "usageNoteFromProfiled": null,
+      "externalDocumentationUrl": null,
+      "tags": [],
     }],
   });
 

@@ -3,14 +3,14 @@ import {
   CoreExecutorResult,
   CreateNewIdentifier,
   CoreResource,
-} from "../../core";
-import { DataPsmSetInterpretation } from "../operation";
+} from "../../core/index.ts";
+import { DataPsmSetInterpretation } from "../operation/index.ts";
 import {
   DataPsmAssociationEnd,
   DataPsmAttribute,
   DataPsmClass,
   DataPsmResource,
-} from "../model";
+} from "../model/index.ts";
 
 export async function executeDataPsmSetInterpretation(
   reader: CoreResourceReader,

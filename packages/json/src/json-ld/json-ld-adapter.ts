@@ -4,8 +4,8 @@ import { DataSpecificationArtefact, DataSpecificationSchema } from "@dataspecer/
 import { ArtefactGeneratorContext } from "@dataspecer/core/generator";
 import { StructureModel, StructureModelClass, StructureModelComplexType, StructureModelProperty } from "@dataspecer/core/structure-model/model";
 import { OFN } from "@dataspecer/core/well-known";
-import { DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator } from "../configuration";
-import { JSON_LD_GENERATOR } from "./json-ld-generator";
+import { DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator } from "../configuration.ts";
+import { JSON_LD_GENERATOR } from "./json-ld-generator.ts";
 import { AggregatedEntityInApplicationProfileAggregator, LocalEntityWrapped, splitProfileToConcepts } from "@dataspecer/core-v2/hierarchical-semantic-aggregator";
 import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";

@@ -1,12 +1,12 @@
-import { Entity, EntityIdentifier } from "./entity";
-import { EntityModel, ModelIdentifier } from "./entity-model";
-import { LabeledModel, LabeledModelType, LanguageString } from "./labeled-model";
-import { SynchronousEntityModel, SynchronousEntityModelType } from "./synchronous-entity-model";
-import { LegacyModel } from "./legacy-model";
-import { EntityEventListener, ObservableEntityModel, UnsubscribeCallback, ObservableEntityModelType } from "./observable-entity-model";
-import { ChangeEntity, NewEntity } from "./writable-entity-model";
-import { SynchronousWritableEntityModel, SynchronousWritableEntityModelType } from "./on-premise-writable-entity-model";
-import { SerializableModel, SerializableModelType } from "./serializable-model";
+import { Entity, EntityIdentifier } from "./entity.ts";
+import { EntityModel, ModelIdentifier } from "./entity-model.ts";
+import { LabeledModel, LabeledModelType, LanguageString } from "./labeled-model.ts";
+import { SynchronousEntityModel, SynchronousEntityModelType } from "./synchronous-entity-model.ts";
+import { LegacyModel } from "./legacy-model.ts";
+import { EntityEventListener, ObservableEntityModel, UnsubscribeCallback, ObservableEntityModelType } from "./observable-entity-model.ts";
+import { ChangeEntity, NewEntity } from "./writable-entity-model.ts";
+import { SynchronousWritableEntityModel, SynchronousWritableEntityModelType } from "./on-premise-writable-entity-model.ts";
+import { SerializableModel, SerializableModelType } from "./serializable-model.ts";
 
 export interface DefaultEntityModelType extends EntityModel, LabeledModel, SynchronousEntityModel, SynchronousWritableEntityModel, ObservableEntityModel, SerializableModel, LegacyModel { }
 

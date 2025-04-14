@@ -1,5 +1,5 @@
-import { Package } from "../../project";
-import { TypedObject } from "./typed-object";
+import { Package } from "../../project/index.ts";
+import { TypedObject } from "./typed-object.ts";
 
 export interface EntityModelFactory {
 

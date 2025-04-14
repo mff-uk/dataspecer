@@ -1,4 +1,4 @@
-import { SemanticModelClass, SemanticModelRelationship } from "../../concepts";
+import { SemanticModelClass, SemanticModelRelationship } from "../../concepts/index.ts";
 
 /**
  * Merges same entities that have same id.

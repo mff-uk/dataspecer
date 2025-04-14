@@ -1,5 +1,5 @@
-import * as Support from "./support/testSupport";
-import TargetCase2ModelCreator from "./support/TargetCase2ModelCreator";
+import * as Support from "./support/testSupport.ts";
+import TargetCase2ModelCreator from "./support/TargetCase2ModelCreator.ts";
 import * as fs from "fs";
 
 

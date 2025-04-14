@@ -20,10 +20,11 @@ import {
   xmlSchemaComplexTypeDefinitionIsExtension,
   xmlSchemaSimpleTypeDefinitionIsRestriction,
   XmlSchemaAttribute,
-} from "./xml-schema-model";
+  xmlSchemaTypeIsLangString,
+} from "./xml-schema-model.ts";
 
-import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
-import { langStringName } from "../conventions";
+import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer.ts";
+import { langStringName } from "../conventions.ts";
 
 const xsNamespace = "http://www.w3.org/2001/XMLSchema";
 const xsVerNamespace = "http://www.w3.org/2007/XMLSchema-versioning";
@@ -272,7 +273,7 @@ async function writeElement(
     } else {
       await writer.writeLocalAttributeValue("name", name[1]);
       const type = element.type;
-      if (!xmlSchemaTypeIsComplex(type) && !xmlSchemaTypeIsSimple(type)) {
+      if (!xmlSchemaTypeIsComplex(type) && !xmlSchemaTypeIsSimple(type) && !xmlSchemaTypeIsLangString(type)) {
         // The type is specified in the schema, simply use its name.
         await writer.writeLocalAttributeValue(
           "type",
@@ -284,6 +285,8 @@ async function writeElement(
         await writeAnnotation(element, writer);
         if (xmlSchemaTypeIsComplex(type)) {
           await writeComplexType(type, writer);
+        } else if (xmlSchemaTypeIsLangString(type)) {
+          await writeLanguageStringType(writer);
         } else if (xmlSchemaTypeIsSimple(type)) {
           await writeSimpleType(type, writer);
         } else {
@@ -428,6 +431,28 @@ async function writeComplexContainer(
       await writeComplexContent(content.item, content, writer);
     }
   }
+}
+
+async function writeLanguageStringType(
+  writer: XmlWriter
+): Promise<void> {
+  await writer.writeElementFull("xs", "complexType")(async writer => {
+    await writer.writeElementFull("xs", "simpleContent")(async writer => {
+      await writer.writeElementFull("xs", "extension")(async writer => {
+        await writer.writeLocalAttributeValue(
+          "base",
+          writer.getQName("xs", "string")
+        );
+        await writer.writeElementFull("xs", "attribute")(async writer => {
+          await writer.writeLocalAttributeValue(
+            "ref",
+            writer.getQName("xml", "lang")
+          );
+          await writer.writeLocalAttributeValue("use", "required");
+        });
+      });
+    });
+  });
 }
 
 /**

@@ -10,11 +10,11 @@ import {
   sparqlNodeIsVariable,
   SparqlPattern,
   SparqlQuery, sparqlQueryIsConstruct, sparqlQueryIsSelect, SparqlTriple,
-} from "./sparql-model";
+} from "./sparql-model.ts";
 
 const indentStep = "  ";
 
-import { RDF_TYPE_URI } from "./sparql-model-adapter"
+import { RDF_TYPE_URI } from "./sparql-model-adapter.ts"
 
 /**
  * Writes a full SPARQL query to a stream.

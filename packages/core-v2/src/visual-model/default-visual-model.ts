@@ -1,4 +1,4 @@
-import { LOCAL_VISUAL_MODEL } from "../model/known-models";
+import { LOCAL_VISUAL_MODEL } from "../model/known-models.ts";
 
 import {
   MODEL_VISUAL_TYPE,
@@ -9,20 +9,23 @@ import {
   VISUAL_NODE_TYPE,
   VISUAL_PROFILE_RELATIONSHIP_TYPE,
   VISUAL_RELATIONSHIP_TYPE,
+  VISUAL_VIEW_TYPE,
   VisualEntity,
   VisualGroup,
   VisualNode,
   VisualProfileRelationship,
   VisualRelationship,
   VisualDiagramNode,
+  VisualView,
   isModelVisualInformation,
   isVisualGroup,
   isVisualNode,
   isVisualProfileRelationship,
   isVisualRelationship,
+  isVisualView,
   isVisualDiagramNode,
   VISUAL_DIAGRAM_NODE_TYPE,
-} from "./visual-entity";
+} from "./visual-entity.ts";
 import {
   WritableVisualModel,
   SynchronousUnderlyingVisualModel,
@@ -32,12 +35,12 @@ import {
   VisualModelType,
   WritableVisualModelType,
   VisualModelDataVersion,
-} from "./visual-model";
-import { HexColor } from "./visual-entity";
-import { EntityEventListener, UnsubscribeCallback } from "./entity-model/observable-entity-model";
-import { Entity, EntityIdentifier } from "./entity-model/entity";
-import { LanguageString } from "./entity-model/labeled-model";
-import { addToMapArray, removeFromMapArray } from "../utils/functional";
+} from "./visual-model.ts";
+import { HexColor } from "./visual-entity.ts";
+import { EntityEventListener, UnsubscribeCallback } from "./entity-model/observable-entity-model.ts";
+import { Entity, EntityIdentifier } from "./entity-model/entity.ts";
+import { LanguageString } from "./entity-model/labeled-model.ts";
+import { addToMapArray, removeFromMapArray } from "../utils/functional.ts";
 
 /**
  * This is how data were stored in the initial version of the visual model.
@@ -80,6 +83,9 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
 
   private observers: VisualModelListener[] = [];
 
+  /**
+   * Map of all visual entities in the {@link model}.
+   */
   private entities: Map<EntityIdentifier, VisualEntity> = new Map();
 
   /**
@@ -97,6 +103,11 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
    * This allows for additional migration on higher level.
    */
   private sourceDataVersion: VisualModelDataVersion = VisualModelDataVersion.VERSION_1;
+
+  /**
+   * Cached visual view identifier or null when there is no such entity.
+   */
+  private visualViewIdentifier: string | null = null;
 
   constructor(model: SynchronousUnderlyingVisualModel) {
     this.model = model;
@@ -284,6 +295,20 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
     this.model.deleteEntitySync(entityIdentifier);
   }
 
+  setView(view: Omit<VisualView, "identifier" | "type">): void {
+    if (this.visualViewIdentifier === null) {
+      this.visualViewIdentifier = this.model.createEntitySync({
+        ...view,
+        type: [VISUAL_VIEW_TYPE],
+      });
+    } else {
+      this.model.changeEntitySync(this.visualViewIdentifier, {
+        ...view,
+        type: [VISUAL_VIEW_TYPE],
+      });
+    }
+  }
+
   getId(): string {
     return this.model.getIdentifier();
   }
@@ -386,7 +411,7 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
       this.notifyObserversOnEntityChangeOrDelete(null, entity);
     }
     if (isVisualNode(entity)) {
-      this.entities.set(entity.identifier, entity);   // TODO PRQuestion: this line repeats at every if branch
+      this.entities.set(entity.identifier, entity);
       addToMapArray(entity.representedEntity, entity.identifier, this.representedToEntity);
       this.notifyObserversOnEntityChangeOrDelete(null, entity);
     }
@@ -413,6 +438,10 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
       this.entities.set(entity.identifier, entity);
       // There is no primary representation for this one.
       this.notifyObserversOnEntityChangeOrDelete(null, entity);
+    }
+    if (isVisualView(entity)) {
+      this.entities.set(entity.identifier, entity);
+      this.visualViewIdentifier = entity.identifier;
     }
   }
 
@@ -460,6 +489,11 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
       this.entities.set(entity.identifier, entity);
       this.notifyObserversOnEntityChangeOrDelete(previous as VisualEntity, entity);
     }
+    if (isVisualView(entity)) {
+      this.entities.set(entity.identifier, entity);
+      this.visualViewIdentifier = entity.identifier;
+      this.notifyObserversOnEntityChangeOrDelete(previous as VisualEntity, entity);
+    }
   }
 
   protected onEntityDidRemoved(identifier: string) {
@@ -497,6 +531,9 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
     if (isVisualProfileRelationship(previous)) {
       this.notifyObserversOnEntityChangeOrDelete(previous, null);
     }
+    if (isVisualView(previous)) {
+      this.visualViewIdentifier = null;
+    }
   }
 }
 
@@ -504,7 +541,7 @@ function isEntityModelV0(what: object): what is VisualModelJsonSerializationV0 {
   return (what as any).modelColors !== undefined || (what as any).visualEntities !== undefined;
 }
 
-function addToMultimap<K, V>(key: K, value:V, map: Map<K,V[]> ): void  {
+function addToMultimap<K, V>(key: K, value: V, map: Map<K, V[]>): void {
   const items = map.get(key);
   if (items === undefined) {
     map.set(key, [value]);

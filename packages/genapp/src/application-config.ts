@@ -1,6 +1,6 @@
 import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
-import { normalizeName } from "./utils/utils";
-import { Cache } from "./utils/cache";
+import { normalizeName } from "./utils/utils.ts";
+import { Cache } from "./utils/cache.ts";
 
 export const AggregateMetadataCache: Cache<DataPsmSchema> = {
     content: {},

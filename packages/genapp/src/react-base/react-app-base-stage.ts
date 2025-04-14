@@ -1,8 +1,8 @@
-import { ArtifactSaver } from "../utils/artifact-saver";
-import { getRelativePath } from "../utils/utils";
-import { LayerArtifact } from "../engine/layer-artifact";
-import { CapabilityRouteComponentMap, ReactApplicationBaseGenerator, ReactRouteComponentDescription } from "./react-app-base-generator";
-import { NodeResult } from "../engine/app-generator";
+import { ArtifactSaver } from "../utils/artifact-saver.ts";
+import { getRelativePath } from "../utils/utils.ts";
+import { LayerArtifact } from "../engine/layer-artifact.ts";
+import { CapabilityRouteComponentMap, ReactApplicationBaseGenerator, ReactRouteComponentDescription } from "./react-app-base-generator.ts";
+import { NodeResult } from "../engine/app-generator.ts";
 
 export class ReactAppBaseGeneratorStage {
     artifactSaver: ArtifactSaver;

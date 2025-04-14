@@ -1,6 +1,6 @@
-import {LanguageString} from "../../core";
-import {StructureModelSchemaRoot} from "./structure-model-schema-root";
-import {StructureModelClass} from "./structure-model-class";
+import {LanguageString} from "../../core/index.ts";
+import {StructureModelSchemaRoot} from "./structure-model-schema-root.ts";
+import {StructureModelClass} from "./structure-model-class.ts";
 
 /**
  * Schema is the root object that is used to identify a collection of classes.

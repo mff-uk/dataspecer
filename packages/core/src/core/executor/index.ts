@@ -1,2 +1,2 @@
-export * from "./core-executor";
-export * from "./core-executor-result";
+export * from "./core-executor.ts";
+export * from "./core-executor-result.ts";

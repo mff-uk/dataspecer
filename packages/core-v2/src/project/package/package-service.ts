@@ -1,7 +1,7 @@
-import { EntityModel } from "../../entity-model";
-import { WritableSemanticModelAdapter } from "../../semantic-model/writable-semantic-model-adapter";
-import { VisualModel } from "../../visual-model";
-import { Package, ResourceEditable } from "../resource/resource";
+import { EntityModel } from "../../entity-model/index.ts";
+import { WritableSemanticModelAdapter } from "../../semantic-model/writable-semantic-model-adapter.ts";
+import { VisualModel } from "../../visual-model/index.ts";
+import { Package, ResourceEditable } from "../resource/resource.ts";
 
 /**
  * Provides basic operations with packages.
