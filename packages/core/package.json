@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "prebuild": "node ./build/prebuild.js",
+    "prebuild": "node ./build/prebuild.mjs",
     "dev": "tsc -w",
     "lint": "eslint ./src",
     "prettier": "prettier -w ./src",

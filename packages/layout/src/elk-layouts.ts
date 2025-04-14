@@ -5,9 +5,9 @@ import { EdgeEndPoint, GraphClassic, GraphFactory, IGraphClassic, IMainGraphClas
 
 
 
-import ELK from 'elkjs/lib/elk.bundled';
+import ELK from 'elkjs/lib/elk.bundled.js'; // Importing non-standard export
 
-import ElkConstructor, { LayoutOptions, ElkNode, ElkExtendedEdge, ElkLabel, ElkPort, type ELK as ELKType } from 'elkjs/lib/elk-api';
+import ElkConstructor, { LayoutOptions, ElkNode, ElkExtendedEdge, ElkLabel, ElkPort, type ELK as ELKType } from 'elkjs/lib/elk-api.js'; // Importing non-standard export
 
 import { BasicUserGivenConstraints, ConstraintedNodesGroupingsType, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraint, IConstraintSimple, SPECIFIC_ALGORITHM_CONVERSIONS_MAP, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationOnlyData, UserGivenConstraints } from "./configs/constraints.ts";
 import { AlgorithmName, ConstraintContainer, ElkConstraintContainer } from "./configs/constraint-container.ts";
@@ -1138,6 +1138,7 @@ function isSubgraphID(id: string): boolean {
  */
 export class ElkLayout implements LayoutAlgorithm {
     constructor() {
+        // @ts-ignore Issues with importing ELK
         this.elk = new ELK();
     }
 
