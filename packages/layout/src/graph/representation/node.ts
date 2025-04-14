@@ -1,11 +1,11 @@
 import { VISUAL_NODE_TYPE, VisualModel, VisualNode } from "@dataspecer/core-v2/visual-model";
-import { addToRecordArray, createIdentifier, placePositionOnGrid } from "../../util/utils";
-import { Graph, MainGraph } from "./graph";
+import { addToRecordArray, createIdentifier, placePositionOnGrid } from "../../util/utils.ts";
+import { Graph, MainGraph } from "./graph.ts";
 import { SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { ExtractedModels, getEdgeSourceAndTargetRelationship } from "../../layout-algorithms/entity-bundles";
-import { ExplicitAnchors, VisualEntitiesWithOutsiders, XY } from "../..";
-import { isEntityWithIdentifierAnchored } from "../../explicit-anchors";
-import { Edge } from "./edge";
+import { ExtractedModels, getEdgeSourceAndTargetRelationship } from "../../layout-algorithms/entity-bundles.ts";
+import { ExplicitAnchors, VisualEntitiesWithOutsiders, XY } from "../../index.ts";
+import { isEntityWithIdentifierAnchored } from "../../explicit-anchors.ts";
+import { Edge } from "./edge.ts";
 
 export type AllowedVisualsForNodes = VisualNode;
 

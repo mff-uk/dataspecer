@@ -1,6 +1,6 @@
-import { Graph } from "../../representation/graph";
-import { VisualNodeComplete } from "../../representation/node";
-import { AllMetricData, ComputedMetricValues, Metric } from "../graph-metric";
+import { Graph } from "../../representation/graph.ts";
+import { VisualNodeComplete } from "../../representation/node.ts";
+import { AllMetricData, ComputedMetricValues, Metric } from "../graph-metric.ts";
 
 function areNodesAligned(
   node1: VisualNodeComplete,

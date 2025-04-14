@@ -1,10 +1,10 @@
 import _ from "lodash";
-import { ElkConfigurationsContainer } from "../../configurations/configurations-container";
-import { Graph } from "../../graph/representation/graph";
-import { ElkLayout } from "./elk-layout";
+import { ElkConfigurationsContainer } from "../../configurations/configurations-container.ts";
+import { Graph } from "../../graph/representation/graph.ts";
+import { ElkLayout } from "./elk-layout.ts";
 import { ElkNode } from "elkjs";
-import { ElkStressProfileLayoutConfiguration } from "../../configurations/elk/elk-configurations";
-import { Direction } from "../../util/utils";
+import { ElkStressProfileLayoutConfiguration } from "../../configurations/elk/elk-configurations.ts";
+import { Direction } from "../../util/utils.ts";
 
 export class ElkProfileLayout extends ElkLayout {
   prepareFromGraph(graph: Graph, configurations: ElkConfigurationsContainer): void {

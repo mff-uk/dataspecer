@@ -1,9 +1,9 @@
 import { VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { getBestLayoutFromMetricResultAggregation, performLayoutFromGraph, XY } from "..";
-import { GraphAlgorithms, ToConsiderFilter } from "../graph-algoritms";
-import { MainGraph } from "../graph/representation/graph";
-import { Direction } from "../util/utils";
-import { ConfigurationsContainer } from "./configurations-container";
+import { getBestLayoutFromMetricResultAggregation, performLayoutFromGraph, XY } from "../index.ts";
+import { GraphAlgorithms, ToConsiderFilter } from "../graph-algoritms.ts";
+import { MainGraph } from "../graph/representation/graph.ts";
+import { Direction } from "../util/utils.ts";
+import { ConfigurationsContainer } from "./configurations-container.ts";
 import {
     DefaultGraphConversionActionConfiguration,
     ClusterifyAction,
@@ -11,7 +11,7 @@ import {
     SpecificGraphConversionActions,
     AffectedNodesGroupingsType,
     GraphConversionActionConfiguration,
-} from "./graph-conversion-action";
+} from "./graph-conversion-action.ts";
 import {
     ElkForceConfiguration,
     ElkLayeredConfiguration,
@@ -20,9 +20,9 @@ import {
     ElkStressAdvancedUsingClustersConfiguration,
     ElkStressConfiguration,
     ElkStressProfileLayoutConfiguration
-} from "./elk/elk-configurations";
-import { getDefaultUserGivenAlgorithmConfigurationsFull, isUserGivenAlgorithmConfigurationInterface, UserGivenAlgorithmConfigurationBase, UserGivenAlgorithmConfigurationRandom, UserGivenAlgorithmConfigurations, UserGivenAlgorithmConfigurationStress } from "./user-algorithm-configurations";
-import { AlgorithmConfiguration, AlgorithmPhases, AutomaticConfiguration, RandomConfiguration } from "./algorithm-configurations";
+} from "./elk/elk-configurations.ts";
+import { getDefaultUserGivenAlgorithmConfigurationsFull, isUserGivenAlgorithmConfigurationInterface, UserGivenAlgorithmConfigurationBase, UserGivenAlgorithmConfigurationRandom, UserGivenAlgorithmConfigurations, UserGivenAlgorithmConfigurationStress } from "./user-algorithm-configurations.ts";
+import { AlgorithmConfiguration, AlgorithmPhases, AutomaticConfiguration, RandomConfiguration } from "./algorithm-configurations.ts";
 
 
 function getOverlapConfigurationToRunAfterMainAlgorithm(

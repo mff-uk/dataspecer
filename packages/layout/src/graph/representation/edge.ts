@@ -1,11 +1,11 @@
 import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { VisualEntitiesWithOutsiders, XY } from "../..";
-import { Graph } from "./graph";
+import { VisualEntitiesWithOutsiders, XY } from "../../index.ts";
+import { Graph } from "./graph.ts";
 import { isSemanticModelGeneralization, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { VISUAL_PROFILE_RELATIONSHIP_TYPE, VISUAL_RELATIONSHIP_TYPE, VisualModel, VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { AllowedEdgeBundleTypes, ExtractedModels } from "../../layout-algorithms/entity-bundles";
-import { capitalizeFirstLetter, createIdentifier } from "../../util/utils";
-import { Node } from "./node";
+import { AllowedEdgeBundleTypes, ExtractedModels } from "../../layout-algorithms/entity-bundles.ts";
+import { capitalizeFirstLetter, createIdentifier } from "../../util/utils.ts";
+import { Node } from "./node.ts";
 
 export type AllowedEdgeTypes = SemanticModelGeneralization |
                         SemanticModelRelationship |

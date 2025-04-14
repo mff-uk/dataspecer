@@ -1,4 +1,4 @@
-import { DefaultGraph, Graph } from "../representation/graph";
+import { DefaultGraph, Graph } from "../representation/graph.ts";
 
 export type ComputedMetricValues = {
     /**

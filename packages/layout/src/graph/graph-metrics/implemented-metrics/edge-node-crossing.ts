@@ -1,8 +1,8 @@
-import { Edge } from "../../representation/edge";
-import { DefaultGraph, Graph } from "../../representation/graph";
-import { VisualNodeComplete } from "../../representation/node";
-import { AllMetricData, ComputedMetricValues, Metric } from "../graph-metric";
-import { EdgeCrossingMetric } from "./edge-crossing";
+import { Edge } from "../../representation/edge.ts";
+import { DefaultGraph, Graph } from "../../representation/graph.ts";
+import { VisualNodeComplete } from "../../representation/node.ts";
+import { AllMetricData, ComputedMetricValues, Metric } from "../graph-metric.ts";
+import { EdgeCrossingMetric } from "./edge-crossing.ts";
 
 /**
  * Computes the crosses between nodes and edges

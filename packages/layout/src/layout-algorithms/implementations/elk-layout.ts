@@ -1,15 +1,15 @@
-import { Graph, isSubgraph, MainGraph } from "../../graph/representation/graph";
+import { Graph, isSubgraph, MainGraph } from "../../graph/representation/graph.ts";
 
 
 
-import ELK from 'elkjs/lib/elk.bundled';
+import ELK from "elkjs/lib/elk.bundled.js"; // Importing non-standard export
 
-import { ElkNode, ElkExtendedEdge, type ELK as ELKType } from 'elkjs/lib/elk-api';
+import { ElkNode, ElkExtendedEdge, type ELK as ELKType } from "elkjs/lib/elk-api.js"; // Importing non-standard export
 
-import { ConfigurationsContainer, ElkConfigurationsContainer } from "../../configurations/configurations-container";
+import { ConfigurationsContainer, ElkConfigurationsContainer } from "../../configurations/configurations-container.ts";
 import _ from "lodash";
-import { LayoutAlgorithm } from "../layout-algorithms-interfaces";
-import { ElkGraphTransformer } from "../graph-transformers/elk-graph-transformer";
+import { LayoutAlgorithm } from "../layout-algorithms-interfaces.ts";
+import { ElkGraphTransformer } from "../graph-transformers/elk-graph-transformer.ts";
 
 
 /**
@@ -71,6 +71,7 @@ function removeEdgesLeadingToSubgraphInsideSubgraph(subgraph: ElkNode): [ElkExte
  */
 export class ElkLayout implements LayoutAlgorithm {
     constructor() {
+        // @ts-ignore Issues with importing ELK
         this.elk = new ELK();
     }
 

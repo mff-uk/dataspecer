@@ -1,8 +1,8 @@
 import { isSemanticModelClass, LanguageString, SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { NodeDimensionQueryHandler } from "..";
-import { Node } from "../graph/representation/node";
-import { getEdgeSourceAndTargetRelationship } from "../layout-algorithms/entity-bundles";
-import { ReactflowDimensionsConstantEstimator } from "./constant-dimension-estimator";
+import { NodeDimensionQueryHandler } from "../index.ts";
+import { Node } from "../graph/representation/node.ts";
+import { getEdgeSourceAndTargetRelationship } from "../layout-algorithms/entity-bundles.ts";
+import { ReactflowDimensionsConstantEstimator } from "./constant-dimension-estimator.ts";
 import { isSemanticModelClassProfile, SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 

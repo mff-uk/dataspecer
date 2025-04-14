@@ -1,18 +1,18 @@
 import { isVisualProfileRelationship, isVisualRelationship, Position, VisualNode, VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { ElkConfiguration } from "../../configurations/elk/elk-configurations";
-import { VisualNodeComplete } from "../../graph/representation/node";
-import { GraphTransformer } from "./graph-transformer-interface";
-import { DefaultGraph, DefaultMainGraph, Graph, isSubgraph, MainGraph } from "../../graph/representation/graph";
+import { ElkConfiguration } from "../../configurations/elk/elk-configurations.ts";
+import { VisualNodeComplete } from "../../graph/representation/node.ts";
+import { GraphTransformer } from "./graph-transformer-interface.ts";
+import { DefaultGraph, DefaultMainGraph, Graph, isSubgraph, MainGraph } from "../../graph/representation/graph.ts";
 import { ElkExtendedEdge, ElkLabel, ElkNode, ElkPort } from "elkjs";
-import { ElkConfigurationsContainer } from "../../configurations/configurations-container";
-import { ALGORITHM_TO_ELK_ALGORITHM_MAP, CONFIG_TO_ELK_CONFIG_MAP } from "../../configurations/elk/elk-utils";
-import { ReactflowDimensionsConstantEstimator, XY } from "../..";
-import { VisualEntities } from "../../migration-to-cme-v2";
-import { EdgeEndPoint } from "../../graph/representation/edge";
+import { ElkConfigurationsContainer } from "../../configurations/configurations-container.ts";
+import { ALGORITHM_TO_ELK_ALGORITHM_MAP, CONFIG_TO_ELK_CONFIG_MAP } from "../../configurations/elk/elk-utils.ts";
+import { ReactflowDimensionsConstantEstimator, XY } from "../../index.ts";
+import { VisualEntities } from "../../migration-to-cme-v2.ts";
+import { EdgeEndPoint } from "../../graph/representation/edge.ts";
 import _ from "lodash";
 import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { UserGivenAlgorithmConfigurationBase } from "../../configurations/user-algorithm-configurations";
-import { AlgorithmConfiguration } from "../../configurations/algorithm-configurations";
+import { UserGivenAlgorithmConfigurationBase } from "../../configurations/user-algorithm-configurations.ts";
+import { AlgorithmConfiguration } from "../../configurations/algorithm-configurations.ts";
 
 type VisualEntitiesType = (VisualNodeComplete | VisualRelationship | VisualProfileRelationship)[];
 

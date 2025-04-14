@@ -1,7 +1,7 @@
 import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
-import { VisualEntities } from "../migration-to-cme-v2";
-import { Graph, MainGraph } from "../graph/representation/graph";
-import { ConfigurationsContainer } from "../configurations/configurations-container";
+import { VisualEntities } from "../migration-to-cme-v2.ts";
+import { Graph, MainGraph } from "../graph/representation/graph.ts";
+import { ConfigurationsContainer } from "../configurations/configurations-container.ts";
 
 export type LayoutMethod = (inputSemanticModel: Record<string, SemanticModelEntity>, options?: object) => Promise<VisualEntities>
 

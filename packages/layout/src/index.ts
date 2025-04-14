@@ -3,45 +3,45 @@ import { Position, VisualModel } from "@dataspecer/core-v2/visual-model";
 
 import {
 	DefaultGraphConversionActionConfiguration,
-} from "./configurations/graph-conversion-action";
-import { MainGraph, VisualModelWithOutsiders } from "./graph/representation/graph";
-import { ConfigurationsContainer } from "./configurations/configurations-container";
+} from "./configurations/graph-conversion-action.ts";
+import { MainGraph, VisualModelWithOutsiders } from "./graph/representation/graph.ts";
+import { ConfigurationsContainer } from "./configurations/configurations-container.ts";
 import { Entities, Entity, EntityModel } from "@dataspecer/core-v2";
-import { ConfigurationFactory, SPECIFIC_ALGORITHM_CONVERSIONS_MAP } from "./configurations/configuration-factories";
-import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
-import type { LayoutedVisualEntities, VisualEntitiesWithModelVisualInformation } from "./migration-to-cme-v2";
-export { type LayoutedVisualEntities } from "./migration-to-cme-v2";
+import { ConfigurationFactory, SPECIFIC_ALGORITHM_CONVERSIONS_MAP } from "./configurations/configuration-factories.ts";
+import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator.ts";
+import type { LayoutedVisualEntities, VisualEntitiesWithModelVisualInformation } from "./migration-to-cme-v2.ts";
+export { type LayoutedVisualEntities } from "./migration-to-cme-v2.ts";
 export type { VisualEntitiesWithModelVisualInformation };
-import { EdgeCrossingMetric } from "./graph/graph-metrics/implemented-metrics/edge-crossing";
-import { EdgeNodeCrossingMetric } from "./graph/graph-metrics/implemented-metrics/edge-node-crossing";
+import { EdgeCrossingMetric } from "./graph/graph-metrics/implemented-metrics/edge-crossing.ts";
+import { EdgeNodeCrossingMetric } from "./graph/graph-metrics/implemented-metrics/edge-node-crossing.ts";
 
 
-import { Direction } from "./util/utils";
+import { Direction } from "./util/utils.ts";
 export { Direction };
 
 export { ReactflowDimensionsEstimator };
-export { ReactflowDimensionsConstantEstimator } from "./dimension-estimators/constant-dimension-estimator";
+export { ReactflowDimensionsConstantEstimator } from "./dimension-estimators/constant-dimension-estimator.ts";
 
-import type { EdgeRouting } from "./configurations/graph-conversion-action";
+import type { EdgeRouting } from "./configurations/graph-conversion-action.ts";
 export type { EdgeRouting };
 
-import { placeCoordinateOnGrid, placePositionOnGrid } from "./util/utils";
-import { ExplicitAnchors } from "./explicit-anchors";
-import { ComputedMetricValues, Metric } from "./graph/graph-metrics/graph-metric";
-import { Node } from "./graph/representation/node";
+import { placeCoordinateOnGrid, placePositionOnGrid } from "./util/utils.ts";
+import { ExplicitAnchors } from "./explicit-anchors.ts";
+import { ComputedMetricValues, Metric } from "./graph/graph-metrics/graph-metric.ts";
+import { Node } from "./graph/representation/node.ts";
 export { type Node };
-import { GraphFactory } from "./graph/representation/graph-factory";
-import { ALGORITHM_NAME_TO_LAYOUT_MAPPING, AlgorithmName } from "./layout-algorithms/list-of-layout-algorithms";
-import { LayoutAlgorithm } from "./layout-algorithms/layout-algorithms-interfaces";
+import { GraphFactory } from "./graph/representation/graph-factory.ts";
+import { ALGORITHM_NAME_TO_LAYOUT_MAPPING, AlgorithmName } from "./layout-algorithms/list-of-layout-algorithms.ts";
+import { LayoutAlgorithm } from "./layout-algorithms/layout-algorithms-interfaces.ts";
 import _ from "lodash";
-import { UserGivenAlgorithmConfigurations } from "./configurations/user-algorithm-configurations";
-import { DefaultAlgorithmConfiguration } from "./configurations/algorithm-configurations";
+import { UserGivenAlgorithmConfigurations } from "./configurations/user-algorithm-configurations.ts";
+import { DefaultAlgorithmConfiguration } from "./configurations/algorithm-configurations.ts";
 export type { AlgorithmName };
-export { AnchorOverrideSetting } from "./explicit-anchors";
+export { AnchorOverrideSetting } from "./explicit-anchors.ts";
 export { placeCoordinateOnGrid, placePositionOnGrid };
 
-export { type ExplicitAnchors } from "./explicit-anchors";
-export { type VisualModelWithOutsiders } from "./graph/representation/graph";
+export { type ExplicitAnchors } from "./explicit-anchors.ts";
+export { type VisualModelWithOutsiders } from "./graph/representation/graph.ts";
 
 export type {
 	UserGivenAlgorithmConfigurationElkForce,
@@ -49,13 +49,13 @@ export type {
 	UserGivenAlgorithmConfigurationLayered,
 	UserGivenAlgorithmConfigurationStress,
 	UserGivenAlgorithmConfigurations,
-} from "./configurations/user-algorithm-configurations";
+} from "./configurations/user-algorithm-configurations.ts";
 
 export  {
 	getDefaultUserGivenAlgorithmConfigurationsFull
-} from "./configurations/user-algorithm-configurations";
+} from "./configurations/user-algorithm-configurations.ts";
 
-export { type ElkForceAlgType } from "./configurations/elk/elk-configurations";
+export { type ElkForceAlgType } from "./configurations/elk/elk-configurations.ts";
 
 /**
  * The object (class) implementing this interface handles the act of getting width and height of given node. The act has to be separated from the reactflow visualization library,
