@@ -26,7 +26,7 @@ export function openEditVisualDiagramNodeDialogAction(
     dialogData.referencedVisualModel.setLabel(nextState.representedVisualModelName);
     updateVisualDiagramNode(visualModel, dialogData.visualDiagramNode, nextState);
 
-    // TODO RadStr: Hack to force update in the Header component
+    // Hack to force update in the Header component
     const activeViewId = graph.aggregatorView.getActiveViewId();
     graph.aggregatorView.changeActiveVisualModel(activeViewId ?? null);
     graph.setAggregatorView(graph.aggregator.getView());
