@@ -1,5 +1,5 @@
-import * as PSM from "../data-psm-vocabulary";
-import { DataPsmResource } from "./data-psm-resource";
+import * as PSM from "../data-psm-vocabulary.ts";
+import { DataPsmResource } from "./data-psm-resource.ts";
 
 export class DataPsmContainer extends DataPsmResource {
   private static readonly TYPE = PSM.CONTAINER;

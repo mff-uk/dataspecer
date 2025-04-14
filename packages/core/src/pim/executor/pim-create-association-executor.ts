@@ -4,10 +4,10 @@ import {
   CoreResource,
   CoreResourceReader,
   CreateNewIdentifier,
-} from "../../core";
-import { PimCreateAssociation, PimCreateAssociationResult } from "../operation";
-import { PimAssociation, PimAssociationEnd, PimClass } from "../model";
-import { loadPimSchema, PimExecutorResultFactory } from "./pim-executor-utils";
+} from "../../core/index.ts";
+import { PimCreateAssociation, PimCreateAssociationResult } from "../operation/index.ts";
+import { PimAssociation, PimAssociationEnd, PimClass } from "../model/index.ts";
+import { loadPimSchema, PimExecutorResultFactory } from "./pim-executor-utils.ts";
 
 export async function executesPimCreateAssociation(
   reader: CoreResourceReader,

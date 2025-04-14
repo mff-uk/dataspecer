@@ -3,9 +3,9 @@ import {
   CoreExecutorResult,
   CreateNewIdentifier,
   CoreResource,
-} from "../../core";
-import { PimSetHumanDescription } from "../operation";
-import { PimAssociation, PimAttribute, PimClass, PimResource, PimSchema } from "../model";
+} from "../../core/index.ts";
+import { PimSetHumanDescription } from "../operation/index.ts";
+import { PimAssociation, PimAttribute, PimClass, PimResource, PimSchema } from "../model/index.ts";
 
 export async function executePimSetHumanDescription(
   reader: CoreResourceReader,

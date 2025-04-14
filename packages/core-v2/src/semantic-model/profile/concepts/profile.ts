@@ -1,4 +1,4 @@
-import { LanguageString } from "../../concepts";
+import { LanguageString } from "../../concepts/index.ts";
 
 /**
  * The idea of profile is to put certain entity, or a profile, into given context.

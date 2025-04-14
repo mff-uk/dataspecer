@@ -1,12 +1,12 @@
 import { isSemanticModelGeneralization, SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { EntitiesBundle, ExtractedModels, extractModelObjects, getEdgeSourceAndTargetGeneralization, getEdgeSourceAndTargetRelationship } from "./layout-iface";
+import { EntitiesBundle, ExtractedModels, extractModelObjects, getEdgeSourceAndTargetGeneralization, getEdgeSourceAndTargetRelationship } from "./layout-iface.ts";
 
 import { VisualModel, isVisualNode, Position, VisualEntity, VisualNode, VisualRelationship, isVisualRelationship, isVisualProfileRelationship, VisualProfileRelationship, VISUAL_PROFILE_RELATIONSHIP_TYPE, VISUAL_RELATIONSHIP_TYPE, VISUAL_NODE_TYPE } from "@dataspecer/core-v2/visual-model";
-import { capitalizeFirstLetter, PhantomElementsFactory, placePositionOnGrid } from "./util/utils";
-import { LayoutedVisualEntity, LayoutedVisualEntities } from "./migration-to-cme-v2";
+import { capitalizeFirstLetter, PhantomElementsFactory, placePositionOnGrid } from "./util/utils.ts";
+import { LayoutedVisualEntity, LayoutedVisualEntities } from "./migration-to-cme-v2.ts";
 import { EntityModel } from "@dataspecer/core-v2";
-import { ExplicitAnchors, isEntityWithIdentifierAnchored } from "./explicit-anchors";
-import { NodeDimensionQueryHandler, ReactflowDimensionsEstimator, XY } from ".";
+import { ExplicitAnchors, isEntityWithIdentifierAnchored } from "./explicit-anchors.ts";
+import { NodeDimensionQueryHandler, ReactflowDimensionsEstimator, XY } from "./index.ts";
 import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 type AllowedEdgeTypes = SemanticModelGeneralization |

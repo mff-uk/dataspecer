@@ -1,8 +1,8 @@
-import { PimCreateSchema, PimCreateSchemaResult } from "../operation";
-import { executePimCreateSchema } from "./pim-create-schema-executor";
-import { MemoryStore } from "../../core";
-import { baseDataPsmExecutors } from "../../data-psm/executor";
-import * as PIM from "../pim-vocabulary";
+import { PimCreateSchema, PimCreateSchemaResult } from "../operation/index.ts";
+import { executePimCreateSchema } from "./pim-create-schema-executor.ts";
+import { MemoryStore } from "../../core/index.ts";
+import { baseDataPsmExecutors } from "../../data-psm/executor/index.ts";
+import * as PIM from "../pim-vocabulary.ts";
 
 test("Create schema.", async () => {
   const operation = new PimCreateSchema();

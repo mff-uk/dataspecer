@@ -1,7 +1,7 @@
-import { DETAIL_CAPABILITY_ID, EDIT_CAPABILITY_ID } from "../src/capabilities";
-import { ApplicationGraphNodeType } from "../src/engine/graph";
-import { ApplicationGraph } from "../src/engine/graph/application-graph";
-import { editCapabilityGraphWithNoDetailNode, emptyAppGraph, simpleEdgeGraph, simpleNodeGraph } from "./app-graphs";
+import { DETAIL_CAPABILITY_ID, EDIT_CAPABILITY_ID } from "../src/capabilities/index.ts";
+import { ApplicationGraphNodeType } from "../src/engine/graph/index.ts";
+import { ApplicationGraph } from "../src/engine/graph/application-graph.ts";
+import { editCapabilityGraphWithNoDetailNode, emptyAppGraph, simpleEdgeGraph, simpleNodeGraph } from "./app-graphs.ts";
 
 test("test empty application graph", () => {
 

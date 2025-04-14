@@ -1,2 +1,2 @@
-export * from "./xsd";
-export * from "./ofn";
+export * from "./xsd.ts";
+export * from "./ofn.ts";

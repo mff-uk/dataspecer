@@ -1,6 +1,6 @@
 import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
-import { GraphClassic, GraphFactory, MainGraphClassic } from "../graph-iface";
-import { ExtractedModels } from "../layout-iface";
+import { GraphClassic, GraphFactory, MainGraphClassic } from "../graph-iface.ts";
+import { ExtractedModels } from "../layout-iface.ts";
 import { EntityModel } from "@dataspecer/core-v2";
 
 

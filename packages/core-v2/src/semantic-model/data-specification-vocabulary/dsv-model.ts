@@ -4,7 +4,7 @@
 // and hopefully, one day, be able to integrate it with the specification.
 //
 
-import { DSV_CLASS_ROLE } from "./vocabulary";
+import { DSV_CLASS_ROLE } from "./vocabulary.ts";
 
 export type LanguageString = { [language: string]: string };
 

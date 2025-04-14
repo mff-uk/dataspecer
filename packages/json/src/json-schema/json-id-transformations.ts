@@ -3,8 +3,8 @@ import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts"
 import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { clone } from "@dataspecer/core/core";
 import { StructureModel, StructureModelClass, StructureModelComplexType, StructureModelCustomType, StructureModelProperty } from "@dataspecer/core/structure-model/model";
-import { JsonConfiguration } from "../configuration";
-import { getClassTypeKey } from "../json-ld/json-ld-adapter";
+import { JsonConfiguration } from "../configuration.ts";
+import { getClassTypeKey } from "../json-ld/json-ld-adapter.ts";
 
 /**
  * For each PSM class with CIM interpretation, it adds iri and type property

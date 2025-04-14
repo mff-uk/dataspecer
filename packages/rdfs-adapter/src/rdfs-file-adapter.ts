@@ -5,9 +5,9 @@ import {RdfHttpSource} from "@dataspecer/core/io/rdf/http/http-rdf-source";
 import {HttpFetch} from "@dataspecer/core/io/fetch/fetch-api";
 import {RdfNode, RdfObject, RdfMemorySourceWrap} from "@dataspecer/core/core/adapter/rdf";
 import {RdfMemorySource} from "@dataspecer/core/io/rdf/rdf-memory-source";
-import {OFN, OWL, RDF, RDFS, SCHEMAORG, XSD} from "./rdfs-vocabulary";
+import {OFN, OWL, RDF, RDFS, SCHEMAORG, XSD} from "./rdfs-vocabulary.ts";
 import {CoreResource, ReadOnlyMemoryStore} from "@dataspecer/core/core";
-import {loadRdfsEntityToResource} from "./entity-adapters/rdfs-entity-adapter";
+import {loadRdfsEntityToResource} from "./entity-adapters/rdfs-entity-adapter.ts";
 import {PimAssociation, PimAssociationEnd, PimAttribute} from "@dataspecer/core/pim/model";
 
 const UNION_DOMAIN_PREFIX = "https://dataspecer.com/cim/abstract-class-union-domain/";

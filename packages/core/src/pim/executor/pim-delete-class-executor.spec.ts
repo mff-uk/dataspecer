@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { PimDeleteClass } from "../operation";
-import { executePimDeleteClass } from "./pim-delete-class-executor";
-import * as PIM from "../pim-vocabulary";
+} from "../../core/index.ts";
+import { PimDeleteClass } from "../operation/index.ts";
+import { executePimDeleteClass } from "./pim-delete-class-executor.ts";
+import * as PIM from "../pim-vocabulary.ts";
 
 test("Delete class.", async () => {
   const operation = new PimDeleteClass();

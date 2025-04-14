@@ -1,7 +1,7 @@
-import { Entity } from "../../entity-model";
-import { isSemanticModelGeneralization, SemanticModelClass, SemanticModelGeneralization } from "../../semantic-model/concepts";
-import { InMemorySemanticModel } from "../../semantic-model/in-memory";
-import { createClass, createGeneralization } from "../../semantic-model/operations";
+import { Entity } from "../../entity-model/index.ts";
+import { isSemanticModelGeneralization, SemanticModelClass, SemanticModelGeneralization } from "../../semantic-model/concepts/index.ts";
+import { InMemorySemanticModel } from "../../semantic-model/in-memory/index.ts";
+import { createClass, createGeneralization } from "../../semantic-model/operations/index.ts";
 
 /**
  * Copies classes with their inheritance from the source model to the target model.

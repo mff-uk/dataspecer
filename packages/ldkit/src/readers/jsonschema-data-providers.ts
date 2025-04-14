@@ -1,9 +1,9 @@
-import { CatalogSchema } from "../schemas/catalog-schema";
-import { DatasetSchema } from "../schemas/dataset-schema";
+import { CatalogSchema } from "../schemas/catalog-schema.ts";
+import { DatasetSchema } from "../schemas/dataset-schema.ts";
 import * as catalogContext from "../data/context/catalogContext.json";
 import * as datasetContext from "../data/context/datasetContext.json";
-import { AggregateDefinitionProvider, AggregateIdentifier } from "./aggregate-data-provider-model";
-import { LdkitSchemaProperty, LdkitSchemaPropertyMap } from "../ldkit-schema-model";
+import { AggregateDefinitionProvider, AggregateIdentifier } from "./aggregate-data-provider-model.ts";
+import { LdkitSchemaProperty, LdkitSchemaPropertyMap } from "../ldkit-schema-model.ts";
 
 type SchemaObject = {
     $schema: string;

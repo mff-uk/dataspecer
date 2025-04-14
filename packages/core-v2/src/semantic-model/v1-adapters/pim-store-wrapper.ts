@@ -1,8 +1,8 @@
 import { CoreResourceReader } from "@dataspecer/core/core";
-import { Entity } from "../../entity-model/entity";
-import { InMemoryEntityModel } from "../../entity-model/in-memory-entity-model";
+import { Entity } from "../../entity-model/entity.ts";
+import { InMemoryEntityModel } from "../../entity-model/in-memory-entity-model.ts";
 
-import { transformCoreResources } from "./transform-core-resources";
+import { transformCoreResources } from "./transform-core-resources.ts";
 
 function deepEqual(a: any, b: any): boolean {
     if (a === b) {

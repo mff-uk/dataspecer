@@ -1,13 +1,13 @@
-import { LayerArtifact } from "../../engine/layer-artifact";
-import { DalGeneratorStrategy } from "../strategy-interface";
-import { GenerationContext } from "../../engine/generator-stage-interface";
-import { DataSourceType, DatasourceConfig, EndpointUri } from "../../engine/graph/datasource";
-import { LdkitSchemaProvider } from "../schema-providers/ldkit-schema-provider";
-import { SchemaProvider } from "../schema-providers/base-schema-provider";
-import { TemplateConsumer, TemplateDependencyMap } from "../../engine/templates/template-consumer";
-import { DataLayerTemplateDescription } from "../../engine/templates/template-interfaces";
-import { LdkitObjectModelTypeGenerator } from "../template-generators/ldkit/object-model-type-generator";
-import { GeneratedFilePathCalculator } from "../../utils/artifact-saver";
+import { LayerArtifact } from "../../engine/layer-artifact.ts";
+import { DalGeneratorStrategy } from "../strategy-interface.ts";
+import { GenerationContext } from "../../engine/generator-stage-interface.ts";
+import { DataSourceType, DatasourceConfig, EndpointUri } from "../../engine/graph/datasource.ts";
+import { LdkitSchemaProvider } from "../schema-providers/ldkit-schema-provider.ts";
+import { SchemaProvider } from "../schema-providers/base-schema-provider.ts";
+import { TemplateConsumer, TemplateDependencyMap } from "../../engine/templates/template-consumer.ts";
+import { DataLayerTemplateDescription } from "../../engine/templates/template-interfaces.ts";
+import { LdkitObjectModelTypeGenerator } from "../template-generators/ldkit/object-model-type-generator.ts";
+import { GeneratedFilePathCalculator } from "../../utils/artifact-saver.ts";
 
 export interface LdkitDalDependencyMap extends TemplateDependencyMap {
     pathResolver: GeneratedFilePathCalculator,

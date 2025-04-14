@@ -1,9 +1,9 @@
-import { StreamDictionary } from "../io/stream/stream-dictionary";
+import { StreamDictionary } from "../io/stream/stream-dictionary.ts";
 import {
   DataSpecification,
   DataSpecificationArtefact,
-} from "../data-specification/model";
-import { ArtefactGeneratorContext } from "./artefact-generator-context";
+} from "../data-specification/model/index.ts";
+import { ArtefactGeneratorContext } from "./artefact-generator-context.ts";
 
 /**
  * High level generator interface. The generator must not change

@@ -1,11 +1,11 @@
-import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "../profile/concepts";
-import { Cardinality, DsvModel, DatatypePropertyProfile, ObjectPropertyProfile, RequirementLevel, ClassRole } from "./dsv-model";
-import { conceptualModelToEntityListContainer } from "./dsv-to-entity-model";
-import { conceptualModelToRdf } from "./dsv-to-rdf";
-import { EntityListContainer } from "./entity-model";
-import { createContext, entityListContainerToDsvModel } from "./entity-model-to-dsv";
-import { rdfToConceptualModel } from "./rdf-to-dsv";
-import { DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL } from "./vocabulary";
+import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "../profile/concepts/index.ts";
+import { Cardinality, DsvModel, DatatypePropertyProfile, ObjectPropertyProfile, RequirementLevel, ClassRole } from "./dsv-model.ts";
+import { conceptualModelToEntityListContainer } from "./dsv-to-entity-model.ts";
+import { conceptualModelToRdf } from "./dsv-to-rdf.ts";
+import { EntityListContainer } from "./entity-model.ts";
+import { createContext, entityListContainerToDsvModel } from "./entity-model-to-dsv.ts";
+import { rdfToConceptualModel } from "./rdf-to-dsv.ts";
+import { DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL } from "./vocabulary.ts";
 
 test("End to end test I.", async () => {
 

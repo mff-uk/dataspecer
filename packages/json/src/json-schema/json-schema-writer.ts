@@ -13,10 +13,10 @@ import {
   JsonSchemaOneOf,
   JsonSchemaRef,
   JsonSchemaString,
-} from "./json-schema-model";
+} from "./json-schema-model.ts";
 import { OutputStream } from "@dataspecer/core/io/stream/output-stream";
-import { StringJsonWriter } from "./string-json-writer";
-import { JsonArrayWriter, JsonObjectWriter } from "./json-writer";
+import { StringJsonWriter } from "./string-json-writer.ts";
+import { JsonArrayWriter, JsonObjectWriter } from "./json-writer.ts";
 import { assertNot } from "@dataspecer/core/core";
 
 export async function writeJsonSchema(

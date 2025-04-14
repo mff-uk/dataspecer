@@ -1,7 +1,7 @@
-import { CoreExecutorResult, CoreResourceReader, CreateNewIdentifier } from "../../core";
-import { DataPsmExecutorResultFactory } from "./data-psm-executor-utils";
-import { DataPsmClass, DataPsmSchema } from "../model";
-import { DataPsmSetJsonLdDefinedPrefixes } from "../operation";
+import { CoreExecutorResult, CoreResourceReader, CreateNewIdentifier } from "../../core/index.ts";
+import { DataPsmExecutorResultFactory } from "./data-psm-executor-utils.ts";
+import { DataPsmClass, DataPsmSchema } from "../model/index.ts";
+import { DataPsmSetJsonLdDefinedPrefixes } from "../operation/index.ts";
 
 export async function executeDataPsmSetJsonLdDefinedPrefixes(
   reader: CoreResourceReader,

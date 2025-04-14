@@ -1,9 +1,9 @@
-import { rdfToConceptualModel } from "./rdf-to-dsv";
-import { conceptualModelToRdf } from "./dsv-to-rdf";
-import { Cardinality, ClassRole, DsvModel, ObjectPropertyProfile, RequirementLevel } from "./dsv-model";
-import { conceptualModelToEntityListContainer } from "./dsv-to-entity-model";
-import { DataTypeURIs, isDataType } from "../datatypes";
-import { isSemanticModelClass, isSemanticModelRelationship } from "../concepts";
+import { rdfToConceptualModel } from "./rdf-to-dsv.ts";
+import { conceptualModelToRdf } from "./dsv-to-rdf.ts";
+import { Cardinality, ClassRole, DsvModel, ObjectPropertyProfile, RequirementLevel } from "./dsv-model.ts";
+import { conceptualModelToEntityListContainer } from "./dsv-to-entity-model.ts";
+import { DataTypeURIs, isDataType } from "../datatypes/index.ts";
+import { isSemanticModelClass, isSemanticModelRelationship } from "../concepts/index.ts";
 
 test("From RDF to DSV and back.", async () => {
 

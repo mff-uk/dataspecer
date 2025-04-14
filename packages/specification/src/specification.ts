@@ -12,8 +12,8 @@ import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
 import { getMustacheView } from "@dataspecer/documentation";
 import { createPartialDocumentationConfiguration, DOCUMENTATION_MAIN_TEMPLATE_PARTIAL } from "@dataspecer/documentation/configuration";
 import { generateDocumentation } from "@dataspecer/documentation/documentation-generator";
-import { mergeDocumentationConfigurations } from "./documentation";
-import { BlobModel, ModelRepository } from "./model-repository";
+import { mergeDocumentationConfigurations } from "./documentation/index.ts";
+import { BlobModel, ModelRepository } from "./model-repository/index.ts";
 
 interface ModelDescription {
   isPrimary: boolean;

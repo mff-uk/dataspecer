@@ -1,9 +1,9 @@
-import { Entity } from "../entity-model";
-import { isSemanticModelClass, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "../semantic-model/concepts";
-import { InMemorySemanticModel } from "../semantic-model/in-memory";
-import { createClass, CreatedEntityOperationResult, createRelationship } from "../semantic-model/operations";
-import { copyInheritanceToModel } from "./utils/copy-inheritance-to-model";
-import { ExternalEntityWrapped, SemanticModelAggregator, LocalEntityWrapped } from "./interfaces";
+import { Entity } from "../entity-model/index.ts";
+import { isSemanticModelClass, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "../semantic-model/concepts/index.ts";
+import { InMemorySemanticModel } from "../semantic-model/in-memory/index.ts";
+import { createClass, CreatedEntityOperationResult, createRelationship } from "../semantic-model/operations/index.ts";
+import { copyInheritanceToModel } from "./utils/copy-inheritance-to-model.ts";
+import { ExternalEntityWrapped, SemanticModelAggregator, LocalEntityWrapped } from "./interfaces.ts";
 
 const EXTERNAL_MODEL_WITH_CACHE_AGGREGATOR_TYPE = "external-model-with-cache-aggregator";
 

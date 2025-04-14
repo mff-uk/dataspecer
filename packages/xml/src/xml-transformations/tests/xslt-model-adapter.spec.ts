@@ -5,10 +5,10 @@ import { DataPsmSchemaXmlExtension } from "@dataspecer/core/data-psm/xml-extensi
 import { DataSpecification, DataSpecificationSchema } from "@dataspecer/core/data-specification/model";
 import { ArtefactGeneratorContext } from "@dataspecer/core/generator";
 import { coreResourcesToStructuralModel } from "@dataspecer/core/structure-model";
-import { getResource } from "../../xml/tests/resources/resource-provider";
-import { XsltLiftingGenerator } from "../xslt-generator";
-import { xmlMatchIsClass, xmlMatchIsCodelist, xmlMatchIsLiteral, XmlTransformation } from "../xslt-model";
-import { XSLT_LIFTING, XSLT_LOWERING } from "../xslt-vocabulary";
+import { getResource } from "../../xml/tests/resources/resource-provider.ts";
+import { XsltLiftingGenerator } from "../xslt-generator.ts";
+import { xmlMatchIsClass, xmlMatchIsCodelist, xmlMatchIsLiteral, XmlTransformation } from "../xslt-model.ts";
+import { XSLT_LIFTING, XSLT_LOWERING } from "../xslt-vocabulary.ts";
 
 const testPrefix = "XSLT generator: ";
 

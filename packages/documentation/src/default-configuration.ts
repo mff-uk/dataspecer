@@ -1,4 +1,4 @@
-import { DocumentationConfiguration } from "./configuration";
+import { DocumentationConfiguration } from "./configuration.ts";
 
 export const defaultConfiguration: DocumentationConfiguration = {
   partials: {

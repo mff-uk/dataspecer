@@ -1,7 +1,7 @@
 import { Position } from "@dataspecer/core-v2/visual-model";
-import { EdgeEndPoint, GraphClassic, IEdgeClassic, IGraphClassic, IVisualNodeComplete } from "../../graph-iface";
-import { AllMetricData, Metric } from "../graph-metrics-iface";
-import { EdgeCrossingMetric } from "./edge-crossing";
+import { EdgeEndPoint, GraphClassic, IEdgeClassic, IGraphClassic, IVisualNodeComplete } from "../../graph-iface.ts";
+import { AllMetricData, Metric } from "../graph-metrics-iface.ts";
+import { EdgeCrossingMetric } from "./edge-crossing.ts";
 
 export class EdgeNodeCrossingMetric implements Metric {
     computeMetric(graph: IGraphClassic): number {

@@ -1,8 +1,8 @@
-import { ExtractedModels, LayoutAlgorithm, extractModelObjects } from "./layout-iface";
+import { ExtractedModels, LayoutAlgorithm, extractModelObjects } from "./layout-iface.ts";
 import { SemanticModelEntity, isSemanticModelClass, isSemanticModelRelationship, isSemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
-import { ConstraintContainer } from "./configs/constraint-container";
-import { NodeDimensionQueryHandler } from ".";
-import { GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, MainGraphClassic, VisualNodeComplete } from "./graph-iface";
+import { ConstraintContainer } from "./configs/constraint-container.ts";
+import { NodeDimensionQueryHandler } from "./index.ts";
+import { GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, MainGraphClassic, VisualNodeComplete } from "./graph-iface.ts";
 import _ from "lodash";
 import { VisualNode } from "@dataspecer/core-v2/visual-model";
 

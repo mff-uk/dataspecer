@@ -1,9 +1,9 @@
-import { LayerArtifact } from "../../engine/layer-artifact";
-import { ListReaderInterfaceGenerator } from "../../data-layer/template-generators/reader-interface-generator";
-import { GeneratedCapabilityInterfaceGenerator, ListResultReturnInterfaceGenerator } from "../../capabilities/template-generators/capability-interface-generator";
-import { TemplateMetadata } from "../../engine/templates/template-consumer";
-import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "./template-app-layer-generator";
-import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
+import { LayerArtifact } from "../../engine/layer-artifact.ts";
+import { ListReaderInterfaceGenerator } from "../../data-layer/template-generators/reader-interface-generator.ts";
+import { GeneratedCapabilityInterfaceGenerator, ListResultReturnInterfaceGenerator } from "../../capabilities/template-generators/capability-interface-generator.ts";
+import { TemplateMetadata } from "../../engine/templates/template-consumer.ts";
+import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "./template-app-layer-generator.ts";
+import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces.ts";
 
 interface ListCapabilityAppLayerTemplate extends TemplateModel {
     templatePath: string,

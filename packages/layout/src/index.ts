@@ -1,6 +1,6 @@
 import { SemanticModelEntity, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { Position, VisualEntity, VisualModel } from "@dataspecer/core-v2/visual-model";
-import { ExtractedModels, LayoutAlgorithm, LayoutMethod, extractModelObjects } from "./layout-iface";
+import { ExtractedModels, LayoutAlgorithm, LayoutMethod, extractModelObjects } from "./layout-iface.ts";
 
 import {
 	UserGivenConstraints,
@@ -17,41 +17,41 @@ import {
 	GraphConversionConstraint,
 	IAlgorithmConfiguration,
 	SPECIFIC_ALGORITHM_CONVERSIONS_MAP
-} from "./configs/constraints";
-import { GraphClassic, GraphFactory, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualModelWithOutsiders, VisualNodeComplete } from "./graph-iface";
-import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs/constraint-container";
+} from "./configs/constraints.ts";
+import { GraphClassic, GraphFactory, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualModelWithOutsiders, VisualNodeComplete } from "./graph-iface.ts";
+import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs/constraint-container.ts";
 import { Entities, Entity, EntityModel } from "@dataspecer/core-v2";
-import { ConstraintFactory } from "./configs/constraint-factories";
-import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
-import { PhantomElementsFactory } from "./util/utils";
-import { CONSTRAINT_MAP } from "./configs/constraints-mapping";
-import type { LayoutedVisualEntities, VisualEntitiesWithModelVisualInformation } from "./migration-to-cme-v2";
-export { type LayoutedVisualEntities } from "./migration-to-cme-v2";
+import { ConstraintFactory } from "./configs/constraint-factories.ts";
+import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator.ts";
+import { PhantomElementsFactory } from "./util/utils.ts";
+import { CONSTRAINT_MAP } from "./configs/constraints-mapping.ts";
+import type { LayoutedVisualEntities, VisualEntitiesWithModelVisualInformation } from "./migration-to-cme-v2.ts";
+export { type LayoutedVisualEntities } from "./migration-to-cme-v2.ts";
 export type { VisualEntitiesWithModelVisualInformation };
-import { EdgeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-crossing";
-import { EdgeNodeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-node-crossing";
+import { EdgeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-crossing.ts";
+import { EdgeNodeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-node-crossing.ts";
 
-export type { IConstraintSimple, UserGivenConstraints, UserGivenAlgorithmConfigurationslVersion2 as UserGivenConstraintsVersion2, UserGivenAlgorithmConfigurationslVersion4 as UserGivenConstraintsVersion4 } from "./configs/constraints";
-export { getDefaultUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion2, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4 } from "./configs/constraints";
-export type { AlgorithmName } from "./configs/constraint-container";
+export type { IConstraintSimple, UserGivenConstraints, UserGivenAlgorithmConfigurationslVersion2 as UserGivenConstraintsVersion2, UserGivenAlgorithmConfigurationslVersion4 as UserGivenConstraintsVersion4 } from "./configs/constraints.ts";
+export { getDefaultUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion2, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4 } from "./configs/constraints.ts";
+export type { AlgorithmName } from "./configs/constraint-container.ts";
 
-import { Direction } from "./util/utils";
+import { Direction } from "./util/utils.ts";
 export { Direction };
-export type { INodeClassic } from "./graph-iface";
+export type { INodeClassic } from "./graph-iface.ts";
 
 export { ReactflowDimensionsEstimator };
-export { ReactflowDimensionsConstantEstimator } from "./dimension-estimators/constant-dimension-estimator";
+export { ReactflowDimensionsConstantEstimator } from "./dimension-estimators/constant-dimension-estimator.ts";
 
-import type { EdgeRouting } from "./configs/constraints";
+import type { EdgeRouting } from "./configs/constraints.ts";
 export type { EdgeRouting };
 
-import { placeCoordinateOnGrid, placePositionOnGrid } from "./util/utils";
-import { ExplicitAnchors } from "./explicit-anchors";
-export { AnchorOverrideSetting } from "./explicit-anchors";
+import { placeCoordinateOnGrid, placePositionOnGrid } from "./util/utils.ts";
+import { ExplicitAnchors } from "./explicit-anchors.ts";
+export { AnchorOverrideSetting } from "./explicit-anchors.ts";
 export { placeCoordinateOnGrid, placePositionOnGrid };
 
-export { type ExplicitAnchors } from "./explicit-anchors";
-export { type VisualModelWithOutsiders } from "./graph-iface";
+export { type ExplicitAnchors } from "./explicit-anchors.ts";
+export { type VisualModelWithOutsiders } from "./graph-iface.ts";
 
 export type {
 	UserGivenAlgorithmConfiguration,
@@ -61,9 +61,9 @@ export type {
 	UserGivenAlgorithmConfigurationLayered,
 	UserGivenAlgorithmConfigurationStress,
 	UserGivenAlgorithmConfigurationOnlyData,
-} from "./configs/constraints";
+} from "./configs/constraints.ts";
 
-export { type ElkForceAlgType } from "./configs/elk/elk-constraints";
+export { type ElkForceAlgType } from "./configs/elk/elk-constraints.ts";
 
 /**
  * The object (class) implementing this interface handles the act of getting width and height of given node. The act has to be separated from the reactflow visualization library,

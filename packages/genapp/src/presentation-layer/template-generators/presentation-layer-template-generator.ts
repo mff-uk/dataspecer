@@ -1,14 +1,14 @@
 import { Config, createGenerator, Schema } from "ts-json-schema-generator";
-import { TemplateModel } from "../../engine/templates/template-interfaces";
-import { GenerationContext } from "../../engine/generator-stage-interface";
-import { LayerArtifact } from "../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap  } from "../../engine/templates/template-consumer";
-import { PresentationLayerGenerator } from "../strategy-interface";
-import { GeneratedFilePathCalculator } from "../../utils/artifact-saver";
-import { NodeTransitionsView, TransitionsGenerator } from "../../engine/transitions/transitions-generator";
-import { DetailNodeConfiguration } from "../../engine/graph";
-import { ArtifactCache } from "../../utils/artifact-saver";
-import { AggregateMetadata } from "../../application-config";
+import { TemplateModel } from "../../engine/templates/template-interfaces.ts";
+import { GenerationContext } from "../../engine/generator-stage-interface.ts";
+import { LayerArtifact } from "../../engine/layer-artifact.ts";
+import { TemplateConsumer, TemplateDependencyMap  } from "../../engine/templates/template-consumer.ts";
+import { PresentationLayerGenerator } from "../strategy-interface.ts";
+import { GeneratedFilePathCalculator } from "../../utils/artifact-saver.ts";
+import { NodeTransitionsView, TransitionsGenerator } from "../../engine/transitions/transitions-generator.ts";
+import { DetailNodeConfiguration } from "../../engine/graph/index.ts";
+import { ArtifactCache } from "../../utils/artifact-saver.ts";
+import { AggregateMetadata } from "../../application-config.ts";
 
 export interface PresentationLayerDependencyMap extends TemplateDependencyMap {
     pathResolver: GeneratedFilePathCalculator;

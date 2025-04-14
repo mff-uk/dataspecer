@@ -1,7 +1,7 @@
-import { ConceptualModel } from "../../conceptual-model";
-import { buildPropertyMap } from "../../conceptual-model/utils";
-import { clone } from "../../core";
-import { StructureModel } from "../model";
+import { ConceptualModel } from "../../conceptual-model/index.ts";
+import { buildPropertyMap } from "../../conceptual-model/utils.ts";
+import { clone } from "../../core/index.ts";
+import { StructureModel } from "../model/index.ts";
 
 /**
  * Adds CIM iris from {@link ConceptualModel} to {@link StructureModel}.

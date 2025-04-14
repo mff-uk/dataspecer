@@ -8,15 +8,15 @@ import {
     DataSpecificationSchema
 } from "@dataspecer/core/data-specification/model";
 import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
-import { RDF_TO_CSV } from "./rdf-to-csv-vocabulary";
+import { RDF_TO_CSV } from "./rdf-to-csv-vocabulary.ts";
 import { SparqlSelectQuery } from "@dataspecer/sparql-query";
 import { writeSparqlQuery } from "@dataspecer/sparql-query";
-import { CsvSchemaGenerator } from "../csv-schema";
+import { CsvSchemaGenerator } from "../csv-schema/index.ts";
 import {
     buildSingleTableQuery,
     buildMultipleTableQueries
-} from "./rdf-to-csv-query-builder";
-import { SingleTableSchema } from "../csv-schema/csv-schema-model";
+} from "./rdf-to-csv-query-builder.ts";
+import { SingleTableSchema } from "../csv-schema/csv-schema-model.ts";
 import {
     assertFailed,
     assertNot
@@ -26,7 +26,7 @@ import {
     CsvConfiguration,
     CsvConfigurator,
     DefaultCsvConfiguration
-} from "../configuration";
+} from "../configuration.ts";
 
 export class RdfToCsvGenerator implements ArtefactGenerator {
 

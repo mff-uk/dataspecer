@@ -1,1 +1,1 @@
-export { createDefaultProfileEntityAggregator, type ProfileAggregator } from "./aggregator";
+export { createDefaultProfileEntityAggregator, type ProfileAggregator } from "./aggregator.ts";

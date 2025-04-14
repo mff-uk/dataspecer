@@ -1,5 +1,5 @@
-import * as Support from "./support/testSupport";
-import NeverModelCreator from "./support/NeverModelCreator";
+import * as Support from "./support/testSupport.ts";
+import NeverModelCreator from "./support/NeverModelCreator.ts";
 import * as fs from "fs";
 
 

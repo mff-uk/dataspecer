@@ -1,4 +1,4 @@
-import { OutputStream } from "./output-stream";
+import { OutputStream } from "./output-stream.ts";
 
 type Callback = (stream: MemoryOutputStream) => void | null;
 

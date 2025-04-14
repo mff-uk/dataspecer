@@ -1,5 +1,5 @@
-import { Entity } from "../entity-model";
-import { SemanticModelClass, SemanticModelRelationship } from "../semantic-model/concepts";
+import { Entity } from "../entity-model/index.ts";
+import { SemanticModelClass, SemanticModelRelationship } from "../semantic-model/concepts/index.ts";
 
 /**
  * Wrapped entity that came from the search / adding surrounding entities.

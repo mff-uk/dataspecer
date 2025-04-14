@@ -3,17 +3,17 @@ import {
   CreateNewIdentifier,
   CoreExecutorResult,
   CoreResource,
-} from "../../core";
+} from "../../core/index.ts";
 import {
   DataPsmCreateInclude,
   DataPsmCreateIncludeResult,
-} from "../operation";
+} from "../operation/index.ts";
 import {
   DataPsmExecutorResultFactory,
   loadDataPsmClass,
   loadDataPsmSchema,
-} from "./data-psm-executor-utils";
-import { DataPsmClass, DataPsmInclude } from "../model";
+} from "./data-psm-executor-utils.ts";
+import { DataPsmClass, DataPsmInclude } from "../model/index.ts";
 
 export async function executeDataPsmCreateInclude(
   reader: CoreResourceReader,

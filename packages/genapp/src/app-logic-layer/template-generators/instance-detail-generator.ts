@@ -1,9 +1,9 @@
-import { LayerArtifact } from "../../engine/layer-artifact";
-import { TemplateMetadata } from "../../engine/templates/template-consumer";
-import { DetailReaderInterfaceGenerator } from "../../data-layer/template-generators/reader-interface-generator";
-import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "./template-app-layer-generator";
-import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGenerator } from "../../capabilities/template-generators/capability-interface-generator";
-import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
+import { LayerArtifact } from "../../engine/layer-artifact.ts";
+import { TemplateMetadata } from "../../engine/templates/template-consumer.ts";
+import { DetailReaderInterfaceGenerator } from "../../data-layer/template-generators/reader-interface-generator.ts";
+import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "./template-app-layer-generator.ts";
+import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGenerator } from "../../capabilities/template-generators/capability-interface-generator.ts";
+import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces.ts";
 
 interface DetailCapabilityAppLayerTemplate extends TemplateModel {
     placeholders: {

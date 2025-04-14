@@ -1,5 +1,5 @@
-import { CoreResource, CoreOperation, LanguageString } from "../../core";
-import * as PIM from "../pim-vocabulary";
+import { CoreResource, CoreOperation, LanguageString } from "../../core/index.ts";
+import * as PIM from "../pim-vocabulary.ts";
 
 export class PimSetHumanDescription extends CoreOperation {
   static readonly TYPE = PIM.SET_HUMAN_DESCRIPTION;

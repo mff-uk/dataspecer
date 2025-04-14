@@ -1,4 +1,4 @@
-import { LanguageString } from '../semantic-model/concepts/concepts';
+import { LanguageString } from '../semantic-model/concepts/concepts.ts';
 
 export function getTranslation(languageString: LanguageString | null | undefined | false, langs: string[]): {
   ok: true;

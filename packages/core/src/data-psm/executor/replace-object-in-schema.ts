@@ -1,5 +1,5 @@
-import {CoreResource, CoreResourceReader} from "../../core";
-import {DataPsmAssociationEnd, DataPsmInclude, DataPsmOr, DataPsmSchema} from "../model";
+import {CoreResource, CoreResourceReader} from "../../core/index.ts";
+import {DataPsmAssociationEnd, DataPsmInclude, DataPsmOr, DataPsmSchema} from "../model/index.ts";
 
 /**
  * Todo introduce as operation

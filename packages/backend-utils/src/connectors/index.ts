@@ -1,2 +1,2 @@
-export * from "./backend-connector";
-export * from "./http-synchronized-store-connector";
+export * from "./backend-connector.ts";
+export * from "./http-synchronized-store-connector.ts";

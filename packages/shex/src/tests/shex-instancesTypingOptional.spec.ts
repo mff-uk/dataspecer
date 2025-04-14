@@ -1,5 +1,5 @@
-import * as Support from "./support/testSupport";
-import  SimpleObjectModelCreator from "./support/OptionalModelCreator";
+import * as Support from "./support/testSupport.ts";
+import  SimpleObjectModelCreator from "./support/OptionalModelCreator.ts";
 import * as fs from "fs";
 
 const testType = "instancesTypingOptional";

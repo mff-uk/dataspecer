@@ -1,5 +1,5 @@
 import {CoreOperation} from "@dataspecer/core/core";
-import {FederatedObservableStore} from "./federated-observable-store";
+import {FederatedObservableStore} from "./federated-observable-store.ts";
 
 /**
  * Associates multiple {@link CoreOperation} into one component operation.

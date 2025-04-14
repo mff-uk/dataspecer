@@ -1,5 +1,5 @@
-import {Operation} from "../../operations";
-import {SemanticModelClassUsage, SemanticModelRelationshipUsage} from "../concepts";
+import {Operation} from "../../operations/index.ts";
+import {SemanticModelClassUsage, SemanticModelRelationshipUsage} from "../concepts/index.ts";
 
 export interface CreateClassUsageOperation extends Operation {
     type: typeof CREATE_CLASS_USAGE_OPERATION;

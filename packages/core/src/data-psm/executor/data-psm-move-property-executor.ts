@@ -2,12 +2,12 @@ import {
   CoreExecutorResult,
   CoreResourceReader,
   CreateNewIdentifier
-} from "../../core";
-import { DataPsmClass, DataPsmContainer, DataPsmSchema } from "../model";
-import { DataPsmMoveProperty } from "../operation";
+} from "../../core/index.ts";
+import { DataPsmClass, DataPsmContainer, DataPsmSchema } from "../model/index.ts";
+import { DataPsmMoveProperty } from "../operation/index.ts";
 import {
   DataPsmExecutorResultFactory
-} from "./data-psm-executor-utils";
+} from "./data-psm-executor-utils.ts";
 
 type containerType = DataPsmClass | DataPsmContainer | DataPsmSchema;
 

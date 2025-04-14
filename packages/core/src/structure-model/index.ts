@@ -1,1 +1,1 @@
-export * from "./adapter/structure-model-adapter";
+export * from "./adapter/structure-model-adapter.ts";

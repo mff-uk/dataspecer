@@ -1,7 +1,7 @@
-import { GraphTransformer, ExtractedModels, extractModelObjects, getEdgeSourceAndTargetRelationship, getEdgeSourceAndTargetGeneralization, LayoutAlgorithm } from "./layout-iface";
+import { GraphTransformer, ExtractedModels, extractModelObjects, getEdgeSourceAndTargetRelationship, getEdgeSourceAndTargetGeneralization, LayoutAlgorithm } from "./layout-iface.ts";
 import { SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isVisualProfileRelationship, isVisualRelationship, Position, VISUAL_NODE_TYPE, VISUAL_PROFILE_RELATIONSHIP_TYPE, VISUAL_RELATIONSHIP_TYPE, VisualEntity, VisualNode, VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { EdgeEndPoint, GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, INodeClassic, IVisualNodeComplete, MainGraphClassic, VisualNodeComplete } from "./graph-iface";
+import { EdgeEndPoint, GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, INodeClassic, IVisualNodeComplete, MainGraphClassic, VisualNodeComplete } from "./graph-iface.ts";
 
 
 
@@ -9,17 +9,17 @@ import ELK from 'elkjs/lib/elk.bundled';
 
 import ElkConstructor, { LayoutOptions, ElkNode, ElkExtendedEdge, ElkLabel, ElkPort, type ELK as ELKType } from 'elkjs/lib/elk-api';
 
-import { BasicUserGivenConstraints, ConstraintedNodesGroupingsType, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraint, IConstraintSimple, SPECIFIC_ALGORITHM_CONVERSIONS_MAP, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationOnlyData, UserGivenConstraints } from "./configs/constraints";
-import { AlgorithmName, ConstraintContainer, ElkConstraintContainer } from "./configs/constraint-container";
-import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
-import { CONFIG_TO_ELK_CONFIG_MAP } from "./configs/elk/elk-utils";
-import { NodeDimensionQueryHandler, ReactflowDimensionsConstantEstimator, XY } from ".";
+import { BasicUserGivenConstraints, ConstraintedNodesGroupingsType, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraint, IConstraintSimple, SPECIFIC_ALGORITHM_CONVERSIONS_MAP, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationOnlyData, UserGivenConstraints } from "./configs/constraints.ts";
+import { AlgorithmName, ConstraintContainer, ElkConstraintContainer } from "./configs/constraint-container.ts";
+import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator.ts";
+import { CONFIG_TO_ELK_CONFIG_MAP } from "./configs/elk/elk-utils.ts";
+import { NodeDimensionQueryHandler, ReactflowDimensionsConstantEstimator, XY } from "./index.ts";
 import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { PhantomElementsFactory, placePositionOnGrid } from "./util/utils";
+import { PhantomElementsFactory, placePositionOnGrid } from "./util/utils.ts";
 import _, { clone } from "lodash";
-import { GraphAlgorithms } from "./graph-algoritms";
-import { ElkConstraint } from "./configs/elk/elk-constraints";
-import { VisualEntities } from "./migration-to-cme-v2";
+import { GraphAlgorithms } from "./graph-algoritms.ts";
+import { ElkConstraint } from "./configs/elk/elk-constraints.ts";
+import { VisualEntities } from "./migration-to-cme-v2.ts";
 
 
 type VisualEntitiesType = (VisualNodeComplete | VisualRelationship | VisualProfileRelationship)[];

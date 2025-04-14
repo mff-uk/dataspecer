@@ -1,8 +1,8 @@
-import {CoreExecutorResult, CoreResourceReader, CreateNewIdentifier,} from "../../core";
-import {DataPsmReplaceAlongInheritance} from "../operation";
-import {DataPsmExecutorResultFactory, loadDataPsmSchema,} from "./data-psm-executor-utils";
-import {DataPsmClass} from "../model";
-import {replaceObjectInSchema} from "./replace-object-in-schema";
+import {CoreExecutorResult, CoreResourceReader, CreateNewIdentifier,} from "../../core/index.ts";
+import {DataPsmReplaceAlongInheritance} from "../operation/index.ts";
+import {DataPsmExecutorResultFactory, loadDataPsmSchema,} from "./data-psm-executor-utils.ts";
+import {DataPsmClass} from "../model/index.ts";
+import {replaceObjectInSchema} from "./replace-object-in-schema.ts";
 
 export async function executeDataPsmReplaceAlongInheritance(
   reader: CoreResourceReader,

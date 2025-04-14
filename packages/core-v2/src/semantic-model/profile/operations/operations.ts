@@ -1,6 +1,6 @@
-import { EntityIdentifier } from "../../../entity-model/entity";
-import { Operation } from "../../operations";
-import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "../concepts";
+import { EntityIdentifier } from "../../../entity-model/entity.ts";
+import { Operation } from "../../operations/index.ts";
+import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "../concepts/index.ts";
 
 export interface CreateSemanticModelClassProfile extends Operation {
 

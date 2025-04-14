@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { DataPsmDeleteAttribute } from "../operation";
-import { executeDataPsmDeleteAttribute } from "./data-psm-delete-attribute-executor";
-import * as PSM from "../data-psm-vocabulary";
+} from "../../core/index.ts";
+import { DataPsmDeleteAttribute } from "../operation/index.ts";
+import { executeDataPsmDeleteAttribute } from "./data-psm-delete-attribute-executor.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 test("Delete data PSM attribute.", async () => {
   const operation = new DataPsmDeleteAttribute();

@@ -3,13 +3,13 @@ import {
   CoreExecutorResult,
   CreateNewIdentifier,
   CoreResource,
-} from "../../core";
-import { DataPsmCreateClass } from "../operation";
+} from "../../core/index.ts";
+import { DataPsmCreateClass } from "../operation/index.ts";
 import {
   DataPsmExecutorResultFactory,
   loadDataPsmSchema,
-} from "./data-psm-executor-utils";
-import { DataPsmClass } from "../model";
+} from "./data-psm-executor-utils.ts";
+import { DataPsmClass } from "../model/index.ts";
 
 export async function executeDataPsmCreateClass(
   reader: CoreResourceReader,

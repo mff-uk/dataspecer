@@ -1,13 +1,13 @@
-import { EntityIdentifier } from "./entity-model/entity";
-import { EntityModel, ModelIdentifier } from "./entity-model/entity-model";
-import { LegacyModel } from "./entity-model/legacy-model";
-import { ObservableEntityModel, UnsubscribeCallback } from "./entity-model/observable-entity-model";
-import { SynchronousEntityModel } from "./entity-model/synchronous-entity-model";
-import { SynchronousWritableEntityModel } from "./entity-model/on-premise-writable-entity-model";
-import { TypedObject, isTypedObject } from "./entity-model/typed-object";
-import { HexColor, VisualEntity, VisualGroup, VisualNode, VisualProfileRelationship, VisualRelationship, VisualView } from "./visual-entity";
-import { SerializableModel } from "./entity-model/serializable-model";
-import { LabeledModel } from "./entity-model/labeled-model";
+import { EntityIdentifier } from "./entity-model/entity.ts";
+import { EntityModel, ModelIdentifier } from "./entity-model/entity-model.ts";
+import { LegacyModel } from "./entity-model/legacy-model.ts";
+import { ObservableEntityModel, UnsubscribeCallback } from "./entity-model/observable-entity-model.ts";
+import { SynchronousEntityModel } from "./entity-model/synchronous-entity-model.ts";
+import { SynchronousWritableEntityModel } from "./entity-model/on-premise-writable-entity-model.ts";
+import { TypedObject, isTypedObject } from "./entity-model/typed-object.ts";
+import { HexColor, VisualEntity, VisualGroup, VisualNode, VisualProfileRelationship, VisualRelationship, VisualView } from "./visual-entity.ts";
+import { SerializableModel } from "./entity-model/serializable-model.ts";
+import { LabeledModel } from "./entity-model/labeled-model.ts";
 
 export type RepresentedEntityIdentifier = string;
 

@@ -3,8 +3,8 @@ import {
   CoreOperationResult,
   CoreResource,
   CoreTyped,
-} from "../../core";
-import * as PSM from "../data-psm-vocabulary";
+} from "../../core/index.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 export class DataPsmCreateClassReference extends CoreOperation {
   static readonly TYPE = PSM.CREATE_CLASS_REFERENCE;

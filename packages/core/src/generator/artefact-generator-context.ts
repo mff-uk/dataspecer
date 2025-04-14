@@ -1,8 +1,8 @@
-import { DataSpecification } from "../data-specification/model";
-import { ConceptualModel } from "../conceptual-model";
-import { StructureModel } from "../structure-model/model";
-import { CoreResourceReader } from "../core";
-import type { ArtefactGenerator } from "./artefact-generator";
+import { DataSpecification } from "../data-specification/model/index.ts";
+import { ConceptualModel } from "../conceptual-model/index.ts";
+import { StructureModel } from "../structure-model/model/index.ts";
+import { CoreResourceReader } from "../core/index.ts";
+import type { ArtefactGenerator } from "./artefact-generator.ts";
 
 export interface StructureClassLocation {
   readonly specification: DataSpecification;

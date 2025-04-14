@@ -1,2 +1,2 @@
-export * from "./class-profile";
-export * from "./relationship-profile";
+export * from "./class-profile.ts";
+export * from "./relationship-profile.ts";

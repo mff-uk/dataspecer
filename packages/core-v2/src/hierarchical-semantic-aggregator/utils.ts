@@ -1,7 +1,7 @@
-import { isSemanticModelClass, isSemanticModelRelationship, SemanticModelClass, SemanticModelRelationship } from "../semantic-model/concepts";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "../semantic-model/profile/concepts";
-import { isAggregatedEntityInApplicationProfileAggregator } from "./application-profile-aggregator";
-import { LocalEntityWrapped } from "./interfaces";
+import { isSemanticModelClass, isSemanticModelRelationship, SemanticModelClass, SemanticModelRelationship } from "../semantic-model/concepts/index.ts";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "../semantic-model/profile/concepts/index.ts";
+import { isAggregatedEntityInApplicationProfileAggregator } from "./application-profile-aggregator.ts";
+import { LocalEntityWrapped } from "./interfaces.ts";
 
 type Profile<T> = T extends SemanticModelClass ? SemanticModelClassProfile : SemanticModelRelationshipProfile;
 

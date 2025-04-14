@@ -3,14 +3,14 @@ import {
   CreateNewIdentifier,
   CoreExecutorResult,
   CoreResource,
-} from "../../core";
-import { DataPsmCreateAssociationEnd } from "../operation";
+} from "../../core/index.ts";
+import { DataPsmCreateAssociationEnd } from "../operation/index.ts";
 import {
   DataPsmExecutorResultFactory,
   loadDataPsmClass,
   loadDataPsmSchema,
-} from "./data-psm-executor-utils";
-import { DataPsmAssociationEnd, DataPsmClass } from "../model";
+} from "./data-psm-executor-utils.ts";
+import { DataPsmAssociationEnd, DataPsmClass } from "../model/index.ts";
 
 export async function executeDataPsmCreateAssociationEnd(
   reader: CoreResourceReader,

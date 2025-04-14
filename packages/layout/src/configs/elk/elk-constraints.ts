@@ -1,6 +1,6 @@
 import { LayoutOptions } from "elkjs";
-import { AlgorithmPhases, AlgorithmConfiguration, LayeredConfiguration, RadialConfiguration, SporeConfiguration, StressConfiguration, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationElkForce } from "../constraints";
-import { modifyElkDataObject } from "./elk-utils";
+import { AlgorithmPhases, AlgorithmConfiguration, LayeredConfiguration, RadialConfiguration, SporeConfiguration, StressConfiguration, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationElkForce } from "../constraints.ts";
+import { modifyElkDataObject } from "./elk-utils.ts";
 import _ from "lodash";
 
 

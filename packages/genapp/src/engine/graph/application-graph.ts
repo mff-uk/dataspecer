@@ -1,6 +1,6 @@
-import { Datasource } from "./datasource";
-import { ApplicationGraphEdge } from "./application-graph-edge";
-import { ApplicationGraphNode, ApplicationGraphNodeFactory, ApplicationGraphNodeType } from "./application-graph-node";
+import { Datasource } from "./datasource.ts";
+import { ApplicationGraphEdge } from "./application-graph-edge.ts";
+import { ApplicationGraphNode, ApplicationGraphNodeFactory, ApplicationGraphNodeType } from "./application-graph-node.ts";
 
 /**
  * ApplicationGraphType interface represents the structure for generator's application graph.

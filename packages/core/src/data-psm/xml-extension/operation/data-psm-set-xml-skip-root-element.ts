@@ -1,5 +1,5 @@
-import {CoreOperation, CoreResource} from "../../../core";
-import {SET_SKIP_ROOT_ELEMENT} from "../vocabulary";
+import {CoreOperation, CoreResource} from "../../../core/index.ts";
+import {SET_SKIP_ROOT_ELEMENT} from "../vocabulary.ts";
 
 export class DataPsmSetXmlSkipRootElement extends CoreOperation {
   static readonly TYPE = SET_SKIP_ROOT_ELEMENT;

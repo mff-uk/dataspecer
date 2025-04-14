@@ -1,5 +1,5 @@
 import {PrismaClient} from "@prisma/client";
-import {LocalStoreModel} from "../../../src/models/local-store-model";
+import {LocalStoreModel} from "../../../src/models/local-store-model.ts";
 import {CoreResource} from "@dataspecer/core/core";
 import {PimSchema} from "@dataspecer/core/pim/model";
 import {DataPsmSchema} from "@dataspecer/core/data-psm/model";

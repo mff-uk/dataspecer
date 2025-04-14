@@ -5,7 +5,7 @@ import {
     rightRefColTitle,
     nameSeparator,
     TableUrlGenerator
-} from "../csv-schema/csv-schema-model-adapter";
+} from "../csv-schema/csv-schema-model-adapter.ts";
 import {
     SparqlSelectQuery,
     SparqlNode,
@@ -18,7 +18,7 @@ import {
     SparqlElement
 } from "@dataspecer/sparql-query";
 import { RDF_TYPE_URI } from "@dataspecer/sparql-query";
-import { csvwContext } from "../csv-schema/csvw-context";
+import { csvwContext } from "../csv-schema/csvw-context.ts";
 import { assertFailed } from "@dataspecer/core/core";
 import {
     StructureModel,

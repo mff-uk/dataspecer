@@ -1,7 +1,7 @@
-import { createDefaultEntityModel } from "./entity-model/default-entity-model";
-import { MODEL_VISUAL_TYPE, VisualEntity, VisualNode, isVisualNode } from "./visual-entity";
-import { WritableVisualModel } from "./visual-model";
-import { createDefaultVisualModelFactory } from "./visual-model-factory";
+import { createDefaultEntityModel } from "./entity-model/default-entity-model.ts";
+import { MODEL_VISUAL_TYPE, VisualEntity, VisualNode, isVisualNode } from "./visual-entity.ts";
+import { WritableVisualModel } from "./visual-model.ts";
+import { createDefaultVisualModelFactory } from "./visual-model-factory.ts";
 
 const factory = createDefaultVisualModelFactory();
 

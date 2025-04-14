@@ -1,5 +1,5 @@
 import {IriProvider} from "@dataspecer/core/cim";
-import {PimStoreWrapper} from "../v1-adapters/pim-store-wrapper";
+import {PimStoreWrapper} from "../v1-adapters/pim-store-wrapper.ts";
 import {HttpFetch} from "@dataspecer/core/io/fetch/fetch-api";
 import {RdfsFileAdapter} from "@dataspecer/rdfs-adapter";
 

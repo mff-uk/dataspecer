@@ -1,5 +1,5 @@
-import { CoreResource } from "../core-resource";
-import { CoreOperationResult } from "../operation";
+import { CoreResource } from "../core-resource.ts";
+import { CoreOperationResult } from "../operation/index.ts";
 
 /**
  * Instance of this class must be returned by all operation executors.

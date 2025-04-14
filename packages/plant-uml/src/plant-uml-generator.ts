@@ -4,7 +4,7 @@ import {
   DataSpecificationArtefact,
 } from "@dataspecer/core/data-specification/model";
 import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
-import { PlantUml } from "./plant-uml";
+import { PlantUml } from "./plant-uml.ts";
 import { MemoryOutputStream } from "@dataspecer/core/io/stream/memory-output-stream";
 import { filterByStructural } from "@dataspecer/core/conceptual-model/transformation/filter-by-structural";
 

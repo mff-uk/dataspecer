@@ -1,6 +1,6 @@
-import { ConceptualModelProperty, ConceptualModelClass } from "../../conceptual-model";
-import {LanguageString} from "../../core";
-import {StructureModelType} from "./structure-model-type";
+import { ConceptualModelProperty, ConceptualModelClass } from "../../conceptual-model/index.ts";
+import {LanguageString} from "../../core/index.ts";
+import {StructureModelType} from "./structure-model-type.ts";
 
 /**
  * Represents one step in the semantic graph from one entity to another.

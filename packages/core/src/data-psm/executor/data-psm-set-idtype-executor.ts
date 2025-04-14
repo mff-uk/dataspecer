@@ -1,6 +1,6 @@
-import {CoreExecutorResult, CoreResourceReader, CreateNewIdentifier,} from "../../core";
-import {DataPsmSetIdType} from "../operation";
-import {DataPsmClass,} from "../model";
+import {CoreExecutorResult, CoreResourceReader, CreateNewIdentifier,} from "../../core/index.ts";
+import {DataPsmSetIdType} from "../operation/index.ts";
+import {DataPsmClass,} from "../model/index.ts";
 
 export async function executeDataPsmSetIdType(
   reader: CoreResourceReader,

@@ -1,7 +1,7 @@
 import { readFile, rm, writeFile } from "fs/promises";
 import path from "path";
 import { v4 as uuidv4 } from 'uuid';
-import { LocalStoreDescriptor } from "./local-store-descriptor";
+import { LocalStoreDescriptor } from "./local-store-descriptor.ts";
 
 /**
  * Manages creating, reading, updating and deleting of the store files.

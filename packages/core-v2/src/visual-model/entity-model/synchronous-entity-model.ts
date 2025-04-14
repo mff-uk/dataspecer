@@ -1,5 +1,5 @@
-import { Entity, EntityIdentifier } from "./entity";
-import { isTypedObject } from "./typed-object";
+import { Entity, EntityIdentifier } from "./entity.ts";
+import { isTypedObject } from "./typed-object.ts";
 
 /**
  * This model fits to the local machine.

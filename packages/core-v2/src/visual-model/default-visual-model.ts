@@ -1,4 +1,4 @@
-import { LOCAL_VISUAL_MODEL } from "../model/known-models";
+import { LOCAL_VISUAL_MODEL } from "../model/known-models.ts";
 
 import {
   MODEL_VISUAL_TYPE,
@@ -22,7 +22,7 @@ import {
   isVisualProfileRelationship,
   isVisualRelationship,
   isVisualView,
-} from "./visual-entity";
+} from "./visual-entity.ts";
 import {
   WritableVisualModel,
   SynchronousUnderlyingVisualModel,
@@ -32,12 +32,12 @@ import {
   VisualModelType,
   WritableVisualModelType,
   VisualModelDataVersion,
-} from "./visual-model";
-import { HexColor } from "./visual-entity";
-import { EntityEventListener, UnsubscribeCallback } from "./entity-model/observable-entity-model";
-import { Entity, EntityIdentifier } from "./entity-model/entity";
-import { LanguageString } from "./entity-model/labeled-model";
-import { addToMapArray, removeFromMapArray } from "../utils/functional";
+} from "./visual-model.ts";
+import { HexColor } from "./visual-entity.ts";
+import { EntityEventListener, UnsubscribeCallback } from "./entity-model/observable-entity-model.ts";
+import { Entity, EntityIdentifier } from "./entity-model/entity.ts";
+import { LanguageString } from "./entity-model/labeled-model.ts";
+import { addToMapArray, removeFromMapArray } from "../utils/functional.ts";
 
 /**
  * This is how data were stored in the initial version of the visual model.

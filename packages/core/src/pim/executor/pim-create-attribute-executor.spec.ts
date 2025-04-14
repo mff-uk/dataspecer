@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { PimCreateAttribute, PimCreateAttributeResult } from "../operation";
-import { executePimCreateAttribute } from "./pim-create-attribute-executor";
-import * as PIM from "../pim-vocabulary";
+} from "../../core/index.ts";
+import { PimCreateAttribute, PimCreateAttributeResult } from "../operation/index.ts";
+import { executePimCreateAttribute } from "./pim-create-attribute-executor.ts";
+import * as PIM from "../pim-vocabulary.ts";
 
 test("Create attribute.", async () => {
   const operation = new PimCreateAttribute();

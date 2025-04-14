@@ -1,8 +1,8 @@
 import { IriProvider } from "@dataspecer/core/cim";
 import { PimAssociation, PimAssociationEnd, PimAttribute } from "@dataspecer/core/pim/model";
-import { loadWikidataEntityToResource } from "./wd-entity-adapter";
-import { WdPropertyDescOnly } from "../wikidata-entities/wd-property";
-import { WdClassDescOnly } from "../wikidata-entities/wd-class";
+import { loadWikidataEntityToResource } from "./wd-entity-adapter.ts";
+import { WdPropertyDescOnly } from "../wikidata-entities/wd-property.ts";
+import { WdClassDescOnly } from "../wikidata-entities/wd-class.ts";
 
 /**
  * The loading creates a fake IRI to the association defined by the domain and range of the selected property.

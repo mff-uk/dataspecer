@@ -1,5 +1,5 @@
 import * as N3 from "n3";
-import { RdfObject, RdfQuad, RdfTermType } from "../rdf-api";
+import { RdfObject, RdfQuad, RdfTermType } from "../rdf-api.ts";
 import {
   BlankNode,
   DefaultGraph,

@@ -1,8 +1,8 @@
 import { DataSpecificationArtefact, DataSpecification } from "@dataspecer/core/data-specification/model";
 import { ArtefactGeneratorContext } from "@dataspecer/core/generator";
-import { prepareArtifacts } from "./artifacts";
-import { prepareDataSpecification } from "./data-specification";
-import { prepareFunctions } from "./functions";
+import { prepareArtifacts } from "./artifacts.ts";
+import { prepareDataSpecification } from "./data-specification.ts";
+import { prepareFunctions } from "./functions.ts";
 import { HandlebarsAdapter } from "@dataspecer/handlebars-adapter";
 
 /**

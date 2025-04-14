@@ -1,6 +1,6 @@
-import {CoreExecutorResult, CoreResourceReader, CreateNewIdentifier,} from "../../core";
-import {DataPsmDeleteOr} from "../operation";
-import {DataPsmExecutorResultFactory, loadDataPsmSchema, removeValue} from "./data-psm-executor-utils";
+import {CoreExecutorResult, CoreResourceReader, CreateNewIdentifier,} from "../../core/index.ts";
+import {DataPsmDeleteOr} from "../operation/index.ts";
+import {DataPsmExecutorResultFactory, loadDataPsmSchema, removeValue} from "./data-psm-executor-utils.ts";
 
 export async function executeDataPsmDeleteOr(
   reader: CoreResourceReader,

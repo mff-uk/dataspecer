@@ -1,5 +1,5 @@
-import { structureModelToJsonSchema } from "./json-schema-model-adapter";
-import { writeJsonSchema } from "./json-schema-writer";
+import { structureModelToJsonSchema } from "./json-schema-model-adapter.ts";
+import { writeJsonSchema } from "./json-schema-writer.ts";
 import {
   CoreResource,
   ReadOnlyMemoryStore,
@@ -8,7 +8,7 @@ import {
 import { MemoryOutputStream } from "@dataspecer/core/io/stream/memory-output-stream";
 import { coreResourcesToStructuralModel } from "@dataspecer/core/structure-model";
 import { DataSpecification, DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
-import { DefaultJsonConfiguration } from "../configuration";
+import { DefaultJsonConfiguration } from "../configuration.ts";
 
 test.skip("Convert to json-schema.", async () => {
   const resources = {};

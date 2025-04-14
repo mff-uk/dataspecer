@@ -1,12 +1,12 @@
-import { SemanticModelClass, SemanticModelEntity } from "../concepts/concepts";
-import { classQuery, classSurroundingsQuery, searchQuery, SearchQueryEntity } from "../async-queryable/queries";
+import { SemanticModelClass, SemanticModelEntity } from "../concepts/concepts.ts";
+import { classQuery, classSurroundingsQuery, searchQuery, SearchQueryEntity } from "../async-queryable/queries.ts";
 import {
     AsyncQueryableEntityModel,
     AsyncQueryableObservableEntityModel,
-} from "../../entity-model/async-queryable/model";
-import { Entity } from "../../entity-model";
-import { EntityModel } from "../../entity-model/entity-model";
-import { SimpleAsyncQueryableObservableEntityModel } from "../../entity-model/async-queryable/implementation";
+} from "../../entity-model/async-queryable/model.ts";
+import { Entity } from "../../entity-model/index.ts";
+import { EntityModel } from "../../entity-model/entity-model.ts";
+import { SimpleAsyncQueryableObservableEntityModel } from "../../entity-model/async-queryable/implementation.ts";
 
 export class ExternalSemanticModel implements EntityModel {
     private id: string;

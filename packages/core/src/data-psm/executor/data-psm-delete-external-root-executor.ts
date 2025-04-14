@@ -1,7 +1,7 @@
-import {CoreExecutorResult, CoreResource, CoreResourceReader, CreateNewIdentifier,} from "../../core";
-import {DataPsmDeleteExternalRoot} from "../operation";
-import {DataPsmExecutorResultFactory} from "./data-psm-executor-utils";
-import {DataPsmExternalRoot, DataPsmSchema} from "../model";
+import {CoreExecutorResult, CoreResource, CoreResourceReader, CreateNewIdentifier,} from "../../core/index.ts";
+import {DataPsmDeleteExternalRoot} from "../operation/index.ts";
+import {DataPsmExecutorResultFactory} from "./data-psm-executor-utils.ts";
+import {DataPsmExternalRoot, DataPsmSchema} from "../model/index.ts";
 
 export async function executeDataPsmDeleteExternalRoot(
   reader: CoreResourceReader,

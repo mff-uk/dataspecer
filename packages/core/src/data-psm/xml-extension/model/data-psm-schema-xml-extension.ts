@@ -1,5 +1,5 @@
-import {DataPsmSchema} from "../../model";
-import {XML_EXTENSION} from "../vocabulary";
+import {DataPsmSchema} from "../../model/index.ts";
+import {XML_EXTENSION} from "../vocabulary.ts";
 
 class XmlSchemaExtension {
   namespace: string | null = null;

@@ -5,9 +5,9 @@ import cliProgress from 'cli-progress';
 import { readFileSync } from 'fs';
 import { Parser, Store } from 'n3';
 import path from 'path';
-import { LocalStoreModel } from '../../models/local-store-model';
-import { ResourceModel } from '../../models/resource-model';
-import { objectsToLanguageString } from './better-n3-store';
+import { LocalStoreModel } from '../../models/local-store-model.ts';
+import { ResourceModel } from '../../models/resource-model.ts';
+import { objectsToLanguageString } from './better-n3-store.ts';
 
 const TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 const LOV = "https://lov.linkeddata.es/dataset/lov";

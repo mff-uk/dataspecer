@@ -1,1 +1,1 @@
-export * from "./api-types/post-experimental-search";
+export * from "./api-types/post-experimental-search.ts";

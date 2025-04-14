@@ -2,19 +2,19 @@ import { PrismaClient } from "@prisma/client";
 import cors from "cors";
 import express from "express";
 import multer from "multer";
-import configuration from "./configuration";
-import { Migrate } from "./migrations/migrate";
-import { DataSpecificationModelAdapted } from "./models/data-specification-model-adapted";
-import { LocalStoreModel } from "./models/local-store-model";
-import { ResourceModel } from "./models/resource-model";
-import { getDefaultConfiguration } from "./routes/configuration";
-import { createDataPsm, deleteDataPsm } from "./routes/dataPsm";
-import { getlightweightFromSimplified as getlightweightOwlFromSimplified } from "./routes/experimental";
-import { getSingleFile, getZip } from "./routes/generate";
-import { exportPackageResource, importPackageResource } from "./routes/export-import-raw";
-import { getGenerateApplicationByModelId, getGeneratedApplication } from "./routes/genapp";
-import { generate } from "./routes/generate";
-import { importResource } from "./routes/import";
+import configuration from "./configuration.ts";
+import { Migrate } from "./migrations/migrate.ts";
+import { DataSpecificationModelAdapted } from "./models/data-specification-model-adapted.ts";
+import { LocalStoreModel } from "./models/local-store-model.ts";
+import { ResourceModel } from "./models/resource-model.ts";
+import { getDefaultConfiguration } from "./routes/configuration.ts";
+import { createDataPsm, deleteDataPsm } from "./routes/dataPsm.ts";
+import { getlightweightFromSimplified as getlightweightOwlFromSimplified } from "./routes/experimental.ts";
+import { getSingleFile, getZip } from "./routes/generate.ts";
+import { exportPackageResource, importPackageResource } from "./routes/export-import-raw.ts";
+import { getGenerateApplicationByModelId, getGeneratedApplication } from "./routes/genapp.ts";
+import { generate } from "./routes/generate.ts";
+import { importResource } from "./routes/import.ts";
 import {
   copyRecursively,
   createPackageResource,
@@ -27,8 +27,8 @@ import {
   getRootPackages,
   updateBlob,
   updateResource,
-} from "./routes/resource";
-import { getSimplifiedSemanticModel, setSimplifiedSemanticModel } from "./routes/simplified-semantic-model";
+} from "./routes/resource.ts";
+import { getSimplifiedSemanticModel, setSimplifiedSemanticModel } from "./routes/simplified-semantic-model.ts";
 import {
   addSpecification,
   cloneSpecification,
@@ -38,10 +38,10 @@ import {
   importSpecifications,
   listSpecifications,
   modifySpecification,
-} from "./routes/specification";
-import { getSystemData } from "./routes/system";
-import { useStaticSpaHandler } from "./static";
-import { migratePR419 } from "./tools/migrate-pr419";
+} from "./routes/specification.ts";
+import { getSystemData } from "./routes/system.ts";
+import { useStaticSpaHandler } from "./static.ts";
+import { migratePR419 } from "./tools/migrate-pr419.ts";
 
 // Create application models
 

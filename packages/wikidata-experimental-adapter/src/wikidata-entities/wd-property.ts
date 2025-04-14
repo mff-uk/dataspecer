@@ -1,4 +1,4 @@
-import { WdEntityIdsList, WdExternalOntologyMappings, WdEntity } from "./wd-entity";
+import { WdEntityIdsList, WdExternalOntologyMappings, WdEntity } from "./wd-entity.ts";
 
 export enum WdUnderlyingType {
     ENTITY = 0,

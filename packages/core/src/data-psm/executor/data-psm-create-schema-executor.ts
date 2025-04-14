@@ -2,10 +2,10 @@ import {
   CoreResourceReader,
   CreateNewIdentifier,
   CoreExecutorResult,
-} from "../../core";
-import { DataPsmCreateSchema } from "../operation";
-import { DataPsmSchema } from "../model";
-import { loadDataPsmSchema } from "./data-psm-executor-utils";
+} from "../../core/index.ts";
+import { DataPsmCreateSchema } from "../operation/index.ts";
+import { DataPsmSchema } from "../model/index.ts";
+import { loadDataPsmSchema } from "./data-psm-executor-utils.ts";
 
 export async function executeDataPsmCreateSchema(
   reader: CoreResourceReader,

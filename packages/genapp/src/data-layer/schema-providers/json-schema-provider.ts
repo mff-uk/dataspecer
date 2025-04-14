@@ -1,7 +1,7 @@
 import { JSZipObject } from "jszip";
-import { AggregateMetadata } from "../../application-config";
-import { LayerArtifact } from "../../engine/layer-artifact";
-import { DataspecerBaseSchemaProvider, SchemaProvider } from "./base-schema-provider";
+import { AggregateMetadata } from "../../application-config.ts";
+import { LayerArtifact } from "../../engine/layer-artifact.ts";
+import { DataspecerBaseSchemaProvider, SchemaProvider } from "./base-schema-provider.ts";
 
 export class JsonSchemaProvider extends DataspecerBaseSchemaProvider implements SchemaProvider {
 

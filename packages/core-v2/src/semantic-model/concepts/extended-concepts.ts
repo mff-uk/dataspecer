@@ -1,6 +1,6 @@
 // This file contains extended version of concepts that have additional properties necessary for Dataspecer structure editor.
 
-import { SemanticModelClass, SemanticModelRelationship, SemanticModelRelationshipEnd } from "./concepts";
+import { SemanticModelClass, SemanticModelRelationship, SemanticModelRelationshipEnd } from "./concepts.ts";
 
 export interface EntityWithTechnicalLabel {
   technicalLabel: string | null;

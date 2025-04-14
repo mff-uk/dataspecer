@@ -1,9 +1,9 @@
-import { AggregateMetadata } from "../../application-config";
-import DalApi from "../../data-layer/dal-generator-api";
-import { ApplicationGraphEdge } from "./application-graph-edge";
-import { ApplicationGraph } from "./application-graph";
+import { AggregateMetadata } from "../../application-config.ts";
+import DalApi from "../../data-layer/dal-generator-api.ts";
+import { ApplicationGraphEdge } from "./application-graph-edge.ts";
+import { ApplicationGraph } from "./application-graph.ts";
 import { LanguageString } from "@dataspecer/core/core";
-import { DETAIL_CAPABILITY_ID, EDIT_CAPABILITY_ID } from "../../capabilities";
+import { DETAIL_CAPABILITY_ID, EDIT_CAPABILITY_ID } from "../../capabilities/index.ts";
 
 /**
  * Base node configuration. Maps any object to a named key, which

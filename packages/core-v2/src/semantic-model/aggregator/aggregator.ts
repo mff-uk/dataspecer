@@ -1,12 +1,12 @@
-import { Entity } from "../../entity-model/entity";
-import { EntityModel } from "../../entity-model/entity-model";
-import { VisualEntity } from "../../visual-model/visual-entity";
-import { VisualModel, isVisualModel } from "../../visual-model/visual-model";
-import { SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_RELATIONSHIP, SemanticModelClass, SemanticModelRelationship, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "../concepts";
-import { SemanticEntityIdMerger, StrongerWinsSemanticEntityIdMerger } from "../merge/merger";
-import { createDefaultProfileEntityAggregator, ProfileEntityAggregator } from "../profile/aggregator/aggregator";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "../profile/concepts";
-import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "../usage/concepts";
+import { Entity } from "../../entity-model/entity.ts";
+import { EntityModel } from "../../entity-model/entity-model.ts";
+import { VisualEntity } from "../../visual-model/visual-entity.ts";
+import { VisualModel, isVisualModel } from "../../visual-model/visual-model.ts";
+import { SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_RELATIONSHIP, SemanticModelClass, SemanticModelRelationship, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "../concepts/index.ts";
+import { SemanticEntityIdMerger, StrongerWinsSemanticEntityIdMerger } from "../merge/merger/index.ts";
+import { createDefaultProfileEntityAggregator, ProfileEntityAggregator } from "../profile/aggregator/aggregator.ts";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "../profile/concepts/index.ts";
+import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "../usage/concepts/index.ts";
 
 /**
  * Object containing the result of the aggregation of an entity together with additional metadata, such as how the

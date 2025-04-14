@@ -1,5 +1,5 @@
-import { resourceModel } from "../main";
-import { asyncHandler } from "../utils/async-handler";
+import { resourceModel } from "../main.ts";
+import { asyncHandler } from "../utils/async-handler.ts";
 import express from "express";
 import { z } from "zod";
 import { v4 as uuidv4 } from 'uuid';

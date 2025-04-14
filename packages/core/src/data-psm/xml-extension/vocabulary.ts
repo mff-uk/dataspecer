@@ -1,4 +1,4 @@
-import {PSM_EXTENSIONS} from "../data-psm-vocabulary";
+import {PSM_EXTENSIONS} from "../data-psm-vocabulary.ts";
 
 export const XML_EXTENSION = PSM_EXTENSIONS + "xml" as `${typeof PSM_EXTENSIONS}xml`; // as const
 

@@ -1,4 +1,4 @@
-import {FederatedObservableStore, Subscriber} from "./federated-observable-store";
+import {FederatedObservableStore, Subscriber} from "./federated-observable-store.ts";
 import {ReadOnlyMemoryStore} from "@dataspecer/core/core";
 import * as PSM from "@dataspecer/core/data-psm/data-psm-vocabulary";
 import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";

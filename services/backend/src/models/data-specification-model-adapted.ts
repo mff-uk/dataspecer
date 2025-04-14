@@ -4,10 +4,10 @@ import { DataPsmCreateSchema } from "@dataspecer/core/data-psm/operation";
 import { DataSpecification } from "@dataspecer/core/data-specification/model";
 import { PimCreateSchema } from "@dataspecer/core/pim/operation";
 import { v4 as uuidv4 } from "uuid";
-import { LocalStoreDescriptor } from "./local-store-descriptor";
-import { LocalStoreModel } from "./local-store-model";
-import { ResourceModel } from "./resource-model";
-import configuration from "../configuration";
+import { LocalStoreDescriptor } from "./local-store-descriptor.ts";
+import { LocalStoreModel } from "./local-store-model.ts";
+import { ResourceModel } from "./resource-model.ts";
+import configuration from "../configuration.ts";
 import { HttpStoreDescriptor } from "@dataspecer/backend-utils/store-descriptor";
 
 export const ROOT_PACKAGE_FOR_V1 = configuration.v1RootIri;

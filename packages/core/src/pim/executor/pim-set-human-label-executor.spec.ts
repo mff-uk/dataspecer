@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { PimSetHumanLabel } from "../operation";
-import { executePimSetHumanLabel } from "./pim-set-human-label-executor";
-import * as PIM from "../pim-vocabulary";
+} from "../../core/index.ts";
+import { PimSetHumanLabel } from "../operation/index.ts";
+import { executePimSetHumanLabel } from "./pim-set-human-label-executor.ts";
+import * as PIM from "../pim-vocabulary.ts";
 
 test("Update resource human label.", async () => {
   const operation = new PimSetHumanLabel();

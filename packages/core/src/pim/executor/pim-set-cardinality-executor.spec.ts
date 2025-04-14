@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import * as PIM from "../pim-vocabulary";
-import { executePimSetCardinality } from "./pim-set-cardinality-executor";
-import { PimSetCardinality } from "../operation";
+} from "../../core/index.ts";
+import * as PIM from "../pim-vocabulary.ts";
+import { executePimSetCardinality } from "./pim-set-cardinality-executor.ts";
+import { PimSetCardinality } from "../operation/index.ts";
 
 test("Update cardinality.", async () => {
   const operation = new PimSetCardinality();

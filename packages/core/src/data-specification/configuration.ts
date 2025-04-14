@@ -1,4 +1,4 @@
-import { DeepPartial } from "../core/utilities/deep-partial";
+import { DeepPartial } from "../core/utilities/deep-partial.ts";
 
 export const DefaultDataSpecificationConfiguration =  {
     /**

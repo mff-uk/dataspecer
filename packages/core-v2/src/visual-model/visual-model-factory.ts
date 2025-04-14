@@ -1,7 +1,7 @@
-import { DefaultVisualModel } from "./default-visual-model";
-import { createDefaultEntityModel } from "./entity-model/default-entity-model";
-import { MODEL_VISUAL_TYPE } from "./visual-entity";
-import { SynchronousUnderlyingVisualModel, WritableVisualModel } from "./visual-model";
+import { DefaultVisualModel } from "./default-visual-model.ts";
+import { createDefaultEntityModel } from "./entity-model/default-entity-model.ts";
+import { MODEL_VISUAL_TYPE } from "./visual-entity.ts";
+import { SynchronousUnderlyingVisualModel, WritableVisualModel } from "./visual-model.ts";
 
 export interface VisualModelFactory {
 

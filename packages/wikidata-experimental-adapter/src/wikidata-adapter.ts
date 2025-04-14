@@ -3,17 +3,17 @@ import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
 import { PimClass } from "@dataspecer/core/pim/model/pim-class";
 import { CoreResource, ReadOnlyMemoryStore } from "@dataspecer/core/core";
 import { CoreResourceReader } from "@dataspecer/core/core/core-reader";
-import { WdEntityId, WdEntityIdsList, WdEntityIri, wdIriToNumId } from "./wikidata-entities/wd-entity";
-import { WdClassHierarchyDescOnly } from "./wikidata-entities/wd-class";
-import { WdPropertyDescOnly } from "./wikidata-entities/wd-property";
-import { loadWikidataAssociation, loadWikidataAttribute } from "./wikidata-to-dataspecer-entity-adapters/wd-property-adapter";
+import { WdEntityId, WdEntityIdsList, WdEntityIri, wdIriToNumId } from "./wikidata-entities/wd-entity.ts";
+import { WdClassHierarchyDescOnly } from "./wikidata-entities/wd-class.ts";
+import { WdPropertyDescOnly } from "./wikidata-entities/wd-property.ts";
+import { loadWikidataAssociation, loadWikidataAttribute } from "./wikidata-to-dataspecer-entity-adapters/wd-property-adapter.ts";
 import { PimAttribute } from "@dataspecer/core/pim/model/pim-attribute";
 import { PimAssociation } from "@dataspecer/core/pim/model/pim-association";
-import { WdOntologyConnector } from "./wikidata-ontology-connector/wd-ontology-connector";
-import { isWdErrorResponse } from "./wikidata-ontology-connector/api-types/error";
-import { WdClassHierarchy } from "./wikidata-ontology-connector/api-types/get-class-hierarchy";
-import { loadWikidataClass } from "./wikidata-to-dataspecer-entity-adapters/wd-class-adapter";
-import { WdSparqlEndpointConnector } from "./wikidata-sparql-endpoint-connector/wd-sparql-endpoint-connector";
+import { WdOntologyConnector } from "./wikidata-ontology-connector/wd-ontology-connector.ts";
+import { isWdErrorResponse } from "./wikidata-ontology-connector/api-types/error.ts";
+import { WdClassHierarchy } from "./wikidata-ontology-connector/api-types/get-class-hierarchy.ts";
+import { loadWikidataClass } from "./wikidata-to-dataspecer-entity-adapters/wd-class-adapter.ts";
+import { WdSparqlEndpointConnector } from "./wikidata-sparql-endpoint-connector/wd-sparql-endpoint-connector.ts";
 
 export function isWikidataAdapter(adapter: CimAdapter): adapter is WikidataAdapter {
     return Object.hasOwn(adapter, "thisIsWikidataAdapter");

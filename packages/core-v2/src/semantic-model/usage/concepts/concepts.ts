@@ -1,6 +1,6 @@
-import { Entity } from "../../../entity-model";
-import { LanguageString, NamedThing } from "../../concepts/concepts";
-import { SEMANTIC_MODEL_CLASS_USAGE, SEMANTIC_MODEL_RELATIONSHIP_USAGE } from "./concepts-utils";
+import { Entity } from "../../../entity-model/index.ts";
+import { LanguageString, NamedThing } from "../../concepts/concepts.ts";
+import { SEMANTIC_MODEL_CLASS_USAGE, SEMANTIC_MODEL_RELATIONSHIP_USAGE } from "./concepts-utils.ts";
 
 /**
  * @deprecated Will be removed with profiles.

@@ -1,11 +1,11 @@
 import { AxiosResponse } from "axios";
-import { GenerationContext } from "../../engine/generator-stage-interface";
-import { LayerArtifact } from "../../engine/layer-artifact";
-import { DalGeneratorStrategy } from "../strategy-interface";
-import { DatasourceConfig, DataSourceType } from "../../engine/graph";
-import { SchemaProvider } from "../schema-providers/base-schema-provider";
-import { JsonSchemaProvider } from "../schema-providers/json-schema-provider";
-import { EndpointUri } from "../../engine/graph/datasource";
+import { GenerationContext } from "../../engine/generator-stage-interface.ts";
+import { LayerArtifact } from "../../engine/layer-artifact.ts";
+import { DalGeneratorStrategy } from "../strategy-interface.ts";
+import { DatasourceConfig, DataSourceType } from "../../engine/graph/index.ts";
+import { SchemaProvider } from "../schema-providers/base-schema-provider.ts";
+import { JsonSchemaProvider } from "../schema-providers/json-schema-provider.ts";
+import { EndpointUri } from "../../engine/graph/datasource.ts";
 
 class JsonDalStrategy implements DalGeneratorStrategy {
 

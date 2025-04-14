@@ -1,5 +1,5 @@
-import { CoreResource, LanguageString } from "../../core";
-import * as PIM from "../pim-vocabulary";
+import { CoreResource, LanguageString } from "../../core/index.ts";
+import * as PIM from "../pim-vocabulary.ts";
 
 /**
  * Represents a schema, diagram, on PIM level. Schema on this level

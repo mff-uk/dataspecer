@@ -1,7 +1,7 @@
-import { CoreResourceReader, CoreExecutorResult } from "../../core";
-import { DataPsmClass } from "../model";
-import { DataPsmSetJsonSchemaPrefixesInIriRegex } from "../operation";
-import { DataPsmExecutorResultFactory } from "./data-psm-executor-utils";
+import { CoreResourceReader, CoreExecutorResult } from "../../core/index.ts";
+import { DataPsmClass } from "../model/index.ts";
+import { DataPsmSetJsonSchemaPrefixesInIriRegex } from "../operation/index.ts";
+import { DataPsmExecutorResultFactory } from "./data-psm-executor-utils.ts";
 
 export async function executeDataPsmSetJsonSchemaPrefixesInIriRegex(
   reader: CoreResourceReader,

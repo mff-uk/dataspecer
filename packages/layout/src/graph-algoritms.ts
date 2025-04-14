@@ -1,4 +1,4 @@
-import { GraphClassic, IEdgeClassic, IGraphClassic, INodeClassic } from "./graph-iface";
+import { GraphClassic, IEdgeClassic, IGraphClassic, INodeClassic } from "./graph-iface.ts";
 
 type Dimensions = {
     width: number,
