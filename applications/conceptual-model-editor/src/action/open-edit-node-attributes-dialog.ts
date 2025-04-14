@@ -2,9 +2,9 @@ import {  WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { ClassesContextType } from "../context/classes-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { createEditVisualNodeDialog } from "../dialog/visual-node/edit-visual-node-dialog";
+import { createEditVisualNodeDialog } from "../dialog/visual-model/visual-node/edit-visual-node-dialog";
 import { Options } from "../application";
-import { createEditVisualNodeState, EditVisualNodeDialogState } from "../dialog/visual-node/edit-visual-node-dialog-state";
+import { createEditVisualNodeState, EditVisualNodeDialogState } from "../dialog/visual-model/visual-node/edit-visual-node-dialog-state";
 import { ModelGraphContextType } from "../context/model-context";
 
 export function openEditNodeAttributesDialogAction(
