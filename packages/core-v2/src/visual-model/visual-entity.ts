@@ -86,16 +86,6 @@ export function isVisualDiagramNode(what: Entity): what is VisualDiagramNode {
     return what.type.includes(VISUAL_DIAGRAM_NODE_TYPE);
 }
 
-export type VisualEdgeEndPoint = VisualDiagramNode | VisualNode;
-
-/**
- * @returns True if the given {@link what} is visual entity, which can be visual end of edge.
- * Currently that is either {@link VisualNode} or node representing diagram ({@link VisualDiagramNode}).
- */
-export function isVisualEdgeEnd(what: Entity): what is VisualEdgeEndPoint {
-    return isVisualNode(what) || isVisualDiagramNode(what);
-}
-
 export interface Position {
 
     x: number;
