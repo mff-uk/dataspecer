@@ -214,6 +214,9 @@ class XmlSchemaDocumentationGenerator {
       return this.getElementUniqueId(element, options.hash.type);
     };
     result["xml-href"] = (element: XmlSchemaElement | XmlSchemaType | QName | string, options: any) => {
+      if (!element) {
+        return "";
+      }
       // Use structure to link to other documentation of structure model
       if (options.hash.structure) {
         const specification = Object.values(this.context.specifications).find(specification => specification.psms.includes(options.hash.structure));

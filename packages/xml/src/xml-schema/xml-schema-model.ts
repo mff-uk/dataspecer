@@ -178,6 +178,10 @@ export class XmlSchemaSimpleType extends XmlSchemaType {
   simpleDefinition: XmlSchemaSimpleItem;
 }
 
+export class XmlSchemaLangStringType extends XmlSchemaType {
+  specialType: "langString";
+}
+
 export function xmlSchemaTypeIsComplex(
   type: XmlSchemaType | null
 ): type is XmlSchemaComplexType {
@@ -190,6 +194,13 @@ export function xmlSchemaTypeIsSimple(
 ): type is XmlSchemaSimpleType {
   return type != null &&
     (type as XmlSchemaSimpleType).simpleDefinition !== undefined;
+}
+
+export function xmlSchemaTypeIsLangString(
+  type: XmlSchemaType | null
+): type is XmlSchemaLangStringType {
+  return type != null &&
+    (type as XmlSchemaLangStringType).specialType === "langString";
 }
 
 /**
