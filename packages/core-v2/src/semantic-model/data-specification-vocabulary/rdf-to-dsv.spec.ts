@@ -49,7 +49,7 @@ test("From RDF to DSV and back.", async () => {
   dsv:reusedProperty vann:usageNote;
   dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution>
 ];
-    dsv:cardinality <https://w3id.org/dsv/cardinality#0n>;
+    dsv:cardinality cardinality:0n;
     dsv:property <http://www.w3.org/ns/dcat#distribution>;
     a dsv:ObjectPropertyProfile;
     dsv:objectPropertyRange <http://dcat-ap/ns/dcat#Distribution>.

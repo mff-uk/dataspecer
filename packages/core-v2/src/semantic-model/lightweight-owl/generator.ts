@@ -8,8 +8,8 @@ import {
 } from "../concepts/concepts.ts";
 import * as N3 from "n3";
 import { DataFactory, Quad_Predicate, Quad_Subject } from "n3";
-import namedNode = DataFactory.namedNode;
-import literal = DataFactory.literal;
+const namedNode = DataFactory.namedNode;
+const literal = DataFactory.literal;
 import {
     isSemanticModelAttribute,
     isSemanticModelClass,
