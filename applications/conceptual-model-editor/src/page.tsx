@@ -21,7 +21,6 @@ import {
 
 import { ClassesContext } from "./context/classes-context";
 import { ModelGraphContext } from "./context/model-context";
-import { type Warning, WarningsContext } from "./context/warnings-context";
 import Header from "./header/header";
 import { useBackendConnection } from "./backend-connection";
 import { Catalog } from "./catalog/catalog";
@@ -60,7 +59,6 @@ const Page = () => {
   const [relationships, setRelationships] = useState<SemanticModelRelationship[]>([]);
   const [generalizations, setGeneralizations] = useState<SemanticModelGeneralization[]>([]);
   const [usages, setUsages] = useState<(SemanticModelClassUsage | SemanticModelRelationshipUsage)[]>([]);
-  const [warnings, setWarnings] = useState<Warning[]>([]);
   const [rawEntities, setRawEntities] = useState<(Entity | null)[]>([]);
   const [visualModels, setVisualModels] = useState(new Map<string, WritableVisualModel>());
   const [sourceModelOfEntityMap, setSourceModelOfEntityMap] = useState(new Map<string, string>());
@@ -119,7 +117,7 @@ const Page = () => {
         updated, removed,
         setClasses, setRelationships,
         setUsages, setGeneralizations, setRawEntities,
-        setWarnings, setSourceModelOfEntityMap,
+        setSourceModelOfEntityMap,
         setClassProfiles, setRelationshipProfiles,
         aggregatorView);
     };
@@ -156,25 +154,23 @@ const Page = () => {
                 relationshipProfiles,
               }}
             >
-              <WarningsContext.Provider value={{ warnings, setWarnings }}>
-                <DialogContextProvider>
-                  <ActionsContextProvider>
-                    <Header />
-                    <main className="w-full flex-grow bg-teal-50 md:h-[calc(100%-48px)]">
-                      <VerticalSplitter
-                        className="h-full"
-                        initialSize={preferences().pageSplitterValue}
-                        onSizeChange={value => updatePreferences({pageSplitterValue: value})}
-                      >
-                        <Catalog />
-                        <Visualization />
-                      </VerticalSplitter>
-                    </main>
-                    <NotificationList />
-                    <DialogRenderer />
-                  </ActionsContextProvider>
-                </DialogContextProvider>
-              </WarningsContext.Provider>
+              <DialogContextProvider>
+                <ActionsContextProvider>
+                  <Header />
+                  <main className="w-full flex-grow bg-teal-50 md:h-[calc(100%-48px)]">
+                    <VerticalSplitter
+                      className="h-full"
+                      initialSize={preferences().pageSplitterValue}
+                      onSizeChange={value => updatePreferences({pageSplitterValue: value})}
+                    >
+                      <Catalog />
+                      <Visualization />
+                    </VerticalSplitter>
+                  </main>
+                  <NotificationList />
+                  <DialogRenderer />
+                </ActionsContextProvider>
+              </DialogContextProvider>
             </ClassesContext.Provider>
           </ModelGraphContext.Provider>
         </OptionsContextProvider>
@@ -340,7 +336,6 @@ function propagateAggregatorChangesToLocalState(
   setUsages: Dispatch<SetStateAction<(SemanticModelClassUsage | SemanticModelRelationshipUsage)[]>>,
   setGeneralizations: Dispatch<SetStateAction<SemanticModelGeneralization[]>>,
   setRawEntities: Dispatch<SetStateAction<(Entity | null)[]>>,
-  setWarnings: Dispatch<SetStateAction<Warning[]>>,
   setSourceModelOfEntityMap: Dispatch<SetStateAction<Map<string, string>>>,
   setClassProfiles: Dispatch<SetStateAction<SemanticModelClassProfile[]>>,
   setRelationshipProfiles: Dispatch<SetStateAction<SemanticModelRelationshipProfile[]>>,
@@ -387,14 +382,6 @@ function propagateAggregatorChangesToLocalState(
             "Both ends have an IRI, skipping.",
             curr.aggregatedEntity,
             curr.aggregatedEntity.ends
-          );
-          setWarnings((prev) =>
-            prev.concat({
-              id: getRandomName(15),
-              type: "unsupported-relationship",
-              message: "both ends have an IRI",
-              object: curr.aggregatedEntity,
-            })
           );
           return {
             updatedClasses,

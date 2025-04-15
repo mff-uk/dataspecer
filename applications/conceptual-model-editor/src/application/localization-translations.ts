@@ -238,7 +238,6 @@ export const translations: Record<string, string | Function> = {
   "model.relationship": "Relationship",
   "model.attributes": "Attributes",
   "model.profiles": "Profiles",
-  "model.warnings": "⚠️&nbsp;Warnings",
   "model-catalog.add-vocabulary": "➕",
   //
   "detail-dialog.btn-close": "Close",
