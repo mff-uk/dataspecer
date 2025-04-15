@@ -71,6 +71,10 @@ function createDefaultConfiguration(): ConceptualModelToRdfConfiguration {
       "dsv": "https://w3id.org/dsv#",
       "owl": "http://www.w3.org/2002/07/owl#",
       "skos": "http://www.w3.org/2004/02/skos/core#",
+      "vann": "http://purl.org/vocab/vann/",
+      "cardinality": "https://w3id.org/dsv/cardinality#",
+      "requirement": "https://w3id.org/dsv/requirement-level#",
+      "role": "https://w3id.org/dsv/class-role#",
     },
     "prettyPrint": true,
   };
