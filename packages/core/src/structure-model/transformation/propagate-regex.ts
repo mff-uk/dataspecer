@@ -24,11 +24,14 @@ export function propagateRegex(
       if (conceptualProperty) {
         for (const dataType of property.dataTypes) {
           if (dataType.isAttribute()) {
-            dataType.regex = dataType.regex ?? (conceptualProperty.dataTypes[0] as ConceptualModelPrimitiveType)?.regex ?? null;
+            // Only propagate regex if dataType matches conceptualProperty dataType
+            const matchingConceptualType = conceptualProperty.dataTypes.find(ct => ct.isAttribute() && (ct as any).dataType === (dataType as any).dataType);
+            if (matchingConceptualType) {
+              dataType.regex = dataType.regex ?? (matchingConceptualType as ConceptualModelPrimitiveType).regex ?? null;
+            }
           }
         }
       }
-
     });
   }
   return result;
