@@ -1,22 +1,24 @@
 import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { CmeClassProfile } from "../model";
+import { CmeClassAggregate } from "../model/cme-class-aggregate";
 import { asRole } from "./adapter-utilities";
 
-export const semanticClassProfileToCmeClassProfile = (
+export const semanticClassProfileToCmeClassAggregate = (
   semanticModel: string,
   entity: SemanticModelClassProfile,
-): CmeClassProfile => {
+  aggregate: SemanticModelClassProfile,
+): CmeClassAggregate => {
   return {
+    aggregate: true,
     model: semanticModel,
     identifier: entity.id,
     iri: entity.iri,
-    name: entity.name,
+    name: aggregate.name,
     nameSource: entity.nameFromProfiled,
-    description: entity.description,
+    description: aggregate.description,
     descriptionSource: entity.descriptionFromProfiled,
     externalDocumentationUrl: entity.externalDocumentationUrl ?? null,
     profileOf: entity.profiling,
-    usageNote: entity.usageNote,
+    usageNote: aggregate.usageNote,
     usageNoteSource: entity.usageNoteFromProfiled,
     // We use ?? [] as this may not be always there.
     role: asRole(entity.tags ?? []),

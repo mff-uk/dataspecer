@@ -2,7 +2,14 @@ import { LanguageString, EntityDsIdentifier, ModelDsIdentifier } from "../../ent
 import { CmeCardinality } from "./cme-cardinality";
 import { CmeRelationshipProfileMandatoryLevel } from "./cme-well-known";
 
-export interface NewCmeRelationshipProfile {
+/**
+ * Aggregated relationship profile.
+ */
+export interface CmeRelationshipAggregate {
+
+  aggregate: true;
+
+  identifier: EntityDsIdentifier;
 
   model: ModelDsIdentifier;
 
@@ -33,11 +40,5 @@ export interface NewCmeRelationshipProfile {
   externalDocumentationUrl: string | null;
 
   mandatoryLevel: CmeRelationshipProfileMandatoryLevel | null;
-
-}
-
-export interface CmeRelationshipProfile extends NewCmeRelationshipProfile {
-
-  identifier: EntityDsIdentifier;
 
 }

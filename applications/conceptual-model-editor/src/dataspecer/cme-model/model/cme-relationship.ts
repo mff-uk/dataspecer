@@ -1,4 +1,4 @@
-import { LanguageString } from "@dataspecer/core/core/core-resource";
+import { LanguageString } from "../../entity-model";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
 import { CmeCardinality } from "./cme-cardinality";
 

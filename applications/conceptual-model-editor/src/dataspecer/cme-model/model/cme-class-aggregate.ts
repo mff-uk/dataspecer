@@ -1,7 +1,14 @@
 import { LanguageString, EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
 import { CmeClassProfileRole } from "./cme-well-known";
 
-export interface NewCmeClassProfile {
+/**
+ * Aggregated class profile.
+ */
+export interface CmeClassAggregate {
+
+  aggregate: true;
+
+  identifier: EntityDsIdentifier;
 
   model: ModelDsIdentifier;
 
@@ -24,11 +31,5 @@ export interface NewCmeClassProfile {
   externalDocumentationUrl: string | null;
 
   role: CmeClassProfileRole | null;
-
-}
-
-export interface CmeClassProfile extends NewCmeClassProfile {
-
-  identifier: EntityDsIdentifier;
 
 }
