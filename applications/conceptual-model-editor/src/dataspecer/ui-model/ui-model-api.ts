@@ -1,86 +1,35 @@
-import { createLogger } from "../../application";
-import { DataspecerError } from "../dataspecer-error";
+import { HexColor } from "@dataspecer/core-v2/visual-model";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../entity-model";
-import { UiAssociation, UiAssociationProfile, UiAttribute, UiAttributeProfile, UiClass, UiClassProfile, UiModelState } from "./ui-model";
+import { UiEntity, UiReference } from "./model";
+import { UiModelState } from "./ui-model-state";
 
-const LOG = createLogger(import.meta.url);
-
-/**
- * Provide API for reading or modify {@link UiModelState}.
- */
 export interface UiModelApi {
 
-  getClass: (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => UiClass | null;
+  getEntity(reference: UiReference): UiEntity | null;
 
-  getClassProfile: (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => UiClassProfile | null;
+  getEntityByIdentifier(identifier: EntityDsIdentifier): UiEntity | null;
 
-  getAttribute: (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => UiAttribute | null;
-
-  getAttributeProfile: (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => UiAttributeProfile | null;
-
-  getAssociation: (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => UiAssociation | null;
-
-  getAssociationProfile: (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => UiAssociationProfile | null;
+  getSemanticModelColor(identifier: ModelDsIdentifier): HexColor;
 
 }
 
-export function createUiModelApi(
-  getPrevious: () => UiModelState | null,
+export function wrapUiModelStateToUiModelApi(
+  state: UiModelState,
+  defaultModelColor: string,
 ): UiModelApi {
-
-  const withPrevious = <T>(callback: (prev: UiModelState) => T) => {
-    const previous = getPrevious();
-    if (previous === null) {
-      LOG.warn("Ignored API call on ui-model as the state is null.");
-      throw new DataspecerError("dataspecer.ui-model.state-is-null");
-    } else {
-      return callback(previous);
-    }
-  };
-
-  //
-
-  const getClass = (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => withPrevious(prev => {
-    return find(entity, vocabulary, prev.classes);
-  });
-
-  const getClassProfile = (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => withPrevious(prev => {
-    return find(entity, vocabulary, prev.classProfiles);
-  });
-
-  const getAttribute = (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => withPrevious(prev => {
-    return find(entity, vocabulary, prev.attributes);
-  });
-
-  const getAttributeProfile = (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => withPrevious(prev => {
-    return find(entity, vocabulary, prev.attributeProfiles);
-  });
-
-  const getAssociation = (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => withPrevious(prev => {
-    return find(entity, vocabulary, prev.associations);
-  });
-
-  const getAssociationProfile = (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => withPrevious(prev => {
-    return find(entity, vocabulary, prev.associationProfiles);
-  });
-
+  const entitiesMap: Record<string, UiEntity[]> = {};
   return {
-    getClass,
-    getClassProfile,
-    getAttribute,
-    getAttributeProfile,
-    getAssociation,
-    getAssociationProfile,
-  };
-}
-
-/**
- * Find and return item with given identifier within given vocabulary.
- */
-function find<T extends {
-  dsIdentifier: EntityDsIdentifier,
-  vocabulary: { dsIdentifier: ModelDsIdentifier },
-}>(identifier: EntityDsIdentifier, vocabulary: ModelDsIdentifier, items: T[]): T | null {
-  return items.find(item => item.dsIdentifier === identifier && item.vocabulary.dsIdentifier === vocabulary)
-    ?? null;
+    getEntity(reference) {
+      const entities = entitiesMap[reference.identifier];
+      return entities.find(item => item.model === reference.model) ?? null;
+    },
+    getEntityByIdentifier(identifier) {
+      const entities = entitiesMap[identifier];
+      return entities?.[0] ?? null;
+    },
+    getSemanticModelColor(identifier) {
+      const model = state.semanticModels.find(model => model.identifier === identifier);
+      return model?.displayColor ?? defaultModelColor;
+    },
+  }
 }
