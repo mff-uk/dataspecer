@@ -126,56 +126,54 @@ const Page = () => {
   }, [aggregatorView]);
 
   return (
-    <QueryParamsProvider>
-      <ExplorationContextProvider>
-        <OptionsContextProvider>
-          <ModelGraphContext.Provider
+    <ExplorationContextProvider>
+      <OptionsContextProvider>
+        <ModelGraphContext.Provider
+          value={{
+            aggregator,
+            aggregatorView,
+            setAggregatorView,
+            models,
+            setModels,
+            visualModels,
+            setVisualModels,
+          }}
+        >
+          <ClassesContext.Provider
             value={{
-              aggregator,
-              aggregatorView,
-              setAggregatorView,
-              models,
-              setModels,
-              visualModels,
-              setVisualModels,
+              classes,
+              allowedClasses,
+              setAllowedClasses,
+              relationships,
+              generalizations,
+              usages,
+              sourceModelOfEntityMap,
+              rawEntities,
+              classProfiles,
+              relationshipProfiles,
             }}
           >
-            <ClassesContext.Provider
-              value={{
-                classes,
-                allowedClasses,
-                setAllowedClasses,
-                relationships,
-                generalizations,
-                usages,
-                sourceModelOfEntityMap,
-                rawEntities,
-                classProfiles,
-                relationshipProfiles,
-              }}
-            >
-              <DialogContextProvider>
-                <ActionsContextProvider>
-                  <Header />
-                  <main className="w-full flex-grow bg-teal-50 md:h-[calc(100%-48px)]">
-                    <VerticalSplitter
-                      className="h-full"
-                      initialSize={preferences().pageSplitterValue}
-                      onSizeChange={value => updatePreferences({pageSplitterValue: value})}
-                    >
-                      <Catalog />
-                      <Visualization />
-                    </VerticalSplitter>
-                  </main>
-                  <NotificationList />
-                  <DialogRenderer />
-                </ActionsContextProvider>
-              </DialogContextProvider>
-            </ClassesContext.Provider>
-          </ModelGraphContext.Provider>
-        </OptionsContextProvider>
-      </ExplorationContextProvider>
-    </QueryParamsProvider>
+            <DialogContextProvider>
+              <ActionsContextProvider>
+                <Header />
+                <main className="w-full flex-grow bg-teal-50 md:h-[calc(100%-48px)]">
+                  <VerticalSplitter
+                    className="h-full"
+                    initialSize={preferences().pageSplitterValue}
+                    onSizeChange={value => updatePreferences({pageSplitterValue: value})}
+                  >
+                    <Catalog />
+                    <Visualization />
+                  </VerticalSplitter>
+                </main>
+                <NotificationList />
+                <DialogRenderer />
+              </ActionsContextProvider>
+            </DialogContextProvider>
+          </ClassesContext.Provider>
+        </ModelGraphContext.Provider>
+      </OptionsContextProvider>
+    </ExplorationContextProvider>
   );
 };
 
