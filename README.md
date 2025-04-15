@@ -77,11 +77,15 @@ To develop a concrete package or application, there is *usually* an `npm run dev
 
 # Acknowledgments
 
-<p align="left"> <img src="assets/images/eosc-cz.webp" alt="EOSC CZ Logo" height="75"> </p>
+<p align="left">
+  <img src="https://webcentrum.muni.cz/media/3831863/seda_eosc.png" alt="EOSC CZ Logo" height="90">
+</p>
+
+---
+This project output was developed within the [EOSC CZ](https://www.eosc.cz/projekty/narodni-podpora-pro-eosc) initiative through the project **National Repository Platform for Research Data** (CZ.02.01.01/00/23_014/0008787) founded by Programme Johannes Amos Comenius (P JAC) of the Ministry of Education, Youth and Sports of the Czech Republic (MEYS).
 
 ---
 
-This source was partially developed within the [EOSC CZ](https://www.eosc.cz/) initiative with support from public funding **Open Science I** calls under the **Jan Amos Comenius Programme (OP JAK)** of the Ministry of Education, Youth and Sports of the Czech Republic (MŠMT), project number [CZ.02.01.01/00/23_014/0008787](https://www.eosc.cz/projekty/narodni-repozitarova-platforma-pro-vyzkumna-data-os-i-nrp/vice-o-projektu-nrp).
-
----
-<p align="left"> <img src="assets/images/eu-mšmt.webp" alt="EU and MŠMT Logos" height="80"> </p>
+<p align="left">
+  <img src="https://webcentrum.muni.cz/media/3832168/seda_eu-msmt_eng.png" alt="EU and MŠMT Logos" height="90">
+</p>
