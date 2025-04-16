@@ -276,7 +276,7 @@ class XmlSchemaAdapter {
         }
         const element = {
           entityType: "element",
-          name: [null, "choiceOption"],
+          name: [null, cls.technicalLabel],
           type: await this.singleClassToType(cls),
           annotation: null,
         } satisfies XmlSchemaElement;
