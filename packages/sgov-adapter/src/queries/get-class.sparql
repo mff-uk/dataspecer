@@ -12,14 +12,19 @@ CONSTRUCT {
     skos:inScheme ?glossary ;
     <__is_ciselnik> ?is_ciselnik .
 } WHERE {
-  ?node a z:typ-objektu .
+	# Class is skos:Concept but not z:typ-vlastnosti or z:typ-vztahu
+ 	# This will includes also meta-classes from https://slovník.gov.cz/základní/glosářglosář
+ 	?node a skos:Concept .
+ 	MINUS { ?node a z:typ-vlastnosti . }
+ 	MINUS { ?node a z:typ-vztahu . }
+ 
   OPTIONAL { ?node skos:prefLabel ?label . }
   OPTIONAL {
     ?node rdfs:subClassOf ?ancestor .
     ?ancestor a z:typ-objektu .
-    FILTER NOT EXISTS {
-        ?ancestor skos:inScheme <https://slovník.gov.cz/základní/glosář> .
-    }
+#    FILTER NOT EXISTS {
+#        ?ancestor skos:inScheme <https://slovník.gov.cz/základní/glosář> .
+#    }
 
     OPTIONAL {
         ?ancestor rdfs:subClassOf ?elementParent .
