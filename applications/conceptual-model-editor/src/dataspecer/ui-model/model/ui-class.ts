@@ -8,12 +8,10 @@ export interface UiClass extends UiEntity {
 
   iri: string;
 
-  displayDescription: string;
+  description: string;
 
 }
 
-export function isUiClass(
-  entity: UiEntity | null,
-): entity is UiClass {
+export function isUiClass(entity: UiEntity | null): entity is UiClass {
   return entity?.type === UI_CLASS_TYPE;
 }

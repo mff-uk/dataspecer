@@ -34,7 +34,7 @@ export function openEditAssociationProfileDialogAction(
     });
     cmeExecutor.updateSpecialization(
       { identifier: entity.id, model: model.getId() },
-      state.model.dsIdentifier,
+      state.model.identifier,
       initialState.specializations, state.specializations);
   };
 

@@ -15,7 +15,7 @@ export const SelectModel = (props: {
   const onChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const identifier = event.target.value;
     for (const item of props.items) {
-      if (item.dsIdentifier === identifier) {
+      if (item.identifier === identifier) {
         props.onChange(item);
       }
     }
@@ -29,14 +29,14 @@ export const SelectModel = (props: {
       name="models"
       id="models"
       onChange={onChange}
-      value={props.value.dsIdentifier}
+      value={props.value.identifier}
       disabled={props.disabled}
     >
       {props.items.map(item => (
-        <option key={item.dsIdentifier} value={item.dsIdentifier}>
+        <option key={item.identifier} value={item.identifier}>
           {languageStringToString(
             languagePreferences,
-            props.language, item.displayLabel)}
+            props.language, item.name)}
         </option>
       ))}
     </select>

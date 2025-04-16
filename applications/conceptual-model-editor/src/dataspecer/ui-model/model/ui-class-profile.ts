@@ -7,13 +7,16 @@ export interface UiClassProfile extends UiEntity {
 
   type: typeof UI_CLASS_PROFILE_TYPE;
 
-  iri: string;
-
-  displayDescription: string;
-
+  /**
+   * As profiles can create cycle we store them as references.
+   */
   profiling: UiReference[];
 
-  displayUsageNode: string;
+  usageNote: string;
+
+  iri: string;
+
+  description: string;
 
 }
 

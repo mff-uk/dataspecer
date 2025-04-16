@@ -24,11 +24,11 @@ test("Test change attribute - Visibility", () => {
   } = prepareVisualModelWithFourNodes();
   const newAttributes = [];
   //
-  newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, "attribute-0"));
+  newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].identifier, "attribute-0"));
   addSemanticAttributeToFirstVisualNodeByRepresented(visualModel, "0", newAttributes[0].identifier, null);
   expect((visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode).content.length).toEqual(1);
   //
-  newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, "attribute-1"));
+  newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].identifier, "attribute-1"));
   addSemanticAttributeToFirstVisualNodeByRepresented(visualModel, "0", newAttributes[1].identifier, null);
   expect((visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode).content.length).toEqual(2);
   //
@@ -48,18 +48,18 @@ test("Test change attribute - Visibility - order", () => {
   } = prepareVisualModelWithFourNodes();
   const newAttributes = [];
   //
-  newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, "attribute-0"));
+  newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].identifier, "attribute-0"));
   addSemanticAttributeToFirstVisualNodeByRepresented(visualModel, "0", newAttributes[0].identifier, 0);
   expect((visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode).content.length).toEqual(1);
   //
-  newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, "attribute-1"));
+  newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].identifier, "attribute-1"));
   addSemanticAttributeToFirstVisualNodeByRepresented(visualModel, "0", newAttributes[1].identifier, 0);
   let actualContent = (visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode).content;
   expect(actualContent.length).toEqual(2);
   expect(actualContent[0]).toEqual(newAttributes[1].identifier);
   expect(actualContent[1]).toEqual(newAttributes[0].identifier);
   //
-  newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, "attribute-3"));
+  newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].identifier, "attribute-3"));
   addSemanticAttributeToFirstVisualNodeByRepresented(visualModel, "0", newAttributes[2].identifier, 1);
   actualContent = (visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode).content;
   expect(actualContent.length).toEqual(3);
@@ -77,11 +77,11 @@ test("Test change attribute - Visibility - back to back", () => {
   } = prepareVisualModelWithFourNodes();
   const newAttributes = [];
   //
-  newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, "attribute-0"));
+  newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].identifier, "attribute-0"));
   addSemanticAttributeToFirstVisualNodeByRepresented(visualModel, "0", newAttributes[0].identifier, null);
   expect((visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode).content.length).toEqual(1);
   //
-  newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, "attribute-1"));
+  newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].identifier, "attribute-1"));
   addSemanticAttributeToFirstVisualNodeByRepresented(visualModel, "0", newAttributes[1].identifier, null);
   expect((visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode).content.length).toEqual(2);
   //
@@ -110,11 +110,11 @@ test("Test change attribute usage - Visibility - back to back", () => {
     cmeModels
   } = prepareVisualModelWithFourNodes();
   const newAttributes = [];
-  newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, "attribute-0"));
+  newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].identifier, "attribute-0"));
   addSemanticAttributeToFirstVisualNodeByRepresented(visualModel, "0", newAttributes[0].identifier, null);
   expect((visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode).content.length).toEqual(1);
   //
-  newAttributes.push(createSemanticAttributeUsageTestVariant(models, newAttributes[0].identifier, "0", cmeModels[0].dsIdentifier, "attribute-1"));
+  newAttributes.push(createSemanticAttributeUsageTestVariant(models, newAttributes[0].identifier, "0", cmeModels[0].identifier, "attribute-1"));
   addSemanticAttributeToFirstVisualNodeByRepresented(visualModel, "0", newAttributes[1].identifier, null);
   expect((visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode).content.length).toEqual(2);
 
@@ -145,7 +145,7 @@ test("Test change attribute order - one", () => {
   const size = 5;
   const attributes: string[] = [];
   for(let i = 0; i < size; i++) {
-    const newAttribute = createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, `attribute-${i}`);
+    const newAttribute = createSemanticAttributeTestVariant(models, "0", cmeModels[0].identifier, `attribute-${i}`);
     addSemanticAttributeToFirstVisualNodeByRepresented(visualModel, "0", newAttribute.identifier, null);
     attributes.push(newAttribute.identifier);
   }
@@ -175,7 +175,7 @@ test("Test change attribute order - one - test 2", () => {
   const size = 6;
   const attributes: string[] = [];
   for(let i = 0; i < size; i++) {
-    const newAttribute = createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, `attribute-${i}`);
+    const newAttribute = createSemanticAttributeTestVariant(models, "0", cmeModels[0].identifier, `attribute-${i}`);
     addSemanticAttributeToFirstVisualNodeByRepresented(visualModel, "0", newAttribute.identifier, null);
     attributes.push(newAttribute.identifier);
   }
@@ -208,7 +208,7 @@ test("Test change attribute order - back to back", () => {
   const attributes: string[] = [];
   //
   for(let i = 0; i < size; i++) {
-    const newAttribute = createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, `attribute-${i}`);
+    const newAttribute = createSemanticAttributeTestVariant(models, "0", cmeModels[0].identifier, `attribute-${i}`);
     addSemanticAttributeToFirstVisualNodeByRepresented(visualModel, "0", newAttribute.identifier, null);
     attributes.push(newAttribute.identifier);
   }
@@ -255,7 +255,7 @@ test("Test change attribute order - change multi", () => {
   const attributes: string[] = [];
   //
   for(let i = 0; i < size; i++) {
-    const newAttribute = createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, `attribute-${i}`);
+    const newAttribute = createSemanticAttributeTestVariant(models, "0", cmeModels[0].identifier, `attribute-${i}`);
     addSemanticAttributeToFirstVisualNodeByRepresented(visualModel, "0", newAttribute.identifier, null);
     attributes.push(newAttribute.identifier);
   }
@@ -302,12 +302,12 @@ test("Test change attribute order - change multi - attribute usage", () => {
   const size = 6;
   const attributes: string[] = [];
   //
-  const originalAttribute = createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, "attribute-0");
+  const originalAttribute = createSemanticAttributeTestVariant(models, "0", cmeModels[0].identifier, "attribute-0");
   addSemanticAttributeToFirstVisualNodeByRepresented(visualModel, "0", originalAttribute.identifier, null);
   attributes.push(originalAttribute.identifier);
   for(let i = 1; i < size; i++) {
     const newAttributeUsage = createSemanticAttributeUsageTestVariant(
-      models, originalAttribute.identifier, "0", cmeModels[0].dsIdentifier, `attribute-${i}`);
+      models, originalAttribute.identifier, "0", cmeModels[0].identifier, `attribute-${i}`);
     addSemanticAttributeToFirstVisualNodeByRepresented(visualModel, "0", newAttributeUsage.identifier, null);
     attributes.push(newAttributeUsage.identifier);
   }
@@ -353,12 +353,12 @@ test("Test change attribute order - change multi - attribute profile", () => {
   const size = 6;
   const attributes: string[] = [];
   //
-  const originalAttribute = createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, "attribute-0");
+  const originalAttribute = createSemanticAttributeTestVariant(models, "0", cmeModels[0].identifier, "attribute-0");
   addSemanticAttributeToFirstVisualNodeByRepresented(visualModel, "0", originalAttribute.identifier, null);
   attributes.push(originalAttribute.identifier);
   for(let i = 1; i < size; i++) {
     const newAttributeProfile = createSemanticAttributeProfileTestVariant(
-      models, originalAttribute.identifier, "0", cmeModels[0].dsIdentifier);
+      models, originalAttribute.identifier, "0", cmeModels[0].identifier);
     addSemanticAttributeToFirstVisualNodeByRepresented(visualModel, "0", newAttributeProfile.identifier, null);
     attributes.push(newAttributeProfile.identifier);
   }

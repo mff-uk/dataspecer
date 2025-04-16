@@ -1,4 +1,5 @@
 import { LanguageString, EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
+import { CmeEntity } from "./cme-entity";
 
 export interface NewCmeClass {
 
@@ -14,7 +15,7 @@ export interface NewCmeClass {
 
 }
 
-export interface CmeClass extends NewCmeClass {
+export interface CmeClass extends CmeEntity, NewCmeClass {
 
   identifier: EntityDsIdentifier;
 

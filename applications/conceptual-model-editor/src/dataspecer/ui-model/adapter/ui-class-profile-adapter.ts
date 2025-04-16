@@ -1,15 +1,20 @@
-import { UI_CLASS_PROFILE_TYPE, UiClassProfile, UiReference } from "../model";
-import { UiAdapterContext } from "./adapter-context";
+import { UI_CLASS_PROFILE_TYPE, UiClassProfile, UiReference, UiSemanticModel } from "../model";
+import { SelectLabel, SelectLanguageString, SelectModelsWithEntity } from "./adapter-context";
 import { CmeClassAggregate } from "../../cme-model/model";
 
 export const cmeClassAggregateToUiClassProfile = (
-  context: UiAdapterContext,
+  context: {
+    selectLabel: SelectLabel,
+    selectLanguageString: SelectLanguageString,
+    selectModelsWithEntity: SelectModelsWithEntity,
+  },
+  model: UiSemanticModel,
   entity: CmeClassAggregate,
 ): UiClassProfile => {
 
   const profiling: UiReference[] = [];
   for (const profileOf of entity.profileOf) {
-    for (const model of context.selectModels(profileOf)) {
+    for (const model of context.selectModelsWithEntity(profileOf)) {
       profiling.push({
         identifier: profileOf,
         model,
@@ -19,12 +24,12 @@ export const cmeClassAggregateToUiClassProfile = (
 
   return {
     type: UI_CLASS_PROFILE_TYPE,
-    model: entity.model,
+    model,
     identifier: entity.identifier,
     iri: entity.iri ?? "",
-    displayLabel: context.selectDisplayLabel(entity),
-    displayDescription: context.selectLanguageString(entity.description),
-    displayUsageNode: context.selectLanguageString(entity.usageNote),
+    label: context.selectLabel(entity.name, entity.iri, entity.identifier),
+    description: context.selectLanguageString(entity.description),
+    usageNote: context.selectLanguageString(entity.usageNote),
     profiling,
   };
 };

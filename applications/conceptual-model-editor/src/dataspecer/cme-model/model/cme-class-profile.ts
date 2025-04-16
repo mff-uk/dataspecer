@@ -1,4 +1,5 @@
 import { LanguageString, EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
+import { CmeEntity } from "./cme-entity";
 import { CmeClassProfileRole } from "./cme-well-known";
 
 export interface NewCmeClassProfile {
@@ -27,7 +28,7 @@ export interface NewCmeClassProfile {
 
 }
 
-export interface CmeClassProfile extends NewCmeClassProfile {
+export interface CmeClassProfile extends CmeEntity, NewCmeClassProfile {
 
   identifier: EntityDsIdentifier;
 

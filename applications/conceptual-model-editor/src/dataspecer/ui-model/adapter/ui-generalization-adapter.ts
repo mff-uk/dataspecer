@@ -1,16 +1,18 @@
 import { CmeGeneralization } from "../../cme-model";
-import { UI_GENERALIZATION_TYPE, UiGeneralization } from "../model";
-import { UiAdapterContext } from "./adapter-context";
+import { UI_GENERALIZATION_TYPE, UiEntity, UiGeneralization, UiSemanticModel } from "../model";
 
 export const cmeGeneralizationToCmeGeneralization = (
-  context: UiAdapterContext,
+  model: UiSemanticModel,
   entity: CmeGeneralization,
+  parent: UiEntity,
+  child: UiEntity,
 ): UiGeneralization => {
   return {
     type: UI_GENERALIZATION_TYPE,
-    model: entity.model,
+    model,
     identifier: entity.identifier,
-    // We need to compute label later.
-    displayLabel: "",
+    label: child.label + " <- " + parent.label,
+    parent,
+    child,
   };
 };

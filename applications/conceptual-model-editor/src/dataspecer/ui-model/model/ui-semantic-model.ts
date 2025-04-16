@@ -1,5 +1,5 @@
+import { CmeSemanticModelType } from "../../cme-model";
 import { ModelDsIdentifier } from "../../entity-model";
-import { UiModelType } from "./ui-model-type";
 
 export interface UiSemanticModel {
 
@@ -8,13 +8,16 @@ export interface UiSemanticModel {
   /**
    * Type of underlying model representation.
    */
-  modelType: UiModelType;
+  modelType: CmeSemanticModelType;
 
   /**
    * Short label representing the entity in the user interface.
    */
-  displayLabel: string;
+  label: string;
 
-  displayColor: string;
+  /**
+   * Color of the model.
+   */
+  color: string;
 
 }

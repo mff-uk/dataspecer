@@ -36,13 +36,13 @@ export function useClassProfileDialogController(
         // Update available specializations
         const availableSpecializations = sanitizeDuplicitiesInRepresentativeLabels(
           state.allModels,
-          state.allSpecializations.filter(item => item.vocabularyDsIdentifier === model.dsIdentifier));
+          state.allSpecializations.filter(item => item.model === model.identifier));
         sortRepresentatives(state.language, availableSpecializations);
         state.availableSpecializations = availableSpecializations;
 
         // Remove specializations from other model.
         result.specializations = result.specializations
-          .filter(item => item.specializationOf.model === model.dsIdentifier);
+          .filter(item => item.specializationOf.model === model.identifier);
 
         return result;
       });

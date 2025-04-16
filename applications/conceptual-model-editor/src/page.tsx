@@ -26,7 +26,6 @@ import { useBackendConnection } from "./backend-connection";
 import { Catalog } from "./catalog/catalog";
 import { Visualization } from "./visualization";
 import { bothEndsHaveAnIri } from "./util/relationship-utils";
-import { getRandomName } from "./util/random-gen";
 import { QueryParamsProvider, useQueryParamsContext } from "./context/query-params-context";
 import { DialogContextProvider } from "./dialog/dialog-context";
 import { DialogRenderer } from "./dialog/dialog-renderer";

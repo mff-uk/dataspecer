@@ -5,7 +5,7 @@ import { emptyAsNull } from "../../utilities/string";
 export function classProfileDialogStateToNewCmeClassProfile(
   state: ClassProfileDialogState): NewCmeClassProfile {
   return {
-    model: state.model.dsIdentifier,
+    model: state.model.identifier,
     profileOf: state.profiles.map(item => item.identifier),
     iri: state.iri,
     name: state.name,

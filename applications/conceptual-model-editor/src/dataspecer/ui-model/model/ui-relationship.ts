@@ -1,4 +1,5 @@
 import { UiEntity } from "./ui-entity";
+import { UiCardinality } from "./ui-cardinality";
 
 export const UI_RELATIONSHIP_TYPE = "ui-Relationship-type";
 
@@ -6,9 +7,13 @@ export interface UiRelationship extends UiEntity {
 
   type: typeof UI_RELATIONSHIP_TYPE;
 
-  displayDomainCardinality: string | null;
+  domain: UiEntity;
 
-  displayRangeCardinality: string | null;
+  domainCardinality: UiCardinality | null;
+
+  range: UiEntity;
+
+  rangeCardinality: UiCardinality | null;
 
 }
 

@@ -158,7 +158,7 @@ export function createNewBaseEntityProfileDialogState<
 
   const availableSpecializations = sanitizeDuplicitiesInRepresentativeLabels(
     allModels,
-    allSpecializations.filter(item => item.vocabularyDsIdentifier === model.dsIdentifier));
+    allSpecializations.filter(item => item.model === model.identifier));
   sortRepresentatives(language, availableSpecializations);
 
   const source = profiles[0];
@@ -330,7 +330,7 @@ export function createEditBaseEntityProfileDialogState
 
   const availableSpecializations = sanitizeDuplicitiesInRepresentativeLabels(
     allModels, allSpecializations
-      .filter(item => item.vocabularyDsIdentifier === model.dsIdentifier)
+      .filter(item => item.model === model.identifier)
       .filter(item => item.identifier !== entity.identifier));
   sortRepresentatives(language, availableSpecializations);
 
@@ -380,13 +380,13 @@ export function createEditBaseEntityProfileDialogState
   };
 }
 
-function findByIdentifier<Type extends { dsIdentifier: string }>(
+function findByIdentifier<Type extends { identifier: string }>(
   items: Type[], identifier: string | null,
 ): Type | null {
   if (identifier === null) {
     return null;
   }
-  return items.find(item => item.dsIdentifier === identifier) ?? null;
+  return items.find(item => item.identifier === identifier) ?? null;
 }
 
 // Same function is in base-entity-dialog-state
@@ -412,7 +412,7 @@ function representSpecializations(
         iri: entity.iri ?? "",
         specializationOf: {
           identifier: specialized?.identifier ?? entity.parent,
-          model: specialized?.vocabularyDsIdentifier ?? UNDEFINED_MODEL,
+          model: specialized?.model ?? UNDEFINED_MODEL,
         },
         generalization: {
           identifier: entity.id,

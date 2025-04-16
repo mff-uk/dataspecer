@@ -1,11 +1,12 @@
 import { LanguageString, EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
 import { CmeCardinality } from "./cme-cardinality";
+import { CmeEntity } from "./cme-entity";
 import { CmeRelationshipProfileMandatoryLevel } from "./cme-well-known";
 
 /**
  * Aggregated relationship profile.
  */
-export interface CmeRelationshipAggregate {
+export interface CmeRelationshipAggregate extends CmeEntity {
 
   aggregate: true;
 

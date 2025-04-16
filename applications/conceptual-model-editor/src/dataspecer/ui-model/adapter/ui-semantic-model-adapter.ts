@@ -1,44 +1,19 @@
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
+import { CmeSemanticModel } from "../../cme-model";
+import { UiSemanticModel } from "../model";
+import { SelectLanguageString, SelectSemanticModelColor } from "./adapter-context";
 
-import { SemanticModel } from "../../semantic-model";
-import { UiModelType, UiSemanticModel } from "../model";
-import { UiAdapterContext } from "./adapter-context";
-
-export function semanticModelMapToCmeSemanticModel(
-  context: UiAdapterContext,
-  semanticModels: SemanticModel[],
-): UiSemanticModel[] {
-  return semanticModels.map(model => semanticModelToCmeSemanticModel(context, model));
-}
-
-export function semanticModelToCmeSemanticModel(
-  context: UiAdapterContext,
-  model: SemanticModel,
+export function semanticModelToUiSemanticModel(
+  context: {
+    selectSemanticModelColor: SelectSemanticModelColor,
+    selectLanguageString: SelectLanguageString,
+  },
+  model: CmeSemanticModel,
 ): UiSemanticModel {
-  const identifier = model.getId();
-  const displayLabel = model.getAlias() ?? identifier;
-  const displayColor = context.selectModelColor(identifier);
-  if (model instanceof InMemorySemanticModel) {
-    return {
-      identifier,
-      modelType: UiModelType.InMemorySemanticModel,
-      displayLabel,
-      displayColor,
-    }
-  } else if (model instanceof ExternalSemanticModel) {
-    return {
-      identifier,
-      modelType: UiModelType.ExternalSemanticModel,
-      displayLabel,
-      displayColor,
-    }
-  } else {
-    return {
-      identifier,
-      modelType: UiModelType.DefaultSemanticModel,
-      displayLabel,
-      displayColor,
-    }
-  }
+  return {
+    identifier: model.identifier,
+    modelType: model.modelType,
+    label: context.selectLanguageString(model.name)
+      ?? model.identifier,
+    color: context.selectSemanticModelColor(model.identifier),
+  };
 }

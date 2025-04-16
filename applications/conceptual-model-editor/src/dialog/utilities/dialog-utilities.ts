@@ -6,7 +6,7 @@ import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticMode
 
 import { configuration, createLogger, t } from "../../application";
 import { getDomainAndRange } from "../../util/relationship-utils";
-import { CmeSemanticModel, OwlVocabulary, UndefinedCmeVocabulary } from "../../dataspecer/cme-model";
+import { CmeSemanticModel, OwlSemanticModel, UnknownCmeSemanticModel  } from "../../dataspecer/cme-model";
 import { EntityDsIdentifier } from "../../dataspecer/entity-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
@@ -45,7 +45,7 @@ export interface EntityRepresentative {
 
   iri: string | null;
 
-  vocabularyDsIdentifier: string;
+  model: string;
 
   /**
    * Name of the entity or aggregate name for the profile.
@@ -74,7 +74,7 @@ export interface EntityRepresentative {
 const UNDEFINED_CLASS: EntityRepresentative = {
   identifier: UNDEFINED_IDENTIFIER,
   iri: null,
-  vocabularyDsIdentifier: UndefinedCmeVocabulary.dsIdentifier,
+  model: UnknownCmeSemanticModel.identifier,
   name: { "": "Undefined" },
   label: { "": "Undefined" },
   description: {},
@@ -99,7 +99,7 @@ export function representUndefinedClassProfile(): EntityRepresentative {
 const OWL_THING: EntityRepresentative = {
   identifier: OWL_THING_IDENTIFIER,
   iri: null,
-  vocabularyDsIdentifier: OwlVocabulary.dsIdentifier,
+  model: OwlSemanticModel.identifier,
   name: { "": "owl:Thing" },
   label: { "": "owl:Thing" },
   description: {},
@@ -133,7 +133,7 @@ export function representClasses(
     result.push({
       identifier: item.id,
       iri: item.iri,
-      vocabularyDsIdentifier: vocabulary.dsIdentifier,
+      model: vocabulary.identifier,
       name: item.name,
       label: item.name,
       description: item.description,
@@ -155,7 +155,7 @@ function findOwnerVocabulary(
     if (entity === undefined) {
       continue;
     }
-    const vocabulary = vocabularies.find(item => item.dsIdentifier === model.getId());
+    const vocabulary = vocabularies.find(item => item.identifier === model.getId());
     return vocabulary ?? null;
   }
   LOG.invalidEntity(entityIdentifier, "Entity is without an model.");
@@ -171,7 +171,7 @@ export function findVocabularyForModel(
     graph.models, visualModel,
     configuration().defaultModelColor,
     identifier => t("model-service.model-label-from-id", identifier));
-  const vocabulary = vocabularies.find(item => item.dsIdentifier === model);
+  const vocabulary = vocabularies.find(item => item.identifier === model);
   return vocabulary ?? null;
 };
 
@@ -199,7 +199,7 @@ export function representClassUsages(
     result.push({
       identifier: item.id,
       iri: item.iri,
-      vocabularyDsIdentifier: vocabulary.dsIdentifier,
+      model: vocabulary.identifier,
       name: entity.name ?? {},
       label: entity.name ?? {},
       description: entity.description ?? {},
@@ -235,7 +235,7 @@ export function representClassProfiles(
     result.push({
       identifier: item.id,
       iri: item.iri,
-      vocabularyDsIdentifier: vocabulary.dsIdentifier,
+      model: vocabulary.identifier,
       name: entity.name ?? {},
       label: entity.name ?? {},
       description: entity.description ?? {},
@@ -364,7 +364,7 @@ export function representRelationships(
     result.push({
       identifier: item.id,
       iri: item.iri,
-      vocabularyDsIdentifier: vocabulary.dsIdentifier,
+      model: vocabulary.identifier,
       name: range.name ?? {},
       label: range.name ?? {},
       description: range.description ?? {},
@@ -411,7 +411,7 @@ export function representRelationshipUsages(
     result.push({
       identifier: item.id,
       iri: item.iri,
-      vocabularyDsIdentifier: vocabulary.dsIdentifier,
+      model: vocabulary.identifier,
       name: range.name ?? {},
       label: range.name ?? {},
       description: range.description ?? {},
@@ -456,7 +456,7 @@ export function representRelationshipProfile(
     result.push({
       identifier: item.id,
       iri: range.iri,
-      vocabularyDsIdentifier: vocabulary.dsIdentifier,
+      model: vocabulary.identifier,
       name: range.name ?? {},
       label: range.name ?? {},
       description: range.description ?? {},
@@ -476,7 +476,7 @@ export function representUndefinedAttribute(): RelationshipRepresentative {
   return {
     identifier: UNDEFINED_IDENTIFIER,
     iri: null,
-    vocabularyDsIdentifier: UndefinedCmeVocabulary.dsIdentifier,
+    model: UnknownCmeSemanticModel.identifier,
     name: { "": "Undefined" },
     label: { "": "Undefined" },
     description: {},
@@ -494,7 +494,7 @@ export function representUndefinedAssociation(): RelationshipRepresentative {
   return {
     identifier: UNDEFINED_IDENTIFIER,
     iri: null,
-    vocabularyDsIdentifier: UndefinedCmeVocabulary.dsIdentifier,
+    model: UnknownCmeSemanticModel.identifier,
     name: { "": "Undefined" },
     label: { "": "Undefined" },
     description: {},
@@ -516,7 +516,7 @@ export interface DataTypeRepresentative {
 
   label: LanguageString;
 
-  vocabularyDsIdentifier: string,
+  model: string,
 
 }
 
@@ -524,7 +524,7 @@ const RDFS_LITERAL: DataTypeRepresentative = {
   identifier: RDFS_LITERAL_IDENTIFIER,
   iri: "http://www.w3.org/2000/01/rdf-schema#Literal",
   label: { "": "rdfs:Literal" },
-  vocabularyDsIdentifier: "",
+  model: "",
 };
 
 export function representRdfsLiteral(): DataTypeRepresentative {
@@ -535,7 +535,7 @@ const UNDEFINED_DATA_TYPE: DataTypeRepresentative = {
   identifier: UNDEFINED_IDENTIFIER,
   iri: "",
   label: { "": "Undefined" },
-  vocabularyDsIdentifier: "",
+  model: "",
 };
 
 export function representUndefinedDataType(): DataTypeRepresentative {
@@ -546,7 +546,7 @@ const CORE_DATA_TYPE: DataTypeRepresentative[] = DataTypeURIs.map(iri => ({
   identifier: iri,
   iri,
   label: { "": dataTypeUriToName(iri) ?? iri },
-  vocabularyDsIdentifier: "",
+  model: "",
 }));
 
 /**
@@ -664,7 +664,7 @@ export function selectDefaultModelForAttribute(
       continue;
     }
     // We found the model.
-    const result = cmeModels.find(item => item.dsIdentifier === model.getId());
+    const result = cmeModels.find(item => item.identifier === model.getId());
     if (result === undefined) {
       // We found the model but have no representation.
       break;
@@ -699,9 +699,9 @@ export function sortRepresentatives<T extends { label: LanguageString }>(
   });
 }
 
-export function filterByModel<Type extends { vocabularyDsIdentifier: string }>(
+export function filterByModel<Type extends { model: string }>(
   items: Type[], model: CmeSemanticModel,
 ): Type[] {
   return items.filter(
-    item => item.vocabularyDsIdentifier === model.dsIdentifier);
+    item => item.model === model.identifier);
 }

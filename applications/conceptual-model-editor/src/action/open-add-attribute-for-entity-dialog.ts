@@ -74,7 +74,7 @@ function handleCreateClassAttribute(
 
     const result = cmeExecutor.createRelationship(
       attributeDialogStateToNewCmeRelationship(state));
-    cmeExecutor.updateSpecialization(result, state.model.dsIdentifier,
+    cmeExecutor.updateSpecialization(result, state.model.identifier,
       initialState.specializations, state.specializations);
 
     if (isWritableVisualModel(visualModel)) {
@@ -108,7 +108,7 @@ function handleCreateClassProfileAttribute(
 
     const result = cmeExecutor.createRelationshipProfile(
       attributeProfileDialogStateToNewCmeRelationshipProfile(state));
-    cmeExecutor.updateSpecialization(result, state.model.dsIdentifier,
+    cmeExecutor.updateSpecialization(result, state.model.identifier,
       initialState.specializations, state.specializations);
 
     if (isWritableVisualModel(visualModel)) {

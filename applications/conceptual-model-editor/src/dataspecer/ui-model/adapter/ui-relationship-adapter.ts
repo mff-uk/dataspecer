@@ -1,17 +1,24 @@
-import { UiAdapterContext } from "./adapter-context";
-import { UI_RELATIONSHIP_TYPE, UiRelationship } from "../model";
+import { SelectLabel } from "./adapter-context";
+import { UI_RELATIONSHIP_TYPE, UiEntity, UiRelationship, UiSemanticModel } from "../model";
 import { CmeRelationship } from "../../cme-model";
 
 export const cmeRelationshipToUiRelationship = (
-  context: UiAdapterContext,
+  context: {
+    selectLabel: SelectLabel,
+  },
+  model: UiSemanticModel,
   entity: CmeRelationship,
+  domain: UiEntity,
+  range: UiEntity,
 ): UiRelationship => {
   return {
     type: UI_RELATIONSHIP_TYPE,
-    model: entity.model,
+    model,
     identifier: entity.identifier,
-    displayLabel: context.selectLanguageString(entity.name),
-    displayDomainCardinality: context.cardinalityToLabel(entity.domainCardinality),
-    displayRangeCardinality: context.cardinalityToLabel(entity.rangeCardinality),
+    label: context.selectLabel(entity.name, entity.iri, entity.identifier),
+    domain,
+    domainCardinality: entity.domainCardinality,
+    range,
+    rangeCardinality: entity.rangeCardinality,
   };
 };

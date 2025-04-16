@@ -1,10 +1,11 @@
 import { LanguageString, EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
+import { CmeEntity } from "./cme-entity";
 import { CmeClassProfileRole } from "./cme-well-known";
 
 /**
  * Aggregated class profile.
  */
-export interface CmeClassAggregate {
+export interface CmeClassAggregate extends CmeEntity {
 
   aggregate: true;
 

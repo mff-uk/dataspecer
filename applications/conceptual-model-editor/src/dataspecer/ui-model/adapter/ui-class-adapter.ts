@@ -1,17 +1,21 @@
-import { UI_CLASS_TYPE, UiClass } from "../model";
-import { UiAdapterContext } from "./adapter-context";
+import { UI_CLASS_TYPE, UiClass, UiSemanticModel } from "../model";
+import { SelectLabel, SelectLanguageString } from "./adapter-context";
 import { CmeClass } from "../../cme-model";
 
 export const cmeClassToUiClass = (
-  context: UiAdapterContext,
+  context: {
+    selectLabel: SelectLabel,
+    selectLanguageString: SelectLanguageString,
+  },
+  model: UiSemanticModel,
   entity: CmeClass,
 ): UiClass => {
   return {
     type: UI_CLASS_TYPE,
-    model: entity.model,
+    model,
     identifier: entity.identifier,
     iri: entity.iri ?? "",
-    displayLabel: context.selectDisplayLabel(entity),
-    displayDescription: context.selectLanguageString(entity.description),
+    label: context.selectLabel(entity.name, entity.iri, entity.identifier),
+    description: context.selectLanguageString(entity.description),
   };
 };

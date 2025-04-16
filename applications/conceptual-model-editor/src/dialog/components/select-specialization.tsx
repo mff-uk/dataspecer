@@ -43,7 +43,7 @@ export const SpecializationSelect = (props: {
   const addSpecialization = () => {
     props.addSpecialization({
       identifier: selected.identifier,
-      model: selected.vocabularyDsIdentifier,
+      model: selected.model,
     });
     setAdding(!adding);
   };

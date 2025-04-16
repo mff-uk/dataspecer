@@ -6,6 +6,16 @@ export interface UiGeneralization extends UiEntity {
 
   type: typeof UI_GENERALIZATION_TYPE;
 
+  /**
+   * Generalized entity.
+   */
+  child: UiEntity;
+
+  /**
+   * Generalizing entity.
+   */
+  parent: UiEntity;
+
 }
 
 export function isUiGeneralization(

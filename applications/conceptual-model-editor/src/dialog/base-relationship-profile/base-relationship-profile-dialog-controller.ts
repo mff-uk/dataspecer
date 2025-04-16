@@ -30,7 +30,7 @@ export function createBaseRelationshipProfileDialogController<
     identifier: string,
     iri: string | null,
     label: LanguageString,
-    vocabularyDsIdentifier: string,
+    model: string,
   },
   State extends BaseRelationshipProfileDialogState<RangeType>
 >(
