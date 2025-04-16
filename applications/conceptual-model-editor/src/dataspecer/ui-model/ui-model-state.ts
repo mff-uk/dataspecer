@@ -1,6 +1,6 @@
 import { AggregatedEntityWrapper, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { UI_UNKNOWN_ENTITY_TYPE, UiClass, UiClassProfile, UiEntity, UiGeneralization, UiRelationship, UiRelationshipProfile, UiSemanticModel } from "./model";
-import { cmeClassAggregateToUiClassProfile, cmeClassToUiClass, cmeGeneralizationToCmeGeneralization, cmeRelationshipAggregateToUiRelationshipProfile, cmeRelationshipToUiRelationship, semanticModelToUiSemanticModel } from "./adapter";
+import { cmeClassAggregateToUiClassProfile, cmeClassToUiClass, cmeGeneralizationToCmeGeneralization, cmeRelationshipAggregateToUiRelationshipProfile, cmeRelationshipToUiRelationship, cmeSemanticModelToUiSemanticModel } from "./adapter";
 import { HexColor, VisualModel } from "@dataspecer/core-v2/visual-model";
 import { SemanticModel } from "../semantic-model";
 import { createLogger } from "../../application";
@@ -144,7 +144,7 @@ function loadUiSemanticModels(
   state.semanticModels = semanticModels
     .map(model => semanticModelToCmeSemanticModel(
       model, visualModel, defaultModelColor, id => id))
-    .map(model => semanticModelToUiSemanticModel(context, model));
+    .map(model => cmeSemanticModelToUiSemanticModel(context, model));
 }
 
 function loadUiClassesAndProfiles(

@@ -2,7 +2,7 @@ import { CmeSemanticModel } from "../../cme-model";
 import { UiSemanticModel } from "../model";
 import { SelectLanguageString, SelectSemanticModelColor } from "./adapter-context";
 
-export function semanticModelToUiSemanticModel(
+export function cmeSemanticModelToUiSemanticModel(
   context: {
     selectSemanticModelColor: SelectSemanticModelColor,
     selectLanguageString: SelectLanguageString,
