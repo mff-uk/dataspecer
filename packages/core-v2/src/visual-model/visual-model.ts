@@ -5,7 +5,7 @@ import { ObservableEntityModel, UnsubscribeCallback } from "./entity-model/obser
 import { SynchronousEntityModel } from "./entity-model/synchronous-entity-model.ts";
 import { SynchronousWritableEntityModel } from "./entity-model/on-premise-writable-entity-model.ts";
 import { TypedObject, isTypedObject } from "./entity-model/typed-object.ts";
-import { HexColor, VisualEntity, VisualGroup, VisualNode, VisualProfileRelationship, VisualRelationship, VisualView } from "./visual-entity.ts";
+import { HexColor, VisualEntity, VisualGroup, VisualNode, VisualProfileRelationship, VisualRelationship, VisualDiagramNode, VisualView } from "./visual-entity.ts";
 import { SerializableModel } from "./entity-model/serializable-model.ts";
 import { LabeledModel } from "./entity-model/labeled-model.ts";
 
@@ -132,6 +132,11 @@ export interface WritableVisualModel extends VisualModel {
      * @returns Identifier for the new entity.
      */
     addVisualNode(entity: Omit<VisualNode, "identifier" | "type">): string;
+
+    /**
+     * @returns Identifier for the new entity.
+     */
+    addVisualDiagramNode(entity: Omit<VisualDiagramNode, "identifier" | "type">): string;
 
     /**
      * @returns Identifier for the new entity.

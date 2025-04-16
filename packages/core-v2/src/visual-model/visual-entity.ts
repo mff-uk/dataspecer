@@ -1,5 +1,6 @@
 import { Entity, EntityIdentifier } from "./entity-model/entity.ts";
 import { ModelIdentifier } from "./entity-model/entity-model.ts";
+import { LanguageString } from "../semantic-model/concepts/concepts.ts";
 
 /**
  * Color in hexadecimal, must start with "#" character.
@@ -46,6 +47,21 @@ export interface VisualNode extends VisualEntity {
 }
 
 /**
+ * Represents a visual node, which represents {@link representedVisualModel}.
+ */
+export interface VisualDiagramNode extends VisualEntity {
+
+    label: LanguageString,
+
+    description: LanguageString,
+
+    position: Position,
+
+    representedVisualModel: string,
+
+}
+
+/**
  * Used for migration as the model can not be determined from the
  * visual model alone in version 0.
  */
@@ -61,6 +77,13 @@ export const VISUAL_NODE_TYPE = "visual-node";
 
 export function isVisualNode(what: Entity): what is VisualNode {
     return what.type.includes(VISUAL_NODE_TYPE);
+}
+
+
+export const VISUAL_DIAGRAM_NODE_TYPE = "visual-diagram-node";
+
+export function isVisualDiagramNode(what: Entity): what is VisualDiagramNode {
+    return what.type.includes(VISUAL_DIAGRAM_NODE_TYPE);
 }
 
 export interface Position {
