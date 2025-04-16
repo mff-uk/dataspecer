@@ -298,7 +298,7 @@ class XmlSchemaAdapter {
 
       const type = {
         entityType: "type",
-        name: null,
+        name: [null, property.technicalLabel],
         annotation: null,
         mixed: false,
         abstract: null,
