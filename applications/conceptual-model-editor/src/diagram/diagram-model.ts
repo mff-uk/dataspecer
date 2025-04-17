@@ -1,6 +1,7 @@
+export type DiagramNodeTypes = Node | VisualModelDiagramNode;
 
 /**
- * Entity can be a class or a class profile.
+ * Node can be a class or a class profile.
  */
 export type Node = {
 
@@ -70,6 +71,53 @@ export enum NodeType {
    * Represents a class profile.
    */
   ClassProfile
+}
+
+/**
+ * Represents the visual diagram node.
+ * The node contains other nodes, which are present in other visual model (and hides them inside).
+ */
+export type VisualModelDiagramNode = {
+
+  /**
+   * Entity identifier in scope of the diagram.
+   */
+  identifier: string;
+
+  /**
+   * Identifier of external entity associated with this node. That is the represented visual model.
+   */
+  externalIdentifier: string;
+
+  /**
+   * Human readable label.
+   */
+  label: string;
+
+  /**
+   * Human readable description.
+   */
+  description: string | null;
+
+  /**
+   * The alias of the represented visual model
+   */
+  representedModelAlias: string;
+
+  /**
+   * Group this node belongs to.
+   */
+  group: string | null;
+
+  /**
+   * Position of the Node at the canvas.
+   */
+  position: AnchoredPosition;
+
+}
+
+export function isVisualModelDiagramNode(what: DiagramNodeTypes): what is VisualModelDiagramNode {
+  return (what as any)?.representedModelAlias !== undefined;
 }
 
 export interface AnchoredPosition extends Position {

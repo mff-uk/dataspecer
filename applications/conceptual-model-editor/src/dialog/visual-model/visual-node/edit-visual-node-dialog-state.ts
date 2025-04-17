@@ -1,6 +1,6 @@
 import { isVisualNode, VisualModel } from "@dataspecer/core-v2/visual-model";
-import { ClassesContextType } from "../../context/classes-context";
-import { CmeReference, CmeSemanticModel } from "../../dataspecer/cme-model/model";
+import { ClassesContextType } from "../../../context/classes-context";
+import { CmeReference, CmeSemanticModel } from "../../../dataspecer/cme-model/model";
 import {
   RelationshipRepresentative,
   representOwlThing,
@@ -8,12 +8,12 @@ import {
   representRelationshipProfile,
   representRelationships,
   representRelationshipUsages,
-} from "../utilities/dialog-utilities";
-import { configuration, createLogger, t } from "../../application";
-import { InvalidState } from "../../application/error";
-import { ModelGraphContextType } from "../../context/model-context";
+} from "../../utilities/dialog-utilities";
+import { configuration, createLogger, t } from "../../../application";
+import { InvalidState } from "../../../application/error";
+import { ModelGraphContextType } from "../../../context/model-context";
 import { isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { semanticModelMapToCmeSemanticModel } from "../../dataspecer/cme-model/adapter";
+import { semanticModelMapToCmeSemanticModel } from "../../../dataspecer/cme-model/adapter";
 
 const LOG = createLogger(import.meta.url);
 
