@@ -435,6 +435,7 @@ interface DiagramSelection {
    * This method is called when user wants to remove selection from both semantic and visual model.
    */
   onDeleteSelection: () => void;
+
 }
 
 /**
