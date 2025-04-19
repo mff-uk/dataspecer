@@ -20,4 +20,9 @@ export interface UiSemanticModel {
    */
   color: string;
 
+  /**
+   * Model is hardcoded.
+   */
+  buildIn?: boolean;
+
 }

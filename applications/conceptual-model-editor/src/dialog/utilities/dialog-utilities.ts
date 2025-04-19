@@ -6,7 +6,7 @@ import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticMode
 
 import { configuration, createLogger, t } from "../../application";
 import { getDomainAndRange } from "../../util/relationship-utils";
-import { CmeSemanticModel, OwlSemanticModel, UnknownCmeSemanticModel  } from "../../dataspecer/cme-model";
+import { CmeSemanticModel, OwlCmeSemanticModel, UnknownCmeSemanticModel  } from "../../dataspecer/cme-model";
 import { EntityDsIdentifier } from "../../dataspecer/entity-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
@@ -99,7 +99,7 @@ export function representUndefinedClassProfile(): EntityRepresentative {
 const OWL_THING: EntityRepresentative = {
   identifier: OWL_THING_IDENTIFIER,
   iri: null,
-  model: OwlSemanticModel.identifier,
+  model: OwlCmeSemanticModel.identifier,
   name: { "": "owl:Thing" },
   label: { "": "owl:Thing" },
   description: {},

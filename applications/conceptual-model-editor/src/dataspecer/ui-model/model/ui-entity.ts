@@ -26,4 +26,8 @@ export interface UiEntity {
    */
   label: string;
 
+  /**
+   * Entity is hardcoded.
+   */
+  buildIn?: boolean;
 }

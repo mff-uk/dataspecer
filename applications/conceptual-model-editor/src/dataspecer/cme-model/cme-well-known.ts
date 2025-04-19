@@ -41,11 +41,19 @@ export const UnknownCmePrimitiveType: CmePrimitiveType = {
 };
 Object.freeze(UnknownCmePrimitiveType);
 
-export const OwlSemanticModel: CmeSemanticModel = {
+export const OwlCmeSemanticModel: CmeSemanticModel = {
   identifier: "https://www.w3.org/2002/07/owl",
   name: { "": "owl" },
   color: "#99028c",
   modelType: CmeSemanticModelType.DefaultSemanticModel,
   baseIri: "https://www.w3.org/2002/07/owl",
 };
-Object.freeze(OwlSemanticModel);
+Object.freeze(OwlCmeSemanticModel);
+
+export const OwlThingCmeEntity: CmeEntity = {
+  identifier: "http://www.w3.org/2002/07/owl#Thing",
+  iri: "http://www.w3.org/2002/07/owl#Thing",
+  model: OwlCmeSemanticModel.identifier,
+  name: { "": "owl:Thing" },
+};
+Object.freeze(OwlCmeSemanticModel);

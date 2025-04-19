@@ -1,16 +1,16 @@
 import { AggregatedEntityWrapper, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { UI_UNKNOWN_ENTITY_TYPE, UiClass, UiClassProfile, UiEntity, UiGeneralization, UiRelationship, UiRelationshipProfile, UiSemanticModel } from "./model";
-import { cmeClassAggregateToUiClassProfile, cmeClassToUiClass, cmeGeneralizationToCmeGeneralization, cmeRelationshipAggregateToUiRelationshipProfile, cmeRelationshipToUiRelationship, cmeSemanticModelToUiSemanticModel } from "./adapter";
+import { UI_UNKNOWN_ENTITY_TYPE, UiClass, UiClassProfile, UiEntity, UiGeneralization, UiPrimitiveType, UiRelationship, UiRelationshipProfile, UiSemanticModel } from "./model";
+import { cmeClassAggregateToUiClassProfile, cmeClassToUiClass, cmeGeneralizationToCmeGeneralization, cmePrimitiveTypeToUiPrimitiveType, cmeRelationshipAggregateToUiRelationshipProfile, cmeRelationshipToUiRelationship, cmeSemanticModelToUiSemanticModel } from "./adapter";
 import { HexColor, VisualModel } from "@dataspecer/core-v2/visual-model";
 import { SemanticModel } from "../semantic-model";
 import { createLogger } from "../../application";
 import { createUiAdapterContext, UiAdapterContext } from "./adapter/adapter-context";
 import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { semanticClassToCmeClass, semanticGeneralizationToCmeGeneralization, semanticRelationshipToCmeRelationship } from "../cme-model/adapter";
+import { listCmePrimitiveTypes, semanticClassToCmeClass, semanticGeneralizationToCmeGeneralization, semanticRelationshipToCmeRelationship } from "../cme-model/adapter";
 import { semanticClassProfileToCmeClassAggregate } from "../cme-model/adapter/cme-class-profile-aggregate";
 import { semanticRelationshipProfileToCmeRelationshipAggregate } from "../cme-model/adapter/cme-relationship-aggregate-adapter";
-import { UnknownCmeEntity, UnknownCmeSemanticModel, UnspecifiedCmeEntity, semanticModelToCmeSemanticModel } from "../cme-model";
+import { OwlCmeSemanticModel, OwlThingCmeEntity, UnknownCmeEntity, UnknownCmeSemanticModel, UnspecifiedCmeEntity, semanticModelToCmeSemanticModel } from "../cme-model";
 import { languageStringToString } from "../../utilities/string";
 import { EntityDsIdentifier } from "../entity-model";
 import { Entity } from "@dataspecer/core-v2";
@@ -27,6 +27,8 @@ export interface UiModelState {
   unknownUiEntity: UiEntity;
 
   unspecifiedUiEntity: UiEntity;
+
+  primitiveTypes: UiPrimitiveType[];
 
   semanticModels: UiSemanticModel[];
 
@@ -53,41 +55,73 @@ export function createEmptyUiModelState(
   languagePreferences: string[],
   defaultModelColor: HexColor,
 ): UiModelState {
+  //
   const unknownSemanticModel: UiSemanticModel = {
     identifier: UnknownCmeSemanticModel.identifier,
     modelType: UnknownCmeSemanticModel.modelType,
     label: languageStringToString(
       languagePreferences, language, UnknownCmeSemanticModel.name),
     color: defaultModelColor,
+    buildIn: true,
   };
   Object.freeze(unknownSemanticModel);
+  //
   const unknownUiEntity: UiEntity = {
     identifier: UnknownCmeEntity.identifier,
     label: languageStringToString(
       languagePreferences, language, UnknownCmeEntity.name),
     model: unknownSemanticModel,
     type: UI_UNKNOWN_ENTITY_TYPE,
+    buildIn: true,
   };
   Object.freeze(unknownUiEntity);
+  //
   const unspecifiedUiEntity: UiEntity = {
     identifier: UnspecifiedCmeEntity.identifier,
     label: languageStringToString(
       languagePreferences, language, UnspecifiedCmeEntity.name),
     model: unknownSemanticModel,
     type: UI_UNKNOWN_ENTITY_TYPE,
+    buildIn: true,
   };
   Object.freeze(unspecifiedUiEntity);
+  //
+  const owlSemanticModel: UiSemanticModel = {
+    identifier: OwlCmeSemanticModel.identifier,
+    modelType: OwlCmeSemanticModel.modelType,
+    label: languageStringToString(
+      languagePreferences, language, OwlCmeSemanticModel.name),
+    color: defaultModelColor,
+    buildIn: true,
+  }
+  //
+  const owlThing: UiEntity = {
+    identifier: OwlThingCmeEntity.identifier,
+    label: languageStringToString(
+      languagePreferences, language, OwlThingCmeEntity.name),
+    model: owlSemanticModel,
+    type: UI_UNKNOWN_ENTITY_TYPE,
+    buildIn: true,
+  };
+  //
+  const primitiveTypes: UiPrimitiveType[] = listCmePrimitiveTypes()
+    .map(item => cmePrimitiveTypeToUiPrimitiveType({
+      selectLabel: value => languageStringToString(
+        languagePreferences, language, value),
+    }, unknownSemanticModel, item));
+  Object.freeze(primitiveTypes);
   return {
     unknownSemanticModel,
     unknownUiEntity,
     unspecifiedUiEntity,
+    primitiveTypes,
     semanticModels: [],
     classes: [],
     classProfiles: [],
     relationships: [],
     relationshipProfiles: [],
     generalizations: [],
-    unknown: [],
+    unknown: [owlThing],
   };
 }
 
@@ -117,6 +151,9 @@ export function createUiModelState(
   // Luckily we can load them in order of class, relationship and generalization.
   // Then when loading one the required should be already loaded.
   const entityMap: Map<EntityDsIdentifier, UiEntity> = new Map();
+  updateEntityMap(entityMap, state.primitiveTypes);
+  updateEntityMap(entityMap, state.unknown);
+
   const aggregatorEntities = aggregatorView.getEntities();
 
   loadUiClassesAndProfiles(
@@ -130,7 +167,8 @@ export function createUiModelState(
   updateEntityMap(entityMap, state.relationshipProfiles);
 
   loadUiGeneralizations(
-    context, semanticModels, aggregatorEntities, entityMap, state);
+    semanticModels, aggregatorEntities, entityMap, state);
+
   return state;
 }
 
@@ -230,19 +268,7 @@ function loadUiRelationshipAndProfiles(
   state: UiModelState,
 ): void {
 
-  const findEntity = (identifier: EntityDsIdentifier | null): UiEntity => {
-    if (identifier === null) {
-      return state.unspecifiedUiEntity;
-    }
-    const entity = entityMap.get(identifier);
-    if (entity === undefined) {
-      // We have identifier but no entity, we create a representant
-      const result: UiEntity = { ...state.unknownUiEntity, identifier };
-      state.unknown.push(result);
-      return result;
-    }
-    return entity;
-  };
+  const findEntity = createFindEntity(entityMap, state);
 
   withEntities(semanticModels, state, aggregatorEntities,
     item => isSemanticModelRelationship(item) || isSemanticModelRelationshipProfile(item),
@@ -264,24 +290,41 @@ function loadUiRelationshipAndProfiles(
     });
 }
 
+function createFindEntity(
+  entityMap: Map<EntityDsIdentifier, UiEntity>,
+  state: UiModelState,
+) {
+  return (identifier: EntityDsIdentifier | null): UiEntity => {
+    if (identifier === null) {
+      return state.unspecifiedUiEntity;
+    }
+    const entity = entityMap.get(identifier);
+    if (entity !== undefined) {
+      return entity;
+    }
+    // We have identifier but no entity, we create a representant
+    const result: UiEntity = {
+      ...state.unknownUiEntity,
+      identifier,
+    };
+    // Remove build-in flag.
+    delete result.buildIn;
+    // Add to list of unknowns.
+    state.unknown.push(result);
+    // We also add this to the entity list to avoid duplicities.
+    entityMap.set(result.identifier, result);
+    return result;
+  };
+}
+
 function loadUiGeneralizations(
-  context: UiAdapterContext,
   semanticModels: SemanticModel[],
   aggregatorEntities: Record<string, AggregatedEntityWrapper>,
   entityMap: Map<EntityDsIdentifier, UiEntity>,
   state: UiModelState,
 ): void {
 
-  const findEntity = (identifier: EntityDsIdentifier): UiEntity => {
-    const entity = entityMap.get(identifier);
-    if (entity === undefined) {
-      // We have identifier but no entity, we create a representant
-      const result: UiEntity = { ...state.unknownUiEntity, identifier };
-      state.unknown.push(result);
-      return result;
-    }
-    return entity;
-  };
+  const findEntity = createFindEntity(entityMap, state);
 
   withEntities(semanticModels, state, aggregatorEntities,
     item => isSemanticModelGeneralization(item),
