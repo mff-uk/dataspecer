@@ -52,7 +52,11 @@ export function createUiAdapterContext(
     if (name === null) {
       return iri ?? identifier;
     }
-    return languageStringToString(languagePreferences, language, name);
+    const label = languageStringToString(languagePreferences, language, name);
+    if (label === "") {
+      return iri ?? identifier;
+    }
+    return label;
   }
 
   const selectModelsWithEntity: SelectModelsWithEntity = (identifier) => {
