@@ -36,7 +36,6 @@ test("Put 4 visual nodes without edges into visual model with visual diagram nod
   expect([...createdVisualModel.getVisualEntities().keys()].length).toBe(4);
 });
 
-
 test("Put visual nodes with edges into visual model with visual diagram node reference to it", () => {
   const {
     visualModel,
@@ -64,7 +63,6 @@ test("Put visual nodes with edges into visual model with visual diagram node ref
   const edgeVisual = ActionsTestSuite.createNewVisualRelationshipsForTestingFromSemanticEnds(
     visualModel, model, "11", "8", "11-8");
   edgeVisuals.push(edgeVisual);
-
 
   // Perform action
   const createdVisualDiagramNodeIdentifier = addVisualDiagramNodeForNewModelToVisualModelAction(

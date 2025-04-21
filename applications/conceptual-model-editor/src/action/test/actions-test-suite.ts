@@ -351,15 +351,15 @@ export class ActionsTestSuite {
     const useGraph: UseModelGraphContextType = {
       aggregator,
       aggregatorView,
-      setAggregatorView: function (value: SetStateAction<SemanticModelAggregatorView>): void {
+      setAggregatorView: function (_value: SetStateAction<SemanticModelAggregatorView>): void {
         throw new Error("Function not implemented.");
       },
       models,
       visualModels,
-      setVisualModels: function (value: SetStateAction<Map<string, WritableVisualModel>>): void {
+      setVisualModels: function (_value: SetStateAction<Map<string, WritableVisualModel>>): void {
         throw new Error("Function not implemented.");
       },
-      addModel: function (...models: EntityModel[]): void {
+      addModel: function (..._models: EntityModel[]): void {
         throw new Error("Function not implemented.");
       },
       addVisualModel: function (...visualModels: WritableVisualModel[]): void {
@@ -367,19 +367,19 @@ export class ActionsTestSuite {
           graph.aggregator.addModel(visualModel);
         }
       },
-      setModelAlias: function (alias: string | null, model: EntityModel): void {
+      setModelAlias: function (_alias: string | null, _model: EntityModel): void {
         throw new Error("Function not implemented.");
       },
-      setModelIri: function (iri: string, model: InMemorySemanticModel): void {
+      setModelIri: function (_iri: string, _model: InMemorySemanticModel): void {
         throw new Error("Function not implemented.");
       },
-      replaceModels: function (entityModels: EntityModel[], visualModels: WritableVisualModel[]): void {
+      replaceModels: function (_entityModels: EntityModel[], _visualModels: WritableVisualModel[]): void {
         throw new Error("Function not implemented.");
       },
-      removeModel: function (modelId: string): void {
+      removeModel: function (_modelId: string): void {
         throw new Error("Function not implemented.");
       },
-      removeVisualModel: function (modelId: string): void {
+      removeVisualModel: function (_modelId: string): void {
         throw new Error("Function not implemented.");
       }
     }
