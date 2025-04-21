@@ -23,7 +23,6 @@ export const cmeRelationshipAggregateToUiRelationshipProfile = (
       });
     }
   }
-
   return {
     type: UI_RELATIONSHIP_PROFILE_TYPE,
     model,
@@ -35,5 +34,6 @@ export const cmeRelationshipAggregateToUiRelationshipProfile = (
     rangeCardinality: entity.rangeCardinality,
     usageNote: context.selectLanguageString(entity.usageNote),
     profiling,
+    mandatoryLevel: entity.mandatoryLevel,
   };
 };

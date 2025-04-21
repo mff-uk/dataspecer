@@ -277,7 +277,7 @@ function loadUiRelationshipAndProfiles(
         const cme = semanticRelationshipToCmeRelationship(
           model.identifier, aggregate);
         state.relationships.push(cmeRelationshipToUiRelationship(
-          context, model, cme, findEntity(cme.range), findEntity(cme.domain)));
+          context, model, cme, findEntity(cme.domain), findEntity(cme.range)));
       }
       if (isSemanticModelRelationshipProfile(raw)
         && isSemanticModelRelationshipProfile(aggregate)) {
@@ -285,7 +285,7 @@ function loadUiRelationshipAndProfiles(
           model.identifier, raw, aggregate);
         state.relationshipProfiles.push(
           cmeRelationshipAggregateToUiRelationshipProfile(
-            context, model, cme, findEntity(cme.range), findEntity(cme.domain)));
+            context, model, cme, findEntity(cme.domain), findEntity(cme.range)));
       }
     });
 }
