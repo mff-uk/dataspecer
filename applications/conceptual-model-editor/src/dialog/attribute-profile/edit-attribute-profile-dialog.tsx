@@ -36,7 +36,7 @@ export const EditAttributeProfileDialog = (props: DialogProps<AttributeProfileDi
           />
         </DialogDetailRow>
       </div>
-      <div className="grid pb-3 bg-slate-100 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
+      <div className="grid bg-slate-100 pb-2 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
         <DialogDetailRow detailKey={t("modify-class-profile-dialog.profile-of")}>
           <SelectEntities
             language={state.language}
