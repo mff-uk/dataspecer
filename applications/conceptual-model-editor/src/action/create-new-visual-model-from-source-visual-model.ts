@@ -1,4 +1,4 @@
-import { isVisualNode, isVisualProfileRelationship, isVisualRelationship, VisualModel, VisualProfileRelationship, VisualRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualDiagramNode, isVisualNode, isVisualProfileRelationship, isVisualRelationship, VisualModel, VisualProfileRelationship, VisualRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { ModelGraphContextType, UseModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
@@ -43,7 +43,7 @@ export function createNewVisualModelAction(
 function addNodesFromSourceModelToTargetModel(
   notifications: UseNotificationServiceWriterType,
   sourceVisualModel: VisualModel,
-  targetModel: WritableVisualModel,
+  targetVisualModel: WritableVisualModel,
   nodesToAdd: string[],
 ) {
   const oldToNewIdMapping: Record<string, string> = {};
@@ -54,7 +54,11 @@ function addNodesFromSourceModelToTargetModel(
       continue;
     }
     if(isVisualNode(visualEntity)) {
-      const newIdentifier = targetModel.addVisualNode({...visualEntity});
+      const newIdentifier = targetVisualModel.addVisualNode({...visualEntity});
+      oldToNewIdMapping[visualEntity.identifier] = newIdentifier;
+    }
+    else if(isVisualDiagramNode(visualEntity)) {
+      const newIdentifier = targetVisualModel.addVisualDiagramNode(visualEntity);
       oldToNewIdMapping[visualEntity.identifier] = newIdentifier;
     }
   }

@@ -59,6 +59,10 @@ export const ViewManagement = () => {
       availableValues={availableVisualModelIds}
       onValueSelected={(value) => handleViewSelected(value)}
       onValueDeleted={(value) => handleViewDeleted(value)}
+      specialButtons={[{
+        content: "📦",
+        callback: (value: string) => actions.addVisualDiagramNodeForExistingModelToVisualModel(value)
+      }]}
     >
       <button className="white ml-2 text-[15px]" onClick={handleCreateNewView} title="create a new view">
         <span className="font-bold">+</span>🖼️
