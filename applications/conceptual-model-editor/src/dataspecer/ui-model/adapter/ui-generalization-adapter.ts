@@ -11,7 +11,7 @@ export const cmeGeneralizationToCmeGeneralization = (
     type: UI_GENERALIZATION_TYPE,
     model,
     identifier: entity.identifier,
-    label: child.label + " <- " + parent.label,
+    label: child.label + " -> " + parent.label,
     parent,
     child,
   };
