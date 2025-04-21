@@ -13,7 +13,7 @@ describe("filterWritableModels", () => {
       modelType: CmeSemanticModelType.ExternalSemanticModel,
     } as CmeSemanticModel]);
     expect(actual).toEqual([{
-      dsModelType: CmeSemanticModelType.InMemorySemanticModel,
+      modelType: CmeSemanticModelType.InMemorySemanticModel,
     }]);
   });
 

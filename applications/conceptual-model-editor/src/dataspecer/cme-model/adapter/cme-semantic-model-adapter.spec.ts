@@ -24,9 +24,9 @@ describe("semanticModelMapToCmeSemanticModel", () => {
 
     expect(actual).toStrictEqual({
       identifier: "abcd",
-      displayLabel: { "": "mock model" },
-      displayColor: "abcd-blue",
-      dsModelType: CmeSemanticModelType.DefaultSemanticModel,
+      name: { "": "mock model" },
+      color: "abcd-blue",
+      modelType: CmeSemanticModelType.DefaultSemanticModel,
       baseIri: "http://base",
     });
   });
@@ -46,9 +46,9 @@ describe("semanticModelMapToCmeSemanticModel", () => {
 
     expect(actual).toStrictEqual({
       identifier: "abcd",
-      displayLabel: { "": "abcd" },
-      displayColor: "abcd-blue",
-      dsModelType: CmeSemanticModelType.DefaultSemanticModel,
+      name: { "": "abcd" },
+      color: "abcd-blue",
+      modelType: CmeSemanticModelType.DefaultSemanticModel,
       baseIri: null,
     });
   });
@@ -64,9 +64,9 @@ describe("semanticModelMapToCmeSemanticModel", () => {
 
     expect(actual).toStrictEqual({
       identifier: "abcd",
-      displayLabel: { "": "mock model" },
-      displayColor: "#111111",
-      dsModelType: CmeSemanticModelType.DefaultSemanticModel,
+      name: { "": "mock model" },
+      color: "#111111",
+      modelType: CmeSemanticModelType.DefaultSemanticModel,
       baseIri: null,
     });
   });
