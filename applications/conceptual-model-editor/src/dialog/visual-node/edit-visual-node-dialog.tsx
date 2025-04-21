@@ -1,11 +1,16 @@
 import { DragDropContext, Draggable, Droppable, DroppableStateSnapshot, DropResult } from "@hello-pangea/dnd";
-import { configuration, t } from "../../application";
+import { t } from "../../application";
 import { DialogProps, DialogWrapper } from "../dialog-api";
 import { useEditVisualNodeController } from "./edit-visual-node-dialog-controller";
-import { EditVisualNodeDialogState } from "./edit-visual-node-dialog-state";
-import { RelationshipRepresentative } from "../utilities/dialog-utilities";
-import { languageStringToString } from "../../utilities/string";
+import { ContentItem, EditVisualNodeDialogState } from "./edit-visual-node-dialog-state";
 import { useMemo } from "react";
+import {
+  isUiRelationshipProfile,
+  UiRelationshipProfile,
+} from "../../dataspecer/ui-model";
+import {
+  CmeRelationshipProfileMandatoryLevel,
+} from "../../dataspecer/cme-model";
 
 const LEFT_ID = "left";
 
@@ -62,7 +67,7 @@ const EditVisualNode = (props: DialogProps<EditVisualNodeDialogState>) => {
 
 const DroppableArea = (props: {
   language: string,
-  items: RelationshipRepresentative[],
+  items: ContentItem[],
   identifier: string,
 }) => {
   return (
@@ -96,9 +101,8 @@ const droppableAreaClassName = (snapshot: DroppableStateSnapshot) => {
 const DroppableAreaItem = (props: {
   language: string,
   index: number,
-  value: RelationshipRepresentative,
+  value: ContentItem,
 }) => {
-  const languagePreferences = configuration().languagePreferences;
   return (
     <Draggable
       draggableId={props.value.identifier}
@@ -111,13 +115,39 @@ const DroppableAreaItem = (props: {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
         >
-          {languageStringToString(
-            languagePreferences, props.language, props.value.label)}
+          {props.value.label}
+          {isUiRelationshipProfile(props.value)
+            ? mandatoryLabelToLabel(props.value)
+            : null}
         </div>
       )}
     </Draggable>
   )
 };
+
+const mandatoryLabelToLabel = (entity: UiRelationshipProfile) => {
+  if (entity.mandatoryLevel === null) {
+    return null;
+  }
+  let label;
+  switch (entity.mandatoryLevel) {
+    case CmeRelationshipProfileMandatoryLevel.Mandatory:
+      label = t("edit-visual-node-dialog.level-mandatory");
+      break;
+    case CmeRelationshipProfileMandatoryLevel.Optional:
+      label = t("edit-visual-node-dialog.level-optional");
+      break;
+    case CmeRelationshipProfileMandatoryLevel.Recommended:
+      label = t("edit-visual-node-dialog.level-recommended");
+      break;
+  }
+  return (
+    <>
+      <br />
+      &lt;&lt;{label}&gt;&gt;
+    </>
+  )
+}
 
 export const createEditVisualNodeDialog = (
   state: EditVisualNodeDialogState,
