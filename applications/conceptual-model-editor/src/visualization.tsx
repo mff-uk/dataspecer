@@ -35,7 +35,7 @@ import { type UseModelGraphContextType, useModelGraphContext } from "./context/m
 import { type UseClassesContextType, useClassesContext } from "./context/classes-context";
 import { cardinalityToHumanLabel, getDomainAndRange } from "./util/relationship-utils";
 import { useActions } from "./action/actions-react-binding";
-import { Diagram, type Edge, EdgeType, Group, type NodeItem, type Node, NodeType } from "./diagram/";
+import { Diagram, type Edge, EdgeType, Group, type NodeItem, type Node, NodeType, NODE_ITEM_TYPE, NodeRelationshipItem } from "./diagram/";
 import { type UseDiagramType } from "./diagram/diagram-hook";
 import { configuration, createLogger } from "./application";
 import { getDescriptionLanguageString, getUsageNoteLanguageString } from "./util/name-utils";
@@ -351,10 +351,11 @@ function createDiagramNode(
     }
 
     itemCandidates[attribute.id] = {
+      type: NODE_ITEM_TYPE,
       identifier: attribute.id,
       label: getEntityLabelToShowInDiagram(language, attribute),
       profileOf: null,
-    };
+    } as NodeRelationshipItem;
   }
 
   for (const attributeUsage of relationshipsUsages) {
@@ -365,13 +366,14 @@ function createDiagramNode(
     const profileOf = profilingSources.find(
       (item) => item.id === attributeUsage.usageOf);
     itemCandidates[attributeUsage.id] = {
+      type: NODE_ITEM_TYPE,
       identifier: attributeUsage.id,
       label: createAttributeProfileLabel(language, attributeUsage),
       profileOf: {
         label: profileOf === undefined ? "" : getEntityLabelToShowInDiagram(language, profileOf),
         usageNote: getUsageNote(language, attributeUsage),
       },
-    };
+    } as NodeRelationshipItem;
   }
 
   for (const attributeProfile of relationshipsProfiles) {
@@ -382,13 +384,14 @@ function createDiagramNode(
     const profileOf = profilingSources.filter(
       item => attributeProfile.ends.find(end => end.profiling.includes(item.id)) !== undefined);
     itemCandidates[attributeProfile.id] = {
+      type: NODE_ITEM_TYPE,
       identifier: attributeProfile.id,
       label: createAttributeProfileLabel(language, attributeProfile),
       profileOf: {
         label: profileOf.map(item => getEntityLabelToShowInDiagram(language, item)).join(", "),
         usageNote: profileOf.map(item => getUsageNote(language, item)).join(", "),
       },
-    };
+    } as NodeRelationshipItem;
   }
 
   // We use map to force ordering of items based on content.

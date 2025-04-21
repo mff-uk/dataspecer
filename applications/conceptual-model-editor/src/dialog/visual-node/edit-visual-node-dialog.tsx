@@ -131,15 +131,15 @@ const mandatoryLabelToLabel = (entity: UiRelationshipProfile) => {
   }
   let label;
   switch (entity.mandatoryLevel) {
-    case CmeRelationshipProfileMandatoryLevel.Mandatory:
-      label = t("edit-visual-node-dialog.level-mandatory");
-      break;
-    case CmeRelationshipProfileMandatoryLevel.Optional:
-      label = t("edit-visual-node-dialog.level-optional");
-      break;
-    case CmeRelationshipProfileMandatoryLevel.Recommended:
-      label = t("edit-visual-node-dialog.level-recommended");
-      break;
+  case CmeRelationshipProfileMandatoryLevel.Mandatory:
+    label = t("edit-visual-node-dialog.level-mandatory");
+    break;
+  case CmeRelationshipProfileMandatoryLevel.Optional:
+    label = t("edit-visual-node-dialog.level-optional");
+    break;
+  case CmeRelationshipProfileMandatoryLevel.Recommended:
+    label = t("edit-visual-node-dialog.level-recommended");
+    break;
   }
   return (
     <>

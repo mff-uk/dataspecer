@@ -93,16 +93,16 @@ const dialogVisualModel = prefix(
     "ok-create": "✅ Create",
   });
 
-  const dialogVisualNode = prefix(
-    "edit-visual-node-dialog.", {
-      "label": "Edit visual node",
-      "btn-ok": "✅ Accept",
-      "btn-cancel": "❌ Cancel",
-      "content-visible": "Visible content:",
-      "content-available": "Available content:",
-      "level-mandatory": "mandatory",
-      "level-optional": "optional",
-      "level-recommended": "recommended",
+const dialogVisualNode = prefix(
+  "edit-visual-node-dialog.", {
+    "label": "Edit visual node",
+    "btn-ok": "✅ Accept",
+    "btn-cancel": "❌ Cancel",
+    "content-visible": "Visible content:",
+    "content-available": "Available content:",
+    "level-mandatory": "mandatory",
+    "level-optional": "optional",
+    "level-recommended": "recommended",
   });
 
 const dataspecer = prefix(
