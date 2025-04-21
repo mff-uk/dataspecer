@@ -229,9 +229,7 @@ export const translations: Record<string, string | Function> = {
   "add-model-dialog.tab-predefined.introduction": "Select vocabulary from bellow to import. You can import multiple at once.",
   "add-model-dialog.tab-create.introduction": "Create an empty vocabulary.",
   //
-  "create-visual-diagram-node-dialog.label": "Node name",
   "create-visual-diagram-node-dialog.model-name": "Name of the referenced visual model",
-  "create-visual-diagram-node-dialog.description": "Description",
   //
   "model.vocabularies": "Vocabularies",
   "model.classes": "Classes",
@@ -355,8 +353,6 @@ export const translations: Record<string, string | Function> = {
   "visual-diagram-node-create-from-selection-button": "Creates new visual model with selected entities and puts diagram node representing the newly created model to the original visual model",
   //
   "visual-diagram-node-info-dialog.representedVisualModelName": "Represented visual model",
-  "visual-diagram-node-info-dialog.label": "Name",
-  "visual-diagram-node-info-dialog.description": "Description",
   //
   "create-visual-model-dialog.label": "Visual model name",
 };

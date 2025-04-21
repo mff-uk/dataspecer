@@ -24,7 +24,6 @@ export function openEditVisualDiagramNodeDialogAction(
 
   const onConfirm = (nextState: EditVisualDiagramNodeDialogState) => {
     dialogData.referencedVisualModel.setLabel(nextState.representedVisualModelName);
-    updateVisualDiagramNode(visualModel, dialogData.visualDiagramNode, nextState);
 
     // Hack to force update in the Header component
     const activeViewId = graph.aggregatorView.getActiveViewId();
@@ -62,20 +61,7 @@ export function prepareDataForVisualDiagramNodeDialog(
   }
 
   const state = createEditVisualDiagramNodeDialogState(
-    options.language, visualDiagramNode.label, visualDiagramNode.description,
-    referencedVisualModel.getLabel(), visualDiagramNode.representedVisualModel);
+    options.language, referencedVisualModel.getLabel(), visualDiagramNode.representedVisualModel);
 
   return { visualDiagramNode, referencedVisualModel, state };
-}
-
-function updateVisualDiagramNode(
-  visualModel: WritableVisualModel,
-  visualDiagramNode: VisualDiagramNode,
-  nextState: EditVisualDiagramNodeDialogState,
-) {
-  visualModel.updateVisualEntity(visualDiagramNode.identifier, {
-    ...visualDiagramNode,
-    label: nextState.label,
-    description: nextState.description,
-  });
 }

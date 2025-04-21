@@ -1,6 +1,5 @@
 import { Entity, EntityIdentifier } from "./entity-model/entity.ts";
 import { ModelIdentifier } from "./entity-model/entity-model.ts";
-import { LanguageString } from "../semantic-model/concepts/concepts.ts";
 
 /**
  * Color in hexadecimal, must start with "#" character.
@@ -51,12 +50,14 @@ export interface VisualNode extends VisualEntity {
  */
 export interface VisualDiagramNode extends VisualEntity {
 
-    label: LanguageString,
-
-    description: LanguageString,
-
+    /**
+     * Position on canvas.
+     */
     position: Position,
 
+    /**
+     * Identifier of the visual model, whuch is represented by this visual node.
+     */
     representedVisualModel: string,
 
 }

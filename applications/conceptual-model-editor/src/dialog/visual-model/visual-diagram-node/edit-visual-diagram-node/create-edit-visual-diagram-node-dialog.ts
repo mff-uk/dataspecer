@@ -5,15 +5,11 @@ import { LanguageString } from "@dataspecer/core/core/core-resource";
 
 export function createEditVisualDiagramNodeDialogState(
   language: string,
-  visualDiagramNodeLabel: LanguageString | null,
-  visualDiagramNodeDescription: LanguageString | null,
   representedVisualModelName: LanguageString | null,
   representedVisualModelIdentifier: string | null,
 ): EditVisualDiagramNodeDialogState {
 
   return {
-    label: visualDiagramNodeLabel ?? {},
-    description: visualDiagramNodeDescription ?? {},
     representedVisualModelIdentifier,
     representedVisualModelName: representedVisualModelName ?? {en: "Visual model"},
     language,

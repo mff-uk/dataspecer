@@ -20,7 +20,7 @@ test("Put 4 visual nodes without edges into visual model with visual diagram nod
   const diagram = ActionsTestSuite.createTestDiagram();
 
   const createdVisualDiagramNodeIdentifier = addVisualDiagramNodeForNewModelToVisualModelAction(
-    notificationMockup, graph, useGraph, diagram, visualModel, {}, {}, null, visualNodeIdentifiers, []);
+    notificationMockup, graph, useGraph, diagram, visualModel, null, visualNodeIdentifiers, []);
   expect(createdVisualDiagramNodeIdentifier).not.toBeNull();
   const createdVisualDiagramNode = visualModel.getVisualEntity(
     createdVisualDiagramNodeIdentifier!) as VisualDiagramNode;
@@ -68,7 +68,7 @@ test("Put visual nodes with edges into visual model with visual diagram node ref
 
   // Perform action
   const createdVisualDiagramNodeIdentifier = addVisualDiagramNodeForNewModelToVisualModelAction(
-    notificationMockup, graph, useGraph, diagram, visualModel, {}, {}, null,
+    notificationMockup, graph, useGraph, diagram, visualModel, null,
     [nodeVisuals[0], nodeVisuals[1]], edgeVisuals);
 
   // Check the content of the main visual model

@@ -5,10 +5,6 @@ import { useMemo } from "react";
 
 export interface EditVisualDiagramNodeDialogState {
 
-  label: LanguageString,
-
-  description: LanguageString,
-
   representedVisualModelIdentifier: string | null,
 
   representedVisualModelName: LanguageString,
@@ -18,10 +14,6 @@ export interface EditVisualDiagramNodeDialogState {
 }
 
 export interface EditVisualDiagramNodeDialogController {
-
-  setLabel: (setter: (value: LanguageString) => LanguageString) => void;
-
-  setDescription: (setter: (value: LanguageString) => LanguageString) => void;
 
   setRepresentedVisualModelName: (setter: (value: LanguageString) => LanguageString) => void;
 
@@ -34,14 +26,6 @@ export function useEditVisualDiagramNodeDialogController({ changeState }: Dialog
 
   return useMemo(() => {
 
-    const setLabel = (setter: (value: LanguageString) => LanguageString): void => {
-      changeState((state) => ({ ...state, label: setter(state.label) }));
-    };
-
-    const setDescription = (setter: (value: LanguageString) => LanguageString): void => {
-      changeState((state) => ({ ...state, description: setter(state.description) }));
-    };
-
     const setRepresentedVisualModelName = (setter: (value: LanguageString) => LanguageString): void => {
       changeState((state) => ({ ...state, representedVisualModelName: setter(state.representedVisualModelName) }));
     };
@@ -51,8 +35,6 @@ export function useEditVisualDiagramNodeDialogController({ changeState }: Dialog
     };
 
     return {
-      setLabel,
-      setDescription,
       setRepresentedVisualModelName,
       openChangeReferencedVisualModel,
     };

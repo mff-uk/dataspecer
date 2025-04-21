@@ -22,10 +22,11 @@ export function openCreateVisualDiagramNodeDialogAction(
 ) {
 
   const onConfirm = (nextState: EditVisualDiagramNodeDialogState) => {
-    addVisualDiagramNodeForNewModelToVisualModelAction(notifications, graph, useGraph, diagram, visualModel,
-      nextState.label, nextState.description, nextState.representedVisualModelName, nodes, edges);
+    addVisualDiagramNodeForNewModelToVisualModelAction(
+      notifications, graph, useGraph, diagram, visualModel,
+      nextState.representedVisualModelName, nodes, edges);
   };
 
-  const state = createEditVisualDiagramNodeDialogState(options.language, {}, {}, null, null);
+  const state = createEditVisualDiagramNodeDialogState(options.language, null, null);
   dialogs?.openDialog(createCreateVisualDiagramNodeDialog(state, onConfirm));
 }

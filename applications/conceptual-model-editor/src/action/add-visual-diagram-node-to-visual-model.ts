@@ -23,8 +23,6 @@ export function addVisualDiagramNodeForNewModelToVisualModelAction(
   useGraph: UseModelGraphContextType,
   diagram: UseDiagramType,
   visualModel: WritableVisualModel,
-  label: LanguageString | null,
-  description: LanguageString | null,
   newVisualModelName: LanguageString | null,
   containedNodes: string[],
   containedEdges: string[],
@@ -41,8 +39,6 @@ export function addVisualDiagramNodeForNewModelToVisualModelAction(
   const position = getViewportCenterForClassPlacement(diagram);
 
   const visualDiagramNode: Omit<VisualDiagramNode, "identifier" | "type"> = {
-    label: label ?? {en: "visual diagram node"},
-    description: description ?? {en: ""},
     position: {
       ...position,
       anchored: null

@@ -495,7 +495,7 @@ export class ActionsTestSuite {
     position?: XY
   ): string {
     const nodePosition = position !== undefined ? {...position, anchored: null} : { x: 0, y: 0, anchored: null };
-    const visualId = addVisualDiagramNode(visualModel, {}, {}, nodePosition, representedVisualModel);
+    const visualId = addVisualDiagramNode(visualModel, nodePosition, representedVisualModel);
     return visualId;
   }
 

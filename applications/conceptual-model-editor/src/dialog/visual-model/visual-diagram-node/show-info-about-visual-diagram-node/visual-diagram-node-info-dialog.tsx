@@ -8,7 +8,7 @@ import { DialogDetailRow } from "@/components/dialog/dialog-detail-row";
 export const VisualDiagramNodeInfoDialog = (props: DialogProps<EditVisualDiagramNodeDialogState>) => {
   const state = props.state;
   const [language, setCurrentLanguage] = useState<string>(props.state.language);
-  const languages = [...new Set([...Object.keys(state.label), ...Object.keys(state.description)])];
+  const languages = Object.keys(state.representedVisualModelName);
   return (
     <>
       <div className="bg-slate-100">
@@ -32,14 +32,8 @@ export const VisualDiagramNodeInfoDialog = (props: DialogProps<EditVisualDiagram
         </div>
       </div>
       <div className="grid gap-y-3 bg-slate-100 md:grid-cols-[20%_80%] md:pl-8">
-        <DialogDetailRow detailKey={t("visual-diagram-node-info-dialog.label")}>
-          {getLocalizedStringFromLanguageString(state.label, language)}
-        </DialogDetailRow>
         <DialogDetailRow detailKey={t("visual-diagram-node-info-dialog.representedVisualModelName")}>
           {getLocalizedStringFromLanguageString(state.representedVisualModelName, language)}
-        </DialogDetailRow>
-        <DialogDetailRow detailKey={t("visual-diagram-node-info-dialog.description")}>
-          {getLocalizedStringFromLanguageString(state.description, language)}
         </DialogDetailRow>
       </div>
     </>
