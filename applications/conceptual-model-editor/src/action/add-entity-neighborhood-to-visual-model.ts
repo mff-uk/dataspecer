@@ -95,7 +95,6 @@ export const addEntityNeighborhoodToVisualModelAction = async (
         return;
       }
 
-
       const model = findSourceModelOfEntity(identifier, graph.models);
       if (model === null) {
         notifications.error("Given entity is relationship or relationship profile, but it has missing source model");
@@ -134,7 +133,6 @@ function addSemanticClassOrClassProfileToVisualModelCommand(
     visualModels: [],
   });
 }
-
 
 /**
  * Checks if given given {@link identifier} is class or class profile and if so, it is added to visual model.
@@ -204,7 +202,6 @@ const addClassOrClassProfile = async (
 
   return true;
 }
-
 
 const addClassNeighborhoodToVisualModelAction = async (
   notifications: UseNotificationServiceWriterType,
