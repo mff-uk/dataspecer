@@ -1,14 +1,17 @@
 import { type InternalNode, Viewport } from "@xyflow/react";
 
-import { type Position } from "../diagram-model";
+import { Edge, type Position } from "../diagram-model";
 import {
   type Point,
   Rectangle,
+  findClosestLine,
   findLineCenter,
   findOrthogonalRectangleBorder,
   findOrthogonalRectangleBorders,
   findRectangleBorder,
 } from "./math";
+import { DiagramContextType } from "../diagram-controller";
+import { EdgeToolbarProps } from "./edge-toolbar";
 
 /**
  * Create and return waypoints from line from a source node to a target node.
@@ -97,6 +100,20 @@ export function computeScreenPosition(
     x: x * viewport.zoom + viewport.x,
     y: y * viewport.zoom + viewport.y,
   };
+};
+
+export function onAddWaypoint(
+  context: DiagramContextType,
+  sourceNode: InternalNode, targetNode: InternalNode,
+  data: Edge,
+  value: EdgeToolbarProps,
+) {
+  const waypoints = createOrthogonalWaypoints(
+    sourceNode, data.waypoints ?? [], targetNode);
+  //
+  const waypointPosition = { x: value.x, y: value.y };
+  const index = findClosestLine(waypoints, waypointPosition);
+  context?.callbacks().onAddWaypoint(data, index, waypointPosition);
 };
 
 /**

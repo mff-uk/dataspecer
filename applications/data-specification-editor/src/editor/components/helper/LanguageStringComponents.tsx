@@ -1,11 +1,11 @@
-import React, {ReactElement} from "react";
+import React, {ReactNode} from "react";
 import {useTranslation} from "react-i18next";
 import {LanguageString} from "@dataspecer/core/core";
 
 export const LanguageStringFallback: React.FC<{
     from: LanguageString | null,
-    fallback?: ReactElement,
-    children?: (text: string, lang?: string) => ReactElement,
+    fallback?: ReactNode,
+    children?: (text: string, lang?: string) => ReactNode,
 }> = ({from, fallback, children}) => {
     const {i18n} = useTranslation();
 
@@ -24,10 +24,10 @@ export const LanguageStringFallback: React.FC<{
 
 export const LanguageStringUndefineable: React.FC<{
     from: LanguageString | null,
-    children: (text: string|undefined, lang?: string) => ReactElement,
+    children: (text: string|undefined, lang?: string) => ReactNode,
 }> = ({from, children}) => <LanguageStringFallback from={from} fallback={children(undefined, undefined)}>{children}</LanguageStringFallback>;
 
-export const LanguageStringText: React.FC<{from: LanguageString | null}> = ({from}) => <LanguageStringFallback from={from}>{text => <>{text}</>}</LanguageStringFallback>;
+export const LanguageStringText: React.FC<{from: LanguageString | null, fallback?: ReactNode}> = ({from, fallback}) => <LanguageStringFallback from={from} fallback={fallback}>{text => <>{text}</>}</LanguageStringFallback>;
 
 /**
  * Returns most suitable translation for the given language string.

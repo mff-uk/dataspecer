@@ -12,6 +12,9 @@ import { Entity } from "@dataspecer/core-v2";
 
 const LOG = createLogger(import.meta.url);
 
+/**
+ * @deprecated We should not synchronize on changes, instead we must execute changes directly.
+ */
 export function updateVisualAttributesBasedOnSemanticChanges(
   visualModel: WritableVisualModel,
   changedItems: AggregatedEntityWrapper[],

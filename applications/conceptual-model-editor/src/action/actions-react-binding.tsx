@@ -91,6 +91,11 @@ interface DialogActions {
   openCreateModelDialog: () => void;
 
   /**
+   * Opens dialog, which purpose is to alow user adit a semantic model.
+   */
+  openEditModelDialog: (identifier: string) => void;
+
+  /**
    * Opens dialog, which purpose is to show the detail information of entity identified by {@link identifier}.
    * @param identifier is the identifier of the semantic entity.
    */
@@ -267,10 +272,10 @@ interface VisualModelActions {
 
   //
   // TODO PRQuestion: Again document using {@link .*Action} or not?
-  addEntitiesFromSemanticModelToVisualModel: (semanticModel: EntityModel) => Promise<void>;
+  addEntitiesFromSemanticModelToVisualModel: (semanticModel: EntityModel | string) => Promise<void>;
 
   // TODO PRQuestion: Again document using {@link .*Action} or not?
-  removeEntitiesInSemanticModelFromVisualModel: (semanticModel: EntityModel) => void;
+  removeEntitiesInSemanticModelFromVisualModel: (semanticModel: EntityModel | string) => void;
 
   /**
    * Puts class' neighborhood to visual model.
@@ -335,6 +340,7 @@ export interface ActionsContextType extends DialogActions, VisualModelActions {
 
 const noOperationActionsContext = {
   openCreateModelDialog: noOperation,
+  openEditModelDialog: noOperation,
   openDetailDialog: noOperation,
   openModifyDialog: noOperation,
   openCreateClassDialog: noOperation,
@@ -593,6 +599,10 @@ function createActionsContext(
     openCreateVocabularyAction(dialogs, graph);
   };
 
+  const openEditModelDialog = (identifier: string ) => {
+
+  };
+
   const openDetailDialog = (identifier: string) => {
     openDetailDialogAction(options, dialogs, notifications, graph, identifier);
   };
@@ -800,17 +810,32 @@ function createActionsContext(
     });
   }
 
-  const addEntitiesFromSemanticModelToVisualModel = async (semanticModel: EntityModel) => {
+  const addEntitiesFromSemanticModelToVisualModel = async (semanticModel: EntityModel | string) => {
+    if (typeof semanticModel === "string") {
+      const newSemanticModel = graph.models.get(semanticModel);
+      if (newSemanticModel === undefined) {
+        return Promise.reject();
+      }
+      semanticModel = newSemanticModel;
+    }
+    //
     let promise: Promise<void> = Promise.resolve();
     withVisualModel(notifications, graph, (visualModel) => {
       promise = addEntitiesFromSemanticModelToVisualModelAction(
         notifications, classes, graph, diagram, visualModel, semanticModel);
     });
-
     return promise;
   };
 
-  const removeEntitiesInSemanticModelFromVisualModel = (semanticModel: EntityModel) => {
+  const removeEntitiesInSemanticModelFromVisualModel = (semanticModel: EntityModel | string) => {
+    if (typeof semanticModel === "string") {
+      const newSemanticModel = graph.models.get(semanticModel);
+      if (newSemanticModel === undefined) {
+        return Promise.reject();
+      }
+      semanticModel = newSemanticModel;
+    }
+    //
     withVisualModel(notifications, graph, (visualModel) => {
       const entitiesInModel = getSelectionForWholeSemanticModel(semanticModel, visualModel, false);
       removeFromVisualModelByRepresented(entitiesInModel.nodeSelection);
@@ -1129,6 +1154,7 @@ function createActionsContext(
 
   return {
     openCreateModelDialog,
+    openEditModelDialog,
     openDetailDialog,
     openModifyDialog,
     openCreateClassDialog,

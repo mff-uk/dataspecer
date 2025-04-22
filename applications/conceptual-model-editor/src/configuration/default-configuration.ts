@@ -1,6 +1,12 @@
 import { Configuration, RelationshipIriGeneratorStrategy } from "./configuration";
 import { lowerCamelCase, upperCamelCase } from "./policy/naming-style-policy";
 
+const PREFIXES = {
+  "http://www.w3.org/2001/XMLSchema#": "xml",
+  "http://www.w3.org/1999/02/22-rdf-syntax-ns#": "rdf",
+  "http://www.w3.org/2000/01/rdf-schema#": "rdfs",
+};
+
 /**
  * Generate relationship profile IRI.
  */
@@ -32,4 +38,5 @@ export const defaultConfiguration: Configuration = Object.freeze({
   alignmentXSnapGrid: 20,
   alignmentYSnapGrid: 20,
   defaultModelColor: "#000069",
+  prefixes: PREFIXES,
 });

@@ -40,9 +40,9 @@ interface LabeledEntity extends Labeled {
   iri: string | null;
 
   /**
-   * Identifier of the owner vocabulary.
+   * Identifier of the owner semantic model.
    */
-  vocabularyDsIdentifier: string;
+  model: string;
 
 }
 
@@ -62,9 +62,9 @@ export function sanitizeDuplicitiesInRepresentativeLabels<Type extends LabeledEn
   // Label can be provided, default, or empty string.
   const vocabularyLabelMap: Record<string, string> = {};
   for (const vocabulary of vocabularies) {
-    for (const language in vocabulary.displayLabel) {
-      vocabularyLabelMap[createVocabularyKey(language, vocabulary.dsIdentifier)] =
-        vocabulary.displayLabel[language];
+    for (const language in vocabulary.name) {
+      vocabularyLabelMap[createVocabularyKey(language, vocabulary.identifier)] =
+        vocabulary.name[language];
     }
   }
 
@@ -81,7 +81,7 @@ export function sanitizeDuplicitiesInRepresentativeLabels<Type extends LabeledEn
   } => {
     const label = entity.label[language];
     // We know models are not really using languages.
-    const vocabularyLabel = getVocabularyLabel(language, entity.vocabularyDsIdentifier);
+    const vocabularyLabel = getVocabularyLabel(language, entity.model);
     return {
       collisionKey: language + ":" + label,
       modelCollisionKey: language + ":" + label + ":" + vocabularyLabel,
@@ -124,7 +124,7 @@ export function sanitizeDuplicitiesInRepresentativeLabels<Type extends LabeledEn
       }
       // Ok add model label.
       // We know models are not really using languages.
-      const modelLabel = getVocabularyLabel(language, entity.vocabularyDsIdentifier);
+      const modelLabel = getVocabularyLabel(language, entity.model);
       if (nextLabel[language].length > 0) {
         nextLabel[language] += " ";
       }

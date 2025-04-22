@@ -318,7 +318,7 @@ export const defaultConfiguration: DocumentationConfiguration = {
       </tr>
     {{/if}}
 
-    {{#translate usageNote}}
+    {{#translate aggregation.ends.1.usageNote}}
     <tr>
       <td>{{#iflng "cs"}}Popis použití v profilu{{lng}}Usage note{{/iflng}}</td>
       <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>

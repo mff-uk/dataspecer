@@ -53,7 +53,7 @@ export function openCreateProfileDialogAction(
 
       const result = cmeExecutor.createClassProfile(
         classProfileDialogStateToNewCmeClassProfile(state));
-      cmeExecutor.updateSpecialization(result, state.model.dsIdentifier,
+      cmeExecutor.updateSpecialization(result, state.model.identifier,
         [], state.specializations);
 
       if (isWritableVisualModel(visualModel)) {
@@ -75,7 +75,7 @@ export function openCreateProfileDialogAction(
 
       const result = cmeExecutor.createRelationshipProfile(
         attributeProfileDialogStateToNewCmeRelationshipProfile(state));
-      cmeExecutor.updateSpecialization(result, state.model.dsIdentifier,
+      cmeExecutor.updateSpecialization(result, state.model.identifier,
         [], state.specializations);
 
       if (result?.identifier !== undefined) {
@@ -96,7 +96,7 @@ export function openCreateProfileDialogAction(
 
       const result = cmeExecutor.createRelationshipProfile(
         associationProfileDialogStateToNewCmeRelationshipProfile(state));
-      cmeExecutor.updateSpecialization(result, state.model.dsIdentifier,
+      cmeExecutor.updateSpecialization(result, state.model.identifier,
         [], state.specializations);
 
       if (isWritableVisualModel(visualModel)) {

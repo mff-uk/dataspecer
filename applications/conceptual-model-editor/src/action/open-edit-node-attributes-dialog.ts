@@ -8,7 +8,7 @@ import { createEditVisualNodeState, EditVisualNodeDialogState } from "../dialog/
 import { ModelGraphContextType } from "../context/model-context";
 
 export function openEditNodeAttributesDialogAction(
-  classesContext: ClassesContextType,
+  _classesContext: ClassesContextType,
   graphContext: ModelGraphContextType,
   dialogs: DialogApiContextType,
   _notifications: UseNotificationServiceWriterType,
@@ -17,7 +17,7 @@ export function openEditNodeAttributesDialogAction(
   visualNodeIdentifier: string,
 ) {
   const initialState = createEditVisualNodeState(
-    classesContext, graphContext, visualModel, visualNodeIdentifier,
+    graphContext, visualModel, visualNodeIdentifier,
     options.language);
 
   const onConfirm = (state: EditVisualNodeDialogState) => {

@@ -19,17 +19,12 @@
   cursor: pointer;
 }
 
-.edge-toolbar .generalization-edge ul {
-  position: absolute;
-}
-
 .edge-toolbar .property-edge ul {
   position: absolute;
   bottom: 0;
   right: 0;
 }
 
-.edge-toolbar .generalization-edge ul,
 .edge-toolbar .property-edge li {
   display: grid;
   place-content: center;

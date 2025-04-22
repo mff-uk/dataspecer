@@ -176,7 +176,7 @@ type OpenCanvasContextMenuHandler = (sourceNodeIdentifier: string, canvasPositio
 /**
  * We use context to access to callbacks to diagram content, like nodes and edges.
  */
-interface DiagramContextType {
+export interface DiagramContextType {
 
   callbacks: () => DiagramCallbacks;
 

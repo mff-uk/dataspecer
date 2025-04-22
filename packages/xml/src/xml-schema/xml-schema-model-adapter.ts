@@ -276,7 +276,7 @@ class XmlSchemaAdapter {
         }
         const element = {
           entityType: "element",
-          name: [null, "choiceOption"],
+          name: [null, cls.technicalLabel],
           type: await this.singleClassToType(cls),
           annotation: null,
         } satisfies XmlSchemaElement;
@@ -298,7 +298,7 @@ class XmlSchemaAdapter {
 
       const type = {
         entityType: "type",
-        name: null,
+        name: [null, property.technicalLabel],
         annotation: null,
         mixed: false,
         abstract: null,
@@ -559,7 +559,7 @@ class XmlSchemaAdapter {
    */
   private datatypePropertyToType(propertyData: StructureModelProperty, dataTypes: StructureModelPrimitiveType[]): XmlSchemaType {
     if (dataTypes.length === 1 && !propertyData.isInOr) {
-      if ([OFN.text].includes(dataTypes[0].dataType)) {
+      if ([OFN.text, "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"].includes(dataTypes[0].dataType)) {
         // This is language string
         const langStringType: XmlSchemaLangStringType = {
           entityType: "type",

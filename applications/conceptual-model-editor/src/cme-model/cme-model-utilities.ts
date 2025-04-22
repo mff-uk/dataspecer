@@ -29,5 +29,5 @@ export function filterWritableModels(items: CmeSemanticModel[]): CmeSemanticMode
  * @returns True if we can write the given vocabulary.
  */
 function isModelWritable(item: CmeSemanticModel): boolean {
-  return item.dsModelType === CmeSemanticModelType.InMemorySemanticModel;
+  return item.modelType === CmeSemanticModelType.InMemorySemanticModel;
 }

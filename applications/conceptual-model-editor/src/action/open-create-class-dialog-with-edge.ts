@@ -72,7 +72,7 @@ function createAssociationToCreatedClass(
   const createdClassEntityRepresentative: EntityRepresentative = {
     identifier: createdClassData.identifier,
     iri: editClassDialogState.iri,
-    vocabularyDsIdentifier: vocabularyForCreatedClass?.dsIdentifier ?? "",
+    model: vocabularyForCreatedClass?.identifier ?? "",
     name: editClassDialogState.name,
     label: editClassDialogState.name,
     description: editClassDialogState.description,
@@ -104,7 +104,7 @@ function createAssociationToCreatedClass(
 
   const result = cmeExecutor.createRelationship(
     associationDialogStateToNewCmeRelationship(state));
-  cmeExecutor.updateSpecialization(result, state.model.dsIdentifier,
+  cmeExecutor.updateSpecialization(result, state.model.identifier,
     [], state.specializations);
 }
 

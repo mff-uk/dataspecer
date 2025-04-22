@@ -40,7 +40,7 @@ export function openCreateAssociationDialogAction(
 
     const result = cmeExecutor.createRelationship(
       associationDialogStateToNewCmeRelationship(state));
-    cmeExecutor.updateSpecialization(result, state.model.dsIdentifier,
+    cmeExecutor.updateSpecialization(result, state.model.identifier,
       initialState.specializations, state.specializations);
 
     if (isWritableVisualModel(visualModel)) {

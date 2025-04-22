@@ -20,8 +20,11 @@ export function emptyAsNull(value: string | null) : string | null {
 export function languageStringToString(
   languagePreferences: string[],
   language: string,
-  value: LanguageString,
+  value: LanguageString | null,
 ): string {
+  if (value === null) {
+    return "";
+  }
   const preferred = value[language];
   if (preferred !== undefined) {
     return preferred;

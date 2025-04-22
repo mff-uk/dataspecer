@@ -6,7 +6,7 @@ import { StructureModel, StructureModelClass, StructureModelComplexType, Structu
 import { OFN } from "@dataspecer/core/well-known";
 import { DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator } from "../configuration.ts";
 import { JSON_LD_GENERATOR } from "./json-ld-generator.ts";
-import { AggregatedEntityInApplicationProfileAggregator, LocalEntityWrapped, splitProfileToConcepts } from "@dataspecer/core-v2/hierarchical-semantic-aggregator";
+import { AggregatedEntityInApplicationProfileAggregator, LocalEntityWrapped, splitProfileToSingleConcepts } from "@dataspecer/core-v2/hierarchical-semantic-aggregator";
 import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
@@ -50,7 +50,7 @@ function getPrefixesForContext(localPrefixes: Record<string, string>, parentPref
  * Returns string array that is used for the @type key in the JSON-LD context and JSON schema.
  */
 export function getClassTypeKey(cls: LocalEntityWrapped<SemanticModelClass | SemanticModelClassProfile>, structureClass: StructureModelClass, configuration: JsonConfiguration, preDefinedMapping: Record<string, string>): string[] {
-  const concepts = splitProfileToConcepts(cls);
+  const concepts = splitProfileToSingleConcepts(cls);
   const mappingType = configuration.jsonDefaultTypeKeyMapping;
 
   if (mappingType === "technical-label" && concepts.length <= 1) {
@@ -190,14 +190,14 @@ export class JsonLdAdapter {
       console.log("JSON-LD generator: context type", contextType);
       const propertiesUseParentContext = contextType !== "TYPE-SCOPED";
 
-      const semanticClassWrapped = this.semanticModel[cls.pimIri] as LocalEntityWrapped<SemanticModelClass>;
+      const semanticClassWrapped = this.semanticModel[cls.pimIri] as LocalEntityWrapped<SemanticModelClassProfile>;
 
-      const classConcepts = splitProfileToConcepts(semanticClassWrapped);
+      const classConcepts = splitProfileToSingleConcepts(semanticClassWrapped);
 
       // For each "real class"
       if (contextType !== "PROPERTY-SCOPED") {
         for (const concept of classConcepts) {
-          const iri = concept.aggregatedEntity.iri;
+          const iri = concept.aggregatedEntity["conceptIris"]?.[0] ?? concept.aggregatedEntity.iri;
           if (!mappingToProperties[iri]) {
             mappingToProperties[iri] = new Set();
           }
@@ -218,7 +218,7 @@ export class JsonLdAdapter {
         // profile) and assign them to appropriate classes
 
         const semanticPropertyWrapped = this.semanticModel[property.pimIri] as AggregatedEntityInApplicationProfileAggregator<SemanticModelRelationship>;
-        const concepts = splitProfileToConcepts(semanticPropertyWrapped);
+        const concepts = splitProfileToSingleConcepts(semanticPropertyWrapped);
 
         if (concepts.length > 1) {
           throw new Error("JSON-LD generator: Multiprofile for relationships is not supported by JSON generators!");

@@ -93,6 +93,18 @@ const dialogVisualModel = prefix(
     "ok-create": "✅ Create",
   });
 
+const dialogVisualNode = prefix(
+  "edit-visual-node-dialog.", {
+    "label": "Edit visual node",
+    "btn-ok": "✅ Accept",
+    "btn-cancel": "❌ Cancel",
+    "content-visible": "Visible content:",
+    "content-available": "Available content:",
+    "level-mandatory": "mandatory",
+    "level-optional": "optional",
+    "level-recommended": "recommended",
+  });
+
 const dataspecer = prefix(
   "dataspecer", {
     "package.state-is-null": "There is no dataspecer state information, please reload the application",
@@ -113,6 +125,7 @@ export const translations: Record<string, string | Function> = {
   ...dialogVisualDiagramNode,
   ...dialogVisualModel,
   ...dataspecer,
+  ...dialogVisualNode,
   //
   "notification.icon-error": "Error icon",
   "notification.icon-success": "Check icon",
@@ -236,7 +249,7 @@ export const translations: Record<string, string | Function> = {
   "model.relationship": "Relationship",
   "model.attributes": "Attributes",
   "model.profiles": "Profiles",
-  "model.warnings": "⚠️&nbsp;Warnings",
+  "model.generalizations": "Generalizations",
   "model-catalog.add-vocabulary": "➕",
   //
   "detail-dialog.btn-close": "Close",
@@ -337,12 +350,6 @@ export const translations: Record<string, string | Function> = {
   "drag-edge-to-canvas-create-association-source": "Create new association source",
   "drag-edge-to-canvas-create-generalization-parent": "Create new parent",
   "drag-edge-to-canvas-create-generalization-child": "Create new child",
-  //
-  "edit-visual-node-dialog.label": "Edit visual node",
-  "edit-visual-node-dialog.btn-ok": "✅ Accept",
-  "edit-visual-node-dialog.btn-cancel": "❌ Cancel",
-  "edit-visual-node-dialog.content-visible": "Visible content:",
-  "edit-visual-node-dialog.content-available": "Available content:",
   //
   "visual-diagram-node-dissolve-button": "Dissolves node representing visual model. That is the content of the diagram node is put back on canvas.",
   "visual-diagram-node-hide-button": "Removes the diagram node from canvas.",

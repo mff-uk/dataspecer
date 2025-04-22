@@ -25,14 +25,14 @@
     "json-schema-faker": "^0.5.3",
     "jsonld": "^8.3.1",
     "md5": "^2.3.0",
-    "n3": "^1.16.4",
+    "n3": "^1.25.1",
     "path": "^0.12.7",
     "rdf-ext": "^2.2.0",
     "shex": "^1.0.0-alpha.29",
     "turtle-validator": "^1.1.1"
   },
   "devDependencies": {
-    "@types/n3": "^1.16.4",
+    "@types/n3": "^1.24.2",
     "@types/rdf-ext": "^2.0.1",
     "rimraf": "^6.0.1",
     "typescript": "^5.8.3",

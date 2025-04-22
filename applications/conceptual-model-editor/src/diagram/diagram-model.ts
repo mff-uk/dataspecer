@@ -140,6 +140,16 @@ export interface Position {
 
 export interface NodeItem {
 
+  type: string;
+
+}
+
+export const NODE_ITEM_TYPE = "node-relationship-item";
+
+export interface NodeRelationshipItem extends NodeItem {
+
+  type: typeof NODE_ITEM_TYPE;
+
   identifier: string;
 
   label: string;
@@ -152,6 +162,28 @@ export interface NodeItem {
 
   }
 
+}
+
+export function isNodeRelationshipItem(
+  node: NodeItem,
+): node is NodeRelationshipItem {
+  return node.type === NODE_ITEM_TYPE;
+}
+
+export const NODE_TITLE_ITEM_TYPE = "node-title-item";
+
+export interface NodeTitleItem extends NodeItem {
+
+  type: typeof NODE_TITLE_ITEM_TYPE;
+
+  label: string;
+
+}
+
+export function isNodeTitleItem(
+  node: NodeItem,
+): node is NodeTitleItem {
+  return node.type === NODE_TITLE_ITEM_TYPE;
 }
 
 export type GroupWithContent = {
