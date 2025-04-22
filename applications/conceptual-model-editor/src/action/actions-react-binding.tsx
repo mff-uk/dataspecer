@@ -35,7 +35,7 @@ import { removeFromSemanticModelsAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
 import { openCreateAssociationDialogAction } from "./open-create-association-dialog";
 import { addEntitiesFromSemanticModelToVisualModelAction } from "./add-entities-from-semantic-model-to-visual-model";
-import { addClassNeighborhoodToVisualModelAction } from "./add-class-neighborhood-to-visual-model";
+import { addEntityNeighborhoodToVisualModelAction } from "./add-neighborhood-to-visual-model";
 import { createDefaultProfilesAction } from "./create-default-profiles";
 import { openCreateClassDialogWithModelDerivedFromClassAction } from "./open-create-class-dialog-with-derived-model";
 import { EntityToAddToVisualModel, addSemanticEntitiesToVisualModelAction } from "./add-semantic-entities-to-visual-model";
@@ -278,11 +278,13 @@ interface VisualModelActions {
   removeEntitiesInSemanticModelFromVisualModel: (semanticModel: EntityModel | string) => void;
 
   /**
-   * Puts class' neighborhood to visual model.
-   * That is classes connected to semantic class or class profile identified by {@link identifier}.
-   * @param identifier is the identifier of the semantic class or class profile, whose neighborhood we will add to visual model.
+   * Puts entities' neighborhood to visual model.
+   * For classes it is classes connected to semantic class or class profile identified by {@link identifier}.
+   * For relationships that is both ends.
+   * For attributes it is the same as calling it on the semantic class, on which the attribute lies.
+   * @param identifier is the identifier of the semantic entity, whose neighborhood we will add to visual model.
    */
-  addClassNeighborhoodToVisualModel: (identifier: string) => Promise<void>;
+  addEntityNeighborhoodToVisualModel: (identifier: string) => Promise<void>;
 
 }
 
@@ -373,7 +375,7 @@ const noOperationActionsContext = {
   //
   addEntitiesFromSemanticModelToVisualModel: async () => {},
   removeEntitiesInSemanticModelFromVisualModel: noOperation,
-  addClassNeighborhoodToVisualModel: async () => {},
+  addEntityNeighborhoodToVisualModel: async () => {},
   layoutActiveVisualModel: noOperationAsync,
   //
   openExtendSelectionDialog: noOperation,
@@ -842,10 +844,11 @@ function createActionsContext(
     });
   };
 
-  const addClassNeighborhoodToVisualModel = async (identifier: string) => {
+  const addEntityNeighborhoodToVisualModel = async (identifier: string) => {
     let promise: Promise<void> = Promise.resolve();
     withVisualModel(notifications, graph, (visualModel) => {
-      promise = addClassNeighborhoodToVisualModelAction(notifications, classes, graph, diagram, visualModel, identifier);
+      promise = addEntityNeighborhoodToVisualModelAction(
+        notifications, classes, graph, diagram, visualModel, identifier);
     });
 
     return promise;
@@ -1186,7 +1189,7 @@ function createActionsContext(
     openCreateNewVisualModelDialog,
     addEntitiesFromSemanticModelToVisualModel,
     removeEntitiesInSemanticModelFromVisualModel,
-    addClassNeighborhoodToVisualModel,
+    addEntityNeighborhoodToVisualModel,
 
     layoutActiveVisualModel,
     //
