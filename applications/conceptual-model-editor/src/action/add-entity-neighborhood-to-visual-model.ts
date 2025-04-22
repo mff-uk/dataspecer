@@ -231,9 +231,15 @@ const addClassNeighborhoodToVisualModelAction = async (
     classesOrClassProfilesToAdd.push(
       ...neighborhood.selectionExtension.nodeSelection
         .filter(node => node !== identifier)
-        .map(node => ({identifier: node, position: null}))
+        .map(node => ({ identifier: node, position: null }))
     );
     await addSemanticEntitiesToVisualModelAction(
       notifications, classes, graph, visualModel, diagram, classesOrClassProfilesToAdd);
+
+    // Some might got already added by the fact that the relevant class was added, but the action will deal with that.
+    const allNeighborhoodSemanticEdges = neighborhood.selectionExtension.edgeSelection
+      .map(semanticEdge => ({ identifier: semanticEdge, position: null }));
+    await addSemanticEntitiesToVisualModelAction(
+      notifications, classes, graph, visualModel, diagram, allNeighborhoodSemanticEdges);
   });
 };
