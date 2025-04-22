@@ -16,6 +16,8 @@ import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-t
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
 import { findPositionForNewNodesUsingLayouting } from "./layout-visual-model";
 import { XY } from "@dataspecer/layout";
+import { addEntitiesFromSemanticModelToVisualModelAction } from "./add-entities-from-semantic-model-to-visual-model";
+import { getVisualNodeContentBasedOnExistingEntities } from "./add-semantic-attribute-to-visual-model";
 
 export const addEntityNeighborhoodToVisualModelAction = async (
   notifications: UseNotificationServiceWriterType,
@@ -49,7 +51,8 @@ export const addEntityNeighborhoodToVisualModelAction = async (
         notifications.error("Given entity is attribute, but it does not have domain class");
         return;
       }
-      return addClassNeighborhoodToVisualModelAction(notifications, classes, graph, diagram, visualModel, domain.concept);
+
+      addClassOrClassProfile(notifications, classes, graph, diagram, visualModel, domain.concept, null);
     }
     else if (isSemanticModelAttributeProfile(possibleRelationship)) {
       const { domain } = getDomainAndRange(possibleRelationship);
@@ -57,7 +60,7 @@ export const addEntityNeighborhoodToVisualModelAction = async (
         notifications.error("Given entity is attribute profile, but it does not have domain class");
         return;
       }
-      return addClassNeighborhoodToVisualModelAction(notifications, classes, graph, diagram, visualModel, domain.concept);
+      addClassOrClassProfile(notifications, classes, graph, diagram, visualModel, domain.concept, null);
     }
     else if (isSemanticModelRelationship(possibleRelationship) ||
              isSemanticModelRelationshipProfile(possibleRelationship)) {
@@ -72,34 +75,75 @@ export const addEntityNeighborhoodToVisualModelAction = async (
       }
 
       const positions = await findPositionForNewNodesUsingLayouting(notifications, diagram, graph, visualModel, classes, [domain, range]);
-      const isDomainAdded = addClassOrClassProfile(
-        notifications, classes, graph, diagram, visualModel, domain, positions[domain]);
-      if (!isDomainAdded) {
-        return;
-      }
+      // const isDomainAdded = addClassOrClassProfile(
+      //   notifications, classes, graph, diagram, visualModel, domain, positions[domain]);
+      // if (!isDomainAdded) {
+      //   return;
+      // }
 
-      const isRangeAdded = addClassOrClassProfile(
-        notifications, classes, graph, diagram, visualModel, range, positions[range]);
-      if (!isRangeAdded) {
-        return;
-      }
+      // const isRangeAdded = addClassOrClassProfile(
+      //   notifications, classes, graph, diagram, visualModel, range, positions[range]);
+      // if (!isRangeAdded) {
+      //   return;
+      // }
 
-      const model = findSourceModelOfEntity(identifier, graph.models);
-      if (model === null) {
-        notifications.error("Given entity is relationship or relationship profile, but it has missing source model");
-        return;
-      }
-      if (isSemanticModelRelationship(possibleRelationship)) {
-        addSemanticRelationshipToVisualModelAction(
-          notifications, graph, visualModel, identifier, model.getId());
-      }
-      else {
-        addSemanticRelationshipProfileToVisualModelAction(
-          notifications, graph, visualModel, identifier, model.getId());
-      }
+
+      // const model = findSourceModelOfEntity(identifier, graph.models);
+      // if (model === null) {
+      //   notifications.error("Given entity is relationship or relationship profile, but it has missing source model");
+      //   return;
+      // }
+      // if (isSemanticModelRelationship(possibleRelationship)) {
+      //   addSemanticRelationshipToVisualModelAction(
+      //     notifications, graph, visualModel, identifier, model.getId());
+      // }
+      // else {
+      //   addSemanticRelationshipProfileToVisualModelAction(
+      //     notifications, graph, visualModel, identifier, model.getId());
+      // }
+
+      const entitiesToAdd: EntityToAddToVisualModel[] = [
+        {
+          identifier: domain,
+          position: positions[domain]
+        },
+        {
+          identifier: range,
+          position: positions[range]
+        },
+        {
+          identifier,
+        },
+      ];
+
+      addSemanticEntitiesToVisualModelAction(
+        notifications, classes, graph, visualModel, diagram, entitiesToAdd);
     }
   }
 }
+
+function addSemanticClassOrClassProfileToVisualModelCommand(
+  classes: ClassesContextType,
+  visualModel: WritableVisualModel,
+  entity: SemanticModelClass | SemanticModelClassProfile,
+  model: string,
+  position: { x: number, y: number },
+) {
+  const content = getVisualNodeContentBasedOnExistingEntities(
+    classes, entity);
+  visualModel.addVisualNode({
+    model: model,
+    representedEntity: entity.id,
+    position: {
+      x: position.x,
+      y: position.y,
+      anchored: null,
+    },
+    content,
+    visualModels: [],
+  });
+}
+
 
 /**
  * Checks if given given {@link identifier} is class or class profile and if so, it is added to visual model.
@@ -119,13 +163,13 @@ const addClassOrClassProfile = (
     const classProfile = classes.classProfiles.find(classProfile => classProfile.id === identifier);
 
     if (classProfile === undefined) {
-      notifications.error("Given entity is relationship or relationship profile, but its domain or range is missing");
+      notifications.error("Related entity is neither class or class profile");
       return false;
     }
 
     const model = findSourceModelOfEntity(classProfile.id, graph.models);
     if (model === null) {
-      notifications.error("Given entity is relationship or relationship profile, but its domain or range has missing source model");
+      notifications.error("Related entity is class or class profile, but has missing source model");
       return false;
     }
 
