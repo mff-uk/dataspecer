@@ -281,7 +281,7 @@ interface VisualModelActions {
    * Puts entities' neighborhood to visual model.
    * For classes it is classes connected to semantic class or class profile identified by {@link identifier}.
    * For relationships that is both ends.
-   * For attributes it is the same as calling it on the semantic class, on which the attribute lies.
+   * For attributes it adds the domain class to canvas.
    * @param identifier is the identifier of the semantic entity, whose neighborhood we will add to visual model.
    */
   addEntityNeighborhoodToVisualModel: (identifier: string) => Promise<void>;

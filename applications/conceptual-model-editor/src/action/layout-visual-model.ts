@@ -74,6 +74,19 @@ export async function layoutActiveVisualModelAction(
 
 //
 
+export async function findPositionForNewNodeUsingLayouting(
+  notifications: UseNotificationServiceWriterType,
+  diagram: UseDiagramType,
+  graph: ModelGraphContextType,
+  visualModel: WritableVisualModel,
+  classes: ClassesContextType,
+  identifier: string,
+): Promise<XY> {
+  const positions = await findPositionForNewNodesUsingLayouting(
+    notifications, diagram, graph, visualModel, classes, [identifier]);
+  return positions[identifier];
+}
+
 export async function findPositionForNewNodesUsingLayouting(
   notifications: UseNotificationServiceWriterType,
   diagram: UseDiagramType,

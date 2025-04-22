@@ -299,7 +299,10 @@ export const translations: Record<string, string | Function> = {
   "edit-node-attributes-visiblity-button": "Edit visibility of attributes on node",
   "duplicate-node-button": "Create new copy of the node on canvas",
   //
-  "add-neighborhood-button.title": "Add entity's neighborhood (Classes or class profiles connected by either association or generalization)",
+  "add-neighborhood-button.title": "Add entity's neighborhood. That is: \n" +
+                                    "For attributes the domain class \n" +
+                                    "For relationships the relationship together with ends (if not present) \n" +
+                                    "For classes and class profiles all the connected classes together with edges",
   //
   "node-anchor-button": "(Un)anchor node for layouting using force-directed layouting algorithm",
   "node-connection-handle": "Drag from this button to create connection (Dragging to canvas shows menu)",
