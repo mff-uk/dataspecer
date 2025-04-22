@@ -110,7 +110,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
             } else if (isNodeTitleItem(item)) {
               return (
                 <li
-                  key={`${index}-${item.label}-li`}
+                  key={`${index}-${item.title}-li`}
                   className="relative flex w-full flex-row justify-between z-50"
                 >
                   <TitleItem item={item} />
@@ -301,9 +301,9 @@ function TitleItem(props: {
   item: NodeTitleItem,
 }) {
   return (
-    <>
-      &nbsp; &lt;&lt;{props.item.label}&gt;&gt;
-    </>
+    <span className="ml-2">
+      {props.item.title}
+    </span>
   )
 }
 

@@ -128,7 +128,7 @@ export interface NodeTitleItem extends NodeItem {
 
   type: typeof NODE_TITLE_ITEM_TYPE;
 
-  label: string;
+  title: string;
 
 }
 
