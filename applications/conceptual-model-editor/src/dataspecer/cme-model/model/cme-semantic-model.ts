@@ -5,17 +5,17 @@ export enum CmeSemanticModelType {
   /**
    * Default read only model.
    */
-  DefaultSemanticModel,
+  DefaultSemanticModel = "default",
 
   /**
    * Writable model.
    */
-  InMemorySemanticModel,
+  InMemorySemanticModel = "in-memory",
 
   /**
    * Read only model.
    */
-  ExternalSemanticModel,
+  ExternalSemanticModel = "external",
 }
 
 export interface CmeSemanticModel {
