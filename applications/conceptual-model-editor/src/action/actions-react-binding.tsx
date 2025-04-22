@@ -1061,7 +1061,7 @@ function createActionsContext(
     onCanvasOpenCreateClassDialogWithAssociation: (nodeIdentifier, positionToPlaceClassOn, isCreatedClassTarget) => {
       withVisualModel(notifications, graph, (visualModel) => {
         openCreateClassDialogAndCreateAssociationAction(
-          cmeExecutor,notifications, dialogs, classes, options, graph,
+          cmeExecutor, notifications, dialogs, classes, options, graph,
           diagram, visualModel, nodeIdentifier, isCreatedClassTarget,
           positionToPlaceClassOn);
       });
