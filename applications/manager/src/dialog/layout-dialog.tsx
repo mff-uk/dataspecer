@@ -17,7 +17,7 @@ export const useConfigDialog = () => {
   const [config, setConfig] = useState<UserGivenAlgorithmConfigurations>(getDefaultUserGivenAlgorithmConfigurationsFull());
 
   const getConfig = () => {
-    return _.cloneDeep(config);
+    return config;
   };
 
 
@@ -152,11 +152,6 @@ export const useConfigDialog = () => {
       <div className="flex flex-row">
         <select id="force-alg-type" value={config?.[props.stateField].elk_force?.["force_alg_type"]} onChange={(event) => {
           setConfigWithNewValue("elk_force", props.stateField, "force_alg_type", event.target.value as ElkForceAlgType);
-          // // Based on https://stackoverflow.com/questions/17380845/how-do-i-convert-a-string-to-enum-in-typescript
-          // setConfig({...config,
-          //            [props.stateField]: {
-          //                 ...config[props.stateField],
-          //                 "force_alg_type": event.target.value as ElkForceAlgType }});
         }}>
           <option value="EADES">Eades</option>
           <option value="FRUCHTERMAN_REINGOLD">Fruchterman Reingold</option>
@@ -323,7 +318,6 @@ export const useConfigDialog = () => {
         }}></LayeredAlgorithmDirectionDropdown>
       </div>
 
-      {/* TODO RadStr: I should define it as component since I reuse this split on more places */}
       <hr className="w-48 h-1 mx-auto my-1 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
 
       <div className="flex flex-row">
@@ -344,7 +338,6 @@ export const useConfigDialog = () => {
 
       <div className="flex flex-row">
         { /* It has to be onMouseUp, if I put it onChange then react forces redraw and stops the "drag" event I guess */ }
-        { /* TOOD: Rewrite like this or similar <ConfigSlider min={0} max={1000} step={10} configName='layer-gap' defaultValue={100} setConfig={setConfig}></ConfigSlider> */}
         <label htmlFor={`range-${props.stateField}-layer-gap`}>Distance between layers: </label>
       </div>
       <div className="flex flex-row">
@@ -449,7 +442,6 @@ export const useConfigDialog = () => {
         </select>
       </div>
       <hr className="my-2"/>
-      {/* TODO RadStr: Just for now */}
       {config.chosenMainAlgorithm === "random" ? null : <h3 className="font-black">Algorithm settings </h3>}
       {renderMainAlgorithmConfig()}
       <hr className="my-2"/>
