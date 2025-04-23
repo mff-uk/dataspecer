@@ -43,8 +43,6 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
 
   const context = useContext(DiagramContext);
 
-  const isSingleNodeSelected = context?.getShownNodeMenuType() === NodeMenuType.SingleNodeMenu;
-
   const moveAttributeUp = (attribute: string) => () =>
     context?.callbacks().onMoveAttributeUp(attribute, props.data.identifier);
   const moveAttributeDown = (attribute: string) => () =>
@@ -89,7 +87,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
           {
             return <li key={`${item.identifier}-li`} className="relative flex w-full flex-row justify-between z-50">
               <EntityNodeItem item={item} />
-              {(props.selected !== true || !isSingleNodeSelected) ? null :
+              {(props.selected !== true) ? null :
                 <div>
                   <button onClick={moveAttributeUp(item.identifier)}>🔼</button>
                   <button onClick={moveAttributeDown(item.identifier)}>🔽</button>
@@ -184,7 +182,7 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
         &nbsp;
         <button onClick={onAnchor} title={isPartOfGroup ? t("group-anchor-button") : t("node-anchor-button")} >⚓</button>
         &nbsp;
-        <button onClick={onAddAttribute} title={addAttributeTitle}>➕</button>
+        <button onClick={onAddAttribute} title={addAttributeTitle} >➕</button>
         &nbsp;
       </NodeToolbar>
     </>);

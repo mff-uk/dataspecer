@@ -110,7 +110,7 @@ export async function findPositionForNewNodesUsingLayouting(
   configuration.main.elk_stress.run_node_overlap_removal_after = true;
   configuration.main.elk_stress.interactive = true;   // If set to false, then the result is deterministic (always same)
   configuration.main.elk_stress.number_of_new_algorithm_runs = 1;
-  // Maybe can be improved by using average edge length in diagram, but who knows.
+  // Maybe can be improved by using average edge length in diagram
   configuration.main.elk_stress.stress_edge_len = 500;
 
   // We only want to get the new positions, so we don't update the visual model.
