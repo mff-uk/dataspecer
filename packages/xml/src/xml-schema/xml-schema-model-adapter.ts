@@ -97,7 +97,8 @@ const XSD_IMPORT = {
 const XML_IMPORT = {
   namespace: "http://www.w3.org/XML/1998/namespace",
   prefix: "xml",
-  schemaLocation: "http://www.w3.org/XML/1998/namespace",
+  // todo: we need to split namespacing and importing
+  schemaLocation: null, //"http://www.w3.org/XML/1998/namespace", - only namespacing
   model: null,
 } satisfies XmlSchemaImportDeclaration;
 
