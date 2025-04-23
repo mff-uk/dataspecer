@@ -408,7 +408,7 @@ function createNewVisualRelationshipBasedOnSemanticData(
     if(edgeProfileType === "CLASS-PROFILE") {
         const edgeToReturn: VisualProfileRelationship = {
             identifier: createIdentifier(),
-            entity: start.id,
+            entity: start.semanticEntityRepresentingNode.id,
             type: [VISUAL_PROFILE_RELATIONSHIP_TYPE],
             waypoints: [],
             model: sourceModelIdentifier ?? "",
