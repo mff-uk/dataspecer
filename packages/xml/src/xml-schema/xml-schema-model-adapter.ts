@@ -247,15 +247,25 @@ class XmlSchemaAdapter {
   }
 
   /**
-   * Creates an {@link XmlSchemaElement} from given {@link StructureModelSchemaRoot} including the rest of the structure.
+   * Creates an {@link XmlSchemaElement} from given
+   * {@link StructureModelSchemaRoot} including the rest of the structure.
+   *
+   * To make things clear, an XML element is de facto an association. This
+   * nicely corresponds to StructureModelSchemaRoot which is de facto a "root
+   * edge" of the structure model.
    */
   private async rootToElement(root: StructureModelSchemaRoot): Promise<XmlSchemaElement> {
     const minCardinality = root.cardinalityMin ?? 1;
     const maxCardinality = root.cardinalityMax ?? 1;
     const hasWrappingElement = root.enforceCollection || minCardinality !== 1 || maxCardinality !== 1;
+    const isInOr = root.isInOr || root.classes.length > 1;
     const wrappingElementName = root.collectionTechnicalLabel ?? "root";
 
-    const technicalLabel = root.technicalLabel ?? root.classes[0].technicalLabel;
+    // We use the technical label from root, but if not provided, we use the
+    // label of the referenced element
+    const referencedElementTechnicalLabel = isInOr ? root.orTechnicalLabel : root.classes[0].technicalLabel;
+    const technicalLabel = root.technicalLabel ?? referencedElementTechnicalLabel ?? "element";
+
     let rootElement = {
       entityType: "element",
       name: [null, technicalLabel],
@@ -322,6 +332,16 @@ class XmlSchemaAdapter {
       return this.datatypePropertyToType(property as StructureModelProperty, choices as StructureModelPrimitiveType[]);
     }
 
+    if (property.isReferencing && isInOr) {
+      const referencedClass = await this.getImportedTypeForClass(choices[0] as StructureModelClass);
+      referencedClass[1] = property.orTechnicalLabel ?? "type";
+      return {
+        entityType: "type",
+        name: referencedClass,
+        annotation: null,
+      } satisfies XmlSchemaType;
+    }
+
     if (isInOr) {
       const contents = [] as XmlSchemaComplexContent[];
       for (const cls of choices) {
@@ -352,7 +372,8 @@ class XmlSchemaAdapter {
 
       const type = {
         entityType: "type",
-        name: [null, property.technicalLabel],
+        // We will use the technical label of OR or we will fallback to the association
+        name: [null, property.orTechnicalLabel ?? "type"],
         annotation: null,
         mixed: false,
         abstract: null,

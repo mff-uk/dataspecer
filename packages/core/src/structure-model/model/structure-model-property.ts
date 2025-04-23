@@ -93,6 +93,12 @@ export class StructureModelProperty {
   isInOr: boolean = false;
 
   /**
+   * Whether the property, which is local is referencing an object. This is used
+   * as API workaround when there is OR as a referenced root.
+   */
+  isReferencing: boolean = false;
+
+  /**
    * Technical label of the wrapping OR. If the OR is not wrapped, then it is empty.
    */
   orTechnicalLabel: string | null = null;
