@@ -1,4 +1,4 @@
-import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelGeneralization, isSemanticModelRelationship, SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
 import { Position, VisualModel } from "@dataspecer/core-v2/visual-model";
 
 import {
@@ -36,6 +36,7 @@ import { LayoutAlgorithm } from "./layout-algorithms/layout-algorithms-interface
 import _ from "lodash";
 import { UserGivenAlgorithmConfigurations } from "./configurations/user-algorithm-configurations.ts";
 import { DefaultAlgorithmConfiguration } from "./configurations/algorithm-configurations.ts";
+import { isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 export type { AlgorithmName };
 export { AnchorOverrideSetting } from "./explicit-anchors.ts";
 export { placeCoordinateOnGrid, placePositionOnGrid };
@@ -172,10 +173,14 @@ export async function performLayoutOfSemanticModel(
 	const semanticModels: Map<string, EntityModel> = new Map();
 	semanticModels.set(semanticModelId, entityModelUsedForConversion);
 
-	const outsiders: Record<string, XY | null> = {}
-	Object.keys([...semanticModels.values()][0].getEntities()).forEach(identifier => {
-		outsiders[identifier] = null;
-	});
+	const semanticModelEntities = [...semanticModels.values()][0].getEntities();
+
+	const outsiders: Record<string, XY | null> = {};
+	Object.keys(semanticModelEntities)
+		.filter(entity => !isPossibleEdge(semanticModelEntities[entity]))
+		.forEach(identifier => {
+			outsiders[identifier] = null;
+		});
 	const entitiesToLayout: VisualEntitiesWithOutsiders = {
 		visualEntities: [],
 		outsiders,
@@ -183,6 +188,12 @@ export async function performLayoutOfSemanticModel(
 
 	const visualEntitiesPromise = performLayoutInternal(null, semanticModels, entitiesToLayout, config, nodeDimensionQueryHandler);
 	return visualEntitiesPromise;
+}
+
+const isPossibleEdge = (entity: Entity) => {
+	return isSemanticModelRelationship(entity) ||
+					isSemanticModelRelationshipProfile(entity) ||
+					isSemanticModelGeneralization(entity);
 }
 
 
