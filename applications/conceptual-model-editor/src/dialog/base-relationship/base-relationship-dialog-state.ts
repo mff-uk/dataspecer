@@ -75,7 +75,7 @@ export function createBaseRelationshipDialogState<RangeType extends {
   identifier: string,
   iri: string | null,
   label: LanguageString,
-  vocabularyDsIdentifier: string,
+  model: string,
 }>(
   allModels: CmeSemanticModel[],
   domainIdentifier: string,

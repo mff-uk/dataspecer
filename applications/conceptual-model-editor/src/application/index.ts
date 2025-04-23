@@ -1,4 +1,4 @@
-export { configuration } from "../configuration/configuration";
+export { type Configuration, configuration } from "../configuration/configuration";
 export { t } from "./localization";
 export type { TranslationFunction } from "./localization";
 export { logger, createLogger } from "./logging";

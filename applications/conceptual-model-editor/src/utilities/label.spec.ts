@@ -65,18 +65,18 @@ describe("sanitizeDuplicitiesInRepresentativeLabels", () => {
   test("Sanitize label duplicities.", () => {
 
     const one: CmeSemanticModel = {
-      dsIdentifier: "vocabulary-1",
-      displayLabel: { "": "one" },
-      dsModelType: CmeSemanticModelType.Default,
-      displayColor: "",
+      identifier: "vocabulary-1",
+      name: { "": "one" },
+      modelType: CmeSemanticModelType.DefaultSemanticModel,
+      color: "",
       baseIri: null,
     };
 
     const two: CmeSemanticModel = {
-      dsIdentifier: "vocabulary-2",
-      displayLabel: { "": "two" },
-      dsModelType: CmeSemanticModelType.Default,
-      displayColor: "",
+      identifier: "vocabulary-2",
+      name: { "": "two" },
+      modelType: CmeSemanticModelType.DefaultSemanticModel,
+      color: "",
       baseIri: null,
     };
 
@@ -84,34 +84,34 @@ describe("sanitizeDuplicitiesInRepresentativeLabels", () => {
       identifier: "1",
       iri: "iri-1",
       label: { "cs": "", "en": "", "de": "eins" },
-      vocabularyDsIdentifier: one.dsIdentifier,
+      model: one.identifier,
     }, {
       identifier: "2",
       iri: "iri-2",
       label: { "cs": "", "en": "", "de": "zwei" },
-      vocabularyDsIdentifier: two.dsIdentifier,
+      model: two.identifier,
     }, {
       identifier: "3",
       iri: "iri-3",
       label: { "cs": "", "en": "Different", "de": "drei" },
-      vocabularyDsIdentifier: two.dsIdentifier,
+      model: two.identifier,
     }]);
 
     const expected = [{
       identifier: "1",
       iri: "iri-1",
       label: { "cs": "[one]", "en": "[one]", "de": "eins" },
-      vocabularyDsIdentifier: one.dsIdentifier,
+      model: one.identifier,
     }, {
       identifier: "2",
       iri: "iri-2",
       label: { "cs": "[two] (iri-2)", "en": "[two]", "de": "zwei" },
-      vocabularyDsIdentifier: two.dsIdentifier,
+      model: two.identifier,
     }, {
       identifier: "3",
       iri: "iri-3",
       label: { "cs": "[two] (iri-3)", "en": "Different", "de": "drei" },
-      vocabularyDsIdentifier: two.dsIdentifier,
+      model: two.identifier,
     }];
 
     expect(actual).toStrictEqual(expected);

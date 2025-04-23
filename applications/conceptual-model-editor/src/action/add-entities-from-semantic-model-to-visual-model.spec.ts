@@ -234,7 +234,7 @@ const generateIriForName = (name: string) => {
 function createSemanticClassTestVariant(
   models: Map<string, EntityModel>,
   givenName: string,
-  dsIdentifier: string,
+  identifier: string,
   specializations: CmeSpecialization[],
 ): CmeReference | null {
 
@@ -246,7 +246,7 @@ function createSemanticClassTestVariant(
     description: {},
   });
 
-  const model: InMemorySemanticModel = models.get(dsIdentifier) as InMemorySemanticModel;
+  const model: InMemorySemanticModel = models.get(identifier) as InMemorySemanticModel;
   const newClass = model.executeOperation(operation) as CreatedEntityOperationResult;
   if (newClass.success === false || newClass.id === undefined) {
     return null;
@@ -319,7 +319,7 @@ const prepareModelsWithSemanticData = () => {
   const cmeModels = semanticModelMapToCmeSemanticModel(models, visualModel, "", identifier => identifier);
   for(let i = 0; i < modelCount; i++) {
     for(let j = 0; j < 4; j++) {
-      const createdClass = createSemanticClassTestVariant(models, `${i}-${j}`, cmeModels[i].dsIdentifier, []);
+      const createdClass = createSemanticClassTestVariant(models, `${i}-${j}`, cmeModels[i].identifier, []);
       if(createdClass === null) {
         fail("Failed on setup");
       }
@@ -331,19 +331,19 @@ const prepareModelsWithSemanticData = () => {
     case 0:
       break;
     case 1:
-      squareRelationships = createRelationshipSquare(models, cmeModels[i].dsIdentifier, createdClasses, i);
+      squareRelationships = createRelationshipSquare(models, cmeModels[i].identifier, createdClasses, i);
       createdRelationships[i].push(...squareRelationships);
       break;
     case 2:
-      squareRelationships = createRelationshipSquare(models, cmeModels[i].dsIdentifier, createdClasses, i);
+      squareRelationships = createRelationshipSquare(models, cmeModels[i].identifier, createdClasses, i);
       createdRelationships[i].push(...squareRelationships);
       createdDiagonalRelationship = createSemanticRelationshipTestVariant(
         models, createdClasses[i][0].identifier,
-        createdClasses[i][3].identifier, cmeModels[i].dsIdentifier, "");
+        createdClasses[i][3].identifier, cmeModels[i].identifier, "");
       createdRelationships[i].push(createdDiagonalRelationship);
       createdDiagonalRelationship = createSemanticRelationshipTestVariant(
         models, createdClasses[i][1].identifier,
-        createdClasses[i][2].identifier, cmeModels[i].dsIdentifier, "");
+        createdClasses[i][2].identifier, cmeModels[i].identifier, "");
       createdRelationships[i].push(createdDiagonalRelationship);
       break;
     default:
@@ -370,7 +370,7 @@ const prepareModelsWithSemanticData = () => {
 
 const createRelationshipSquare = (
   models: Map<string, EntityModel>,
-  dsIdentifier: string,
+  identifier: string,
   createdClasses: CmeReference[][],
   currentModel: number,
 ): CmeReference[] => {
@@ -380,7 +380,7 @@ const createRelationshipSquare = (
       models,
       createdClasses[currentModel][i].identifier,
       createdClasses[currentModel][(i+1)%4].identifier,
-      dsIdentifier, "");
+      identifier, "");
     createdRelationships.push(created);
   }
 

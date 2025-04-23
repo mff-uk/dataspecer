@@ -94,7 +94,7 @@ export function createBaseRelationshipProfileDialogState<RangeType extends {
   identifier: string,
   iri: string | null,
   label: LanguageString,
-  vocabularyDsIdentifier: string,
+  model: string,
 }>(
   model: CmeSemanticModel,
   vocabularies: CmeSemanticModel[],

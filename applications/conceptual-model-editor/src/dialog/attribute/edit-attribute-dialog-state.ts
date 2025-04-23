@@ -203,7 +203,7 @@ export function createAddAttributeDialogState(
   // EntityState
 
   const entityState = createNewBaseEntityDialogState(
-    language, defaultModel.dsIdentifier, allModels, allSpecializations,
+    language, defaultModel.identifier, allModels, allSpecializations,
     configuration().relationshipNameToIri);
 
   // RelationshipState

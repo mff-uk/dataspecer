@@ -30,10 +30,10 @@ export function semanticModelToCmeSemanticModel(
   defaultLabel: (identifier: string) => string,
 ): CmeSemanticModel {
   return {
-    dsIdentifier: model.getId(),
-    displayLabel: getModelLabel(model, defaultLabel),
-    dsModelType: getModelType(model),
-    displayColor: visualModel?.getModelColor(model.getId()) ?? defaultColor,
+    identifier: model.getId(),
+    name: getModelLabel(model, defaultLabel),
+    modelType: getModelType(model),
+    color: visualModel?.getModelColor(model.getId()) ?? defaultColor,
     baseIri: getModelBaseIri(model),
   }
 }
@@ -59,7 +59,7 @@ function getModelType(model: SemanticModel): CmeSemanticModelType {
   } else if (model instanceof ExternalSemanticModel) {
     return CmeSemanticModelType.ExternalSemanticModel;
   } else {
-    return CmeSemanticModelType.Default;
+    return CmeSemanticModelType.DefaultSemanticModel;
   }
 }
 

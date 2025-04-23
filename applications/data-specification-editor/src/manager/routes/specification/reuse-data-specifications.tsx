@@ -1,93 +1,78 @@
-import React, {useCallback, useContext, useEffect, useState} from "react";
-import {Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Fab, List, ListItem, ListItemButton, ListItemIcon, Skeleton} from "@mui/material";
-import {useToggle} from "../../use-toggle";
-import PowerIcon from '@mui/icons-material/Power';
-import {DataSpecificationsContext} from "../../app";
-import {DataSpecificationName} from "../../name-cells";
-import {BackendConnectorContext} from "../../../application";
+import PowerIcon from "@mui/icons-material/Power";
+import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Fab, List, ListItem, ListItemButton, ListItemIcon } from "@mui/material";
+import React, { useContext, useEffect, useState } from "react";
+import { BackendConnectorContext } from "../../../application";
+import { LanguageStringText } from "../../../editor/components/helper/LanguageStringComponents";
+import { useToggle } from "../../use-toggle";
+import { AllSpecificationsContext, SpecificationContext } from "./specification";
 
-export const ReuseDataSpecifications: React.FC<{
-    dataSpecificationIri: string,
-}>
-    = ({dataSpecificationIri}) => {
-    const dialog = useToggle();
+export const ReuseDataSpecifications: React.FC = () => {
+  const dialog = useToggle();
 
-    const {dataSpecifications, setDataSpecifications} = useContext(DataSpecificationsContext);
-    const specification = dataSpecifications[dataSpecificationIri];
-    const backendPackageService = useContext(BackendConnectorContext);
+  const [specification, updateSpecification] = useContext(SpecificationContext);
+  const backendPackageService = useContext(BackendConnectorContext);
 
-    const [selectedSpecificationIds, setSelectedSpecificationIds] = useState<string[]>([]);
+  const allSpecifications = useContext(AllSpecificationsContext);
 
-    const handleToggle = (value: string) => () => {
-        const currentIndex = selectedSpecificationIds.indexOf(value);
-        const newChecked = [...selectedSpecificationIds];
+  const [selectedSpecificationIds, setSelectedSpecificationIds] = useState<string[]>([]);
 
-        if (currentIndex === -1) {
-            newChecked.push(value);
-        } else {
-            newChecked.splice(currentIndex, 1);
-        }
+  const handleToggle = (value: string) => () => {
+    const currentIndex = selectedSpecificationIds.indexOf(value);
+    const newChecked = [...selectedSpecificationIds];
 
-        setSelectedSpecificationIds(newChecked);
-    };
+    if (currentIndex === -1) {
+      newChecked.push(value);
+    } else {
+      newChecked.splice(currentIndex, 1);
+    }
 
-    useEffect(() => {
-        if (specification?.importsDataSpecificationIds) {
-            setSelectedSpecificationIds(specification?.importsDataSpecificationIds);
-        }
-    }, [specification?.importsDataSpecificationIds]);
+    setSelectedSpecificationIds(newChecked);
+  };
 
-    const save = useCallback(async () => {
-        await backendPackageService.updateImportedDataSpecifications(
-            dataSpecificationIri,
-            selectedSpecificationIds,
-        );
-        setDataSpecifications({
-            ...dataSpecifications,
-            [dataSpecificationIri]: {
-                ...specification,
-                importsDataSpecificationIds: selectedSpecificationIds
-            },
-        });
+  useEffect(() => {
+    if (specification?.importsDataSpecificationIds) {
+      setSelectedSpecificationIds(specification?.importsDataSpecificationIds);
+    }
+  }, [specification?.importsDataSpecificationIds]);
 
-        dialog.close();
-    }, [backendPackageService, dataSpecificationIri, dataSpecifications, selectedSpecificationIds, setDataSpecifications, dialog, specification]);
+  const save = async () => {
+    await backendPackageService.updateImportedDataSpecifications(specification.id, selectedSpecificationIds);
+    updateSpecification({
+      ...specification,
+      importsDataSpecificationIds: selectedSpecificationIds,
+    });
 
-    return <>
-        <Fab variant="extended" size="medium" color={"primary"} onClick={dialog.open}>
-            <PowerIcon sx={{mr: 1}}/>
-            Set reused data specifications
-        </Fab>
-        <Dialog open={dialog.isOpen} onClose={dialog.close} maxWidth={"xs"} fullWidth>
-            <DialogTitle>Reuse data specifications</DialogTitle>
-            <DialogContent>
-                <List>
-                    {specification && Object.values(dataSpecifications).map(spec => {
-                        return (
-                            <ListItem key={spec.id} disablePadding>
-                                <ListItemButton role={undefined} onClick={handleToggle(spec.id as string)} dense>
-                                    <ListItemIcon>
-                                        <Checkbox
-                                            edge="start"
-                                            checked={selectedSpecificationIds.indexOf(spec.id as string) !== -1}
-                                            tabIndex={-1}
-                                            disableRipple
-                                        />
-                                    </ListItemIcon>
-                                    <DataSpecificationName iri={spec.id as string}>
-                                        {(label, isLoading) =>
-                                            <>{isLoading ? <Skeleton /> : (label ? label : <small>{spec.id}</small>)}</>
-                                        }
-                                    </DataSpecificationName>
-                                </ListItemButton>
-                            </ListItem>
-                        );
-                    })}
-                </List>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={save} fullWidth variant="contained">Reuse selected data specifications</Button>
-            </DialogActions>
-        </Dialog>
+    dialog.close();
+  };
+
+  return (
+    <>
+      <Fab variant="extended" size="medium" color={"primary"} onClick={dialog.open}>
+        <PowerIcon sx={{ mr: 1 }} />
+        Set reused data specifications
+      </Fab>
+      <Dialog open={dialog.isOpen} onClose={dialog.close} maxWidth={"xs"} fullWidth>
+        <DialogTitle>Reuse data specifications</DialogTitle>
+        <DialogContent>
+          <List>
+            {Object.entries(allSpecifications).map(([_, spec]) => (
+              <ListItem key={spec.iri} disablePadding>
+                <ListItemButton role={undefined} onClick={handleToggle(spec.iri as string)} dense>
+                  <ListItemIcon>
+                    <Checkbox edge="start" checked={selectedSpecificationIds.includes(spec.iri as string)} tabIndex={-1} disableRipple />
+                  </ListItemIcon>
+                  <LanguageStringText from={spec.userMetadata.label} fallback={spec.iri} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={save} fullWidth variant="contained">
+            Reuse selected data specifications
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
-}
+  );
+};

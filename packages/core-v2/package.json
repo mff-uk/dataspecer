@@ -46,10 +46,10 @@
     "@dataspecer/sgov-adapter": "*",
     "handlebars": "^4.7.8",
     "handlebars-async-helpers": "^1.0.6",
-    "n3": "~1.17.0"
+    "n3": "~1.25.1"
   },
   "devDependencies": {
-    "@types/n3": "~1.16.0",
+    "@types/n3": "~1.24.2",
     "rimraf": "^6.0.1",
     "typescript": "^5.8.3",
     "vitest": "^3.1.1"

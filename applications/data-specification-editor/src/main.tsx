@@ -1,8 +1,7 @@
-import {createRoot} from 'react-dom/client';
-import React from "react";
-import {Application} from "./application";
+import { createRoot } from 'react-dom/client';
+import { Application } from "./application";
+import { initReturnBack } from "./components/return-back/init";
 import "./i18n";
-import {initReturnBack} from "./components/return-back/init";
 
 initReturnBack();
 

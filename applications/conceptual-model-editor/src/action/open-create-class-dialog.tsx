@@ -45,7 +45,7 @@ export function openCreateClassDialogAction(
 
     const result = cmeExecutor.createClass(
       classDialogStateToNewCmeClass(state));
-    cmeExecutor.updateSpecialization(result, state.model.dsIdentifier,
+    cmeExecutor.updateSpecialization(result, state.model.identifier,
       initialState.specializations, state.specializations);
 
     // Add to visual model if possible.

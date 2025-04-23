@@ -130,7 +130,7 @@ function createDefaultRelationshipProfiles(
   shouldBeAddedToVisualModel: boolean
 ) {
   // Casting ... the correctness should be already validated
-  const writableSemanticModel = graph.models.get(writableCmeModel.dsIdentifier) as InMemorySemanticModel;
+  const writableSemanticModel = graph.models.get(writableCmeModel.identifier) as InMemorySemanticModel;
   for (const edgeToProfile of edgesToProfile) {
     createDefaultRelationshipProfile(
       notifications, graph, writableSemanticModel, visualModel,

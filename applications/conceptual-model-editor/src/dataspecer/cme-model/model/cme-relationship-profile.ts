@@ -1,6 +1,6 @@
-import { LanguageString } from "@dataspecer/core/core/core-resource";
-import { EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
+import { LanguageString, EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
 import { CmeCardinality } from "./cme-cardinality";
+import { CmeEntity } from "./cme-entity";
 import { CmeRelationshipProfileMandatoryLevel } from "./cme-well-known";
 
 export interface NewCmeRelationshipProfile {
@@ -37,7 +37,7 @@ export interface NewCmeRelationshipProfile {
 
 }
 
-export interface CmeRelationshipProfile extends NewCmeRelationshipProfile {
+export interface CmeRelationshipProfile extends CmeEntity, NewCmeRelationshipProfile {
 
   identifier: EntityDsIdentifier;
 

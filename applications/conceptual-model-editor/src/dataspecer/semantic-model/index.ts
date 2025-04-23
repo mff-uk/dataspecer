@@ -3,7 +3,6 @@ import { SemanticModelAggregator } from "@dataspecer/core-v2/semantic-model/aggr
 import { isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isRepresentingAttribute } from "../../dialog/utilities/dialog-utilities";
 import { EntityDsIdentifier } from "../entity-model";
-export { dataTypeUriToName } from "./data-type";
 
 // This is to compile with TypeScript as we can not use
 // the type directly for aggregator.

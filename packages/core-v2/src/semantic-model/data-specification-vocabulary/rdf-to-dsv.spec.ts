@@ -13,6 +13,10 @@ test("From RDF to DSV and back.", async () => {
 @prefix dsv: <https://w3id.org/dsv#>.
 @prefix owl: <http://www.w3.org/2002/07/owl#>.
 @prefix skos: <http://www.w3.org/2004/02/skos/core#>.
+@prefix vann: <http://purl.org/vocab/vann/>.
+@prefix cardinality: <https://w3id.org/dsv/cardinality#>.
+@prefix requirement: <https://w3id.org/dsv/requirement-level#>.
+@prefix role: <https://w3id.org/dsv/class-role#>.
 
 
 <http://dcat-ap-cz/model> a dsv:ConceptualModel.
@@ -25,13 +29,13 @@ test("From RDF to DSV and back.", async () => {
   dsv:reusedFromResource <http://www.w3.org/ns/dcat#Dataset>
 ], [
   a dsv:PropertyValueReuse;
-  dsv:reusedProperty <http://purl.org/vocab/vann/usageNote>;
+  dsv:reusedProperty vann:usageNote;
   dsv:reusedFromResource <http://www.w3.org/ns/dcat#Dataset>
 ];
     dsv:externalDocumentation <http://documentation>;
     a dsv:ClassProfile;
     dsv:class <http://www.w3.org/ns/dcat#Dataset>;
-    dsv:classRole <https://w3id.org/dsv/class-role#main>.
+    dsv:classRole role:main.
 
 <http://www.w3.org/ns/dcat#distribution-profile> dsv:domain <https://dcat-ap/#Dataset>;
     dct:isPartOf <http://dcat-ap-cz/model>;
@@ -42,10 +46,10 @@ test("From RDF to DSV and back.", async () => {
   dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution>
 ], [
   a dsv:PropertyValueReuse;
-  dsv:reusedProperty <http://purl.org/vocab/vann/usageNote>;
+  dsv:reusedProperty vann:usageNote;
   dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution>
 ];
-    dsv:cardinality <https://w3id.org/dsv/cardinality#0n>;
+    dsv:cardinality cardinality:0n;
     dsv:property <http://www.w3.org/ns/dcat#distribution>;
     a dsv:ObjectPropertyProfile;
     dsv:objectPropertyRange <http://dcat-ap/ns/dcat#Distribution>.
@@ -54,12 +58,12 @@ test("From RDF to DSV and back.", async () => {
     a dsv:Profile;
     dsv:profileOf <https://dcat-ap/#Dataset>;
     a dsv:ClassProfile;
-    dsv:classRole <https://w3id.org/dsv/class-role#main>.
+    dsv:classRole role:main.
 
 <http://dcat-ap/ns/dcat#Distribution> dct:isPartOf <http://dcat-ap-cz/model>;
     a dsv:Profile, dsv:ClassProfile;
     dsv:class <http://www.w3.org/ns/dcat#Distribution>;
-    dsv:classRole <https://w3id.org/dsv/class-role#supportive>.
+    dsv:classRole role:supportive.
 `;
 
   const actualModels = await rdfToConceptualModel(inputRdf);

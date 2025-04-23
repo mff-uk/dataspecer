@@ -91,6 +91,11 @@ export interface Configuration {
    * Fallback model color.
    */
   defaultModelColor: string;
+
+  /**
+   * For a given IRi contains a given prefix.
+   */
+  prefixes: {[iri: string]: string};
 }
 
 const CONFIGURATIONS: Record<string, Configuration> = {

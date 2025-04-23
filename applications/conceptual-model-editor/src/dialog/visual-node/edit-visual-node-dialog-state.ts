@@ -1,19 +1,9 @@
 import { isVisualNode, VisualModel } from "@dataspecer/core-v2/visual-model";
-import { ClassesContextType } from "../../context/classes-context";
-import { CmeReference, CmeSemanticModel } from "../../dataspecer/cme-model/model";
-import {
-  RelationshipRepresentative,
-  representOwlThing,
-  representRdfsLiteral,
-  representRelationshipProfile,
-  representRelationships,
-  representRelationshipUsages,
-} from "../utilities/dialog-utilities";
-import { configuration, createLogger, t } from "../../application";
+import { CmeReference } from "../../dataspecer/cme-model/model";
+import { configuration, createLogger } from "../../application";
 import { InvalidState } from "../../application/error";
 import { ModelGraphContextType } from "../../context/model-context";
-import { isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { semanticModelMapToCmeSemanticModel } from "../../dataspecer/cme-model/adapter";
+import { createUiModelState, UiRelationship, UiRelationshipProfile, wrapUiModelStateToUiModelApi } from "../../dataspecer/ui-model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -32,20 +22,21 @@ export interface EditVisualNodeDialogState {
   /**
    * Active and visible content.
    */
-  activeContent: RelationshipRepresentative[];
+  activeContent: ContentItem[];
 
   /**
    * Items that can be part of the node content.
    */
-  inactiveContent: RelationshipRepresentative[];
+  inactiveContent: ContentItem[];
 
 }
+
+export type ContentItem = UiRelationship | UiRelationshipProfile;
 
 /**
  * @throws InvalidState
  */
 export function createEditVisualNodeState(
-  classesContext: ClassesContextType,
   graphContext: ModelGraphContextType,
   visualModel: VisualModel,
   visualEntityIdentifier: string,
@@ -54,7 +45,8 @@ export function createEditVisualNodeState(
 
   const visualNode = visualModel.getVisualEntity(visualEntityIdentifier);
   if (visualNode === null || !isVisualNode(visualNode)) {
-    LOG.error("Invalid visual entity.", { identifier: visualEntityIdentifier });
+    LOG.error("Invalid visual entity.",
+      { identifier: visualEntityIdentifier, visualEntity: visualNode });
     throw new InvalidState();
   }
 
@@ -63,20 +55,39 @@ export function createEditVisualNodeState(
     model: visualNode.model,
   };
 
-  const semanticModels = semanticModelMapToCmeSemanticModel(
-    graphContext.models, visualModel,
-    configuration().defaultModelColor,
-    identifier => t("model-service.model-label-from-id", identifier));
+  const uiModelState = createUiModelState(
+    graphContext.aggregatorView,
+    [...graphContext.models.values()],
+    language,
+    configuration().languagePreferences,
+    visualModel,
+    configuration().defaultModelColor);
 
-  const contentMap: Record<string, RelationshipRepresentative> = {};
-  const inactiveContent: RelationshipRepresentative[] = []
-  listRelationships(classesContext, graphContext, semanticModels)
+  const uiModelApi = wrapUiModelStateToUiModelApi(uiModelState);
+  const entity = uiModelApi.getEntity(representedEntity);
+  if (entity === null) {
+    LOG.error("Can not find represented entity.", { entity: representedEntity });
+    throw new InvalidState();
+  }
+
+  const contentMap: Record<string, ContentItem> = {};
+  const inactiveContent: ContentItem[] = []
+
+  // Relationships
+  uiModelState.relationships
+    .filter(item => item.domain === entity)
     .forEach(item => {
-      // Ignore relationships with different domain.
-      if (item.domain !== representedEntity.identifier) {
-        return;
+      if (visualNode.content.includes(item.identifier)) {
+        contentMap[item.identifier] = item;
+      } else {
+        inactiveContent.push(item);
       }
-      // Select where to put it.
+    });
+
+  // Relationships profile
+  uiModelState.relationshipProfiles
+    .filter(item => item.domain === entity)
+    .forEach(item => {
       if (visualNode.content.includes(item.identifier)) {
         contentMap[item.identifier] = item;
       } else {
@@ -94,28 +105,4 @@ export function createEditVisualNodeState(
     inactiveContent,
     activeContent,
   };
-}
-
-function listRelationships(
-  classesContext: ClassesContextType,
-  graphContext: ModelGraphContextType,
-  semanticModels: CmeSemanticModel[],
-) {
-  const entities = graphContext.aggregatorView.getEntities();
-  const models = [...graphContext.models.values()];
-
-  const owlThing = representOwlThing();
-
-  const rdfsLiteral = representRdfsLiteral();
-
-  return [
-    ...representRelationships(models, semanticModels,
-      classesContext.relationships,
-      owlThing.identifier, rdfsLiteral.identifier),
-    ...representRelationshipUsages(entities, models, semanticModels,
-      classesContext.usages.filter(item => isSemanticModelRelationshipUsage(item)),
-      owlThing.identifier, rdfsLiteral.identifier),
-    ...representRelationshipProfile(entities, models, semanticModels,
-      classesContext.relationshipProfiles)
-  ];
 }

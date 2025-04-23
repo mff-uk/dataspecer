@@ -553,6 +553,10 @@ test("Issue #1005", async () => {
 @prefix dsv: <https://w3id.org/dsv#>.
 @prefix owl: <http://www.w3.org/2002/07/owl#>.
 @prefix skos: <http://www.w3.org/2004/02/skos/core#>.
+@prefix vann: <http://purl.org/vocab/vann/>.
+@prefix cardinality: <https://w3id.org/dsv/cardinality#>.
+@prefix requirement: <https://w3id.org/dsv/requirement-level#>.
+@prefix role: <https://w3id.org/dsv/class-role#>.
 
 
 <http://dcat/model/> a dsv:ConceptualModel.

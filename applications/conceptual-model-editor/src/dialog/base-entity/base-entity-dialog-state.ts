@@ -149,13 +149,13 @@ function prepareWritableModels(models: CmeSemanticModel[]) {
   return result;
 }
 
-function findByIdentifier<Type extends { dsIdentifier: string }>(
+function findByIdentifier<Type extends { identifier: string }>(
   items: Type[], identifier: string | null,
 ): Type | null {
   if (identifier === null) {
     return null;
   }
-  return items.find(item => item.dsIdentifier === identifier) ?? null;
+  return items.find(item => item.identifier === identifier) ?? null;
 }
 
 /**
@@ -241,7 +241,7 @@ function representSpecializations(
         iri: entity.iri ?? "",
         specializationOf: {
           identifier: specialized?.identifier ?? entity.parent,
-          model: specialized?.vocabularyDsIdentifier ?? UNDEFINED_MODEL,
+          model: specialized?.model ?? UNDEFINED_MODEL,
         },
         generalization: {
           identifier: entity.id,

@@ -1,9 +1,9 @@
 import { useContext } from "react";
 import { shallow } from "zustand/shallow";
-import { type ReactFlowState, useStore } from "@xyflow/react";
+import { type ReactFlowState, useInternalNode, useStore } from "@xyflow/react";
 
 import { DiagramContext, NodeMenuType } from "../diagram-controller";
-import { computeScreenPosition } from "./edge-utilities";
+import { computeScreenPosition, onAddWaypoint } from "./edge-utilities";
 import { EdgeToolbarProps, viewportStoreSelector } from "./edge-toolbar";
 import { Edge } from "../diagram-model";
 import { ToolbarPortal } from "../canvas/toolbar-portal";
@@ -17,21 +17,39 @@ export function ProfileEdgeToolbar({ value }: { value: EdgeToolbarProps | null }
   const edge = useStore((state: ReactFlowState) => state.edgeLookup.get(value?.edgeIdentifier ?? ""));
   const { x, y, zoom } = useStore(viewportStoreSelector, shallow);
 
-  if (value === null || edge === undefined || edge.data === undefined || !edge?.selected ||
-      context === null || context.getShownNodeMenuType() !== NodeMenuType.SingleNodeMenu) {
+  // We must call the hooks before making any "if" statement.
+  const data = edge?.data as Edge;
+  const sourceNode = useInternalNode(data?.source ?? "");
+  const targetNode = useInternalNode(data?.target ?? "");
+
+  if (value === null || data === undefined || !edge?.selected ||
+    context === null || sourceNode === undefined || targetNode === undefined ||
+    context.getShownNodeMenuType() !== NodeMenuType.SingleNodeMenu) {
     return null;
   }
 
-  const data = edge.data as Edge;
-  const onDetail = () => context?.callbacks().onShowEdgeDetail(data);
+  const position = computeScreenPosition(value.x, value.y, { x, y, zoom });
 
-  const position = computeScreenPosition(value.x, value.y, {x, y, zoom});
+  const onDetail = () => context?.callbacks().onShowEdgeDetail(data);
+  const addWaypoint = () => onAddWaypoint(
+    context, sourceNode, targetNode, data, value);
 
   return (
     <>
       <ToolbarPortal>
-        <div className="edge-toolbar" style={{ transform: `translate(${position.x}px, ${position.y}px)`}}>
-          <button onClick={onDetail}>ℹ</button>
+        <div className="edge-toolbar" style={{ transform: `translate(${position.x}px, ${position.y}px)` }}>
+          <div className="property-edge">
+            <button onClick={onDetail}>ℹ</button>
+            <ul className="edge-toolbar">
+              <li></li>
+              <li></li>
+              <li></li>
+              <li></li>
+              <li>
+                <button onClick={addWaypoint}>X</button>
+              </li>
+            </ul>
+          </div>
         </div>
       </ToolbarPortal>
     </>

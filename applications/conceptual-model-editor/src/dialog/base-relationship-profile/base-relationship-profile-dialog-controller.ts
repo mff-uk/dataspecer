@@ -13,9 +13,14 @@ export interface BaseRelationshipProfileDialogController<RangeType>
   extends BaseRelationshipDialogController<RangeType> {
 
   /**
-   * Must be called when model change.
+   * Update domains in reaction to model change.
    */
-  onModelDidChange: (model: CmeSemanticModel) => void;
+  updateDomains: (model: CmeSemanticModel) => void;
+
+  /**
+   * Update ranges in reaction to model change.
+   */
+  updateRanges: (model: CmeSemanticModel) => void;
 
   toggleDomainCardinalityOverride: () => void;
 
@@ -30,7 +35,7 @@ export function createBaseRelationshipProfileDialogController<
     identifier: string,
     iri: string | null,
     label: LanguageString,
-    vocabularyDsIdentifier: string,
+    model: string,
   },
   State extends BaseRelationshipProfileDialogState<RangeType>
 >(
@@ -42,7 +47,7 @@ export function createBaseRelationshipProfileDialogController<
   const relationshipController = createBaseRelationshipDialogController(
     changeState);
 
-  const onModelDidChange = (model: CmeSemanticModel) => {
+  const updateDomains = (model: CmeSemanticModel) => {
     changeState((state) => {
       const result = {
         ...state,
@@ -60,6 +65,16 @@ export function createBaseRelationshipProfileDialogController<
         result.domain = result.invalidDomain;
         result.availableDomains.push(result.invalidDomain);
       }
+
+      return validateBaseRelationshipDialogState(result);
+    });
+  };
+
+  const updateRanges = (model: CmeSemanticModel) => {
+    changeState((state) => {
+      const result = {
+        ...state,
+      };
 
       // Update ranges.
       const nextAvailableRanges = rangeFilter(state.allRanges, model);
@@ -104,7 +119,8 @@ export function createBaseRelationshipProfileDialogController<
 
   return {
     ...relationshipController,
-    onModelDidChange,
+    updateDomains,
+    updateRanges,
     toggleDomainCardinalityOverride,
     toggleRangeCardinalityOverride,
     setMandatoryLevel,

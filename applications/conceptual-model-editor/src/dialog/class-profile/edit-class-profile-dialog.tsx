@@ -1,6 +1,6 @@
 import { DialogWrapper, type DialogProps } from "../dialog-api";
 import { t } from "../../application";
-import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
+import { InputLanguageString } from "../components/input-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
 import { SelectModel } from "../components/select-model";
 import { InputIri } from "../components/input-iri";
@@ -11,7 +11,7 @@ import { SpecializationSelect } from "../components/select-specialization";
 import { isValid } from "../utilities/validation-utilities";
 import { ClassProfileDialogState } from "./edit-class-profile-dialog-state";
 import { useClassProfileDialogController } from "./edit-class-profile-dialog-controller";
-import { InputText } from "../components/input-test";
+import { InputText } from "../components/input-text";
 import { SelectBuildIn } from "../components/select-build-in";
 
 export const EditClassProfileDialog = (props: DialogProps<ClassProfileDialogState>) => {
@@ -21,7 +21,7 @@ export const EditClassProfileDialog = (props: DialogProps<ClassProfileDialogStat
     <>
       <div
         className="grid gap-y-2 md:grid-cols-[25%_75%] md:gap-y-3 bg-slate-100 md:pb-4 md:pl-8 md:pr-16 md:pt-2"
-        style={{ backgroundColor: state.model.displayColor }}>
+        style={{ backgroundColor: state.model.color }}>
         <DialogDetailRow detailKey={t("model")}>
           <SelectModel
             language={state.language}
@@ -32,7 +32,7 @@ export const EditClassProfileDialog = (props: DialogProps<ClassProfileDialogStat
           />
         </DialogDetailRow>
       </div>
-      <div className="grid bg-slate-100 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
+      <div className="grid bg-slate-100 pb-2 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
         <DialogDetailRow detailKey={t("modify-class-profile-dialog.profile-of")}>
           <SelectEntities
             language={state.language}
@@ -52,10 +52,10 @@ export const EditClassProfileDialog = (props: DialogProps<ClassProfileDialogStat
             language={state.language}
             hideProfiling={state.hideNameProfile}
           >
-            <MultiLanguageInputForLanguageString
-              ls={state.overrideName ? state.name : state.nameSourceValue}
-              setLs={controller.setName}
-              defaultLang={state.language}
+            <InputLanguageString
+              value={state.overrideName ? state.name : state.nameSourceValue}
+              onChange={controller.setName}
+              defaultLanguage={state.language}
               disabled={!state.overrideName}
               inputType="text"
               className="grow"
@@ -91,10 +91,10 @@ export const EditClassProfileDialog = (props: DialogProps<ClassProfileDialogStat
             language={state.language}
             hideProfiling={state.hideDescriptionProfile}
           >
-            <MultiLanguageInputForLanguageString
-              ls={state.overrideDescription ? state.description : state.descriptionSourceValue}
-              setLs={controller.setDescription}
-              defaultLang={state.language}
+            <InputLanguageString
+              value={state.overrideDescription ? state.description : state.descriptionSourceValue}
+              onChange={controller.setDescription}
+              defaultLanguage={state.language}
               disabled={!state.overrideDescription}
               inputType="textarea"
               className="grow"
@@ -111,10 +111,10 @@ export const EditClassProfileDialog = (props: DialogProps<ClassProfileDialogStat
             language={state.language}
             hideProfiling={state.hideUsageNoteProfile}
           >
-            <MultiLanguageInputForLanguageString
-              ls={state.overrideUsageNote ? state.usageNote : state.usageNoteSourceValue}
-              setLs={controller.setUsageNote}
-              defaultLang={state.language}
+            <InputLanguageString
+              value={state.overrideUsageNote ? state.usageNote : state.usageNoteSourceValue}
+              onChange={controller.setUsageNote}
+              defaultLanguage={state.language}
               disabled={!state.overrideUsageNote}
               inputType="textarea"
               className="grow"

@@ -12,8 +12,14 @@ CONSTRUCT {
 		skos:inScheme ?glossary ;
 		<__is_ciselnik> ?is_ciselnik .
 } WHERE {
-	?node a z:typ-objektu ;
-		skos:prefLabel ?label .
+	# Class is skos:Concept but not z:typ-vlastnosti or z:typ-vztahu
+	# This will includes also meta-classes from https://slovník.gov.cz/základní/glosářglosář
+	?node a skos:Concept .
+	MINUS { ?node a z:typ-vlastnosti . }
+	MINUS { ?node a z:typ-vztahu . }
+
+	?node	skos:prefLabel ?label .
+
 	OPTIONAL { ?node skos:definition ?definition . }
 	OPTIONAL { ?node skos:scopeNote ?definition . }
 	OPTIONAL { ?node skos:inScheme ?glossary . }

@@ -4,7 +4,7 @@ import { AttributeProfileDialogState } from "./edit-attribute-profile-dialog-sta
 export function attributeProfileDialogStateToNewCmeRelationshipProfile(
   state: AttributeProfileDialogState): NewCmeRelationshipProfile {
   return {
-    model: state.model.dsIdentifier,
+    model: state.model.identifier,
     profileOf: state.profiles.map(item => item.identifier),
     name: state.name,
     nameSource: state.overrideName ? null :

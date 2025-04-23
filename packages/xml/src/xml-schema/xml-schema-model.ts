@@ -51,6 +51,8 @@ export class XmlSchema {
 
 /**
  * Represents an import/include declaration to an artifact.
+ * todo: This represents both namespace definitions and imports. May need refactoring.
+ * todo: All namespaces should be already defined in model adapter. The writer should not invent any new namespaces besides default xs.
  */
 export class XmlSchemaImportDeclaration {
   /**
@@ -65,8 +67,9 @@ export class XmlSchemaImportDeclaration {
 
   /**
    * The location of the schema file.
+   * If null, schema is only namespaced.
    */
-  schemaLocation: string;
+  schemaLocation: string | null;
 
   model: StructureModel | null;
 }
