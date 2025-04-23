@@ -180,6 +180,5 @@ test.skip(testPrefix + "imports are present", async () => {
   expect(schema.imports.length).toBe(2);
   const importDecl = schema.imports[0];
   expect(await importDecl.namespace).toBe(null);
-  expect(await importDecl.prefix).toBe(null);
   expect(importDecl.schemaLocation).toBe("../contact/schema.xsd");
 });

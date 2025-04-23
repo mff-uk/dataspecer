@@ -64,49 +64,17 @@ async function writeSchemaBegin(
       "targetNamespace",
       model.targetNamespace
     );
-    if (model.targetNamespacePrefix != null) {
-      await writer.writeAndRegisterNamespaceDeclaration(
-        model.targetNamespacePrefix,
-        model.targetNamespace
-      );
-    }
   } else {
     await writer.writeLocalAttributeValue("elementFormDefault", "unqualified");
   }
 
-  const registered: Record<string, string> = {};
-
-  for (const importDeclaration of model.imports) {
-    if (importDeclaration.prefix === "xs") {
-      // Skip xs as it is already registered few lines above as special case.
+  // Register all (prefix - namespace) in the schema.
+  for (const namespace of model.namespaces) {
+    if (namespace.prefix === "xs" || namespace.prefix === "vc") {
+      // Skip xs and vc as it is already registered few lines above as special case.
       continue;
     }
-    const namespace = importDeclaration.namespace;
-    const prefix = importDeclaration.prefix;
-    if (
-      namespace != null &&
-      prefix != null
-    ) {
-      if (registered[prefix] == null) {
-        await writer.writeAndRegisterNamespaceDeclaration(
-          prefix,
-          namespace
-        );
-        registered[prefix] = namespace;
-      } else if (registered[prefix] !== namespace) {
-        throw new Error(
-          `Imported namespace prefix "${prefix}:" is used for two ` +
-          `different namespaces, "${registered[prefix]}" and "${namespace}".`
-        );
-      }
-    }
-  }
-
-  if (model.options.generateSawsdl) {
-    await writer.writeAndRegisterNamespaceDeclaration(
-      "sawsdl",
-      "http://www.w3.org/ns/sawsdl"
-    );
+    await writer.writeAndRegisterNamespaceDeclaration(namespace.prefix, namespace.namespace);
   }
 }
 
@@ -139,11 +107,6 @@ async function writeImportsAndDefinitions(
   }
 
   for (const importDeclaration of model.imports) {
-    if (importDeclaration.schemaLocation == null) {
-      // Skip if nothing to import.
-      // This is the case for xsd for example.
-      continue;
-    }
     const namespace = importDeclaration.namespace;
     if (namespace == null || namespace === model.targetNamespace) {
       await writer.writeElementFull("xs", "include")(async writer => {

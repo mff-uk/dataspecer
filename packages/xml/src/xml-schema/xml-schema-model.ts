@@ -29,6 +29,8 @@ export class XmlSchema {
    */
   imports: XmlSchemaImportDeclaration[];
 
+  namespaces: XmlSchemaNamespaceDefinition[];
+
   /**
    * Location of XML file containing shared things for XML.
    */
@@ -50,28 +52,20 @@ export class XmlSchema {
 }
 
 /**
- * Represents an import/include declaration to an artifact.
- * todo: This represents both namespace definitions and imports. May need refactoring.
- * todo: All namespaces should be already defined in model adapter. The writer should not invent any new namespaces besides default xs.
+ * Defines imports/includes of external schemas (in different/same namespace).
  */
 export class XmlSchemaImportDeclaration {
-  /**
-   * The namespace prefix used by the schema.
-   */
-  prefix: string | null;
-
-  /**
-   * The namespace IRI used by the schema.
-   */
   namespace: string | null;
-
-  /**
-   * The location of the schema file.
-   * If null, schema is only namespaced.
-   */
-  schemaLocation: string | null;
-
+  schemaLocation: string;
   model: StructureModel | null;
+}
+
+/**
+ * Defines namespaces used in the schema.
+ */
+export class XmlSchemaNamespaceDefinition {
+  prefix: string;
+  namespace: string;
 }
 
 /**

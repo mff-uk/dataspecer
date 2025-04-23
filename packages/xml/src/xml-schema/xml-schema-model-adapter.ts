@@ -34,6 +34,7 @@ import {
   XmlSchemaElement,
   XmlSchemaImportDeclaration,
   XmlSchemaLangStringType,
+  XmlSchemaNamespaceDefinition,
   XmlSchemaSimpleItem,
   XmlSchemaSimpleType,
   XmlSchemaType,
@@ -87,18 +88,9 @@ export async function structureModelToXmlSchema(
   return await adapter.fromStructureModel();
 }
 
-const XSD_IMPORT = {
-  namespace: "http://www.w3.org/2001/XMLSchema",
-  prefix: "xs",
-  schemaLocation: null,
-  model: null,
-} satisfies XmlSchemaImportDeclaration;
-
 const XML_IMPORT = {
   namespace: "http://www.w3.org/XML/1998/namespace",
-  prefix: "xml",
-  // todo: we need to split namespacing and importing
-  schemaLocation: null, //"http://www.w3.org/XML/1998/namespace", - only namespacing
+  schemaLocation: "http://www.w3.org/XML/1998/namespace",
   model: null,
 } satisfies XmlSchemaImportDeclaration;
 
@@ -116,8 +108,11 @@ class XmlSchemaAdapter {
 
   private usesLangString: boolean;
   private imports: { [specification: string]: XmlSchemaImportDeclaration };
+  /**
+   * Defined namespace and its prefix
+   */
+  private namespaces: Record<string, string>;
   private types: Record<string, XmlSchemaType>;
-  private wasCommonXmlImportUsed: boolean = false;
 
   /**
    * Creates a new instance of the adapter, for a particular structure model.
@@ -143,15 +138,37 @@ class XmlSchemaAdapter {
     this.commonXmlSchemaLocation = commonXmlSchemaLocation;
   }
 
-  private getAndImportHelperNamespace(namespaceKind: "xsd" | "xml"): string {
+  /**
+   * Returns the namespace prefix for a given known namespace and imports it if not disabled.
+   */
+  private getAndImportHelperNamespace(namespaceKind: "xsd" | "xml" | "common", doImport: boolean): string {
     if (namespaceKind === "xsd") {
-      this.imports[XSD_IMPORT.prefix] = XSD_IMPORT;
-      return XSD_IMPORT.prefix;
+      this.namespaces["http://www.w3.org/2001/XMLSchema"] = "xs";
+      if (doImport) {
+        // There is a special case for this namespace.
+        // It is never imported.
+      }
+      return "xs";
     }
 
     if (namespaceKind === "xml") {
-      this.imports[XML_IMPORT.prefix] = XML_IMPORT;
-      return XML_IMPORT.prefix;
+      this.namespaces["http://www.w3.org/XML/1998/namespace"] = "xml";
+      if (doImport) {
+        this.imports["http://www.w3.org/XML/1998/namespace"] = XML_IMPORT;
+      }
+      return "xml";
+    }
+
+    if (namespaceKind === "common") {
+      this.namespaces[commonXmlNamespace] = commonXmlPrefix;
+      if (doImport) {
+        this.imports[commonXmlNamespace] = {
+          namespace: commonXmlNamespace,
+          schemaLocation: this.commonXmlSchemaLocation,
+          model: null,
+        };
+      }
+      return commonXmlPrefix;
     }
 
     namespaceKind satisfies never;
@@ -162,7 +179,7 @@ class XmlSchemaAdapter {
     const useIriFromExternalXsd = false;
 
     if (useIriFromExternalXsd) {
-      this.wasCommonXmlImportUsed = true
+      this.getAndImportHelperNamespace("common", true);
     }
 
     return {
@@ -177,7 +194,7 @@ class XmlSchemaAdapter {
         annotation: null,
         type: useIriFromExternalXsd ? null : {
           entityType: "type",
-          name: [this.getAndImportHelperNamespace("xsd"), "anyURI"],
+          name: [this.getAndImportHelperNamespace("xsd", true), "anyURI"],
           annotation: null,
         } satisfies XmlSchemaType,
       } satisfies XmlSchemaElement,
@@ -189,8 +206,13 @@ class XmlSchemaAdapter {
    */
   public async fromStructureModel(): Promise<XmlSchema> {
     this.imports = {};
+    this.namespaces = {
+      // Required namespace
+      "http://www.w3.org/2001/XMLSchema": "xs",
+      // Required namespace
+      "http://www.w3.org/2007/XMLSchema-versioning": "vc"
+    };
     this.types = {};
-    this.wasCommonXmlImportUsed = false;
     const elements: XmlSchemaElement[] = [];
 
     for (const root of this.model.roots) {
@@ -200,13 +222,12 @@ class XmlSchemaAdapter {
       }
     }
 
-    if (this.wasCommonXmlImportUsed) {
-      this.imports[commonXmlNamespace] = {
-        namespace: commonXmlNamespace,
-        prefix: commonXmlPrefix,
-        schemaLocation: this.commonXmlSchemaLocation,
-        model: null,
-      };
+    if (this.model.namespace && this.model.namespacePrefix) {
+      this.namespaces[this.model.namespace] = this.model.namespacePrefix;
+    }
+
+    if (this.options.generateSawsdl) {
+      this.namespaces["http://www.w3.org/ns/sawsdl"] = "sawsdl";
     }
 
     return {
@@ -215,6 +236,10 @@ class XmlSchemaAdapter {
       elements: elements,
       defineLangString: this.usesLangString,
       imports: Object.values(this.imports),
+      namespaces: Object.entries(this.namespaces).map(([namespace, prefix]) => ({
+        namespace,
+        prefix,
+      })) satisfies XmlSchemaNamespaceDefinition[],
       types: Object.values(this.types),
       commonXmlSchemaLocation: this.commonXmlSchemaLocation,
       options: this.options,
@@ -390,20 +415,24 @@ class XmlSchemaAdapter {
 
     // Already imported
     if (importDeclaration) {
-      return [importDeclaration.prefix, cls.technicalLabel];
+      return [this.namespaces[importDeclaration.namespace], cls.technicalLabel];
     }
 
     // Find the artefact and import
     const artefact = this.findArtefactForImport(cls);
     if (artefact) {
       const model = await this.getImportedModel(structureSchema);
-      const imported = (this.imports[structureSchema] = {
-        namespace: model?.namespace ?? null,
-        prefix: model?.namespacePrefix ?? null,
+      const prefix = model?.namespacePrefix ?? null;
+      const namespace = model?.namespace ?? null;
+      this.imports[structureSchema] = {
+        namespace: namespace,
         schemaLocation: pathRelative(this.currentPath(), artefact.publicUrl, cls.specification !== this.model.specification),
         model,
-      });
-      return [imported.prefix, cls.technicalLabel];
+      };
+      if (namespace && prefix) {
+        this.namespaces[namespace] = prefix;
+      }
+      return [prefix, cls.technicalLabel];
     }
 
     // Fallback with error
@@ -570,7 +599,7 @@ class XmlSchemaAdapter {
    */
   private getAnnotation(data: StructureModelClass | StructureModelProperty): XmlSchemaAnnotation {
     // Annotation uses xml:lang and therefore we need to import it
-    this.getAndImportHelperNamespace("xml");
+    this.getAndImportHelperNamespace("xml", false);
 
     const isElement = data instanceof StructureModelClass;
     const isType = data instanceof StructureModelProperty;
@@ -599,6 +628,8 @@ class XmlSchemaAdapter {
           name: null,
           annotation: null,
         };
+        // Uses xml lang
+        this.getAndImportHelperNamespace("xml", true);
         return langStringType;
       }
 
@@ -641,13 +672,13 @@ class XmlSchemaAdapter {
   private primitiveToQName(primitiveData: StructureModelPrimitiveType): QName {
     if (primitiveData.dataType == null) {
       // No type defined.
-      return [this.getAndImportHelperNamespace("xsd"), "anySimpleType"];
+      return [this.getAndImportHelperNamespace("xsd", true), "anySimpleType"];
     }
     const type: QName = primitiveData.dataType.startsWith(XSD_PREFIX)
       ? // Type inside XSD is used.
-        [this.getAndImportHelperNamespace("xsd"), primitiveData.dataType.substring(XSD_PREFIX.length)]
+        [this.getAndImportHelperNamespace("xsd", true), primitiveData.dataType.substring(XSD_PREFIX.length)]
       : // An internally mapped type (from OFN) is used, if defined.
-        simpleTypeMapQName[primitiveData.dataType] ?? [this.getAndImportHelperNamespace("xsd"), "anySimpleType"];
+        simpleTypeMapQName[primitiveData.dataType] ?? [this.getAndImportHelperNamespace("xsd", true), "anySimpleType"];
     if (type === langStringName) {
       // todo: For now this wont happen as language string shall be caught by the parent function
       // Defined langString if it is used.
