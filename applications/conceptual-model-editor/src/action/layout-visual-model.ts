@@ -1,5 +1,5 @@
-import { VisualNode, WritableVisualModel, isVisualNode } from "@dataspecer/core-v2/visual-model";
-import { AnchorOverrideSetting, ExplicitAnchors, INodeClassic, LayoutedVisualEntities, NodeDimensionQueryHandler, ReactflowDimensionsEstimator, UserGivenAlgorithmConfigurationStress, UserGivenConstraintsVersion4, VisualModelWithOutsiders, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4, performLayoutOfVisualModel } from "@dataspecer/layout";
+import { VisualNode, WritableVisualModel, isVisualNode, isVisualProfileRelationship, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
+import { AnchorOverrideSetting, ExplicitAnchors, LayoutedVisualEntities, Node, NodeDimensionQueryHandler, ReactflowDimensionsEstimator, UserGivenAlgorithmConfigurationStress, UserGivenAlgorithmConfigurations, VisualModelWithOutsiders, getDefaultUserGivenAlgorithmConfigurationsFull, performLayout, performLayoutOfVisualModel } from "@dataspecer/layout";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
@@ -25,7 +25,7 @@ export async function layoutActiveVisualModelAdvancedAction(
   diagram: UseDiagramType,
   graph: ModelGraphContextType,
   visualModel: WritableVisualModel,
-  configuration: UserGivenConstraintsVersion4,
+  configuration: UserGivenAlgorithmConfigurations,
   explicitAnchors?: ExplicitAnchors,
   shouldUpdatePositionsInVisualModel?: boolean,
   outsiders?: Record<string, XY | null>,
@@ -64,7 +64,7 @@ export async function layoutActiveVisualModelAction(
   diagram: UseDiagramType,
   graph: ModelGraphContextType,
   visualModel: WritableVisualModel,
-  configuration: UserGivenConstraintsVersion4,
+  configuration: UserGivenAlgorithmConfigurations,
   explicitAnchors?: ExplicitAnchors,
 ) {
   return layoutActiveVisualModelAdvancedAction(
@@ -105,12 +105,13 @@ export async function findPositionForNewNodesUsingLayouting(
     identifiersWithPositions[identifier] = computedInitialPosition.position;
   }
 
-  const configuration = getDefaultUserGivenConstraintsVersion4();
+  const configuration = getDefaultUserGivenAlgorithmConfigurationsFull();
   configuration.chosenMainAlgorithm = "elk_stress";
-  configuration.main.elk_stress = getDefaultMainUserGivenAlgorithmConstraint("elk_stress");
-  configuration.main.elk_stress.interactive = true;
-  // TODO RadStr: We can do better by using average edge length in graph.
-  (configuration.main.elk_stress as UserGivenAlgorithmConfigurationStress).stress_edge_len = 500;
+  configuration.main.elk_stress.run_node_overlap_removal_after = true;
+  configuration.main.elk_stress.interactive = true;   // If set to false, then the result is deterministic (always same)
+  configuration.main.elk_stress.number_of_new_algorithm_runs = 1;
+  // Maybe can be improved by using average edge length in diagram
+  configuration.main.elk_stress.stress_edge_len = 500;
 
   // We only want to get the new positions, so we don't update the visual model.
   // We save some performance by that, but more importantly elk can move nodes even if they are
@@ -149,14 +150,13 @@ export async function findPositionForNewNodesUsingLayouting(
 export function createExactNodeDimensionsQueryHandler(
   diagram: UseDiagramType,
 ): NodeDimensionQueryHandler {
-  // TODO RadStr: Have to use visual ids for graph nodes
-  const getWidth = (node: INodeClassic) => {
+  const getWidth = (node: Node) => {
     // The question is what does it mean if the node isn't in editor? Same for height
     // Actually it is not error, it can be valid state when we are layouting elements which are not yet part of visual model
     const width = diagram.actions().getNodeWidth(node.id) ?? new ReactflowDimensionsEstimator().getWidth(node);
     return width;
   };
-  const getHeight = (node: INodeClassic) => {
+  const getHeight = (node: Node) => {
     const height = diagram.actions().getNodeHeight(node.id) ?? new ReactflowDimensionsEstimator().getHeight(node);
     return height;
   };
@@ -184,9 +184,9 @@ function processLayoutResult(
     return;
   }
 
-  Object.entries(layoutResult).forEach(([visualIdentifer, layouredVisualEntity]) => {
-    const visualEntity = layouredVisualEntity.visualEntity
-    if(layouredVisualEntity.isOutsider) {
+  Object.entries(layoutResult).forEach(([visualIdentifer, layoutedVisualEntity]) => {
+    const visualEntity = layoutedVisualEntity.visualEntity
+    if(layoutedVisualEntity.isOutsider) {
       if(shouldPutOutsidersInVisualModel) {
         if(isVisualNode(visualEntity)) {
           addClassOrClassProfileToVisualModel(notifications, classes, diagram, graph, visualModel, visualEntity);
@@ -199,7 +199,7 @@ function processLayoutResult(
     }
 
     // TODO RadStr: I am not sure if this "if" ever passes for non-outsiders, maybe we should keep only the else branch.
-    if(visualModel.getVisualEntity(visualIdentifer) === undefined) {
+    if(visualModel.getVisualEntity(visualIdentifer) === null) {
       if(isVisualNode(visualEntity)) {
         console.info("NEW NODE");
         addClassOrClassProfileToVisualModel(notifications, classes, diagram, graph, visualModel, visualEntity);
