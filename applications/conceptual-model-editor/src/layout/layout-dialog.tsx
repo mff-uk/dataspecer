@@ -323,7 +323,7 @@ export const useConfigDialog = () => {
   const StressProfileConfig = (props: {stateField: MainType}) =>
     <div>
       <div className="flex flex-row">
-        <label htmlFor={`${props.stateField}-main-alg-direction`}>Preferred edge direction for profiles: </label>
+        <label htmlFor={`${props.stateField}-main-alg-direction`}>Preferred edge direction for class profiles: </label>
       </div>
       <div className="flex flex-row">
         <LayeredAlgorithmDirectionDropdown direction={config?.[props.stateField]?.["elk_stress_profile"]?.["preferredProfileDirection"] ?? Direction.Down} setDirection={(newDirection: Direction) => {
@@ -344,7 +344,7 @@ export const useConfigDialog = () => {
         {config?.[props.stateField]?.elk_stress_profile?.["stress_edge_len"]}
       </div>
       <div className="flex flex-row">
-        <label htmlFor="range-stress-profile-edge-len">Ideal profile edge length: </label>
+        <label htmlFor="range-stress-profile-edge-len">Ideal class profile edge length: </label>
       </div>
       <div className="flex flex-row">
         <input type="range" min="0" max="1000" step="10" className="slider" id="range-stress-profile-edge-len" draggable="false"
@@ -510,12 +510,11 @@ export const useConfigDialog = () => {
           }>
           <option value="elk_layered">Layered (Hierarchical)</option>
           <option value="elk_stress">Elk Stress (Force-based algorithm)</option>
-          <option value="elk_stress_profile">Elk Stress profile (Force-based algorithm)</option>
+          <option value="elk_stress_profile">Elk Stress class profile (Force-based algorithm)</option>
           <option value="elk_stress_advanced_using_clusters">Elk Stress (Force-based algorithm) with clustering</option>
           <option value="elk_force">Elk Force (Force-based algorithm)</option>
           <option value="elk_radial">Radial</option>
           <option value="elk_overlapRemoval">Overlap removal</option>
-          <option value="automatic">Automatic</option>
           <option value="random">Random</option>
         </select>
       </div>
@@ -524,28 +523,6 @@ export const useConfigDialog = () => {
       {config.chosenMainAlgorithm === "random" ? null : <h3 className="font-black">Algorithm settings </h3>}
       {renderMainAlgorithmConfig()}
       <hr className="my-2"/>
-      <label htmlFor="advanced-settings-textbox">Advanced settings:</label>
-      <textarea id="advanced-settings-textbox"
-                value={String(advancedSettingsForAlgorithms.current)}
-                onChange={handleAdvancedSettingsChange}></textarea>
-      <hr className="my-4"/>
-      <input type="checkbox" id="checkbox-main-layout-alg" name="checkbox-main-layout-alg" checked={config.chosenGeneralAlgorithm !== "none"}
-        onChange={e => setConfig({...config,
-          general: {
-            ...config.general,
-            elk_layered: {
-              ...config.general.elk_layered,
-            }
-          },
-          chosenGeneralAlgorithm: e.target.checked ? "elk_layered" : "none"
-          })} />
-      <label htmlFor="checkbox-main-layout-alg">Process generalization hierarchies separately ⚠️ WIP ⚠️</label>
-      {config.chosenGeneralAlgorithm === "none" ? null :
-        <div>
-          <div className='h-2'></div>
-          <LayeredConfig stateField='general'></LayeredConfig>
-        </div>
-      }
     </div>;
 
   return {

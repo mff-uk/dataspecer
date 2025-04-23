@@ -57,7 +57,7 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
     console.info(resource);
     const visualEntities: VisualEntitiesWithModelVisualInformation = {};
     try {
-      const layoutedVisualEntities = await performLayoutOfSemanticModel(entities, semanticModelId, getValidConfig());
+      const layoutedVisualEntities = await performLayoutOfSemanticModel(entities, semanticModelId, getConfig());
       Object.entries(layoutedVisualEntities).forEach(([visualEntityIdentifier, layoutedVisualEntity]) => {
         visualEntities[visualEntityIdentifier] = layoutedVisualEntity.visualEntity;
       });
@@ -121,7 +121,7 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
   const type = modelTypeToName[resource.types?.[0]];
 
 
-  const { getValidConfig, ConfigDialog } = useConfigDialog();
+  const { getConfig, ConfigDialog } = useConfigDialog();
 
   return (
     <Modal open={isOpen} onClose={() => isLoading ? null : resolve(false)}>
