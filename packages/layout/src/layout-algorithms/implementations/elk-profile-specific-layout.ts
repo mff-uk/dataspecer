@@ -18,19 +18,19 @@ export class ElkProfileLayout extends ElkLayout {
         switch(configurations.currentLayoutAction.action.userGivenConfiguration.preferredProfileDirection){
           case Direction.Up:
             edge.start.completeVisualNode.setPositionInCoreVisualNode(
-              profiledClassPosition.x, profiledClassPosition.y - 1000);
+              profiledClassPosition.x, profiledClassPosition.y + 1000);
             break;
           case Direction.Right:
             edge.start.completeVisualNode.setPositionInCoreVisualNode(
-              profiledClassPosition.x + 1000, profiledClassPosition.y);
+              profiledClassPosition.x - 1000, profiledClassPosition.y);
             break;
           case Direction.Down:
             edge.start.completeVisualNode.setPositionInCoreVisualNode(
-              profiledClassPosition.x, profiledClassPosition.y + 1000);
+              profiledClassPosition.x, profiledClassPosition.y - 1000);
             break;
           case Direction.Left:
             edge.start.completeVisualNode.setPositionInCoreVisualNode(
-              profiledClassPosition.x - 1000, profiledClassPosition.y);
+              profiledClassPosition.x + 1000, profiledClassPosition.y);
             break;
         }
       }

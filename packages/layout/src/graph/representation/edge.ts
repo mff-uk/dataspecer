@@ -212,25 +212,45 @@ export class DefaultEdge implements Edge {
         return this.visualEdge.visualEdge;
     }
 
+    /**
+     * The semantic information about represented relationship may be missing
+     */
     private createNewVisualRelationshipBasedOnEndPoints(
         start: EdgeEndPoint,
-        end: EdgeEndPoint
+        end: EdgeEndPoint,
+        edgeProfileType: EdgeProfileType,
+        sourceModelIdentifier: string | null,
     ): VisualRelationship | VisualProfileRelationship {
         // TODO Hard to solve by myself - Radstr:
         //      It makes sense to use the cme methods to create the visual entities - Instead of implementing it all again - just define method and call it
         //      ... for example I am not sure the type should cotnain only the VISUAL_RELATIONSHIP_TYPE or also some other type, so for such cases constistency would be nice
         //      But currently it seems sufficient
-        const edgeToReturn: VisualProfileRelationship = {
-            identifier: createIdentifier(),
-            entity: "",
-            type: [VISUAL_RELATIONSHIP_TYPE],
-            waypoints: [],
-            model: "",
-            visualSource: start.id,
-            visualTarget: end.id,
-        };
+        if(edgeProfileType === "CLASS-PROFILE") {
+            const edgeToReturn: VisualProfileRelationship = {
+                identifier: createIdentifier(),
+                entity: start?.semanticEntityRepresentingNode?.id ?? "",
+                type: [VISUAL_PROFILE_RELATIONSHIP_TYPE],
+                waypoints: [],
+                model: sourceModelIdentifier ?? "",
+                visualSource: start.id,
+                visualTarget: end.id,
+            };
 
-        return edgeToReturn;
+            return edgeToReturn;
+        }
+        else {
+            const edgeToReturn: VisualRelationship = {
+                identifier: createIdentifier(),
+                representedRelationship: "",
+                type: [VISUAL_RELATIONSHIP_TYPE],
+                waypoints: [],
+                model: sourceModelIdentifier ?? "",
+                visualSource: start.id,
+                visualTarget: end.id,
+            };
+
+            return edgeToReturn;
+        }
     }
 
 
@@ -254,7 +274,7 @@ export class DefaultEdge implements Edge {
             return new VisualEdge(createdVisualRelationship, true);
         }
         else {
-            return new VisualEdge(this.createNewVisualRelationshipBasedOnEndPoints(start, end), true);
+            return new VisualEdge(this.createNewVisualRelationshipBasedOnEndPoints(start, end, edgeProfileType, sourceModelIdentifier), true);
         }
     }
 }

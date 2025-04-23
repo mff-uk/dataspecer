@@ -17,7 +17,7 @@ export const useConfigDialog = () => {
   const [config, setConfig] = useState<UserGivenAlgorithmConfigurations>(getDefaultUserGivenAlgorithmConfigurationsFull());
 
   const getConfig = () => {
-    return config;
+    return _.cloneDeep(config);
   };
 
 
@@ -255,14 +255,6 @@ export const useConfigDialog = () => {
 
   const StressProfileConfig = (props: {stateField: MainType}) =>
     <div>
-      <div className="flex flex-row">
-        <label htmlFor={`${props.stateField}-main-alg-direction`}>Preferred edge direction for class profiles: </label>
-      </div>
-      <div className="flex flex-row">
-        <LayeredAlgorithmDirectionDropdown direction={config?.[props.stateField]?.["elk_stress_profile"]?.["preferredProfileDirection"] ?? Direction.Down} setDirection={(newDirection: Direction) => {
-          setConfigWithNewValue("elk_stress_profile", props.stateField, "preferredProfileDirection", newDirection);
-        }}></LayeredAlgorithmDirectionDropdown>
-      </div>
       <div className="flex flex-row">
         <label htmlFor="range-stress-edge-len">Ideal edge length: </label>
       </div>
