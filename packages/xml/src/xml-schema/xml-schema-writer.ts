@@ -55,7 +55,7 @@ async function writeSchemaBegin(
   await writer.writeXmlDeclaration("1.0", "utf-8");
   writer.registerNamespace("xs", xsNamespace);
   await writer.writeElementBegin("xs", "schema");
-  await writer.writeNamespaceDeclaration("xs", xsNamespace);
+  await writer.writeNamespaceDeclaration("xs", xsNamespace); // This is kept here to make it first in the list - special case.
   await writer.writeAndRegisterNamespaceDeclaration("vc", xsVerNamespace);
   await writer.writeAttributeValue("vc", "minVersion", "1.1");
   if (model.targetNamespace != null) {
@@ -77,6 +77,10 @@ async function writeSchemaBegin(
   const registered: Record<string, string> = {};
 
   for (const importDeclaration of model.imports) {
+    if (importDeclaration.prefix === "xs") {
+      // Skip xs as it is already registered few lines above as special case.
+      continue;
+    }
     const namespace = importDeclaration.namespace;
     const prefix = importDeclaration.prefix;
     if (
@@ -135,6 +139,11 @@ async function writeImportsAndDefinitions(
   }
 
   for (const importDeclaration of model.imports) {
+    if (importDeclaration.schemaLocation == null) {
+      // Skip if nothing to import.
+      // This is the case for xsd for example.
+      continue;
+    }
     const namespace = importDeclaration.namespace;
     if (namespace == null || namespace === model.targetNamespace) {
       await writer.writeElementFull("xs", "include")(async writer => {

@@ -87,6 +87,20 @@ export async function structureModelToXmlSchema(
   return await adapter.fromStructureModel();
 }
 
+const XSD_IMPORT = {
+  namespace: "http://www.w3.org/2001/XMLSchema",
+  prefix: "xs",
+  schemaLocation: null,
+  model: null,
+} satisfies XmlSchemaImportDeclaration;
+
+const XML_IMPORT = {
+  namespace: "http://www.w3.org/XML/1998/namespace",
+  prefix: "xml",
+  schemaLocation: "http://www.w3.org/XML/1998/namespace",
+  model: null,
+} satisfies XmlSchemaImportDeclaration;
+
 /**
  * This class contains functions to process all parts of a {@link StructureModel}
  * and create an instance of {@link XmlSchema}.
@@ -128,6 +142,20 @@ class XmlSchemaAdapter {
     this.commonXmlSchemaLocation = commonXmlSchemaLocation;
   }
 
+  private getAndImportHelperNamespace(namespaceKind: "xsd" | "xml"): string {
+    if (namespaceKind === "xsd") {
+      this.imports[XSD_IMPORT.prefix] = XSD_IMPORT;
+      return XSD_IMPORT.prefix;
+    }
+
+    if (namespaceKind === "xml") {
+      this.imports[XML_IMPORT.prefix] = XML_IMPORT;
+      return XML_IMPORT.prefix;
+    }
+
+    namespaceKind satisfies never;
+  }
+
   private getIriElement(): XmlSchemaComplexContentElement {
     // Todo implement configuration for this.
     const useIriFromExternalXsd = false;
@@ -148,7 +176,7 @@ class XmlSchemaAdapter {
         annotation: null,
         type: useIriFromExternalXsd ? null : {
           entityType: "type",
-          name: ["xs", "anyURI"],
+          name: [this.getAndImportHelperNamespace("xsd"), "anyURI"],
           annotation: null,
         } satisfies XmlSchemaType,
       } satisfies XmlSchemaElement,
@@ -540,6 +568,9 @@ class XmlSchemaAdapter {
    * storing its interpretation, name, and description.
    */
   private getAnnotation(data: StructureModelClass | StructureModelProperty): XmlSchemaAnnotation {
+    // Annotation uses xml:lang and therefore we need to import it
+    this.getAndImportHelperNamespace("xml");
+
     const isElement = data instanceof StructureModelClass;
     const isType = data instanceof StructureModelProperty;
     const generateAnnotation = (isElement && this.options.generateElementAnnotations) || (isType && this.options.generateTypeAnnotations);
@@ -609,13 +640,13 @@ class XmlSchemaAdapter {
   private primitiveToQName(primitiveData: StructureModelPrimitiveType): QName {
     if (primitiveData.dataType == null) {
       // No type defined.
-      return ["xs", "anySimpleType"];
+      return [this.getAndImportHelperNamespace("xsd"), "anySimpleType"];
     }
     const type: QName = primitiveData.dataType.startsWith(XSD_PREFIX)
       ? // Type inside XSD is used.
-        ["xs", primitiveData.dataType.substring(XSD_PREFIX.length)]
+        [this.getAndImportHelperNamespace("xsd"), primitiveData.dataType.substring(XSD_PREFIX.length)]
       : // An internally mapped type (from OFN) is used, if defined.
-        simpleTypeMapQName[primitiveData.dataType] ?? ["xs", "anySimpleType"];
+        simpleTypeMapQName[primitiveData.dataType] ?? [this.getAndImportHelperNamespace("xsd"), "anySimpleType"];
     if (type === langStringName) {
       // todo: For now this wont happen as language string shall be caught by the parent function
       // Defined langString if it is used.
