@@ -29,6 +29,8 @@ export class XmlSchema {
    */
   imports: XmlSchemaImportDeclaration[];
 
+  namespaces: XmlSchemaNamespaceDefinition[];
+
   /**
    * Location of XML file containing shared things for XML.
    */
@@ -50,25 +52,20 @@ export class XmlSchema {
 }
 
 /**
- * Represents an import/include declaration to an artifact.
+ * Defines imports/includes of external schemas (in different/same namespace).
  */
 export class XmlSchemaImportDeclaration {
-  /**
-   * The namespace prefix used by the schema.
-   */
-  prefix: string | null;
-
-  /**
-   * The namespace IRI used by the schema.
-   */
   namespace: string | null;
-
-  /**
-   * The location of the schema file.
-   */
   schemaLocation: string;
-
   model: StructureModel | null;
+}
+
+/**
+ * Defines namespaces used in the schema.
+ */
+export class XmlSchemaNamespaceDefinition {
+  prefix: string;
+  namespace: string;
 }
 
 /**

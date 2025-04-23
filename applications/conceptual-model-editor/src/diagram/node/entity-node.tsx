@@ -110,7 +110,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
             } else if (isNodeTitleItem(item)) {
               return (
                 <li
-                  key={`${index}-${item.label}-li`}
+                  key={`${index}-${item.title}-li`}
                   className="relative flex w-full flex-row justify-between z-50"
                 >
                   <TitleItem item={item} />
@@ -220,7 +220,7 @@ function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
     return null;
   }
 
-  const onShowSelectionActions = (event: React.MouseEvent) => {
+  const onOpenSelectionActionsMenu = (event: React.MouseEvent) => {
     const absoluteFlowPosition = reactFlow.screenToFlowPosition({ x: event.clientX, y: event.clientY });
     context?.callbacks().onShowSelectionActionsMenu(props.data, absoluteFlowPosition);
   }
@@ -233,7 +233,7 @@ function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
 
   return (<>
     <NodeToolbar isVisible={shouldShowMenu} position={Position.Top} className="flex gap-2 entity-node-menu" >
-      <button onClick={onShowSelectionActions} title={t("selection-action-button")}>🎬</button>
+      <button onClick={onOpenSelectionActionsMenu} title={t("selection-action-button")}>🎬</button>
       &nbsp;
       <button onClick={onLayoutSelection} title={t("selection-layout-button")} disabled>🔀</button>
       &nbsp;
@@ -301,9 +301,9 @@ function TitleItem(props: {
   item: NodeTitleItem,
 }) {
   return (
-    <>
-      &nbsp; &lt;&lt;{props.item.label}&gt;&gt;
-    </>
+    <span className="ml-2">
+      {props.item.title}
+    </span>
   )
 }
 

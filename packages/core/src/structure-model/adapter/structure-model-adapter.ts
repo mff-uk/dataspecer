@@ -57,6 +57,14 @@ class StructureModelAdapter {
     const entity = await this.reader.readResource(iri);
     const root = new StructureModelSchemaRoot();
     root.psmIri = entity.iri;
+    /**
+     * ! This is a workaround as PSMv1 does not have a concept of a root.
+     *
+     * Therefore the technical label of the schema is used as a technical label
+     * of root. The root in this case is an "association". Many formats wont use
+     * it. For example JSON expects object at the root, but XML requires
+     * wrapping everything in a root element, which is basically the association.
+     */
     root.technicalLabel = schema.dataPsmTechnicalLabel ?? null;
     root.collectionTechnicalLabel = schema.dataPsmCollectionTechnicalLabel ?? null;
     root.enforceCollection = schema.dataPsmEnforceCollection ?? false;
@@ -69,7 +77,7 @@ class StructureModelAdapter {
           throw new Error(`Unsupported PSM entity '${iri}' in DataPsmOr.`);
         }
         root.classes.push(await this.loadClass(choice));
-        root.orTechnicalLabel = entity.dataPsmTechnicalLabel;
+        root.orTechnicalLabel = entity.dataPsmTechnicalLabel ?? root.technicalLabel;
         root.isInOr = true;
       }
     } else if (DataPsmClass.is(entity)) {
@@ -171,6 +179,8 @@ class StructureModelAdapter {
       this.classes,
       classReferenceData.dataPsmSpecification
     );
+    // This has side effect of correctly loading full specification
+    const specification = await adapter.load(classReferenceData.dataPsmSpecification);
     if (DataPsmClass.is(part)) {
       const model = await adapter.loadClass(part);
       const copiedModel = Object.assign(Object.create(Object.getPrototypeOf(model)), model);
@@ -190,7 +200,7 @@ class StructureModelAdapter {
         copiedModel.isReferenced = true;
         references.push(copiedModel);
       }
-      return [references, part.dataPsmTechnicalLabel];
+      return [references, part.dataPsmTechnicalLabel ?? specification.roots[0].orTechnicalLabel];
     } else {
       throw new Error(
         `Invalid class reference '${classReferenceData.iri}' target.`
@@ -275,13 +285,16 @@ class StructureModelAdapter {
           throw new Error(`Unsupported entity in OR ${choice}.`);
         }
         model.dataTypes.push(...(await this.loadComplexType(cls))[0]);
-        model.orTechnicalLabel = part.dataPsmTechnicalLabel;
+        model.orTechnicalLabel = part.dataPsmTechnicalLabel ?? associationEndData.dataPsmTechnicalLabel;
         model.isInOr = true;
       }
     } else if (DataPsmClass.is(part) || DataPsmClassReference.is(part)) {
+      if (DataPsmClassReference.is(part)) {
+        model.isReferencing = true;
+      }
       const [types, label] = await this.loadComplexType(part); // It might be a class or it might be a reference (to or for example)
       model.dataTypes.push(...types);
-      model.orTechnicalLabel = label;
+      model.orTechnicalLabel = label ?? (DataPsmClassReference.is(part) ? null : associationEndData.dataPsmTechnicalLabel);
       model.isInOr = label !== undefined;
     } else {
       throw new Error(`Unsupported association end '${associationEndData.iri}'.`);

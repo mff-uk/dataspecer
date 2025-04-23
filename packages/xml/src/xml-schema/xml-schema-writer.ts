@@ -55,7 +55,7 @@ async function writeSchemaBegin(
   await writer.writeXmlDeclaration("1.0", "utf-8");
   writer.registerNamespace("xs", xsNamespace);
   await writer.writeElementBegin("xs", "schema");
-  await writer.writeNamespaceDeclaration("xs", xsNamespace);
+  await writer.writeNamespaceDeclaration("xs", xsNamespace); // This is kept here to make it first in the list - special case.
   await writer.writeAndRegisterNamespaceDeclaration("vc", xsVerNamespace);
   await writer.writeAttributeValue("vc", "minVersion", "1.1");
   if (model.targetNamespace != null) {
@@ -64,45 +64,17 @@ async function writeSchemaBegin(
       "targetNamespace",
       model.targetNamespace
     );
-    if (model.targetNamespacePrefix != null) {
-      await writer.writeAndRegisterNamespaceDeclaration(
-        model.targetNamespacePrefix,
-        model.targetNamespace
-      );
-    }
   } else {
     await writer.writeLocalAttributeValue("elementFormDefault", "unqualified");
   }
 
-  const registered: Record<string, string> = {};
-
-  for (const importDeclaration of model.imports) {
-    const namespace = importDeclaration.namespace;
-    const prefix = importDeclaration.prefix;
-    if (
-      namespace != null &&
-      prefix != null
-    ) {
-      if (registered[prefix] == null) {
-        await writer.writeAndRegisterNamespaceDeclaration(
-          prefix,
-          namespace
-        );
-        registered[prefix] = namespace;
-      } else if (registered[prefix] !== namespace) {
-        throw new Error(
-          `Imported namespace prefix "${prefix}:" is used for two ` +
-          `different namespaces, "${registered[prefix]}" and "${namespace}".`
-        );
-      }
+  // Register all (prefix - namespace) in the schema.
+  for (const namespace of model.namespaces) {
+    if (namespace.prefix === "xs" || namespace.prefix === "vc") {
+      // Skip xs and vc as it is already registered few lines above as special case.
+      continue;
     }
-  }
-
-  if (model.options.generateSawsdl) {
-    await writer.writeAndRegisterNamespaceDeclaration(
-      "sawsdl",
-      "http://www.w3.org/ns/sawsdl"
-    );
+    await writer.writeAndRegisterNamespaceDeclaration(namespace.prefix, namespace.namespace);
   }
 }
 

@@ -1,69 +1,62 @@
-import { SemanticModelEntity, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { Position, VisualEntity, VisualModel } from "@dataspecer/core-v2/visual-model";
-import { ExtractedModels, LayoutAlgorithm, LayoutMethod, extractModelObjects } from "./layout-iface.ts";
+import { isSemanticModelGeneralization, isSemanticModelRelationship, SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
+import { Position, VisualModel } from "@dataspecer/core-v2/visual-model";
 
 import {
-	UserGivenConstraints,
-	UserGivenAlgorithmConfigurationslVersion2,
-	ConstraintTime,
-	IConstraint,
-	IConstraintSimple,
-	getDefaultUserGivenConstraintsVersion2,
-	UserGivenAlgorithmConfigurationslVersion4,
-	getDefaultUserGivenAlgorithmConstraint,
-	AlgorithmConfiguration,
-	getDefaultMainUserGivenAlgorithmConstraint,
-	getDefaultUserGivenConstraintsVersion4,
-	GraphConversionConstraint,
-	IAlgorithmConfiguration,
-	SPECIFIC_ALGORITHM_CONVERSIONS_MAP
-} from "./configs/constraints.ts";
-import { GraphClassic, GraphFactory, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualModelWithOutsiders, VisualNodeComplete } from "./graph-iface.ts";
-import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs/constraint-container.ts";
+	DefaultGraphConversionActionConfiguration,
+} from "./configurations/graph-conversion-action.ts";
+import { MainGraph, VisualModelWithOutsiders } from "./graph/representation/graph.ts";
+import { ConfigurationsContainer } from "./configurations/configurations-container.ts";
 import { Entities, Entity, EntityModel } from "@dataspecer/core-v2";
-import { ConstraintFactory } from "./configs/constraint-factories.ts";
+import { ConfigurationFactory, SPECIFIC_ALGORITHM_CONVERSIONS_MAP } from "./configurations/configuration-factories.ts";
 import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator.ts";
-import { PhantomElementsFactory } from "./util/utils.ts";
-import { CONSTRAINT_MAP } from "./configs/constraints-mapping.ts";
 import type { LayoutedVisualEntities, VisualEntitiesWithModelVisualInformation } from "./migration-to-cme-v2.ts";
 export { type LayoutedVisualEntities } from "./migration-to-cme-v2.ts";
 export type { VisualEntitiesWithModelVisualInformation };
-import { EdgeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-crossing.ts";
-import { EdgeNodeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-node-crossing.ts";
+import { EdgeCrossingMetric } from "./graph/graph-metrics/implemented-metrics/edge-crossing.ts";
+import { EdgeNodeCrossingMetric } from "./graph/graph-metrics/implemented-metrics/edge-node-crossing.ts";
 
-export type { IConstraintSimple, UserGivenConstraints, UserGivenAlgorithmConfigurationslVersion2 as UserGivenConstraintsVersion2, UserGivenAlgorithmConfigurationslVersion4 as UserGivenConstraintsVersion4 } from "./configs/constraints.ts";
-export { getDefaultUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion2, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4 } from "./configs/constraints.ts";
-export type { AlgorithmName } from "./configs/constraint-container.ts";
 
 import { Direction } from "./util/utils.ts";
 export { Direction };
-export type { INodeClassic } from "./graph-iface.ts";
 
 export { ReactflowDimensionsEstimator };
 export { ReactflowDimensionsConstantEstimator } from "./dimension-estimators/constant-dimension-estimator.ts";
 
-import type { EdgeRouting } from "./configs/constraints.ts";
+import type { EdgeRouting } from "./configurations/graph-conversion-action.ts";
 export type { EdgeRouting };
 
 import { placeCoordinateOnGrid, placePositionOnGrid } from "./util/utils.ts";
 import { ExplicitAnchors } from "./explicit-anchors.ts";
+import { ComputedMetricValues, Metric } from "./graph/graph-metrics/graph-metric.ts";
+import { Node } from "./graph/representation/node.ts";
+export { type Node };
+import { GraphFactory } from "./graph/representation/graph-factory.ts";
+import { ALGORITHM_NAME_TO_LAYOUT_MAPPING, AlgorithmName } from "./layout-algorithms/list-of-layout-algorithms.ts";
+import { LayoutAlgorithm } from "./layout-algorithms/layout-algorithms-interfaces.ts";
+import _ from "lodash";
+import { UserGivenAlgorithmConfigurations } from "./configurations/user-algorithm-configurations.ts";
+import { DefaultAlgorithmConfiguration } from "./configurations/algorithm-configurations.ts";
+import { isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+export type { AlgorithmName };
 export { AnchorOverrideSetting } from "./explicit-anchors.ts";
 export { placeCoordinateOnGrid, placePositionOnGrid };
 
 export { type ExplicitAnchors } from "./explicit-anchors.ts";
-export { type VisualModelWithOutsiders } from "./graph-iface.ts";
+export { type VisualModelWithOutsiders } from "./graph/representation/graph.ts";
 
 export type {
-	UserGivenAlgorithmConfiguration,
 	UserGivenAlgorithmConfigurationElkForce,
-	UserGivenAlgorithmConfigurationExtraData,
-	UserGivenAlgorithmConfigurationForGeneralization,
+	UserGivenAlgorithmConfigurationExtraAlgorithmsToRunAfter as UserGivenAlgorithmConfigurationExtraData,
 	UserGivenAlgorithmConfigurationLayered,
 	UserGivenAlgorithmConfigurationStress,
-	UserGivenAlgorithmConfigurationOnlyData,
-} from "./configs/constraints.ts";
+	UserGivenAlgorithmConfigurations,
+} from "./configurations/user-algorithm-configurations.ts";
 
-export { type ElkForceAlgType } from "./configs/elk/elk-constraints.ts";
+export  {
+	getDefaultUserGivenAlgorithmConfigurationsFull
+} from "./configurations/user-algorithm-configurations.ts";
+
+export { type ElkForceAlgType } from "./configurations/elk/elk-configurations.ts";
 
 /**
  * The object (class) implementing this interface handles the act of getting width and height of given node. The act has to be separated from the reactflow visualization library,
@@ -72,22 +65,49 @@ export { type ElkForceAlgType } from "./configs/elk/elk-constraints.ts";
  * For such case the implemented variants are (so far) {@link ReactflowDimensionsEstimator} and {@link ReactflowDimensionsConstantEstimator}.
  */
 export interface NodeDimensionQueryHandler {
-	getWidth(node: INodeClassic);
-	getHeight(node: INodeClassic);
+	getWidth(node: Node);
+	getHeight(node: Node);
 }
 
 export type XY = Omit<Position, "anchored">;
 
 // The layout works like this. The layout package gets configuration from user, usually inserted through dialog.
-// This configuration is converted to different set of constraints (this might have been a bit of overengineering, but it is not that bad).
-// There are different set of constraints:
+// This configuration is converted to different set of configurations, this looked like over-engineering at first, but actually after working with it a bit, while
+// programming my own algorithm, it is quite flexible.
+// There are different set of configurations:
 // 1) Actions which should be performed before we start the layouting. Meaning layouting in sense that we enter the loop which runs the algorithm 1 or more times to find the best layout.
 // 2) Then actions which should be performed in the loop (For example run random layout, followed by stress layout, followed by layered algorithm)
-// The actions in 1) and 2) are either GraphConversionConstraint or AlgorithmConfiguration, depending on the type of action
-// But that isn't all, we also have pre- and post- conditions, which are special actions which should be performed before, respectively after the steps 1), 2)
-// TODO: This feels like overengineering. ... I don't think that there is a reason to do this, it should be the same as in step 1
-//       So in future it will be probably the mentioned 1), 2) and then in the same way stuff, which will be run post-layout
+// The actions in 1) and 2) are either GraphConversionActionConfigurations or AlgorithmConfiguration, depending on the type of action
+// TODO: Write the important places here to look at if you want to program your own algorithm
 
+
+
+/**
+ * Contains the visual entities (that is entities present in visual model). Those contain also the relevant edges
+ *
+ * And outsiders - which represent classes or class profiles, which are not in the visual model.
+ * We don't pass the edges (relationships, generalizations, ...) to outsiders, since we expect
+ * that we want to have all edges connected to those class/class profiles inside the layouting graph.
+ */
+export type VisualEntitiesWithOutsiders = {
+	visualEntities: string[],
+	outsiders: Record<string, XY | null>;
+};
+
+export async function performLayout(
+	visualModel: VisualModel,
+	semanticModels: Map<string, EntityModel>,
+	entitiesToLayout: VisualEntitiesWithOutsiders,
+	config: UserGivenAlgorithmConfigurations,
+	nodeDimensionQueryHandler?: NodeDimensionQueryHandler,
+	explicitAnchors?: ExplicitAnchors
+): Promise<LayoutedVisualEntities> {
+	console.log("config");
+	console.log(config);
+
+	const visualEntitiesPromise = performLayoutInternal(visualModel, semanticModels, entitiesToLayout, config, nodeDimensionQueryHandler, explicitAnchors);
+	return visualEntitiesPromise;
+}
 
 
 // TODO PRQuestion: Maybe just return VisualEntities - so without the information about entity being an outsider
@@ -105,28 +125,34 @@ export type XY = Omit<Position, "anchored">;
 export async function performLayoutOfVisualModel(
 	visualModel: VisualModelWithOutsiders,
 	semanticModels: Map<string, EntityModel>,
-	config: UserGivenAlgorithmConfigurationslVersion4,
+	config: UserGivenAlgorithmConfigurations,
 	nodeDimensionQueryHandler?: NodeDimensionQueryHandler,
 	explicitAnchors?: ExplicitAnchors
 ): Promise<LayoutedVisualEntities> {
 	console.log("config");
 	console.log(config);
 
-	const visualEntitiesPromise = performLayoutInternal(visualModel, semanticModels, config, nodeDimensionQueryHandler, explicitAnchors);
+	const entitiesToLayout: VisualEntitiesWithOutsiders = {
+		visualEntities: [...visualModel.visualModel.getVisualEntities().keys()],
+		outsiders: visualModel.outsiders
+	};
+
+	const visualEntitiesPromise = performLayoutInternal(visualModel.visualModel, semanticModels, entitiesToLayout, config, nodeDimensionQueryHandler, explicitAnchors);
 	return visualEntitiesPromise;
 }
 
 
-// TODO: What about layouting more than one semantic model?
 /**
  * Layout given semantic model.
  */
 export async function performLayoutOfSemanticModel(
 	inputSemanticModel: Record<string, SemanticModelEntity>,
 	semanticModelId: string,
-	config: UserGivenAlgorithmConfigurationslVersion4,
+	config: UserGivenAlgorithmConfigurations,
 	nodeDimensionQueryHandler?: NodeDimensionQueryHandler
 ): Promise<LayoutedVisualEntities> {
+	// If we want to layout more than one, then just change the arguments and fill the semanticModels variable in loop.
+
 	const entityModelUsedForConversion: EntityModel = {
 		getEntities: function (): Entities {
 			return inputSemanticModel;
@@ -144,27 +170,52 @@ export async function performLayoutOfSemanticModel(
 			throw new Error("Function not implemented.");
 		}
 	};
-	const semanticModel = new Map();
-	semanticModel.set(semanticModelId, entityModelUsedForConversion);
-	const visualEntitiesPromise = performLayoutInternal(null, semanticModel, config, nodeDimensionQueryHandler);
+	const semanticModels: Map<string, EntityModel> = new Map();
+	semanticModels.set(semanticModelId, entityModelUsedForConversion);
+
+	const semanticModelEntities = [...semanticModels.values()][0].getEntities();
+
+	const outsiders: Record<string, XY | null> = {};
+	Object.keys(semanticModelEntities)
+		.filter(entity => !isPossibleEdge(semanticModelEntities[entity]))
+		.forEach(identifier => {
+			outsiders[identifier] = null;
+		});
+	const entitiesToLayout: VisualEntitiesWithOutsiders = {
+		visualEntities: [],
+		outsiders,
+	};
+
+	const visualEntitiesPromise = performLayoutInternal(null, semanticModels, entitiesToLayout, config, nodeDimensionQueryHandler);
 	return visualEntitiesPromise;
+}
+
+const isPossibleEdge = (entity: Entity) => {
+	return isSemanticModelRelationship(entity) ||
+					isSemanticModelRelationshipProfile(entity) ||
+					isSemanticModelGeneralization(entity);
 }
 
 
 function performLayoutInternal(
-	visualModel: VisualModelWithOutsiders,
+	visualModel: VisualModel,
 	semanticModels: Map<string, EntityModel>,
-	config: UserGivenAlgorithmConfigurationslVersion4,
+	entitiesToLayout: VisualEntitiesWithOutsiders,
+	config: UserGivenAlgorithmConfigurations,
 	nodeDimensionQueryHandler?: NodeDimensionQueryHandler,
 	explicitAnchors?: ExplicitAnchors
 ): Promise<LayoutedVisualEntities> {
-	const graph = GraphFactory.createMainGraph(null, semanticModels, null, visualModel, nodeDimensionQueryHandler, explicitAnchors);
-	const visualEntitiesPromise = performLayoutFromGraph(graph, config);
+	const graph = GraphFactory.createMainGraph(null, semanticModels, visualModel, entitiesToLayout, nodeDimensionQueryHandler, explicitAnchors);
+	const visualEntitiesPromise = performLayoutFromGraph(graph, config).then(async (resultAggregations) => {
+		const resultingGraph = await getBestLayoutFromMetricResultAggregation(resultAggregations);
+		return resultingGraph.convertWholeGraphToDataspecerRepresentation();
+	});
 
 	if(visualEntitiesPromise == undefined) {
 		console.log("LAYOUT FAILED")
 		throw new Error("Layout Failed");
 	}
+
 
 	return visualEntitiesPromise;
 }
@@ -172,187 +223,277 @@ function performLayoutInternal(
 
 /**
  * Layout given graph based on given layout configuration
- * @param graph
- * @param config
- * @param nodeDimensionQueryHandler
- * @param visualModel
- * @returns
  */
 export async function performLayoutFromGraph(
-	graph: IMainGraphClassic,
-	config: UserGivenAlgorithmConfigurationslVersion4
-): Promise<LayoutedVisualEntities> {
-	const constraints = ConstraintFactory.createConstraints(config);
+	graph: MainGraph,
+	config: UserGivenAlgorithmConfigurations
+): Promise<Record<string, MetricResultsAggregation>> {
+	const configurations = ConfigurationFactory.createConfigurationsContainer(config);
 
-	// TODO: Try this later, now it isn't that important
-
-	// const compactifyConstraint: IConstraintSimple  = {
-	// 	name: "post-compactify",
-	// 	type: "???",
-	// 	constraintedNodes: "ALL",
-	// 	constraintTime: "POST-MAIN",
-	// 	data: undefined,
-	// };
-	// constraints.addSimpleConstraints(compactifyConstraint);
-
-	const resultingLayoutPromise = performLayoutingBasedOnConstraints(graph, constraints);
+	const resultingAggregationsPromise = performLayoutingBasedOnConfigurations(graph, configurations);
 
 	// TODO: DEBUG
 	// console.log("THE END");
 	// throw new Error("THE END");
 
-	return resultingLayoutPromise.then(result => result.convertWholeGraphToDataspecerRepresentation());
+	return resultingAggregationsPromise;
 }
 
 
 /**
- * Performs all relevant layout operations based on given constraints
+ * Performs all relevant layout operations based on given configurations
  */
-const performLayoutingBasedOnConstraints = (
-	graph: IMainGraphClassic,
-	constraints: ConstraintContainer
-): Promise<IMainGraphClassic> => {
+const performLayoutingBasedOnConfigurations = async (
+	graph: MainGraph,
+	configurations: ConfigurationsContainer
+): Promise<Record<string, MetricResultsAggregation>> => {
 	let workGraph = graph;
-	return runPreMainAlgorithmConstraints(workGraph, constraints).then(async _ => {
-		for(const action of constraints.layoutActionsIteratorBefore) {
-			if(action instanceof GraphConversionConstraint) {
-				SPECIFIC_ALGORITHM_CONVERSIONS_MAP[action.actionName](action, workGraph);
-			}
-			else if(action instanceof AlgorithmConfiguration) {		// TODO: Using the actual type instead of interface
-				const layoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[action.algorithmName];
-				if(action.algorithmPhasesToCall === "ONLY-PREPARE" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
-					layoutAlgorithm.prepareFromGraph(workGraph, constraints);
-				}
-				if(action.algorithmPhasesToCall === "ONLY-RUN" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
-					if(action.constraintedNodes === "GENERALIZATION") {
-						workGraph = await layoutAlgorithm.runGeneralizationLayout(action.shouldCreateNewGraph);
-					}
-					else {
-						workGraph = await layoutAlgorithm.run(action.shouldCreateNewGraph);
-					}
-				}
-			}
+	for(const action of configurations.layoutActionsIteratorBefore) {
+		if (action.shouldCreateNewGraph) {
+			workGraph = _.cloneDeep(workGraph);
+	 	}
+
+		if(action instanceof DefaultGraphConversionActionConfiguration) {
+			SPECIFIC_ALGORITHM_CONVERSIONS_MAP[action.actionName](action, workGraph);
 		}
-
-		return runMainLayoutAlgorithm(workGraph, constraints).then(layoutedGraph => {
-			return runPostMainAlgorithmConstraints(layoutedGraph, constraints).then(_ => layoutedGraph);
-		});
-	});
-
-}
-
-
-const runPreMainAlgorithmConstraints = async (
-	graph: IMainGraphClassic,
-	constraintsContainer: ConstraintContainer
-): Promise<void[]> => {
-	const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer, constraintsContainer.simpleConstraints, "PRE-MAIN").then(_ => {
-		return runConstraintsInternal(graph, constraintsContainer, constraintsContainer.constraints, "PRE-MAIN");
-	});
-	return constraintPromises;
-}
-
-const runPostMainAlgorithmConstraints = async (graph: IMainGraphClassic,
-												constraintsContainer: ConstraintContainer): Promise<void[]> => {
-	return;
-	// TODO: Already Invalid comment - Well it could actually work I just need to move the code with calling layered into CONSTRAINT_MAP
-	//       To re-explain what this comments means - I wanted to have code which runs after the main alforithm - for example running layered algorithm
-	//       which takes into consideration existing positions - which we currently support, but I decided that it was better to just have it within the main loop
-	//       so POST-MAIN stuff will be probably only the stuff which will be run once after ALL! of the algorithms finish running.
-	//       It can be then only used once we have the result which want to pass to the caller. So it will be some conversions, etc. but not the mentioned layered algorithm
-	//       which runs algorithm in each iteration of loop that is finding best algorithm. The post-constraints are called only after the loop finishes.
-	// const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer.simpleConstraints, "POST-MAIN", nodeDimensionQueryHandler).then(_ => {
-	// 	return runConstraintsInternal(graph, constraintsContainer.constraints, "POST-MAIN", nodeDimensionQueryHandler);
-	// });
-	// return constraintPromises;
-}
-
-const runConstraintsInternal = async (
-	graph: IMainGraphClassic,
-	constraintContainer: ConstraintContainer,
-	constraints: IConstraintSimple[] | IConstraint[],
-	constraintTime: Omit<ConstraintTime, "IN-MAIN">
-): Promise<void[]> => {
-	const constraintPromises: Promise<void>[] = [];
-	for(const constraint of constraints) {
-		if(constraint.constraintTime === constraintTime) {
-			constraintPromises.push(CONSTRAINT_MAP[constraint.name](graph, constraintContainer));
+		else if(action instanceof DefaultAlgorithmConfiguration) {
+			const layoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[action.algorithmName];
+			if(action.algorithmPhasesToCall === "ONLY-PREPARE" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
+				layoutAlgorithm.prepareFromGraph(workGraph, configurations);
+			}
+			if(action.algorithmPhasesToCall === "ONLY-RUN" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
+				if(action.affectedNodes === "GENERALIZATION") {
+					workGraph = await layoutAlgorithm.runGeneralizationLayout();
+				}
+				else {
+					workGraph = await layoutAlgorithm.run();
+				}
+			}
 		}
 	}
 
-	return Promise.all(constraintPromises);
+	return runMainLayoutAlgorithm(workGraph, configurations).then(aggregationResult => {
+		return aggregationResult;
+	});
+
 }
 
-
-// TODO: Can be called in webworker ... but webworkers in node.js are worker threads and they are non-compatible, so it is too much of a hassle, so maybe later if necessary
-// TODO: Also need a bit think about the iterating to find the best model, so the method will maybe need some small rework
 /**
- * Run the main layouting algorithm for the given graph. TODO: Well it is not just the main, there may be layerify after, etc.
+ * Run the main layouting algorithm for the given graph. The algorithm is ran multiple times based on settings.
+ * The algorithm is set of steps, it isn't just call of one method, the set of steps depends on the implementation of algorithm.
+ * The steps can be for example - run stress algorithm, after that run node overlap removal algorithm.
  */
 const runMainLayoutAlgorithm = async (
-	graph: IMainGraphClassic,
-	constraints: ConstraintContainer
-): Promise<IMainGraphClassic> => {
-											// TODO: Well it really is overkill, like I could in the same way just have a look, if the given configuration contains numberOfAlgorithmRuns and if so, just put it here
-	let bestLayoutedVisualEntitiesPromise: Promise<IMainGraphClassic>;
-	let minAbsoluteMetric = 1000000;
-	const edgeCrossingMetric: EdgeCrossingMetric = new EdgeCrossingMetric();
-	const edgeNodeCrossingMetric: EdgeNodeCrossingMetric = new EdgeNodeCrossingMetric();
-	const findBestLayoutConstraint = constraints.simpleConstraints.find(constraint => constraint.name === "Best layout iteration count");
-	const numberOfAlgorithmRuns = (findBestLayoutConstraint?.data as any)?.numberOfAlgorithmRuns ?? 1;
+	graph: MainGraph,
+	configurations: ConfigurationsContainer
+): Promise<Record<string, MetricResultsAggregation>> => {
+	const metricsWithWeights: MetricWithWeight[] = [
+		{
+			name: "EdgeCrossingMetric",
+			metric: new EdgeCrossingMetric(),
+			weight: 1
+		},
+		// {
+		// 	name: "EdgeCrossingAngleMetric",
+		// 	metric: new EdgeCrossingAngleMetric(),
+		// 	weight: 0
+		// },
+		{
+			name: "EdgeNodeCrossingMetric",
+			metric: new EdgeNodeCrossingMetric(),
+			weight: 20
+		},
+		// {
+		// 	name: "AreaMetric",
+		// 	metric: new AreaMetric(),
+		// 	weight: 0
+		// },
+		// {
+		// 	name: "NodeOrthogonalityMetric",
+		// 	metric: new NodeOrthogonalityMetric(),
+		// 	weight: 0.0
+		// },
+	];
+	const computedMetricsData = createObjectsToHoldMetricsData(metricsWithWeights);
+	const numberOfAlgorithmRuns = configurations.numberOfAlgorithmRuns;
 
 
-
-	// TODO: There is still room for improvement - Split the preprare and run part in actions - since the force algorithm doesn't need to prepare on every iteration.
-	//       It can be prepared once before. Then it just needs to always create new graph on layout, but the preparation can be done only once
 	for(let i = 0; i < numberOfAlgorithmRuns; i++) {
-		let workGraph = graph;		// TODO: Maybe create copy?
-		graph.mainGraph.resetForNewLayout();		// TODO: Actually I feel like it should also be action (of type AlgorithmConversionConstraint), but maybe not
-		let layoutedGraphPromise: Promise<IMainGraphClassic>;
-		for(const action of constraints.layoutActionsIterator) {
-			if(action instanceof GraphConversionConstraint) {
-				SPECIFIC_ALGORITHM_CONVERSIONS_MAP[action.actionName](action, graph);
+		let workGraph = graph;
+		let layoutedGraphPromise: Promise<MainGraph>;
+		for(const action of configurations.layoutActionsIterator) {
+			if (action.shouldCreateNewGraph) {
+ 				workGraph = _.cloneDeep(workGraph);
 			}
-			else if(action instanceof AlgorithmConfiguration) {		// TODO: Using the actual type instead of interface
+			if(action instanceof DefaultGraphConversionActionConfiguration) {
+				layoutedGraphPromise = SPECIFIC_ALGORITHM_CONVERSIONS_MAP[action.actionName](action, workGraph);
+				workGraph = await layoutedGraphPromise;
+			}
+			else if(action instanceof DefaultAlgorithmConfiguration) {
 				const layoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[action.algorithmName];
 				if(action.algorithmPhasesToCall === "ONLY-PREPARE" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
-					layoutAlgorithm.prepareFromGraph(workGraph, constraints);
+					console.info("workGraph", {...workGraph});
+					layoutAlgorithm.prepareFromGraph(workGraph, configurations);
 				}
 				if(action.algorithmPhasesToCall === "ONLY-RUN" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
-					if(action.constraintedNodes === "ALL") {
-						layoutedGraphPromise = layoutAlgorithm.run(action.shouldCreateNewGraph);
+					if(action.affectedNodes === "ALL") {
+						layoutedGraphPromise = layoutAlgorithm.run();
 						workGraph = await layoutedGraphPromise;
 					}
-					else if(action.constraintedNodes === "GENERALIZATION") {
-						layoutedGraphPromise = layoutAlgorithm.runGeneralizationLayout(action.shouldCreateNewGraph);
+					else if(action.affectedNodes === "GENERALIZATION") {
+						layoutedGraphPromise = layoutAlgorithm.runGeneralizationLayout();
 						workGraph = await layoutedGraphPromise;
 					}
 				}
 			}
 		}
 
-		// const visualEntities = layoutedGraph.convertWholeGraphToDataspecerRepresentation();
-		// console.log(visualEntities);
-
-		const edgeCrossCountForCurrent = edgeCrossingMetric.computeMetric(workGraph);
-		const edgeNodeCrossCountForCurrent = edgeNodeCrossingMetric.computeMetric(workGraph);
-		const absoluteMetricForCurrent = edgeCrossCountForCurrent + edgeNodeCrossCountForCurrent;
-
-		console.log("Edge cross count: " + edgeCrossCountForCurrent);
-		console.log("Edge node cross count: " + edgeNodeCrossCountForCurrent);
-		console.log("Metric total: " + absoluteMetricForCurrent);
-
-
-		if(minAbsoluteMetric > absoluteMetricForCurrent) {
-			console.log("MIN!");
-			bestLayoutedVisualEntitiesPromise = layoutedGraphPromise;
-			minAbsoluteMetric = absoluteMetricForCurrent;
-		}
-
-		constraints.resetLayoutActionsIterator();
+		performMetricsComputation(
+			metricsWithWeights, computedMetricsData.metricResults,
+			computedMetricsData.metricResultAggregations,
+			workGraph, layoutedGraphPromise);
+		configurations.resetLayoutActionsIterator();
 	}
 
-	console.log("MIN Metric total: " + minAbsoluteMetric);
-	console.log(await bestLayoutedVisualEntitiesPromise);
-	return bestLayoutedVisualEntitiesPromise;
+	for(const key of Object.keys(computedMetricsData.metricResultAggregations)) {
+		computedMetricsData.metricResultAggregations[key].avg.absoluteValue /= numberOfAlgorithmRuns;
+		computedMetricsData.metricResultAggregations[key].avg.relativeValue /= numberOfAlgorithmRuns;
+	}
+
+	console.log("Metrics aggregations result: ", computedMetricsData.metricResultAggregations);
+	console.log("Metrics all results: ", computedMetricsData.metricResults);
+	console.log(await computedMetricsData.metricResultAggregations["total"].max.graphPromise);
+	return computedMetricsData.metricResultAggregations;
+}
+
+type MetricWithWeight = {
+	name: string,
+	metric: Metric,
+	weight: number
+}
+
+type MetricResultsAggregation = {
+	avg: ComputedMetricValues,
+	min: MetricWithGraphPromise | null,
+	max: MetricWithGraphPromise | null,
+}
+
+type MetricWithGraphPromise = {
+	value: ComputedMetricValues,
+	graphPromise: Promise<MainGraph>
+}
+
+function createMetricMinDefault(): MetricWithGraphPromise {
+	return {
+		value: {
+			absoluteValue: 100000000,
+			relativeValue: 100000000
+		},
+		graphPromise: null
+	};
+}
+
+function createMetricMaxDefault(): MetricWithGraphPromise {
+	return {
+		value: {
+			absoluteValue: -100000000,
+			relativeValue: -100000000
+		},
+		graphPromise: null
+	};
+}
+
+function createObjectsToHoldMetricsData(metrics: MetricWithWeight[]) {
+	const metricResultAggregations: Record<string, MetricResultsAggregation> = {};
+	metrics
+		.forEach(metric => metricResultAggregations[metric.name] = {
+			avg: { absoluteValue: 0, relativeValue: 0 },
+			min: createMetricMinDefault(),
+			max: createMetricMaxDefault(),
+		});
+		metricResultAggregations["total"] = {
+			avg: { absoluteValue: 0, relativeValue: 0 },
+			min: createMetricMinDefault(),
+			max: createMetricMaxDefault(),
+		};
+
+	const metricResults: Record<string, ComputedMetricValues[]> = {};
+	metrics.forEach(metric => metricResults[metric.name] = []);
+	metricResults["total"] = [];
+
+		return {
+			metricResultAggregations,
+			metricResults
+		};
+}
+
+export function getBestLayoutFromMetricResultAggregation(
+	metricResultAggregations: Record<string, MetricResultsAggregation>
+): Promise<MainGraph> {
+	// TODO Hard to solve by myself - Radstr: If we want to use relative metric - use max instead of min
+	const resultingGraph = metricResultAggregations["total"].min.graphPromise;
+	return resultingGraph;
+}
+
+export function getBestMetricResultAggregation(
+	metricResultAggregations: Record<string, MetricResultsAggregation>
+): MetricWithGraphPromise {
+	// TODO Hard to solve by myself - Radstr: If we want to use relative metric - use max instead of min
+	const best = metricResultAggregations["total"].min;
+	return best;
+}
+
+function performMetricsComputation(
+	metricsToCompute: MetricWithWeight[],
+	computedMetricsFromPreviousIterations: Record<string, ComputedMetricValues[]>,
+	metricResultsAggregation: Record<string, MetricResultsAggregation>,
+	graph: MainGraph,
+	layoutedGraphPromise: Promise<MainGraph>,
+) {
+	const computedMetrics: ComputedMetricValues[] = [];
+	for(const metricToCompute of metricsToCompute) {
+		const computedMetric = metricToCompute.metric.computeMetric(graph);
+		computedMetricsFromPreviousIterations[metricToCompute.name].push(computedMetric);
+		computedMetrics.push(computedMetric);
+
+		setMetricResultsAggregation(metricResultsAggregation, metricToCompute.name, computedMetric, layoutedGraphPromise);
+	}
+
+	const total: ComputedMetricValues = {
+		absoluteValue: 0,
+		relativeValue: 0
+	}
+	for(let i = 0; i < computedMetrics.length; i++) {
+		total.absoluteValue += metricsToCompute[i].weight * computedMetrics[i].absoluteValue;
+		total.relativeValue += metricsToCompute[i].weight * computedMetrics[i].relativeValue;
+	}
+
+	computedMetricsFromPreviousIterations["total"].push(total);
+	setMetricResultsAggregation(metricResultsAggregation, "total", total, layoutedGraphPromise);
+}
+
+function setMetricResultsAggregation(
+	metricResultsAggregation: Record<string, MetricResultsAggregation>,
+	key: string,
+	computedMetric: ComputedMetricValues,
+	layoutedGraphPromise: Promise<MainGraph>,
+) {
+	metricResultsAggregation[key].avg.absoluteValue += computedMetric.absoluteValue;
+	metricResultsAggregation[key].avg.relativeValue += computedMetric.relativeValue;
+	// TODO Hard to solve by myself - Radstr: use relative values for metrics - possible future improvement
+	//       Ideally we would work with the relativeValue (that is values in range [0, 1]),
+	//       but to find the right normalization and weights for that is highly non-trivial task
+	if(metricResultsAggregation[key].min.value.absoluteValue > computedMetric.absoluteValue) {
+		metricResultsAggregation[key].min = {
+			value: computedMetric,
+			graphPromise: layoutedGraphPromise
+		};
+	}
+	// TODO Hard to solve by myself - Radstr: again relative metric
+	if(metricResultsAggregation[key].max.value.absoluteValue < computedMetric.absoluteValue) {
+		metricResultsAggregation[key].max = {
+			value: computedMetric,
+			graphPromise: layoutedGraphPromise
+		};
+	}
 }

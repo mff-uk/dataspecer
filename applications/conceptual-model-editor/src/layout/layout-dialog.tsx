@@ -1,13 +1,11 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   AlgorithmName,
   Direction,
   EdgeRouting,
   ElkForceAlgType,
-  UserGivenAlgorithmConfiguration,
-  UserGivenConstraintsVersion4,
-  getDefaultMainUserGivenAlgorithmConstraint,
-  getDefaultUserGivenConstraintsVersion4
+  UserGivenAlgorithmConfigurations,
+  getDefaultUserGivenAlgorithmConfigurationsFull,
 } from "@dataspecer/layout";
 import _ from "lodash";
 import LayeredAlgorithmDirectionDropdown from "./react-combobox";
@@ -21,7 +19,28 @@ type MainOrGeneralType = MainType | "general";
 // 3) Style it better - but it is kind of throwaway so it doesn't really matter
 // 4) Have dialog localization
 export const useConfigDialog = () => {
-  const [config, setConfig] = useState<UserGivenConstraintsVersion4>(getDefaultUserGivenConstraintsVersion4());
+  const [config, setConfig] = useState<UserGivenAlgorithmConfigurations>(getDefaultUserGivenAlgorithmConfigurationsFull());
+  const advancedSettingsForAlgorithms = useRef<Record<string, string>>({});
+  const handleAdvancedSettingsChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    advancedSettingsForAlgorithms.current[config.chosenMainAlgorithm] = event.target.value;
+    let newAdvancedSettings;
+    try {
+      newAdvancedSettings = JSON.parse(event.target.value);
+    }
+    catch {
+      return;
+    }
+    setConfig(previousConfig => ({
+      ...previousConfig,
+      main: {
+        ...previousConfig.main,
+        [config.chosenMainAlgorithm]: {
+          ...previousConfig.main[config.chosenMainAlgorithm],
+          advanced_settings: newAdvancedSettings
+        }
+      }
+    }));
+  };
 
   // Const updateConfig = (key: string, e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
   //     setConfig({...config, [key]: parseInt(e.target.value)});
@@ -30,12 +49,12 @@ export const useConfigDialog = () => {
   // Before V2 we tried filtering, right now just put in everything and pick the correct ones, the responsibility on picking correct one should lie in the layout package anyways
   // TODO RadStr: So it may be renamed to getConfig instead
   const getValidConfig = () => {
-    return config;
+    return _.cloneDeep(config);
   };
 
   const resetConfig = () => {
-    if(!_.isEqual(config, getDefaultUserGivenConstraintsVersion4())) {
-      setConfig(getDefaultUserGivenConstraintsVersion4());
+    if(!_.isEqual(config, getDefaultUserGivenAlgorithmConfigurationsFull())) {
+      setConfig(getDefaultUserGivenAlgorithmConfigurationsFull());
     }
   };
 
@@ -50,6 +69,32 @@ export const useConfigDialog = () => {
   //     return <input type="range" min={props.min} max={props.max} step={props.step}
   //     className="slider" id={`range- + ${props.configName}`} draggable="false" defaultValue={props.defaultValue} onMouseUp={(e) => { setConfig({...config, [props.configName]: parseInt(e.target.value)});}}></input>
   // }
+
+  const OverlapRemovalConfig = (props: {stateField: MainType}) => {
+    return <div>
+      <div className="flex flex-row">
+        <label htmlFor="range-min-distance-between-nodes">Minimal distance between nodes: </label>
+      </div>
+      <div className="flex flex-row">
+        <input type="range" min="0" max="1000" step="10" className="slider" id="range-min-distance-between-nodes" draggable="false"
+          defaultValue={config?.[props.stateField]?.elk_overlapRemoval?.["min_distance_between_nodes"]}
+          onMouseUp={(e) => { setConfig({
+            ...config,
+            [props.stateField]: {
+              ...config[props.stateField],
+              [config.chosenMainAlgorithm]: {
+                ...config[props.stateField][config.chosenMainAlgorithm],
+                "min_distance_between_nodes": parseInt((e.target as HTMLInputElement).value)
+              }
+            }
+          });
+          {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
+                                                        (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
+          }}></input>
+        {config?.[props.stateField]?.elk_overlapRemoval?.["min_distance_between_nodes"]}
+      </div>
+    </div>;
+  };
 
   const RadialConfig = (props: {stateField: MainType}) => {
     return <div>
@@ -96,10 +141,36 @@ export const useConfigDialog = () => {
     </div>;
   };
 
+  const RunOverlapRemovalAfterCombobox = (
+    props: {
+      stateField: MainType
+      text?: string,
+  }) => {
+    return <div>
+      <input type="checkbox"
+              id="checkbox-run-overlap-removal-after"
+              name="checkbox-run-overlap-removal-after"
+              checked={config?.[props.stateField]?.[config.chosenMainAlgorithm]?.run_node_overlap_removal_after}
+        onChange={e => {
+          setConfig({
+            ...config,
+            [props.stateField]: {
+              ...config[props.stateField],
+              [config.chosenMainAlgorithm]: {
+                ...config[props.stateField][config.chosenMainAlgorithm],
+                "run_node_overlap_removal_after": e.target.checked,
+              }
+            }
+          });
+        }} />
+      <label htmlFor="checkbox-run-overlap-removal-after">{props.text ?? "Run node overlap removal after"}</label>
+    </div>;
+  };
+
   const interactiveCheckbox = (props: {algorithmName: AlgorithmName, stateField: MainOrGeneralType}) => {
     return <div>
       <input type="checkbox" id={`checkbox-interactive${props.stateField}`} name="checkbox-interactive"
-        checked={(config?.[props.stateField] as Partial<Record<AlgorithmName, UserGivenAlgorithmConfiguration>>)?.[props.algorithmName]?.interactive}
+        checked={(config?.[props.stateField])?.[props.algorithmName]?.interactive}
         onChange={e => {
           setConfigWithNewValue(props.algorithmName, props.stateField, "interactive", e.target.checked);
         }} />
@@ -154,13 +225,14 @@ export const useConfigDialog = () => {
       <hr className="w-48 h-1 mx-auto my-3 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
       {interactiveCheckbox({...props, algorithmName: "elk_force"})}
       <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
+      <RunOverlapRemovalAfterCombobox stateField={props.stateField}></RunOverlapRemovalAfterCombobox>
     </div>;
 
   function setConfigWithNewValue<T>(algorithmName: AlgorithmName, stateField: Partial<MainOrGeneralType>, nameOfParameterToChange: string, newValue: T) {
     if(stateField === "general" && algorithmName !== "elk_layered") {
       return;
     }
-    const algorithmSettings = (config?.[stateField] as Partial<Record<AlgorithmName, UserGivenAlgorithmConfiguration>>)?.[algorithmName];
+    const algorithmSettings = (config?.[stateField])?.[algorithmName];
     if(algorithmSettings === undefined) {
       return;
     }
@@ -178,6 +250,40 @@ export const useConfigDialog = () => {
     {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
                     (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
   }
+
+
+  const StressWithClustersConfig = (props: {stateField: MainType}) =>
+    <div>
+      <div className="flex flex-row">
+        <label htmlFor="range-stress-edge-len">Ideal edge length: </label>
+      </div>
+      <div className="flex flex-row">
+        <input type="range" min="0" max="1000" step="10" className="slider" id="range-stress-edge-len" draggable="false"
+          defaultValue={config?.[props.stateField]?.elk_stress_advanced_using_clusters?.["stress_edge_len"]}
+          onMouseUp={(e) => {
+            setConfigWithNewValue("elk_stress_advanced_using_clusters", props.stateField, "stress_edge_len", parseInt((e.target as HTMLInputElement).value));
+          }
+          }
+        ></input>
+        {config?.[props.stateField]?.elk_stress_advanced_using_clusters?.["stress_edge_len"]}
+      </div>
+      {/* TODO RadStr: Copy paste from force algorithm */}
+      <div className="flex flex-row">
+        <label htmlFor="range-iteration-count">Number of runs (may take several seconds for high numbers):</label>
+      </div>
+      <div className="flex flex-row">
+        <input type="range" min="1" max="200" step="1" className="slider" id="range-iteration-count" draggable="false"
+          defaultValue={config?.[props.stateField]?.elk_stress_advanced_using_clusters?.["number_of_new_algorithm_runs"]}
+          onMouseUp={(e) => {
+            // Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
+            // (Not sure if the type is correct, but it contains value so it shouldn't really matter)
+            setConfigWithNewValue("elk_stress_advanced_using_clusters", props.stateField, "number_of_new_algorithm_runs", parseInt((e.target as HTMLInputElement).value));
+          }}></input>
+        {config?.[props.stateField]?.elk_stress_advanced_using_clusters?.["number_of_new_algorithm_runs"]}
+      </div>
+      <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
+      <RunOverlapRemovalAfterCombobox stateField={props.stateField} text="Remove edge layout for clusters"></RunOverlapRemovalAfterCombobox>
+    </div>;
 
   const StressConfig = (props: {stateField: MainType}) =>
     <div>
@@ -211,7 +317,54 @@ export const useConfigDialog = () => {
       <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
       {interactiveCheckbox({...props, algorithmName: "elk_stress"})}
       <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
+      <RunOverlapRemovalAfterCombobox stateField={props.stateField}></RunOverlapRemovalAfterCombobox>
+    </div>;
 
+  const StressProfileConfig = (props: {stateField: MainType}) =>
+    <div>
+      <div className="flex flex-row">
+        <label htmlFor="range-stress-edge-len">Ideal edge length: </label>
+      </div>
+      <div className="flex flex-row">
+        <input type="range" min="0" max="1000" step="10" className="slider" id="range-stress-edge-len" draggable="false"
+          defaultValue={config?.[props.stateField]?.elk_stress_profile?.["stress_edge_len"]}
+          onMouseUp={(e) => {
+            setConfigWithNewValue("elk_stress_profile", props.stateField, "stress_edge_len", parseInt((e.target as HTMLInputElement).value));
+          }
+          }
+        ></input>
+        {config?.[props.stateField]?.elk_stress_profile?.["stress_edge_len"]}
+      </div>
+      <div className="flex flex-row">
+        <label htmlFor="range-stress-profile-edge-len">Ideal class profile edge length: </label>
+      </div>
+      <div className="flex flex-row">
+        <input type="range" min="0" max="1000" step="10" className="slider" id="range-stress-profile-edge-len" draggable="false"
+          defaultValue={config?.[props.stateField]?.elk_stress_profile?.profileEdgeLength}
+          onMouseUp={(e) => {
+            setConfigWithNewValue("elk_stress_profile", props.stateField, "profileEdgeLength", parseInt((e.target as HTMLInputElement).value));
+          }
+          }
+        ></input>
+        {config?.[props.stateField]?.elk_stress_profile?.["profileEdgeLength"]}
+      </div>
+      <div className="flex flex-row">
+        <label htmlFor="range-iteration-count">Number of runs (may take several seconds for high numbers):</label>
+      </div>
+      <div className="flex flex-row">
+        <input type="range" min="1" max="200" step="1" className="slider" id="range-iteration-count" draggable="false"
+          defaultValue={config?.[props.stateField]?.elk_stress_profile?.["number_of_new_algorithm_runs"]}
+          onMouseUp={(e) => {
+            // Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
+            // (Not sure if the type is correct, but it contains value so it shouldn't really matter)
+            setConfigWithNewValue("elk_stress_profile", props.stateField, "number_of_new_algorithm_runs", parseInt((e.target as HTMLInputElement).value));
+          }}></input>
+        {config?.[props.stateField]?.elk_stress_profile?.["number_of_new_algorithm_runs"]}
+      </div>
+      <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
+      {interactiveCheckbox({...props, algorithmName: "elk_stress_profile"})}
+      <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
+      <RunOverlapRemovalAfterCombobox stateField={props.stateField}></RunOverlapRemovalAfterCombobox>
     </div>;
 
   const LayeredConfig = (props: {stateField: MainOrGeneralType}) =>
@@ -272,27 +425,65 @@ export const useConfigDialog = () => {
       </div>
     </div>;
 
+  const AutomaticConfig = (props: {stateField: MainType}) =>
+    <div>
+      <div className="flex flex-row">
+        <label htmlFor="range-stress-edge-len">Ideal edge length: </label>
+      </div>
+      <div className="flex flex-row">
+        <input type="range" min="0" max="1000" step="10" className="slider" id="range-stress-edge-len" draggable="false"
+          defaultValue={config?.[props.stateField]?.automatic?.min_distance_between_nodes}
+          onMouseUp={(e) => {
+            setConfigWithNewValue("automatic", props.stateField, "min_distance_between_nodes", parseInt((e.target as HTMLInputElement).value));
+          }
+          }
+        ></input>
+        {config?.[props.stateField]?.automatic?.["min_distance_between_nodes"]}
+      </div>
+      {/* TODO RadStr: Copy paste from force algorithm */}
+      <div className="flex flex-row">
+        <label htmlFor="range-iteration-count">Number of runs (may take several seconds for high numbers):</label>
+      </div>
+      <div className="flex flex-row">
+        <input type="range" min="1" max="200" step="1" className="slider" id="range-iteration-count" draggable="false"
+          defaultValue={config?.[props.stateField]?.automatic?.["number_of_new_algorithm_runs"]}
+          onMouseUp={(e) => {
+            // Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
+            // (Not sure if the type is correct, but it contains value so it shouldn't really matter)
+            setConfigWithNewValue("automatic", props.stateField, "number_of_new_algorithm_runs", parseInt((e.target as HTMLInputElement).value));
+          }}></input>
+        {config?.[props.stateField]?.automatic?.["number_of_new_algorithm_runs"]}
+      </div>
+    </div>;
+
   const renderMainAlgorithmConfig = () => {
     // TODO RadStr: resetConfig is not it, the state has to be solved differently - different algorithms share non-relevant parameters, but it affects them
     //       (For example running layered after layered, because I checked it for stress layout)
     // resetConfig();
-    if(config.main[config.chosenMainAlgorithm ] === undefined) {
-      config.main[config.chosenMainAlgorithm ] = getDefaultMainUserGivenAlgorithmConstraint(config.chosenMainAlgorithm);
-    }
-    if(config.chosenMainAlgorithm === "elk_layered") {
-      return <LayeredConfig stateField="main"></LayeredConfig>;
-    }
-    else if(config.chosenMainAlgorithm === "elk_stress") {
-      return <StressConfig stateField="main"></StressConfig>;
-    }
-    else if(config.chosenMainAlgorithm === "elk_force") {
-      return <ForceConfig stateField="main"></ForceConfig>;
-    }
-    else if(config.chosenMainAlgorithm === "elk_radial") {
-      return <RadialConfig stateField="main"></RadialConfig>;
-    }
-    else {
-      return null;
+
+    advancedSettingsForAlgorithms.current = config.main[config.chosenMainAlgorithm].advanced_settings;
+
+    switch(config.chosenMainAlgorithm) {
+      case "elk_stress_advanced_using_clusters":
+        return <StressWithClustersConfig stateField="main"></StressWithClustersConfig>;
+      case "elk_stress":
+        return <StressConfig stateField="main"></StressConfig>;
+      case "elk_layered":
+        return <LayeredConfig stateField="main"></LayeredConfig>;
+      case "elk_force":
+        return <ForceConfig stateField="main"></ForceConfig>;
+      case "elk_radial":
+        return <RadialConfig stateField="main"></RadialConfig>;
+      case "elk_overlapRemoval":
+        return <OverlapRemovalConfig stateField="main"></OverlapRemovalConfig>;
+      case "automatic":
+        return <AutomaticConfig stateField="main"></AutomaticConfig>;
+      case "random":
+        return <RunOverlapRemovalAfterCombobox stateField="main"></RunOverlapRemovalAfterCombobox>
+      case "elk_stress_profile":
+        return <StressProfileConfig stateField="main"></StressProfileConfig>
+      default:
+        return null;
     }
   };
 
@@ -311,8 +502,11 @@ export const useConfigDialog = () => {
           }>
           <option value="elk_layered">Layered (Hierarchical)</option>
           <option value="elk_stress">Elk Stress (Force-based algorithm)</option>
+          <option value="elk_stress_profile">Elk Stress class profile (Force-based algorithm)</option>
+          <option value="elk_stress_advanced_using_clusters">Elk Stress (Force-based algorithm) with clustering</option>
           <option value="elk_force">Elk Force (Force-based algorithm)</option>
           <option value="elk_radial">Radial</option>
+          <option value="elk_overlapRemoval">Overlap removal</option>
           <option value="random">Random</option>
         </select>
       </div>
@@ -320,23 +514,7 @@ export const useConfigDialog = () => {
       {/* TODO RadStr: Just for now */}
       {config.chosenMainAlgorithm === "random" ? null : <h3 className="font-black">Algorithm settings </h3>}
       {renderMainAlgorithmConfig()}
-      <hr className="my-4"/>
-      <input type="checkbox" id="checkbox-main-layout-alg" name="checkbox-main-layout-alg" checked={config.general.elk_layered.should_be_considered}
-        onChange={e => setConfig({...config,
-          general: {
-            ...config.general,
-            elk_layered: {
-              ...config.general.elk_layered,
-              "should_be_considered": e.target.checked
-            }
-          }})} />
-      <label htmlFor="checkbox-main-layout-alg">Process generalization hierarchies separately ⚠️ WIP ⚠️</label>
-      {config.general.elk_layered.should_be_considered === false ? null :
-        <div>
-          <div className='h-2'></div>
-          <LayeredConfig stateField='general'></LayeredConfig>
-        </div>
-      }
+      <hr className="my-2"/>
     </div>;
 
   return {

@@ -200,10 +200,9 @@ class XmlSchemaDocumentationGenerator {
     const result: Record<string, unknown> = await this.prepareData();
 
     const prefixToNamespace = {} as Record<string, string>;
-    for (const imp of this.xmlSchema.imports) {
-      prefixToNamespace[imp.prefix] = imp.namespace + "#";
+    for (const {prefix, namespace} of this.xmlSchema.namespaces) {
+      prefixToNamespace[prefix] = namespace;
     }
-    prefixToNamespace["xs"] = "https://www.w3.org/TR/xmlschema-2/#";
 
     result["xml-id-anchor"] = (element: XmlSchemaElement | XmlSchemaType | QName | string, options: any) => {
       const name = (element as XmlSchemaElement).name ?? (element as XmlSchemaType).name ?? element as QName ?? [null, element as string];
@@ -327,7 +326,7 @@ class XmlSchemaDocumentationGenerator {
       const model = imp.model;
       const schema = model?.roots[0].classes[0].structureSchema;
       imports.push({
-        prefix: imp.prefix,
+        prefix: this.xmlSchema.namespaces[imp.namespace],
         namespace: imp.namespace,
         schemaLocation: imp.schemaLocation,
         documentation: schema ? classSpecificationArtifact(schema) : null,

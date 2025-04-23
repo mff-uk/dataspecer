@@ -26,7 +26,8 @@ export function useEditAssociationProfileDialogController(
 
     const setModel = (model: CmeSemanticModel) => {
       entityProfileController.setModel(model);
-      relationshipProfileController.onModelDidChange(model);
+      relationshipProfileController.updateDomains(model);
+      relationshipProfileController.updateRanges(model);
       changeState(state => configuration().relationshipProfileToIri(state));
     };
 

@@ -24,13 +24,22 @@ export class StructureModelSchemaRoot {
   isInOr: boolean = false;
 
   /**
+   * Whether the property, which is local is referencing an object. This is used
+   * as API workaround when there is OR as a referenced root.
+   */
+  isReferencing: boolean = false;
+
+  /**
    * Technical label of the wrapping OR. If the OR is not wrapped, then it is empty.
    */
   orTechnicalLabel: string | null = null;
 
   /**
-   * Label used by a computer, can be used as for example as a name of
-   * a property in JSON.
+   * Current PSMv1 does not have concept of "root". Therefore the technical
+   * label of the schema is used as a technical label of root. The root in this
+   * case is an "association". Many formats wont use it. For example JSON
+   * expects object at the root, but XML requires wrapping everything in a root
+   * element, which is basically the association.
    */
   technicalLabel: string | null = null;
 
