@@ -1,6 +1,6 @@
 import { DialogWrapper, type DialogProps } from "../dialog-api";
 import { t } from "../../application";
-import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
+import { InputLanguageString } from "../components/input-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
 import { SelectModel } from "../components/select-model";
 import { SelectEntity } from "../components/select-entity";
@@ -14,7 +14,7 @@ import { AttributeProfileDialogState } from "./edit-attribute-profile-dialog-sta
 import { isValid } from "../utilities/validation-utilities";
 import { useAttributeProfileDialogController } from "./edit-attribute-profile-dialog-controller";
 import { SpecializationSelect } from "../components/select-specialization";
-import { InputText } from "../components/input-test";
+import { InputText } from "../components/input-text";
 import { SelectBuildIn } from "../components/select-build-in";
 
 export const EditAttributeProfileDialog = (props: DialogProps<AttributeProfileDialogState>) => {
@@ -56,10 +56,10 @@ export const EditAttributeProfileDialog = (props: DialogProps<AttributeProfileDi
             onChangeProfile={controller.setNameSource}
             language={state.language}
           >
-            <MultiLanguageInputForLanguageString
-              ls={state.overrideName ? state.name : state.nameSourceValue}
-              setLs={controller.setName}
-              defaultLang={state.language}
+            <InputLanguageString
+              value={state.overrideName ? state.name : state.nameSourceValue}
+              onChange={controller.setName}
+              defaultLanguage={state.language}
               disabled={!state.overrideName}
               inputType="text"
               className="grow"
@@ -103,10 +103,10 @@ export const EditAttributeProfileDialog = (props: DialogProps<AttributeProfileDi
             onChangeProfile={controller.setDescriptionSource}
             language={state.language}
           >
-            <MultiLanguageInputForLanguageString
-              ls={state.overrideDescription ? state.description : state.descriptionSourceValue}
-              setLs={controller.setDescription}
-              defaultLang={state.language}
+            <InputLanguageString
+              value={state.overrideDescription ? state.description : state.descriptionSourceValue}
+              onChange={controller.setDescription}
+              defaultLanguage={state.language}
               disabled={!state.overrideDescription}
               inputType="textarea"
               className="grow"
@@ -123,10 +123,10 @@ export const EditAttributeProfileDialog = (props: DialogProps<AttributeProfileDi
             hideProfiling={state.hideUsageNoteProfile}
             language={state.language}
           >
-            <MultiLanguageInputForLanguageString
-              ls={state.overrideUsageNote ? state.usageNote : state.usageNoteSourceValue}
-              setLs={controller.setUsageNote}
-              defaultLang={state.language}
+            <InputLanguageString
+              value={state.overrideUsageNote ? state.usageNote : state.usageNoteSourceValue}
+              onChange={controller.setUsageNote}
+              defaultLanguage={state.language}
               disabled={!state.overrideUsageNote}
               inputType="textarea"
               className="grow"
