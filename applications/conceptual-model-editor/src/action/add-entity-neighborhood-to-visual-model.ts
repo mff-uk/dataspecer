@@ -52,8 +52,9 @@ export const addEntityNeighborhoodToVisualModelAction = async (
         return;
       }
 
-      // TODO: RadStr false or true for the last argument? Ask in issue/PR
-      addClassOrClassProfile(notifications, classes, graph, diagram, visualModel, domain.concept, null, false);
+      addClassOrClassProfileToVisualModel(
+        notifications, classes, graph, diagram, visualModel,
+        domain.concept, null, false, [possibleRelationship.id]);
     }
     else if (isSemanticModelAttributeProfile(possibleRelationship)) {
       const { domain } = getDomainAndRange(possibleRelationship);
@@ -62,8 +63,9 @@ export const addEntityNeighborhoodToVisualModelAction = async (
         return;
       }
 
-      // TODO: RadStr false or true for the last argument? Ask in issue/PR
-      addClassOrClassProfile(notifications, classes, graph, diagram, visualModel, domain.concept, null, false);
+      addClassOrClassProfileToVisualModel(
+        notifications, classes, graph, diagram, visualModel,
+        domain.concept, null, false, [possibleRelationship.id]);
     }
     else if (isSemanticModelRelationship(possibleRelationship) ||
              isSemanticModelRelationshipProfile(possibleRelationship)) {
@@ -83,14 +85,16 @@ export const addEntityNeighborhoodToVisualModelAction = async (
 
       const positions = await findPositionForNewNodesUsingLayouting(
         notifications, diagram, graph, visualModel, classes, [domain, range]);
-      const isDomainAdded = await addClassOrClassProfile(
-        notifications, classes, graph, diagram, visualModel, domain, positions[domain], false);
+      const isDomainAdded = await addClassOrClassProfileToVisualModel(
+        notifications, classes, graph, diagram, visualModel,
+        domain, positions[domain], false, []);
       if (!isDomainAdded) {
         return;
       }
 
-      const isRangeAdded = await addClassOrClassProfile(
-        notifications, classes, graph, diagram, visualModel, range, positions[range], false);
+      const isRangeAdded = await addClassOrClassProfileToVisualModel(
+        notifications, classes, graph, diagram, visualModel,
+        range, positions[range], false, []);
       if (!isRangeAdded) {
         return;
       }
@@ -118,10 +122,11 @@ function addSemanticClassOrClassProfileToVisualModelCommand(
   entity: SemanticModelClass | SemanticModelClassProfile,
   model: string,
   position: { x: number, y: number },
-) {
-  const content = getVisualNodeContentBasedOnExistingEntities(
+  content: string[] | null
+): string {
+  const nodeContent = content ?? getVisualNodeContentBasedOnExistingEntities(
     classes, entity);
-  visualModel.addVisualNode({
+  return visualModel.addVisualNode({
     model: model,
     representedEntity: entity.id,
     position: {
@@ -129,7 +134,7 @@ function addSemanticClassOrClassProfileToVisualModelCommand(
       y: position.y,
       anchored: null,
     },
-    content,
+    content: nodeContent,
     visualModels: [],
   });
 }
@@ -140,7 +145,7 @@ function addSemanticClassOrClassProfileToVisualModelCommand(
  * If false just the node is added and nothing else.
  * @returns true if the class or class profile was added. False if failure occurred.
  */
-const addClassOrClassProfile = async (
+const addClassOrClassProfileToVisualModel = async (
   notifications: UseNotificationServiceWriterType,
   classes: ClassesContextType,
   graph: ModelGraphContextType,
@@ -149,6 +154,7 @@ const addClassOrClassProfile = async (
   identifier: string,
   position: XY | null,
   shouldAddRelatedEntities: boolean,
+  nodeContent: string[] | null,
 ): Promise<boolean> => {
   if (visualModel.hasVisualEntityForRepresented(identifier)) {
     return true;
@@ -178,7 +184,7 @@ const addClassOrClassProfile = async (
       const exactPosition = position ?? await findPositionForNewNodeUsingLayouting(
         notifications, diagram, graph, visualModel, classes, identifier);
       addSemanticClassOrClassProfileToVisualModelCommand(
-        classes, visualModel, classProfile, model.getId(), exactPosition);
+        classes, visualModel, classProfile, model.getId(), exactPosition, nodeContent);
     }
     return true;
   }
@@ -197,7 +203,7 @@ const addClassOrClassProfile = async (
     const exactPosition = position ?? await findPositionForNewNodeUsingLayouting(
       notifications, diagram, graph, visualModel, classes, identifier);
     addSemanticClassOrClassProfileToVisualModelCommand(
-      classes, visualModel, cclass, model.getId(), exactPosition);
+      classes, visualModel, cclass, model.getId(), exactPosition, nodeContent);
   }
 
   return true;
