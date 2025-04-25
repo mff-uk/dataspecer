@@ -35,12 +35,11 @@ import { removeFromSemanticModelsAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
 import { openCreateAssociationDialogAction } from "./open-create-association-dialog";
 import { addEntitiesFromSemanticModelToVisualModelAction } from "./add-entities-from-semantic-model-to-visual-model";
-import { createNewVisualModelFromSelectionAction } from "./create-new-visual-model-from-selection";
 import { addEntityNeighborhoodToVisualModelAction } from "./add-entity-neighborhood-to-visual-model";
 import { createDefaultProfilesAction } from "./create-default-profiles";
 import { openCreateClassDialogWithModelDerivedFromClassAction } from "./open-create-class-dialog-with-derived-model";
 import { EntityToAddToVisualModel, addSemanticEntitiesToVisualModelAction } from "./add-semantic-entities-to-visual-model";
-import { UserGivenAlgorithmConfigurations, getDefaultUserGivenAlgorithmConfigurationsFull, LayoutedVisualEntities } from "@dataspecer/layout";
+import { UserGivenAlgorithmConfigurations, LayoutedVisualEntities } from "@dataspecer/layout";
 import { layoutActiveVisualModelAction } from "./layout-visual-model";
 import { toggleAnchorAction } from "./toggle-anchor";
 import { SelectionFilterState } from "../dialog/selection/filter-selection-dialog-controller";
@@ -78,6 +77,7 @@ import { openEditAssociationProfileDialogAction } from "./open-edit-association-
 import { changeVisualModelAction } from "./change-visual-model";
 import { QueryParamsContextType, useQueryParamsContext } from "@/context/query-params-context";
 import { openCreateVisualModelDialogAction } from "./open-create-new-visual-model-dialog";
+import { openEditSemanticModelDialogAction } from "./open-edit-semantic-model-dialog";
 
 const LOG = createLogger(import.meta.url);
 
@@ -94,7 +94,12 @@ interface DialogActions {
   /**
    * Opens dialog, which purpose is to alow user adit a semantic model.
    */
-  openEditModelDialog: (identifier: string) => void;
+  openEditSemanticModelDialog: (identifier: string) => void;
+
+  /**
+   * Remove semantic model and all it's entities.
+   */
+  deleteSemanticModel: (identifier: string) => void;
 
   /**
    * Opens dialog, which purpose is to show the detail information of entity identified by {@link identifier}.
@@ -341,9 +346,10 @@ export interface ActionsContextType extends DialogActions, VisualModelActions {
 
 }
 
-const noOperationActionsContext = {
+const noOperationActionsContext: ActionsContextType = {
   openCreateModelDialog: noOperation,
-  openEditModelDialog: noOperation,
+  openEditSemanticModelDialog: noOperation,
+  deleteSemanticModel: noOperation,
   openDetailDialog: noOperation,
   openModifyDialog: noOperation,
   openCreateClassDialog: noOperation,
@@ -602,8 +608,15 @@ function createActionsContext(
     openCreateVocabularyAction(dialogs, graph);
   };
 
-  const openEditModelDialog = (identifier: string ) => {
+  const openEditSemanticModelDialog = (identifier: string ) => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      openEditSemanticModelDialogAction(
+        cmeExecutor, options, dialogs, graph, visualModel, identifier);
+    });
+  };
 
+  const deleteSemanticModel = (identifier: string ) => {
+    useGraph.removeModel(identifier);
   };
 
   const openDetailDialog = (identifier: string) => {
@@ -1157,7 +1170,8 @@ function createActionsContext(
 
   return {
     openCreateModelDialog,
-    openEditModelDialog,
+    openEditSemanticModelDialog,
+    deleteSemanticModel,
     openDetailDialog,
     openModifyDialog,
     openCreateClassDialog,

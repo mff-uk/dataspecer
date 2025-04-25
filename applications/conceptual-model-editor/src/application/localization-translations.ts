@@ -105,6 +105,18 @@ const dialogVisualNode = prefix(
     "level-recommended": "recommended",
   });
 
+const editSemanticModelDialog = prefix(
+  "edit-semantic-model-dialog.", {
+    "title": "Edit semantic model",
+    "base-iri": "Base IRI",
+    "label": "Label",
+    "color": "Color",
+    "ok": "✅ Save changes",
+    "cancel": "❌ Cancel",
+    "external-model-message": "You are allowed to only change a color for an external model."
+  },
+);
+
 const dataspecer = prefix(
   "dataspecer", {
     "package.state-is-null": "There is no dataspecer state information, please reload the application",
@@ -126,6 +138,7 @@ export const translations: Record<string, string | Function> = {
   ...dialogVisualModel,
   ...dataspecer,
   ...dialogVisualNode,
+  ...editSemanticModelDialog,
   //
   "notification.icon-error": "Error icon",
   "notification.icon-success": "Check icon",
