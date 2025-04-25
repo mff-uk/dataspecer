@@ -14,7 +14,7 @@ export const EditVisualDiagramNodeDialog = (props: DialogProps<EditVisualDiagram
     <>
       <div className="grid bg-slate-100 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
         <DialogDetailRow detailKey={t("create-visual-diagram-node-dialog.model-name")}>
-        <InputLanguageString
+          <InputLanguageString
             value={state.representedVisualModelName}
             onChange={controller.setRepresentedVisualModelName}
             defaultLanguage={state.language}
