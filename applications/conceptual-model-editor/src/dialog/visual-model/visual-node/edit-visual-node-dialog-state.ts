@@ -1,9 +1,14 @@
 import { isVisualNode, VisualModel } from "@dataspecer/core-v2/visual-model";
-import { CmeReference } from "../../dataspecer/cme-model/model";
-import { configuration, createLogger } from "../../application";
-import { InvalidState } from "../../application/error";
-import { ModelGraphContextType } from "../../context/model-context";
-import { createUiModelState, UiRelationship, UiRelationshipProfile, wrapUiModelStateToUiModelApi } from "../../dataspecer/ui-model";
+import { CmeReference } from "../../../dataspecer/cme-model/model";
+import { configuration, createLogger } from "../../../application";
+import { InvalidState } from "../../../application/error";
+import { ModelGraphContextType } from "../../../context/model-context";
+import {
+  createUiModelState,
+  UiRelationship,
+  UiRelationshipProfile,
+  wrapUiModelStateToUiModelApi
+} from "../../../dataspecer/ui-model";
 
 const LOG = createLogger(import.meta.url);
 
