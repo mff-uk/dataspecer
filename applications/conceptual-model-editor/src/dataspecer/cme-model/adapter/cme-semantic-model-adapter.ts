@@ -3,7 +3,7 @@ import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simpli
 import { HexColor, VisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { SemanticModel } from "../../semantic-model";
-import { CmeSemanticModel, CmeSemanticModelType } from "../model";
+import { CmeSemanticModel, CmeSemanticModelNameLanguage, CmeSemanticModelType } from "../model";
 import { LanguageString } from "../../entity-model";
 
 /**
@@ -38,18 +38,16 @@ export function semanticModelToCmeSemanticModel(
   }
 }
 
-const DEFAULT_MODEL_LABEL_LANGUAGE = "";
-
 function getModelLabel(
   model: SemanticModel,
   defaultLabel: (identifier: string) => string,
 ): LanguageString {
   const alias = model.getAlias();
   if (alias !== null) {
-    return { [DEFAULT_MODEL_LABEL_LANGUAGE]: alias };
+    return { [CmeSemanticModelNameLanguage]: alias };
   }
   return {
-    [DEFAULT_MODEL_LABEL_LANGUAGE]: defaultLabel(model.getId()),
+    [CmeSemanticModelNameLanguage]: defaultLabel(model.getId()),
   };
 }
 
