@@ -59,6 +59,8 @@ export interface EntityDetailProxy {
     | SemanticModelRelationshipUsage
     | SemanticModelClassProfile
     | SemanticModelRelationshipProfile
+    | SemanticModelClassProfile
+    | SemanticModelRelationshipProfile
   )[];
   specializationOfAsGeneralizations: SemanticModelGeneralization[];
   generalizationOf: (
@@ -66,6 +68,8 @@ export interface EntityDetailProxy {
     | SemanticModelRelationship
     | SemanticModelClassUsage
     | SemanticModelRelationshipUsage
+    | SemanticModelClassProfile
+    | SemanticModelRelationshipProfile
   )[];
   profileOf: (
     | SemanticModelClass
@@ -219,13 +223,17 @@ export const createEntityProxy = (
       .map((generalization) =>
         classes.find((cl) => cl.id === generalization.parent) ??
         relationships.find((re) => re.id === generalization.parent) ??
-        usages.find((p) => p.id === generalization.parent)
+        usages.find((p) => p.id === generalization.parent) ??
+        classProfiles.find(item => item.id === generalization.parent) ??
+        relationshipProfiles.find(item => item.id === generalization.parent)
       ).filter(
         (generalization): generalization is
           | SemanticModelClass
           | SemanticModelClassUsage
           | SemanticModelRelationship
-          | SemanticModelRelationshipUsage => generalization !== undefined
+          | SemanticModelRelationshipUsage
+          | SemanticModelClassProfile
+          | SemanticModelRelationshipProfile => generalization !== undefined
       );
 
   const getSpecializationOfAsGeneralizations =
@@ -237,13 +245,17 @@ export const createEntityProxy = (
       .map((generalization) =>
         classes.find((cl) => cl.id === generalization.child) ??
         relationships.find((re) => re.id === generalization.child) ??
-        usages.find((p) => p.id === generalization.child)
+        usages.find((p) => p.id === generalization.child) ??
+        classProfiles.find(item => item.id === generalization.child) ??
+        relationshipProfiles.find(item => item.id === generalization.child)
       )
       .filter((generalization): generalization is
         | SemanticModelClass
         | SemanticModelClassUsage
         | SemanticModelRelationship
-        | SemanticModelRelationshipUsage => generalization !== undefined
+        | SemanticModelRelationshipUsage
+        | SemanticModelClassProfile
+        | SemanticModelRelationshipProfile => generalization !== undefined
       );
 
   const isProfileOf = () => {
