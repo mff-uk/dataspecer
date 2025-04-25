@@ -5,7 +5,7 @@ import { EditSemanticModelDialogState } from "./edit-semantic-model-dialog-state
 import { InputText } from "../../components/input-text";
 import { useEditSemanticModelDialogController } from "./edit-semantic-model-dialog-controller";
 import { SelectColor } from "../../components/select-color";
-import { CmeSemanticModelType } from "@/dataspecer/cme-model";
+import { CmeSemanticModelType } from "../../../dataspecer/cme-model";
 
 //
 

@@ -78,6 +78,8 @@ import { changeVisualModelAction } from "./change-visual-model";
 import { QueryParamsContextType, useQueryParamsContext } from "@/context/query-params-context";
 import { openCreateVisualModelDialogAction } from "./open-create-new-visual-model-dialog";
 import { openEditSemanticModelDialogAction } from "./open-edit-semantic-model-dialog";
+import { ModelDsIdentifier } from "@/dataspecer/entity-model";
+import { openSearchExternalSemanticModelDialogAction } from "./open-search-external-semantic-model-dialog";
 
 const LOG = createLogger(import.meta.url);
 
@@ -339,6 +341,8 @@ export interface ActionsContextType extends DialogActions, VisualModelActions {
 
   highlightNodeInExplorationModeFromCatalog: (classIdentifier: string, modelOfClassWhichStartedHighlighting: string) => void;
 
+  openSearchExternalSemanticModelDialog: (identifier: ModelDsIdentifier) => void;
+
   /**
    * As this context requires two way communication it is created and shared via the actions.
    */
@@ -391,6 +395,7 @@ const noOperationActionsContext: ActionsContextType = {
   extendSelection: async () => ({ nodeSelection: [], edgeSelection: [] }),
   filterSelection: () => ({ nodeSelection: [], edgeSelection: [] }),
   highlightNodeInExplorationModeFromCatalog: noOperation,
+  openSearchExternalSemanticModelDialog: noOperation,
   diagram: null,
 };
 
@@ -502,6 +507,11 @@ function createActionsContext(
         cmeExecutor, options, dialogs, notifications, classes, graph,
         visualModel, diagram, position, identifier);
     });
+  };
+
+  const openSearchExternalSemanticModelDialog = (identifier: ModelDsIdentifier) => {
+    openSearchExternalSemanticModelDialogAction(
+      notifications, dialogs, graph, identifier);
   };
 
   const openCreateConnectionDialog = (
@@ -964,8 +974,6 @@ function createActionsContext(
     });
   }
 
-  // Prepare and set diagram callbacks.
-
   const callbacks: DiagramCallbacks = {
     onShowNodeDetail: (node) => openDetailDialog(node.externalIdentifier),
 
@@ -1180,6 +1188,7 @@ function createActionsContext(
     openCreateAttributeDialogForClass,
     openEditNodeAttributesDialog,
     openCreateProfileDialog,
+    openSearchExternalSemanticModelDialog,
     //
     addSemanticEntitiesToVisualModel,
     addClassToVisualModel,
