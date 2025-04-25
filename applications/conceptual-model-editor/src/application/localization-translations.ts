@@ -117,6 +117,63 @@ const editSemanticModelDialog = prefix(
   },
 );
 
+const searchExternalSemanticModelDialog = prefix(
+  "search-external-semantic-model-dialog.", {
+    "title": "Add entities from an external semantic model",
+    "search": "Search",
+    "ok": "✅ Add entities changes",
+    "cancel": "❌ Cancel",
+  },
+);
+
+const catalog = prefix(
+  "catalog.", {
+    "model.show": "Show all entities in the diagram.",
+    "model.hide": "Hide all entities in the diagram.",
+    "model.edit": "Edit semantic model.",
+    "model.delete": "Delete the semantic model.",
+    "model.add": "Add a new semantic model.",
+    "model.toggle": "Toggle diagram visibility.",
+    "model.extend-external": "Search and add entities from semantic model.",
+    "model.create-class": "Create a new class.",
+    "model.create-association": "Create a new association.",
+    "model.create-attribute": "Create a new attribute.",
+    "class.expand": "Load class's surrounding.",
+    "class.focus": "Focus in the diagram.",
+    "class.delete": "Delete the class.",
+    "class.edit": "Edit the class.",
+    "class.detail": "Show class detail.",
+    "class.toggle": "Toggle visibility in the diagram.",
+    "class.profile": "Create a new profile.",
+    "class.neighborhood": "Add related entities to the diagram.",
+    "class-profile.focus": "Focus in the diagram.",
+    "class-profile.delete": "Delete the class profile.",
+    "class-profile.edit": "Edit the class profile.",
+    "class-profile.detail": "Show profile class detail.",
+    "class-profile.toggle": "Toggle visibility in the diagram.",
+    "class-profile.profile": "Create a new profile.",
+    "class-profile.neighborhood": "Add related entities to the diagram.",
+    "relationship.focus": "Focus in the diagram.",
+    "relationship.delete": "Delete the relationship.",
+    "relationship.edit": "Edit the relationship.",
+    "relationship.detail": "Show relationship detail.",
+    "relationship.toggle": "Toggle visibility in the diagram.",
+    "relationship.profile": "Create a new profile.",
+    "relationship.neighborhood": "Add domain and range to the diagram.",
+    "relationship-profile.focus": "Focus in the diagram.",
+    "relationship-profile.delete": "Delete the relationship profile.",
+    "relationship-profile.edit": "Edit the relationship profile.",
+    "relationship-profile.detail": "Show relationship profile detail.",
+    "relationship-profile.toggle": "Toggle visibility in the diagram.",
+    "relationship-profile.profile": "Create a new profile.",
+    "relationship-profile.neighborhood": "Add domain and range to the diagram.",
+    "generalization.delete": "Delete the generalization.",
+    "generalization.detail": "Show generalization detail.",
+    "generalization.toggle": "Toggle visibility in the diagram.",
+    "clear": "Clear",
+    "search-title": "Search by label",
+  });
+
 const dataspecer = prefix(
   "dataspecer", {
     "package.state-is-null": "There is no dataspecer state information, please reload the application",
@@ -139,6 +196,8 @@ export const translations: Record<string, string | Function> = {
   ...dataspecer,
   ...dialogVisualNode,
   ...editSemanticModelDialog,
+  ...searchExternalSemanticModelDialog,
+  ...catalog,
   //
   "notification.icon-error": "Error icon",
   "notification.icon-success": "Check icon",
@@ -311,9 +370,9 @@ export const translations: Record<string, string | Function> = {
   "duplicate-node-button": "Create new copy of the node on canvas",
   //
   "add-neighborhood-button.title": "Add entity's neighborhood. That is: \n" +
-                                    "For attributes the domain class \n" +
-                                    "For relationships the relationship together with ends (if not present) \n" +
-                                    "For classes and class profiles all the connected classes together with edges",
+    "For attributes the domain class \n" +
+    "For relationships the relationship together with ends (if not present) \n" +
+    "For classes and class profiles all the connected classes together with edges",
   //
   "node-anchor-button": "(Un)anchor node for layouting using force-directed layouting algorithm",
   "node-connection-handle": "Drag from this button to create connection (Dragging to canvas shows menu)",
