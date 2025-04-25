@@ -1,3 +1,4 @@
+import { XY } from "@dataspecer/layout";
 import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { ClassesContextType } from "../context/classes-context";
 import { ModelGraphContextType } from "../context/model-context";
@@ -15,8 +16,6 @@ import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
 import { findPositionForNewNodesUsingLayouting, findPositionForNewNodeUsingLayouting } from "./layout-visual-model";
-import { XY } from "@dataspecer/layout";
-import { addEntitiesFromSemanticModelToVisualModelAction } from "./add-entities-from-semantic-model-to-visual-model";
 import { getVisualNodeContentBasedOnExistingEntities } from "./add-semantic-attribute-to-visual-model";
 
 export const addEntityNeighborhoodToVisualModelAction = async (
