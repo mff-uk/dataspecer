@@ -15,12 +15,14 @@ import {
   isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import {
+  VisualDiagramNode,
   type VisualEntity,
   VisualGroup,
   type VisualModel,
   type VisualNode,
   type VisualProfileRelationship,
   type VisualRelationship,
+  isVisualDiagramNode,
   isVisualGroup,
   isVisualNode,
   isVisualProfileRelationship,
@@ -35,7 +37,7 @@ import { type UseModelGraphContextType, useModelGraphContext } from "./context/m
 import { type UseClassesContextType, useClassesContext } from "./context/classes-context";
 import { cardinalityToHumanLabel, getDomainAndRange } from "./util/relationship-utils";
 import { useActions } from "./action/actions-react-binding";
-import { Diagram, type Edge, EdgeType, Group, type NodeItem, type Node, NodeType, NODE_ITEM_TYPE, NodeRelationshipItem } from "./diagram/";
+import { Diagram, type Edge, EdgeType, Group, type NodeItem, type Node, NodeType, NODE_ITEM_TYPE, NodeRelationshipItem, VisualModelDiagramNode, DiagramNodeTypes } from "./diagram/";
 import { type UseDiagramType } from "./diagram/diagram-hook";
 import { configuration, createLogger } from "./application";
 import { getDescriptionLanguageString, getUsageNoteLanguageString } from "./util/name-utils";

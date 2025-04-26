@@ -266,7 +266,7 @@ interface VisualModelActions {
    * then the newly created A'' will have following edges A'' -> C, but also A'' -> B.
    * @param identifier is the identifier of the visual node
    */
-  createVisualNodeDuplicate: (identifier: string) => void;
+  createVisualEdgeEndpointDuplicate: (identifier: string) => void;
 
   //
 
@@ -391,7 +391,7 @@ const noOperationActionsContext: ActionsContextType = {
   removeFromVisualModelByRepresented: noOperation,
   removeFromVisualModelByVisual: noOperation,
   removeAttributesFromVisualModel: noOperation,
-  createVisualNodeDuplicate: noOperation,
+  createVisualEdgeEndpointDuplicate: noOperation,
   centerViewportToVisualEntityByRepresented: noOperation,
   //
   openCreateNewVisualModelFromSelectionDialog: noOperation,
@@ -815,7 +815,7 @@ function createActionsContext(
     });
   };
 
-  const createVisualNodeDuplicate = (identifier: string): void => {
+  const createVisualEdgeEndpointDuplicate = (identifier: string): void => {
     withVisualModel(notifications, graph, (visualModel) => {
       createVisualEdgeEndpointDuplicateAction(notifications, diagram, visualModel, identifier);
     });
@@ -1007,7 +1007,7 @@ function createActionsContext(
 
     onCreateNodeProfile: (node) => openCreateProfileDialog(node.externalIdentifier),
 
-    onDuplicateNode: (node) => createVisualNodeDuplicate(node.identifier),
+    onDuplicateNode: (node) => createVisualEdgeEndpointDuplicate(node.identifier),
 
     onAddAllRelationships: (visualModelDiagramNode) => addAllRelationshipsForVisualDiagramNodeToVisualModel(visualModelDiagramNode),
 
@@ -1264,7 +1264,7 @@ function createActionsContext(
     removeAttributesFromVisualModel,
     //
     deleteFromSemanticModels,
-    createVisualNodeDuplicate,
+    createVisualEdgeEndpointDuplicate,
     centerViewportToVisualEntityByRepresented,
 
     openCreateNewVisualModelFromSelectionDialog,

@@ -43,8 +43,6 @@ test("Test dissolving group through visibility", () => {
   const {
     visualModel,
     visualNodeIdentifiers,
-    graph,
-    classesContext
   } = ActionsTestSuite.prepareModelsWithSemanticData(3);
 
   addGroupToVisualModelAction(
@@ -54,7 +52,7 @@ test("Test dissolving group through visibility", () => {
   expect(visualModel.getVisualEntities().size).toEqual(4);
   //
   removeFromVisualModelByRepresentedAction(
-    notificationMockup, graph, classesContext, visualModel, ["0", "1"]);
+    notificationMockup, visualModel, ["0", "1"]);
   expect(visualModel.getVisualEntities().size).toEqual(1);
 });
 
@@ -62,8 +60,6 @@ test("Test dissolving multi-group through visibility of one whole group", () => 
   const {
     visualModel,
     visualNodeIdentifiers,
-    graph,
-    classesContext
   } = ActionsTestSuite.prepareModelsWithSemanticData(4);
 
   const group1 = addGroupToVisualModelAction(
@@ -81,7 +77,7 @@ test("Test dissolving multi-group through visibility of one whole group", () => 
   expect(visualModel.getVisualEntities().size).toEqual(7);
   //
   removeFromVisualModelByRepresentedAction(
-    notificationMockup, graph, classesContext, visualModel, ["0", "1"]);
+    notificationMockup, visualModel, ["0", "1"]);
   expect(visualModel.getVisualEntities().size).toEqual(3);
 });
 
@@ -89,8 +85,6 @@ test("Test dissolving multi-group through visibility sequentially", () => {
   const {
     visualModel,
     visualNodeIdentifiers,
-    graph,
-    classesContext
   } = ActionsTestSuite.prepareModelsWithSemanticData(4);
 
   const group1 = addGroupToVisualModelAction(
@@ -108,11 +102,11 @@ test("Test dissolving multi-group through visibility sequentially", () => {
   expect(visualModel.getVisualEntities().size).toEqual(7);
   //
   removeFromVisualModelByRepresentedAction(
-    notificationMockup, graph, classesContext, visualModel, ["0"]);
+    notificationMockup, visualModel, ["0"]);
   expect(visualModel.getVisualEntities().size).toEqual(6);
   //
   removeFromVisualModelByRepresentedAction(
-    notificationMockup, graph, classesContext, visualModel, ["3"]);
+    notificationMockup, visualModel, ["3"]);
   expect(visualModel.getVisualEntities().size).toEqual(5);
   //
   removeTopLevelGroupFromVisualModelAction(notificationMockup, visualModel, group3);
@@ -123,8 +117,6 @@ test("Test dissolving multi-group through visibility sequentially again", () => 
   const {
     visualModel,
     visualNodeIdentifiers,
-    graph,
-    classesContext
   } = ActionsTestSuite.prepareModelsWithSemanticData(4);
 
   const group1 = addGroupToVisualModelAction(
@@ -142,11 +134,11 @@ test("Test dissolving multi-group through visibility sequentially again", () => 
   expect(visualModel.getVisualEntities().size).toEqual(7);
   //
   removeFromVisualModelByRepresentedAction(
-    notificationMockup, graph, classesContext, visualModel, ["0"]);
+    notificationMockup, visualModel, ["0"]);
   expect(visualModel.getVisualEntities().size).toEqual(6);
   //
   removeFromVisualModelByRepresentedAction(
-    notificationMockup, graph, classesContext, visualModel, ["3"]);
+    notificationMockup, visualModel, ["3"]);
   expect(visualModel.getVisualEntities().size).toEqual(5);
   //
   removeTopLevelGroupFromVisualModelAction(notificationMockup, visualModel, group1);
@@ -157,8 +149,6 @@ test("Test dissolving everything through visiblity", () => {
   const {
     visualModel,
     visualNodeIdentifiers,
-    graph,
-    classesContext
   } = ActionsTestSuite.prepareModelsWithSemanticData(4);
 
   const group1 = addGroupToVisualModelAction(
@@ -176,7 +166,7 @@ test("Test dissolving everything through visiblity", () => {
   expect(visualModel.getVisualEntities().size).toEqual(7);
   //
   removeFromVisualModelByRepresentedAction(
-    notificationMockup, graph, classesContext, visualModel, ["0", "1", "2", "3"]);
+    notificationMockup, visualModel, ["0", "1", "2", "3"]);
   expect(visualModel.getVisualEntities().size).toEqual(0);
 });
 
