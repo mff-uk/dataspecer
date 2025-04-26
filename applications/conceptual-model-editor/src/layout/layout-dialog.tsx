@@ -148,9 +148,9 @@ export const useConfigDialog = () => {
   }) => {
     return <div>
       <input type="checkbox"
-              id="checkbox-run-overlap-removal-after"
-              name="checkbox-run-overlap-removal-after"
-              checked={config?.[props.stateField]?.[config.chosenMainAlgorithm]?.run_node_overlap_removal_after}
+        id="checkbox-run-overlap-removal-after"
+        name="checkbox-run-overlap-removal-after"
+        checked={config?.[props.stateField]?.[config.chosenMainAlgorithm]?.run_node_overlap_removal_after}
         onChange={e => {
           setConfig({
             ...config,
@@ -250,7 +250,6 @@ export const useConfigDialog = () => {
     {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
                     (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
   }
-
 
   const StressWithClustersConfig = (props: {stateField: MainType}) =>
     <div>
@@ -464,26 +463,26 @@ export const useConfigDialog = () => {
     advancedSettingsForAlgorithms.current = config.main[config.chosenMainAlgorithm].advanced_settings;
 
     switch(config.chosenMainAlgorithm) {
-      case "elk_stress_advanced_using_clusters":
-        return <StressWithClustersConfig stateField="main"></StressWithClustersConfig>;
-      case "elk_stress":
-        return <StressConfig stateField="main"></StressConfig>;
-      case "elk_layered":
-        return <LayeredConfig stateField="main"></LayeredConfig>;
-      case "elk_force":
-        return <ForceConfig stateField="main"></ForceConfig>;
-      case "elk_radial":
-        return <RadialConfig stateField="main"></RadialConfig>;
-      case "elk_overlapRemoval":
-        return <OverlapRemovalConfig stateField="main"></OverlapRemovalConfig>;
-      case "automatic":
-        return <AutomaticConfig stateField="main"></AutomaticConfig>;
-      case "random":
-        return <RunOverlapRemovalAfterCombobox stateField="main"></RunOverlapRemovalAfterCombobox>
-      case "elk_stress_profile":
-        return <StressProfileConfig stateField="main"></StressProfileConfig>
-      default:
-        return null;
+    case "elk_stress_advanced_using_clusters":
+      return <StressWithClustersConfig stateField="main"></StressWithClustersConfig>;
+    case "elk_stress":
+      return <StressConfig stateField="main"></StressConfig>;
+    case "elk_layered":
+      return <LayeredConfig stateField="main"></LayeredConfig>;
+    case "elk_force":
+      return <ForceConfig stateField="main"></ForceConfig>;
+    case "elk_radial":
+      return <RadialConfig stateField="main"></RadialConfig>;
+    case "elk_overlapRemoval":
+      return <OverlapRemovalConfig stateField="main"></OverlapRemovalConfig>;
+    case "automatic":
+      return <AutomaticConfig stateField="main"></AutomaticConfig>;
+    case "random":
+      return <RunOverlapRemovalAfterCombobox stateField="main"></RunOverlapRemovalAfterCombobox>
+    case "elk_stress_profile":
+      return <StressProfileConfig stateField="main"></StressProfileConfig>
+    default:
+      return null;
     }
   };
 

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { type DialogProps } from "../dialog-api";
+import { type DialogProps } from "../../dialog-api";
 
 const PREDEFINED_MODELS: PredefinedModel[] = [{
   "identifier": "legacy_adms",

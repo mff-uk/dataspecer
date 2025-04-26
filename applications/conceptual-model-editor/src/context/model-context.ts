@@ -140,12 +140,13 @@ export const useModelGraphContext = (): UseModelGraphContextType => {
       console.error(`No model with id: ${modelId} found.`);
       return;
     }
+    // Start be removing all from the visual models.
+    visualModels.forEach(visualModel => deleteEntityModel(
+      visualModel, model.getId()));
+    // Now we can remove this from the package.
     aggregator.deleteModel(model);
     models.delete(modelId);
     setModels(new Map(models));
-    // We need to also remove representation from all visual models.
-    visualModels.forEach(visualModel => deleteEntityModel(
-      visualModel, model.getId()));
   };
 
   const removeVisualModel = (modelId: string) => {

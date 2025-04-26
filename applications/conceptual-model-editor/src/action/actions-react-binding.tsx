@@ -35,12 +35,11 @@ import { removeFromSemanticModelsAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
 import { openCreateAssociationDialogAction } from "./open-create-association-dialog";
 import { addEntitiesFromSemanticModelToVisualModelAction } from "./add-entities-from-semantic-model-to-visual-model";
-import { createNewVisualModelFromSelectionAction } from "./create-new-visual-model-from-selection";
-import { addClassNeighborhoodToVisualModelAction } from "./add-class-neighborhood-to-visual-model";
+import { addEntityNeighborhoodToVisualModelAction } from "./add-entity-neighborhood-to-visual-model";
 import { createDefaultProfilesAction } from "./create-default-profiles";
 import { openCreateClassDialogWithModelDerivedFromClassAction } from "./open-create-class-dialog-with-derived-model";
 import { EntityToAddToVisualModel, addSemanticEntitiesToVisualModelAction } from "./add-semantic-entities-to-visual-model";
-import { UserGivenAlgorithmConfigurations, getDefaultUserGivenAlgorithmConfigurationsFull, LayoutedVisualEntities } from "@dataspecer/layout";
+import { UserGivenAlgorithmConfigurations, LayoutedVisualEntities } from "@dataspecer/layout";
 import { layoutActiveVisualModelAction } from "./layout-visual-model";
 import { toggleAnchorAction } from "./toggle-anchor";
 import { SelectionFilterState } from "../dialog/selection/filter-selection-dialog-controller";
@@ -78,6 +77,9 @@ import { openEditAssociationProfileDialogAction } from "./open-edit-association-
 import { changeVisualModelAction } from "./change-visual-model";
 import { QueryParamsContextType, useQueryParamsContext } from "@/context/query-params-context";
 import { openCreateVisualModelDialogAction } from "./open-create-new-visual-model-dialog";
+import { openEditSemanticModelDialogAction } from "./open-edit-semantic-model-dialog";
+import { ModelDsIdentifier } from "@/dataspecer/entity-model";
+import { openSearchExternalSemanticModelDialogAction } from "./open-search-external-semantic-model-dialog";
 
 const LOG = createLogger(import.meta.url);
 
@@ -94,7 +96,12 @@ interface DialogActions {
   /**
    * Opens dialog, which purpose is to alow user adit a semantic model.
    */
-  openEditModelDialog: (identifier: string) => void;
+  openEditSemanticModelDialog: (identifier: string) => void;
+
+  /**
+   * Remove semantic model and all it's entities.
+   */
+  deleteSemanticModel: (identifier: string) => void;
 
   /**
    * Opens dialog, which purpose is to show the detail information of entity identified by {@link identifier}.
@@ -279,11 +286,13 @@ interface VisualModelActions {
   removeEntitiesInSemanticModelFromVisualModel: (semanticModel: EntityModel | string) => void;
 
   /**
-   * Puts class' neighborhood to visual model.
-   * That is classes connected to semantic class or class profile identified by {@link identifier}.
-   * @param identifier is the identifier of the semantic class or class profile, whose neighborhood we will add to visual model.
+   * Puts entities' neighborhood to visual model.
+   * For classes it is classes connected to semantic class or class profile identified by {@link identifier}.
+   * For relationships that is both ends and the relationship.
+   * For attributes it adds the domain class to canvas.
+   * @param identifier is the identifier of the semantic entity, whose neighborhood we will add to visual model.
    */
-  addClassNeighborhoodToVisualModel: (identifier: string) => Promise<void>;
+  addEntityNeighborhoodToVisualModel: (identifier: string) => Promise<void>;
 
 }
 
@@ -332,6 +341,8 @@ export interface ActionsContextType extends DialogActions, VisualModelActions {
 
   highlightNodeInExplorationModeFromCatalog: (classIdentifier: string, modelOfClassWhichStartedHighlighting: string) => void;
 
+  openSearchExternalSemanticModelDialog: (identifier: ModelDsIdentifier) => void;
+
   /**
    * As this context requires two way communication it is created and shared via the actions.
    */
@@ -339,9 +350,10 @@ export interface ActionsContextType extends DialogActions, VisualModelActions {
 
 }
 
-const noOperationActionsContext = {
+const noOperationActionsContext: ActionsContextType = {
   openCreateModelDialog: noOperation,
-  openEditModelDialog: noOperation,
+  openEditSemanticModelDialog: noOperation,
+  deleteSemanticModel: noOperation,
   openDetailDialog: noOperation,
   openModifyDialog: noOperation,
   openCreateClassDialog: noOperation,
@@ -374,7 +386,7 @@ const noOperationActionsContext = {
   //
   addEntitiesFromSemanticModelToVisualModel: async () => {},
   removeEntitiesInSemanticModelFromVisualModel: noOperation,
-  addClassNeighborhoodToVisualModel: async () => {},
+  addEntityNeighborhoodToVisualModel: async () => {},
   layoutActiveVisualModel: noOperationAsync,
   //
   openExtendSelectionDialog: noOperation,
@@ -383,6 +395,7 @@ const noOperationActionsContext = {
   extendSelection: async () => ({ nodeSelection: [], edgeSelection: [] }),
   filterSelection: () => ({ nodeSelection: [], edgeSelection: [] }),
   highlightNodeInExplorationModeFromCatalog: noOperation,
+  openSearchExternalSemanticModelDialog: noOperation,
   diagram: null,
 };
 
@@ -496,6 +509,11 @@ function createActionsContext(
     });
   };
 
+  const openSearchExternalSemanticModelDialog = (identifier: ModelDsIdentifier) => {
+    openSearchExternalSemanticModelDialogAction(
+      notifications, dialogs, graph, identifier);
+  };
+
   const openCreateConnectionDialog = (
     semanticSource: string,
     semanticTarget: string,
@@ -600,8 +618,15 @@ function createActionsContext(
     openCreateVocabularyAction(dialogs, graph);
   };
 
-  const openEditModelDialog = (identifier: string ) => {
+  const openEditSemanticModelDialog = (identifier: string ) => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      openEditSemanticModelDialogAction(
+        cmeExecutor, options, dialogs, graph, visualModel, identifier);
+    });
+  };
 
+  const deleteSemanticModel = (identifier: string ) => {
+    useGraph.removeModel(identifier);
   };
 
   const openDetailDialog = (identifier: string) => {
@@ -843,10 +868,11 @@ function createActionsContext(
     });
   };
 
-  const addClassNeighborhoodToVisualModel = async (identifier: string) => {
+  const addEntityNeighborhoodToVisualModel = async (identifier: string) => {
     let promise: Promise<void> = Promise.resolve();
     withVisualModel(notifications, graph, (visualModel) => {
-      promise = addClassNeighborhoodToVisualModelAction(notifications, classes, graph, diagram, visualModel, identifier);
+      promise = addEntityNeighborhoodToVisualModelAction(
+        notifications, classes, graph, diagram, visualModel, identifier);
     });
 
     return promise;
@@ -947,8 +973,6 @@ function createActionsContext(
       diagram.actions().highlightNodesInExplorationModeFromCatalog(nodeIdentifiers, modelOfClassWhichStartedHighlighting);
     });
   }
-
-  // Prepare and set diagram callbacks.
 
   const callbacks: DiagramCallbacks = {
     onShowNodeDetail: (node) => openDetailDialog(node.externalIdentifier),
@@ -1061,7 +1085,7 @@ function createActionsContext(
     onCanvasOpenCreateClassDialogWithAssociation: (nodeIdentifier, positionToPlaceClassOn, isCreatedClassTarget) => {
       withVisualModel(notifications, graph, (visualModel) => {
         openCreateClassDialogAndCreateAssociationAction(
-          cmeExecutor,notifications, dialogs, classes, options, graph,
+          cmeExecutor, notifications, dialogs, classes, options, graph,
           diagram, visualModel, nodeIdentifier, isCreatedClassTarget,
           positionToPlaceClassOn);
       });
@@ -1154,7 +1178,8 @@ function createActionsContext(
 
   return {
     openCreateModelDialog,
-    openEditModelDialog,
+    openEditSemanticModelDialog,
+    deleteSemanticModel,
     openDetailDialog,
     openModifyDialog,
     openCreateClassDialog,
@@ -1163,6 +1188,7 @@ function createActionsContext(
     openCreateAttributeDialogForClass,
     openEditNodeAttributesDialog,
     openCreateProfileDialog,
+    openSearchExternalSemanticModelDialog,
     //
     addSemanticEntitiesToVisualModel,
     addClassToVisualModel,
@@ -1186,7 +1212,7 @@ function createActionsContext(
     openCreateNewVisualModelDialog,
     addEntitiesFromSemanticModelToVisualModel,
     removeEntitiesInSemanticModelFromVisualModel,
-    addClassNeighborhoodToVisualModel,
+    addEntityNeighborhoodToVisualModel,
 
     layoutActiveVisualModel,
     //
