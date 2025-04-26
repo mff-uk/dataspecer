@@ -34,6 +34,9 @@ export function SelectionMenu(props: NodeProps<Node<DiagramNodeTypes>>) {
       <button onClick={onLayoutSelection} title={t("selection-layout-button")} disabled>🔀</button>
       &nbsp;
     </NodeToolbar>
+    <NodeToolbar isVisible={shouldShowMenu} position={Position.Left} className="flex gap-2 entity-node-menu" >
+      <button onClick={onCreateVisualDiagramNode} title={t("visual-diagram-node-create-from-selection-button")}>📦</button>
+    </NodeToolbar>
     <NodeToolbar isVisible={shouldShowMenu} position={Position.Right} className="flex gap-2 entity-node-menu" >
       <button onClick={onCreateGroup} title={t("selection-group-button")}>⛓️</button>
     </NodeToolbar>

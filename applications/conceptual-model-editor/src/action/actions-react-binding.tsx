@@ -81,6 +81,12 @@ import { openCreateVisualModelDialogAction } from "./open-create-new-visual-mode
 import { openEditSemanticModelDialogAction } from "./open-edit-semantic-model-dialog";
 import { ModelDsIdentifier } from "@/dataspecer/entity-model";
 import { openSearchExternalSemanticModelDialogAction } from "./open-search-external-semantic-model-dialog";
+import { openVisualDiagramNodeInfoDialogAction } from "./open-visual-diagram-node-info-dialog";
+import { openEditVisualDiagramNodeDialogAction } from "./open-edit-visual-diagram-node-dialog";
+import { putVisualDiagramNodeContentToVisualModelAction } from "./put-visual-diagram-node-content-to-visual-model";
+import { openCreateVisualDiagramNodeDialogAction } from "./open-create-visual-diagram-node-dialog";
+import { addAllRelationshipsForVisualDiagramNodeToVisualModelAction } from "./add-all-relationships";
+import { addVisualDiagramNodeForExistingModelToVisualModelAction } from "./create-visual-diagram-node-for-existing-model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -761,14 +767,20 @@ function createActionsContext(
     });
   };
 
-  const addVisualDiagramNodeForExistingModelToVisualModel = (_visualModelToRepresent: string): void => {
-    // TODO RadStr: Empty mock-up for now
+  const addVisualDiagramNodeForExistingModelToVisualModel = (visualModelToRepresent: string): void => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      addVisualDiagramNodeForExistingModelToVisualModelAction(
+        notifications, graph, diagram, visualModel, {}, {}, visualModelToRepresent);
+    });
   };
 
   const addAllRelationshipsForVisualDiagramNodeToVisualModel = (
-    _visualModelDiagramNode: VisualModelDiagramNode
+    visualModelDiagramNode: VisualModelDiagramNode
   ): void => {
-    // TODO RadStr: Empty mock-up for now
+    withVisualModel(notifications, graph, (visualModel) => {
+      addAllRelationshipsForVisualDiagramNodeToVisualModelAction(
+        notifications, classes, graph, visualModel, visualModelDiagramNode);
+    });
   };
 
   const shiftAttributeUp = (attribute: string, domainNode: string | null): void => {
@@ -793,7 +805,7 @@ function createActionsContext(
 
   const removeFromVisualModelByRepresented = (identifiers: string[]): void => {
     withVisualModel(notifications, graph, (visualModel) => {
-      removeFromVisualModelByRepresentedAction(notifications, visualModel, identifiers);
+      removeFromVisualModelByRepresentedAction(notifications, graph, classes, visualModel, identifiers);
     });
   };
 
@@ -835,7 +847,7 @@ function createActionsContext(
       const attributesToBeDeleted = entityToDeleteWithAttributeData.filter(entity => entity.isAttributeOrAttributeProfile);
       const notAttributesToBeDeleted = entityToDeleteWithAttributeData.filter(entity => !entity.isAttributeOrAttributeProfile);
       removeFromVisualModelByRepresentedAction(
-        notifications, visualModel,
+        notifications, graph, classes, visualModel,
         notAttributesToBeDeleted.map(entitiesToDelete => entitiesToDelete.identifier));
       removeAttributesFromVisualModelAction(
         notifications, classes, visualModel,
@@ -1040,8 +1052,8 @@ function createActionsContext(
         // Do nothing
       }
       else {
-      openCreateConnectionDialog(
-        source.externalIdentifier, target.externalIdentifier, source.identifier, target.identifier);
+        openCreateConnectionDialog(
+          source.externalIdentifier, target.externalIdentifier, source.identifier, target.identifier);
       }
     },
 
@@ -1095,27 +1107,55 @@ function createActionsContext(
     },
 
     onCreateVisualModelDiagramNodeFromSelection: () => {
-      // TODO RadStr: Empty mock-up for now
+      withVisualModel(notifications, graph, (visualModel) => {
+        const { nodeSelection, edgeSelection } = getSelections(diagram, false, true);
+        openCreateVisualDiagramNodeDialogAction(
+          notifications, options, dialogs, graph, useGraph, diagram, visualModel, nodeSelection, edgeSelection);
+      });
     },
 
-    onDissolveVisualModelDiagramNode: (_visualModelDiagramNode: VisualModelDiagramNode) => {
-      // TODO RadStr: Empty mock-up for now
+    onDissolveVisualModelDiagramNode: (visualModelDiagramNode: VisualModelDiagramNode) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        putVisualDiagramNodeContentToVisualModelAction(notifications, classes, graph, diagram, visualModel, visualModelDiagramNode);
+        removeFromVisualModelByVisualAction(notifications, visualModel, [visualModelDiagramNode.identifier]);
+      });
     },
 
-    onMoveToVisualModelRepresentedByVisualModelDiagramNode: (_visualModelDiagramNodeIdentifier: string) => {
-      // TODO RadStr: Empty mock-up for now
+    onMoveToVisualModelRepresentedByVisualModelDiagramNode: (visualModelDiagramNodeIdentifier: string) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        const visualDiagramNode = visualModel.getVisualEntity(visualModelDiagramNodeIdentifier);
+        if(visualDiagramNode === null) {
+          notifications.error("Given diagram node is not part of visual model");
+          return;
+        }
+
+        if(!isVisualDiagramNode(visualDiagramNode)) {
+          notifications.error("Given diagram node is not of type diagram node");
+          return;
+        }
+
+        changeVisualModelAction(graph, queryParamsContext, visualDiagramNode.representedVisualModel);
+      });
     },
 
-    onEditVisualModelDiagramNode: (_visualModelDiagramNode: VisualModelDiagramNode) => {
-      // TODO RadStr: Empty mock-up for now
+    onEditVisualModelDiagramNode: (visualModelDiagramNode: VisualModelDiagramNode) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        openEditVisualDiagramNodeDialogAction(
+          notifications, options, dialogs, graph, visualModel, visualModelDiagramNode);
+      });
     },
 
-    onShowInfoForVisualModelDiagramNode: (_visualModelDiagramNode: VisualModelDiagramNode) => {
-      // TODO RadStr: Empty mock-up for now
+    onShowInfoForVisualModelDiagramNode: (visualModelDiagramNode: VisualModelDiagramNode) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        openVisualDiagramNodeInfoDialogAction(
+          notifications, options, dialogs, graph, visualModel, visualModelDiagramNode);
+      });
     },
 
-    onHideVisualModelDiagramNode: (_visualModelDiagramNode: VisualModelDiagramNode) => {
-      // TODO RadStr: Empty mock-up for now
+    onHideVisualModelDiagramNode: (visualModelDiagramNode: VisualModelDiagramNode) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        removeFromVisualModelByVisualAction(notifications, visualModel, [visualModelDiagramNode.identifier]);
+      });
     },
 
     onShowExpandSelection: () => {
