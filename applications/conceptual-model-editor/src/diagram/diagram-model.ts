@@ -95,11 +95,6 @@ export type VisualModelDiagramNode = {
   label: string;
 
   /**
-   * Human readable description.
-   */
-  description: string | null;
-
-  /**
    * The alias of the represented visual model
    */
   representedModelAlias: string;

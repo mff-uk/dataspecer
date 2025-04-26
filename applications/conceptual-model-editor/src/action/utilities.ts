@@ -113,6 +113,7 @@ export function setSelectionsInDiagram(selectionsToSetWith: Selections, diagram:
 
 /**
  * @returns Current selection in diagram, which has data formatted based on function arguments.
+ * The nodes representing visual models have visual identifier of the represented model as an external identifier.
  */
 export function getSelections(
   diagram: UseDiagramType,
@@ -141,11 +142,14 @@ export function getSelections(
 
 function getMapFunctionToExtractIdentifier(shouldGetVisualIdentifiers: boolean) {
   return shouldGetVisualIdentifiers ?
-    ((entity: Node | Edge) => entity.identifier) :
-    ((entity: Node | Edge) => entity.externalIdentifier);
+    ((entity: DiagramNodeTypes | Edge) => entity.identifier) :
+    ((entity: DiagramNodeTypes | Edge) => entity.externalIdentifier);
 }
 
-export function extractIdentifiers(arrayToExtractFrom: Node[] | Edge[], shouldGetVisualIdentifiers: boolean) {
+export function extractIdentifiers(
+  arrayToExtractFrom: DiagramNodeTypes[] | Edge[],
+  shouldGetVisualIdentifiers: boolean
+) {
   const identifierMap = getMapFunctionToExtractIdentifier(shouldGetVisualIdentifiers);
   return arrayToExtractFrom.map(identifierMap);
 }
@@ -270,7 +274,7 @@ export function findTopLevelGroup<T>(
 
 /**
  * Finds the top level group for given {@link identifier}, which represents any kind of node
- * (node, group, super(diagram) node). We are looking for top level group in the given {@link visualModel}
+ * (node, group, visual diagram node). We are looking for top level group in the given {@link visualModel}
  * @returns The identifier of the top level group or null, if the input node identified by {@link identifier} isn't part of any group.
  */
 export function findTopLevelGroupInVisualModel(
@@ -328,4 +332,17 @@ export function getRemovedAndAdded<T>(previousValues: T[], nextValues: T[]) {
     removed,
     added
   };
+}
+
+/**
+ * Type representing visual entities, which can be visual end of visual edge.
+ */
+export type VisualEdgeEndPoint = VisualDiagramNode | VisualNode;
+
+/**
+ * @returns True if the given {@link what} is visual entity, which can be visual end of edge.
+ * Currently that is either {@link VisualNode} or node representing diagram ({@link VisualDiagramNode}).
+ */
+export function isVisualEdgeEnd(what: VisualEntity): what is VisualEdgeEndPoint {
+    return isVisualNode(what) || isVisualDiagramNode(what);
 }

@@ -1,0 +1,71 @@
+
+.cube {
+	margin-left: 5px; /* For the alignment helper */
+	margin-right: 0px;
+	margin-top: 3px;
+  position: relative;
+	min-width: 100px;
+  height: 100px;
+  transform: rotateX(-5deg) rotateY(5deg) rotateZ(0.4deg); /* rotateZ to fix anti-aliasing */
+  transform-style: preserve-3d;
+}
+
+.face {
+  position: relative;
+	min-width: 100px;
+  height: 100px;
+  border: 2px solid black;
+  background-color: white;
+  color: white;
+}
+
+.front-face  { width: 100%; transform: translateZ(50px); }
+.back-face   { transform: translateZ(-50px); }
+.left-face   { border-bottom: 4px solid black; border-right: 18px solid black; width: 100px; transform: rotateY(90deg) translateZ(-50px) translateY(-200px)}
+.right-face  { transform: rotateY(90deg) translateZ(50px); }
+.top-face    { border-top: 42px solid black; border-right: 6px solid black; width: 100%; transform: rotateX(90deg) translateZ(150px); }
+.bottom-face { transform: rotateX(90deg) translateZ(-50px); }
+
+
+/* Otherwise the text is not crisp, because of rotations */
+.front-text {
+  position: absolute;
+  top: 10%;
+  left: 20px;
+  color: black;
+  z-index: 100;
+}
+
+.front-text-secondary {
+  position: absolute;
+  top: 30%;
+  left: 20px;
+  z-index: 101;
+}
+
+.handle {
+  position: initial;
+  background-color: transparent;
+}
+
+.handle {
+  /* We only need the position in the layout. */
+  visibility: hidden;
+}
+
+.visual-model-diagram-node .react-flow__handle {
+  /* We only need the position in the layout. */
+  visibility: hidden;
+}
+
+/* We need to move the source and target to the center of the node. */
+.visual-model-diagram-node .react-flow__handle.source,
+.visual-model-diagram-node .react-flow__handle.target {
+  top: 50%;
+  right: 50%;
+  transform: none;
+}
+
+.drag-handle {
+  pointer-events: all;
+}
