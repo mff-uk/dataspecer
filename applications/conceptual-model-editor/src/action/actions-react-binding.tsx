@@ -4,6 +4,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import {
   Waypoint,
   WritableVisualModel,
+  isVisualDiagramNode,
   isVisualProfileRelationship,
   isVisualRelationship,
   isWritableVisualModel
@@ -16,7 +17,7 @@ import { ClassesContext, type ClassesContextType, UseClassesContextType, useClas
 import { useNotificationServiceWriter } from "../notification";
 import { type UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { ModelGraphContext, useModelGraphContext, UseModelGraphContextType, type ModelGraphContextType } from "../context/model-context";
-import { type DiagramCallbacks, type Waypoint as DiagramWaypoint, Edge, Position, useDiagram } from "../diagram/";
+import { type DiagramCallbacks, type Waypoint as DiagramWaypoint, Edge, isVisualModelDiagramNode, Position, useDiagram, VisualModelDiagramNode } from "../diagram/";
 import type { UseDiagramType } from "../diagram/diagram-hook";
 import { type Options, useOptions } from "../configuration/options";
 import { openDetailDialogAction } from "./open-detail-dialog";
@@ -63,7 +64,7 @@ import { isInMemorySemanticModel } from "../utilities/model";
 import { isSemanticModelAttribute, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
 import { createCmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
-import { createVisualNodeDuplicateAction } from "./create-visual-node-duplicate";
+import { createVisualEdgeEndpointDuplicateAction } from "./create-visual-edge-endpoint-duplicate";
 import { removeFromVisualModelByVisualAction } from "./remove-from-visual-model-by-visual";
 import { removeFromVisualModelByRepresentedAction } from "./remove-from-visual-model-by-represented";
 import { centerViewportToVisualEntityByRepresentedAction } from "./center-viewport-to-visual-entity";
@@ -220,6 +221,17 @@ interface VisualModelActions {
    */
   addRelationProfileToVisualModel: (model: string, identifier: string) => void;
 
+  /**
+   * Adds new visual diagram node, which is refering to provided visual model.
+   */
+  addVisualDiagramNodeForExistingModelToVisualModel: (visualModelToRepresent: string) => void;
+
+  /**
+   * Adds all relationships which are not currently visible on canvas and are going to some of the class inside the
+   * represented visual model, which represents the {@link visualModelDiagramNode}.
+   */
+  addAllRelationshipsForVisualDiagramNodeToVisualModel: (visualModelDiagramNode: VisualModelDiagramNode) => void;
+
   // TODO RadStr: Document
   addAttributeToVisualModel: (attribute: string, domainClass: string | null) => void;
   shiftAttributeUp: (attribute: string, domainNode: string | null) => void;
@@ -370,6 +382,8 @@ const noOperationActionsContext: ActionsContextType = {
   addRelationToVisualModel: noOperation,
   addRelationProfileToVisualModel: noOperation,
   addAttributeToVisualModel: noOperation,
+  addVisualDiagramNodeForExistingModelToVisualModel: noOperation,
+  addAllRelationshipsForVisualDiagramNodeToVisualModel: noOperation,
   shiftAttributeUp: noOperation,
   shiftAttributeDown: noOperation,
   deleteFromSemanticModels: noOperation,
@@ -747,6 +761,16 @@ function createActionsContext(
     });
   };
 
+  const addVisualDiagramNodeForExistingModelToVisualModel = (_visualModelToRepresent: string): void => {
+    // TODO RadStr: Empty mock-up for now
+  };
+
+  const addAllRelationshipsForVisualDiagramNodeToVisualModel = (
+    _visualModelDiagramNode: VisualModelDiagramNode
+  ): void => {
+    // TODO RadStr: Empty mock-up for now
+  };
+
   const shiftAttributeUp = (attribute: string, domainNode: string | null): void => {
     if(domainNode === null) {
       notifications.error("Shifting attribute in domain node which is null");
@@ -793,7 +817,7 @@ function createActionsContext(
 
   const createVisualNodeDuplicate = (identifier: string): void => {
     withVisualModel(notifications, graph, (visualModel) => {
-      createVisualNodeDuplicateAction(notifications, diagram, visualModel, identifier);
+      createVisualEdgeEndpointDuplicateAction(notifications, diagram, visualModel, identifier);
     });
   };
 
@@ -985,6 +1009,8 @@ function createActionsContext(
 
     onDuplicateNode: (node) => createVisualNodeDuplicate(node.identifier),
 
+    onAddAllRelationships: (visualModelDiagramNode) => addAllRelationshipsForVisualDiagramNodeToVisualModel(visualModelDiagramNode),
+
     onHideNode: (node) => removeFromVisualModelByVisual([node.identifier]),
 
     onDeleteNode: (node) => deleteVisualElements([node.externalIdentifier]),
@@ -1010,12 +1036,20 @@ function createActionsContext(
     onCreateAttributeForNode: (node) => openCreateAttributeDialogForClass(node.externalIdentifier, null),
 
     onCreateConnectionToNode: (source, target) => {
+      if(isVisualModelDiagramNode(source)) {
+        // Do nothing
+      }
+      else {
       openCreateConnectionDialog(
         source.externalIdentifier, target.externalIdentifier, source.identifier, target.identifier);
+      }
     },
 
     onCreateConnectionToNothing: (source, canvasPosition) => {
       console.log("Application.onCreateConnectionToNothing", { source, canvasPosition });
+      if(isVisualModelDiagramNode(source)) {
+        return;
+      }
       diagram.actions().openDragEdgeToCanvasMenu(source, canvasPosition);
     },
 
@@ -1058,6 +1092,30 @@ function createActionsContext(
       withVisualModel(notifications, graph, (visualModel) => {
         removeTopLevelGroupFromVisualModelAction(notifications, visualModel, identifier);
       });
+    },
+
+    onCreateVisualModelDiagramNodeFromSelection: () => {
+      // TODO RadStr: Empty mock-up for now
+    },
+
+    onDissolveVisualModelDiagramNode: (_visualModelDiagramNode: VisualModelDiagramNode) => {
+      // TODO RadStr: Empty mock-up for now
+    },
+
+    onMoveToVisualModelRepresentedByVisualModelDiagramNode: (_visualModelDiagramNodeIdentifier: string) => {
+      // TODO RadStr: Empty mock-up for now
+    },
+
+    onEditVisualModelDiagramNode: (_visualModelDiagramNode: VisualModelDiagramNode) => {
+      // TODO RadStr: Empty mock-up for now
+    },
+
+    onShowInfoForVisualModelDiagramNode: (_visualModelDiagramNode: VisualModelDiagramNode) => {
+      // TODO RadStr: Empty mock-up for now
+    },
+
+    onHideVisualModelDiagramNode: (_visualModelDiagramNode: VisualModelDiagramNode) => {
+      // TODO RadStr: Empty mock-up for now
     },
 
     onShowExpandSelection: () => {
@@ -1197,6 +1255,8 @@ function createActionsContext(
     addRelationToVisualModel,
     addRelationProfileToVisualModel,
     addAttributeToVisualModel,
+    addVisualDiagramNodeForExistingModelToVisualModel,
+    addAllRelationshipsForVisualDiagramNodeToVisualModel,
     shiftAttributeUp,
     shiftAttributeDown,
     removeFromVisualModelByRepresented,
