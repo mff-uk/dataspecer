@@ -23,7 +23,8 @@ import { ClassesContext } from "./context/classes-context";
 import { ModelGraphContext } from "./context/model-context";
 import Header from "./header/header";
 import { useBackendConnection } from "./backend-connection";
-import { Catalog } from "./catalog/catalog";
+import { Catalog as CatalogV1 } from "./catalog/catalog";
+import { Catalog as CatalogV2 } from "./catalog-v2/catalog";
 import { Visualization } from "./visualization";
 import { bothEndsHaveAnIri } from "./util/relationship-utils";
 import { QueryParamsProvider, useQueryParamsContext } from "./context/query-params-context";
@@ -43,6 +44,23 @@ import { sanitizeVisualModel } from "./dataspecer/visual-model/visual-model-sani
 
 const _semanticModelAggregator = new SemanticModelAggregator();
 type SemanticModelAggregatorType = typeof _semanticModelAggregator;
+
+
+/** Select Catalog component. */
+const Catalog = (() => {
+  const params = new URLSearchParams(window.location.search);
+  const catalog = params.get("dev-catalog");
+  if (catalog === "v1" || catalog === "v2") {
+    updatePreferences({ catalogComponent: catalog });
+  }
+  console.log("Preferences", preferences());
+  switch (preferences().catalogComponent) {
+    case "v1":
+      return CatalogV1;
+    case "v2":
+      return CatalogV2
+  }
+})();
 
 const Page = () => {
   // URL query
@@ -159,7 +177,7 @@ const Page = () => {
                   <VerticalSplitter
                     className="h-full"
                     initialSize={preferences().pageSplitterValue}
-                    onSizeChange={value => updatePreferences({pageSplitterValue: value})}
+                    onSizeChange={value => updatePreferences({ pageSplitterValue: value })}
                   >
                     <Catalog />
                     <Visualization />
