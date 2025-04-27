@@ -1,16 +1,16 @@
 import { DragDropContext, Draggable, Droppable, DroppableStateSnapshot, DropResult } from "@hello-pangea/dnd";
-import { t } from "../../application";
-import { DialogProps, DialogWrapper } from "../dialog-api";
+import { t } from "../../../application";
+import { DialogProps, DialogWrapper } from "../../dialog-api";
 import { useEditVisualNodeController } from "./edit-visual-node-dialog-controller";
 import { ContentItem, EditVisualNodeDialogState } from "./edit-visual-node-dialog-state";
 import { useMemo } from "react";
 import {
   isUiRelationshipProfile,
   UiRelationshipProfile,
-} from "../../dataspecer/ui-model";
+} from "../../../dataspecer/ui-model";
 import {
   CmeRelationshipProfileMandatoryLevel,
-} from "../../dataspecer/cme-model";
+} from "../../../dataspecer/cme-model";
 
 const LEFT_ID = "left";
 

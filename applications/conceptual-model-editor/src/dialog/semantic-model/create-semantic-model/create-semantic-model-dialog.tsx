@@ -1,7 +1,7 @@
 
-import { Checkbox, Input, Label, Tab, Tabs } from "../components";
-import { type DialogProps, type DialogWrapper } from "../dialog-api";
-import { t } from "../../application";
+import { Checkbox, Input, Label, Tab, Tabs } from "../../components";
+import { type DialogProps, type DialogWrapper } from "../../dialog-api";
+import { t } from "../../../application";
 
 import {
   type CreateModelState,
@@ -9,7 +9,7 @@ import {
   TabType,
   createCreateModelState,
   useCreateModelController,
-} from "./create-model-dialog-controller";
+} from "./create-semantic-model-dialog-controller";
 
 export const createAddModelDialog = (
   onConfirm: (state: CreateModelState) => void | null,

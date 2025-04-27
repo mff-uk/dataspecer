@@ -1,17 +1,17 @@
-import { SemanticModelClass, SemanticModelRelationship, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { t } from "../../application";
-import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { SemanticModelClassUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useActions } from "../../action/actions-react-binding";
 import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { useRef } from "react";
 
 export const AddNeighborhoodButton = ({ entity }: {
   entity: SemanticModelClass | SemanticModelRelationship |
-    SemanticModelClassUsage | SemanticModelRelationshipUsage  |
+    SemanticModelClassUsage | SemanticModelRelationshipUsage |
     SemanticModelClassProfile | SemanticModelRelationshipProfile
 }) => {
 
-  const { addClassNeighborhoodToVisualModel } = useActions();
+  const { addEntityNeighborhoodToVisualModel } = useActions();
 
   const currentlyPerformingShowAction = useRef<boolean>(false);
   const onClick = async () => {
@@ -20,7 +20,7 @@ export const AddNeighborhoodButton = ({ entity }: {
     }
     currentlyPerformingShowAction.current = true;
     try {
-      await addClassNeighborhoodToVisualModel(entity.id);
+      await addEntityNeighborhoodToVisualModel(entity.id);
     }
     finally {
       // Just in case put into finally block
@@ -28,10 +28,6 @@ export const AddNeighborhoodButton = ({ entity }: {
     }
     return Promise.resolve();
   };
-
-  if(!isSemanticModelClass(entity) && !isSemanticModelClassUsage(entity)) {
-    return null;
-  }
 
   return (
     <button
