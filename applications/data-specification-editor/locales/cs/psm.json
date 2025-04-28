@@ -1,4 +1,5 @@
 {
+  "abstract class": "Abstraktní třída",
   "Add import": "Importovat obsah jiné třídy",
   "add interpreted class": "Přidat interpretovanou třídu",
   "add non-interpreted attribute": "Přidat neinterpretovaný atribut",
@@ -31,6 +32,8 @@
   },
   "includes content of": "vkládá obsah",
   "is dematerialized": "je dematerializována",
+  "make class abstract": "Udělat třídu abstraktní",
+  "make class non-abstract": "Zrušit abstraktnost třídy",
   "no description": "bez popisku",
   "no label": "bez titulku",
   "OR": "OR",

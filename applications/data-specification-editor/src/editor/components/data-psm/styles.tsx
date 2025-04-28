@@ -49,6 +49,9 @@ export const sxStyles = {
     class: {
         fontWeight: "bold",
     },
+    abstractClass: {
+        color: "#888",
+    },
     li: {
         listStyleType: "none",
     },

@@ -177,7 +177,8 @@ export class FederatedObservableStore implements FederatedCoreResourceWriter {
 
         // Drop immediately if there are no more subscribers
         if (entry.subscribers.length === 0) {
-            this.subscriptions.delete(iri);
+            // todo: keep old cached resource
+            //this.subscriptions.delete(iri);
         }
     }
 
