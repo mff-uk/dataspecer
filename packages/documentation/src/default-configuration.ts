@@ -33,13 +33,37 @@ export const defaultConfiguration: DocumentationConfiguration = {
       <section>
         <h2>{{#iflng "cs"}}Třídy{{lng}}Classes{{/iflng}}</h2>
 
+        {{#if locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#main]}}
+          <section>
+            <h3>{{#iflng "cs"}}Hlavní třídy{{lng}}Main classes{{/iflng}}</h3>
+
+            {{#each locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#main]}}
+              {{#ifEquals type.[0] "class-profile"}}
+                {{> class-profile}}
+              {{/ifEquals}}
+            {{/each}}
+          </section>
+        {{/if}}
+
+        {{#if locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#supportive]}}
+          <section>
+            <h3>{{#iflng "cs"}}Podpůrné třídy{{lng}}Supportive classes{{/iflng}}</h3>
+
+            {{#each locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#supportive]}}
+              {{#ifEquals type.[0] "class-profile"}}
+                {{> class-profile}}
+              {{/ifEquals}}
+            {{/each}}
+          </section>
+        {{/if}}
+
         {{#each locallyDefinedSemanticEntity}}
           {{#ifEquals type.[0] "class"}}
             {{> semantic-model-class}}
           {{/ifEquals}}
         {{/each}}
 
-        {{#each locallyDefinedSemanticEntity}}
+        {{#each locallyDefinedSemanticEntityByTags.default}}
           {{#ifEquals type.[0] "class-profile"}}
             {{> class-profile}}
           {{/ifEquals}}

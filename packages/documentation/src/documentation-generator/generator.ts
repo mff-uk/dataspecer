@@ -21,6 +21,18 @@ function normalizeLabel(label: string) {
   return label.replace(/ /g, "-");
 }
 
+function getLabel(entity: Entity, language: string): string {
+  let langString = {} as LanguageString;
+  if (isSemanticModelClass(entity) || isSemanticModelClassProfile(entity)) {
+    langString = entity.name;
+  }
+  if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipProfile(entity)) {
+    langString = entity.ends[1].name;
+  }
+  const {translation} = getTranslation(langString, [language]);
+  return translation;
+}
+
 function getLastChunkFromIri(iri: string | null | undefined): string | null {
   if (!iri) {
     return null;
@@ -114,9 +126,15 @@ export async function generateDocumentation(
     }
   }
 
+  const sortedSemanticModel = Object.values(semanticModel).sort((a, b) => {
+    const aLang = getLabel(a, configuration.language);
+    const bLang = getLabel(b, configuration.language);
+    return aLang.localeCompare(bLang);
+  });
+
   // Add all relationships to each entity
   // We know, that each relationship profile MUST have its concept present in the model so we do not need to enumerate rest
-  for (const entity of Object.values(semanticModel)) {
+  for (const entity of sortedSemanticModel) {
     if (isSemanticModelRelationshipProfile(entity)) {
       {
         const conceptId = entity.ends[0]?.concept;
@@ -141,12 +159,15 @@ export async function generateDocumentation(
     }
   }
 
+  const locallyDefinedSemanticEntityByTags = Object.groupBy(sortedSemanticModel, entity => (entity as SemanticModelClassProfile)?.tags?.[0] || "default");
+
   const handlebarsAdapter = createHandlebarsAdapter();
 
   const data = {
     ...(addData?.(handlebarsAdapter)),
     label: inputModel.label,
-    locallyDefinedSemanticEntity: semanticModel,
+    locallyDefinedSemanticEntity: sortedSemanticModel,
+    locallyDefinedSemanticEntityByTags,
     dsv: inputModel.dsv,
 
     // The goal of the given documentation
