@@ -1,48 +1,19 @@
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
-
-const CatalogItem = (props: { value: string; onValueSelected: () => void; withDeleteButton?: () => void }) => {
-  const { value, onValueSelected, withDeleteButton } = props;
-  return (
-    <li key={value} className="flex w-full flex-row justify-between">
-      <button id={`button-dropdown-catalog-${value}`} className="flex-grow" onClick={onValueSelected}>
-        {value}
-      </button>
-      {withDeleteButton && (
-        <button id={`button-dropdown-catalog-${value}-delete`} onClick={withDeleteButton}>
-                    🗑
-        </button>
-      )}
-    </li>
-  );
-};
-
-const key = (value: string | [string, string]) => {
-  if (Array.isArray(value)) {
-    return value[0];
-  } else {
-    return value;
-  }
-};
-
-const val = (value: string | [string, string]) => {
-  if (Array.isArray(value)) {
-    return value[1];
-  } else {
-    return value;
-  }
-};
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export const DropDownCatalog = (props: {
-    label: string;
-    valueSelected: string | null;
-    availableValues: readonly string[] | readonly [string, string][]; // [key, value]
-    openCatalogTitle?: string;
-    onValueSelected: (value: string) => void;
-    onValueDeleted?: (value: string) => void;
-    children?: ReactNode;
+  label: string;
+  valueSelected: string | null;
+  // [key, value]
+  availableValues: readonly string[] | readonly [string, string][];
+  openCatalogTitle?: string;
+  onValueSelected: (value: string) => void;
+  onValueEdit?: (value: string) => void;
+  onValueDeleted?: (value: string) => void;
 }) => {
-  const { label: catalogName, valueSelected, availableValues, openCatalogTitle, onValueSelected, onValueDeleted, children } =
-        props;
+  const {
+    label, valueSelected, availableValues, openCatalogTitle,
+    onValueSelected, onValueEdit, onValueDeleted
+  } = props;
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -53,7 +24,7 @@ export const DropDownCatalog = (props: {
   }, [dropdownOpen]);
 
   const valueSelectedVal = useMemo(() => {
-    return val(availableValues.find((v) => key(v) === valueSelected) ?? "---");
+    return getValue(availableValues.find((v) => getKey(v) === valueSelected) ?? "---");
   }, [valueSelected, availableValues]);
 
   return (
@@ -61,7 +32,7 @@ export const DropDownCatalog = (props: {
       <div className="flex flex-col text-[15px]">
         <div className="relative flex flex-row flex-wrap md:flex-nowrap">
           <div className="text-nowrap">
-            {catalogName}:
+            {label}:
             <span className="ml-2 max-w-40 overflow-x-clip text-wrap font-mono">
               {valueSelectedVal ?? "---"}
             </span>
@@ -71,39 +42,40 @@ export const DropDownCatalog = (props: {
             title={openCatalogTitle}
             onClick={() => setDropdownOpen(true)}
           >
-            🗃️
+            <DropDownIcon />
           </button>
-          {children}
           {dropdownOpen && (
             <div
               ref={dropdownRef}
               tabIndex={-1}
-              className="absolute z-10 mt-8 flex w-full flex-col bg-[#5438dc]"
-              onBlur={(e) => {
-                if (e.relatedTarget?.id.startsWith("button-dropdown-catalog-")) {
+              className="absolute z-10 mt-8 flex w-full flex-col bg-[#5438dc] p-2"
+              onBlur={(event) => {
+                if ((event.relatedTarget as any)?.dataset["menu"]) {
                   return;
                 }
                 setDropdownOpen(false);
-                e.stopPropagation();
+                event.stopPropagation();
               }}
             >
               <ul className="w-full">
-                {availableValues.map((value) => (
+                {availableValues.map((item) => (
                   <CatalogItem
-                    key={key(value)}
-                    value={val(value)}
-                    onValueSelected={() => {
+                    key={getKey(item)}
+                    value={getValue(item)}
+                    onClick={() => {
                       setDropdownOpen(false);
-                      onValueSelected(key(value));
+                      onValueSelected(getKey(item));
                     }}
-                    withDeleteButton={
-                      onValueDeleted
-                        ? () => {
-                          setDropdownOpen(false);
-                          onValueDeleted(key(value));
-                        }
-                        : undefined
-                    }
+                    onEdit={
+                      onValueEdit === undefined ? undefined : () => {
+                        setDropdownOpen(false);
+                        onValueEdit(getKey(item));
+                      }}
+                    onDelete={
+                      onValueDeleted === undefined ? undefined : () => {
+                        setDropdownOpen(false);
+                        onValueDeleted(getKey(item));
+                      }}
                   />
                 ))}
               </ul>
@@ -114,3 +86,72 @@ export const DropDownCatalog = (props: {
     </div>
   );
 };
+
+const getKey = (value: string | [string, string]) => {
+  if (Array.isArray(value)) {
+    return value[0];
+  } else {
+    return value;
+  }
+};
+
+const getValue = (value: string | [string, string]) => {
+  if (Array.isArray(value)) {
+    return value[1];
+  } else {
+    return value;
+  }
+};
+
+const CatalogItem = (props: {
+  value: string,
+  onClick: () => void,
+  onEdit?: () => void,
+  onDelete?: () => void,
+}) => {
+  const { value, onClick, onEdit, onDelete } = props;
+  return (
+    <li key={value} className="flex w-full flex-row justify-between gap-2">
+      <button
+        className="cursor-pointer flex-grow"
+        data-menu="catalog"
+        onClick={onClick}>
+        {value}
+      </button>
+      {onEdit === undefined ? null : (
+        <button
+          className="cursor-pointer"
+          data-menu="catalog"
+          onClick={onEdit}
+        >
+          ✏
+        </button>
+      )}
+      {onDelete === undefined ? null : (
+        <button
+          className="cursor-pointer"
+          data-menu="catalog"
+          onClick={onDelete}
+        >
+          🗑
+        </button>
+      )}
+    </li>
+  );
+};
+
+const DropDownIcon = () => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  );
+}

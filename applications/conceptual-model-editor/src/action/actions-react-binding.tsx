@@ -76,10 +76,11 @@ import { isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic
 import { openEditAssociationProfileDialogAction } from "./open-edit-association-profile-dialog";
 import { changeVisualModelAction } from "./change-visual-model";
 import { QueryParamsContextType, useQueryParamsContext } from "@/context/query-params-context";
-import { openCreateVisualModelDialogAction } from "./open-create-new-visual-model-dialog";
+import { openCreateVisualModelDialogAction } from "./open-create-visual-model-dialog";
 import { openEditSemanticModelDialogAction } from "./open-edit-semantic-model-dialog";
 import { ModelDsIdentifier } from "@/dataspecer/entity-model";
 import { openSearchExternalSemanticModelDialogAction } from "./open-search-external-semantic-model-dialog";
+import { openEditVisualModelDialogAction } from "./open-edit-visual-model-dialog";
 
 const LOG = createLogger(import.meta.url);
 
@@ -261,6 +262,8 @@ interface VisualModelActions {
   /**
    * Opens dialog, which after confirmation creates new visual model with content equal to {@link nodeSelection} and
    * relevant edges from {@link edgeSelection}.
+   *
+   * @deprecated We have two other actions {@link openCreateVisualModelDialog} and {@link changeVisualModel}.
    */
   openCreateNewVisualModelFromSelectionDialog: (
     nodeSelection: string[],
@@ -274,9 +277,14 @@ interface VisualModelActions {
   changeVisualModel: (newVisualModel: string) => void;
 
   /**
-   * Opens dialog, which after confirmation creates new empty visual model.
+   * Open dialog to create and select new visual model.
    */
-  openCreateNewVisualModelDialog: (shouldSwitchToCreatedModel: boolean) => void;
+  openCreateVisualModelDialog: () => void;
+
+  /**
+   * Open edit dialog for edit.
+   */
+  openEditVisualModelDialog: (identifier: string) => void;
 
   //
   // TODO PRQuestion: Again document using {@link .*Action} or not?
@@ -382,7 +390,8 @@ const noOperationActionsContext: ActionsContextType = {
   //
   openCreateNewVisualModelFromSelectionDialog: noOperation,
   changeVisualModel: noOperation,
-  openCreateNewVisualModelDialog: noOperation,
+  openCreateVisualModelDialog: noOperation,
+  openEditVisualModelDialog: noOperation,
   //
   addEntitiesFromSemanticModelToVisualModel: async () => {},
   removeEntitiesInSemanticModelFromVisualModel: noOperation,
@@ -894,8 +903,21 @@ function createActionsContext(
     changeVisualModelAction(graph, queryParamsContext, newVisualModel);
   };
 
-  const openCreateNewVisualModelDialog = (shouldSwitchToCreatedModel: boolean) => {
-    return openCreateNewVisualModelFromSelectionDialog([], [], shouldSwitchToCreatedModel);
+  const openCreateNewVisualModelDialog = () => {
+    return openCreateNewVisualModelFromSelectionDialog([], [], true);
+  };
+
+  const openEditVisualModelDialog = (identifier: string) => {
+    const visualModel = graph.visualModels.get(identifier);
+    if (visualModel === null) {
+      notifications.error("There is no active visual model.");
+      return;
+    }
+    if (!isWritableVisualModel(visualModel)) {
+      notifications.error("Visual model is not writable.");
+      return;
+    }
+    openEditVisualModelDialogAction(options, dialogs, visualModel);
   };
 
   const openExtendSelectionDialog = (selections: Selections) => {
@@ -1206,10 +1228,10 @@ function createActionsContext(
     deleteFromSemanticModels,
     createVisualNodeDuplicate,
     centerViewportToVisualEntityByRepresented,
-
     openCreateNewVisualModelFromSelectionDialog,
     changeVisualModel,
-    openCreateNewVisualModelDialog,
+    openCreateVisualModelDialog: openCreateNewVisualModelDialog,
+    openEditVisualModelDialog,
     addEntitiesFromSemanticModelToVisualModel,
     removeEntitiesInSemanticModelFromVisualModel,
     addEntityNeighborhoodToVisualModel,
