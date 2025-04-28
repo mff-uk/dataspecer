@@ -7,25 +7,30 @@ export interface InheritanceOrTree {
   dataPsmObjectIri: string;
   hidePropertyIri: string | null;
   children: InheritanceOrTree[];
+
+  isAbstract: boolean;
 }
 
 async function getInheritanceOr(dataPsmOrIri: string, getResource: <ResourceType extends CoreResource>(iri: string) => Promise<ResourceType | null>) {
   const or = await getResource<DataPsmOr>(dataPsmOrIri);
 
   // Handle simple cases
-  if (!or || or.dataPsmChoices.length < 2) {
+  if (!or || or.dataPsmChoices.length < 1) {
     return false;
   }
 
-  // Check all choices, only one may not have include as the first property
-  let rootParent: string | null = null;
   let cache: Record<string, {
     dataPsmClass: DataPsmClass,
     pimClass: SemanticModelClass,
     includeIri: string | null,
     includesDataPsmClassIri: string | null,
   }> = {}
-  for (const choiceIri of or.dataPsmChoices) {
+
+  const toVisit = or.dataPsmChoices.toReversed();
+  const toVisitSet = new Set<string>(or.dataPsmChoices);
+
+  let choiceIri: string | undefined = undefined;
+  while (choiceIri = toVisit.pop()) {
     const choice = await getResource(choiceIri);
     if (!choice || !DataPsmClass.is(choice)) {
       return false;
@@ -57,19 +62,31 @@ async function getInheritanceOr(dataPsmOrIri: string, getResource: <ResourceType
       includeIri: firstIncludeIncludesIri ? choice.dataPsmParts[0] : null,
       includesDataPsmClassIri: firstIncludeIncludesIri,
     }
-    if (!firstIncludeIncludesIri) {
-      if (rootParent) {
-        return false;
-      } else {
-        rootParent = choice.iri as string;
-      }
+
+    // Add element to the queue
+    if (firstIncludeIncludesIri && !toVisitSet.has(firstIncludeIncludesIri)) {
+      toVisitSet.add(firstIncludeIncludesIri);
+      toVisit.push(firstIncludeIncludesIri);
     }
   }
 
-  // Check the references
-  for (const choiceObject of Object.values(cache)) {
-    if (choiceObject.includesDataPsmClassIri && !cache[choiceObject.includesDataPsmClassIri]) {
-      return false
+  let rootParent: string | null = null;
+
+  // There should be only one root
+  for (const classId of Object.keys(cache)) {
+    const visited = new Set<string>();
+    let entity: string | null = classId;
+    while (cache[entity].includesDataPsmClassIri) {
+      if (visited.has(entity)) {
+        return false;
+      }
+      visited.add(entity);
+      entity = cache[entity].includesDataPsmClassIri;
+    }
+    if (rootParent === null) {
+      rootParent = entity;
+    } else if (rootParent !== entity) {
+      return false;
     }
   }
 
@@ -85,10 +102,17 @@ async function getInheritanceOr(dataPsmOrIri: string, getResource: <ResourceType
       dataPsmObjectIri: dataPsmOrIri,
       children,
       hidePropertyIri: cache[dataPsmOrIri].includeIri,
+      isAbstract: !or.dataPsmChoices.includes(dataPsmOrIri),
     };
   }
 
-  return getInheritanceOrTree(rootParent as string);
+  const inheritance = getInheritanceOrTree(rootParent as string);
+
+  if (inheritance.children.length === 0) {
+    return false;
+  }
+
+  return inheritance;
 }
 
 /**

@@ -19,7 +19,7 @@ import { AddSpecializationDialog } from "../add-specialization/add-specializatio
 import { DataPsmBaseRow, RowSlots } from "../base-row";
 import { DataPsmGetLabelAndDescription } from "../common/DataPsmGetLabelAndDescription";
 import { InheritanceOrTree } from "../common/use-inheritance-or";
-import { ClassPartContext, ObjectContext } from "../data-psm-row";
+import { ClassPartContext, ObjectContext, ORContext } from "../data-psm-row";
 import { ReplaceAlongInheritanceDialog } from "../replace-along-inheritance/replace-along-inheritance-dialog";
 import { Span, sxStyles } from "../styles";
 import { DataPsmClassSubtree } from "../subtrees/class-subtree";
@@ -27,7 +27,8 @@ import { SearchDialog } from "../../cim-search/search-dialog";
 import { getCardinality } from "../common/cardinality";
 import Inventory2TwoToneIcon from '@mui/icons-material/Inventory2TwoTone';
 import { CreateNonInterpretedAttribute } from "../../../operations/create-non-interpreted-attribute";
-import { isWikidataAdapter } from "@dataspecer/wikidata-experimental-adapter";
+import { MakeConcrete } from "../../../operations/make-concrete";
+import { MakeAbstract } from "../../../operations/make-abstract";
 
 /**
  * Because classes and containers are so similar, they share this component to make implementation simpler.
@@ -81,9 +82,13 @@ export const DataPsmClassItem: React.FC<{
 
   const collapseSubtree = useToggle(objectContext.contextType !== "reference");
 
+  const isAbstractClassInOr = type === "class" && props.inheritanceOrTree?.isAbstract === true;
+  const isConcreteClassInOr = type === "class" && props.inheritanceOrTree?.isAbstract === false;
+
   const thisStartRow = <>
     {type === "class" &&
-        <>
+        <Span sx={isAbstractClassInOr ? sxStyles.abstractClass : null}>
+            {isAbstractClassInOr && <Span>{t("abstract class")}{" "}</Span>}
             <DataPsmGetLabelAndDescription dataPsmResourceIri={props.iri}>
               {(label, description) =>
                 <Span sx={sxStyles.class} title={description}>{label ?? "[class]"}</Span>
@@ -93,7 +98,7 @@ export const DataPsmClassItem: React.FC<{
           {typeof dataPsmClass?.dataPsmTechnicalLabel === "string" && dataPsmClass?.dataPsmTechnicalLabel.length > 0 &&
               <> (<Span sx={sxStyles.technicalLabel}>{dataPsmClass?.dataPsmTechnicalLabel}</Span>)</>
           }
-        </>
+        </Span>
     }
     {type === "container" && <>
       <Span sx={sxStyles.container}>{container.dataPsmContainerType}{" "}{t("container")}</Span>
@@ -125,6 +130,8 @@ export const DataPsmClassItem: React.FC<{
   const AddSpecialization = useDialog(AddSpecializationDialog, ["wrappedOrIri"]);
 
   const thisHiddenMenu = useMemo(() => (close: () => void) => <>
+    {isAbstractClassInOr && <MenuItem onClick={() => { close(); store.executeComplexOperation(new MakeConcrete((objectContext as ORContext).parentDataPsmOrIri, props.iri)); }}>{t("make class non-abstract")}</MenuItem>}
+    {isConcreteClassInOr && <MenuItem onClick={() => { close(); store.executeComplexOperation(new MakeAbstract((objectContext as ORContext).parentDataPsmOrIri, props.iri)); }}>{t("make class abstract")}</MenuItem>}
     <MenuItem
       onClick={() => {
         close();
