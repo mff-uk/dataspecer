@@ -139,7 +139,7 @@ class ConceptualModelToEntityModel {
       // Profile
       profiling,
       usageNote: profile.usageNote ?? {},
-      usageNoteFromProfiled: this.selectFromProfiled(profile, VANN.usageNote.id),
+      usageNoteFromProfiled: this.selectFromProfiled(profile, SKOS.scopeNote.id),
       externalDocumentationUrl: profile.externalDocumentationUrl,
       // NamedThingProfile
       name: profile.prefLabel ?? {},
@@ -263,7 +263,7 @@ class ConceptualModelToEntityModel {
       profiling,
       usageNote: profile.usageNote ?? {},
       usageNoteFromProfiled: this.selectFromPropertyProfiled(
-        profile, VANN.usageNote.id, rangeConcept),
+        profile, SKOS.scopeNote.id, rangeConcept),
       externalDocumentationUrl: profile.externalDocumentationUrl,
     };
 

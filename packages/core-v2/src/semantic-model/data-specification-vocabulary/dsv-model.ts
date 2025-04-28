@@ -50,7 +50,7 @@ export interface Profile {
   // @lc-identifier skos:definition
   definition: LanguageString;
 
-  // @lc-identifier vann:usageNote
+  // @lc-identifier skos:scopeNote
   usageNote: LanguageString;
 
   // @lc-identifier dsv:profileOf
