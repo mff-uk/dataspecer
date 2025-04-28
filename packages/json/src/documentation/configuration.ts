@@ -18,7 +18,7 @@ export const defaultJsonPartials: Record<string, string> = {
     {{#if cardinalityIsRequired}}povinná{{else}}nepovinná{{/if}}
     ({{cardinalityRange}}) položka typu {{#dataTypes}}
       {{#isAssociation}}{{#dataType}}{{#isSimpleClass}}<strong>IRI (<a href="{{#pimClass}}{{href pimIri}}{{/pimClass}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>)</strong>{{/isSimpleClass}}{{^isSimpleClass}}<strong><a href="#{{structureModelLinkId}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a></strong>{{/isSimpleClass}}{{/dataType}}{{/isAssociation}}
-      {{#isAttribute}} {{#dataType}}<a href="{{{.}}}">{{translate (getLabelForDataType .)}}</a>{{#regex}} dle regulárního výrazu <code>{{{.}}}</code>{{/regex}}{{/dataType}}{{^dataType}}bez datového typu{{/dataType}}{{/isAttribute}}
+      {{#isAttribute}} {{#dataType}}<a href="{{{.}}}">{{translate (getLabelForDataType .)}}</a>{{#./regex}} dle regulárního výrazu <code>{{{.}}}</code>{{/./regex}}{{/dataType}}{{^dataType}}bez datového typu{{/dataType}}{{/isAttribute}}
     {{/dataTypes}}
 </li>
 {{/properties}}
@@ -90,10 +90,10 @@ export const defaultJsonPartials: Record<string, string> = {
 <dd><div>{{.}}</div></dd>
 {{/example}}{{/isAttribute}}{{/dataTypes}}
 
-{{#dataTypes}}{{#isAttribute}}{{#regex}}
+{{#dataTypes}}{{#isAttribute}}{{#./regex}}
 <dt>Regulární výraz</dt>
 <dd><code>{{.}}</code></dd>
-{{/regex}}{{/isAttribute}}{{/dataTypes}}
+{{/./regex}}{{/isAttribute}}{{/dataTypes}}
 
 <dt>Interpretace</dt>
 {{#pimAssociation}}
