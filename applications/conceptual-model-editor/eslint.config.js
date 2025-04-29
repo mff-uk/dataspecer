@@ -54,8 +54,6 @@ export default tseslint.config(
         "destructuring": "any",
         "ignoreReadBeforeAssign": false,
       }],
-      // Using two spaces, we may consider using tabs instead.
-      "indent": ["error", 2],
       // For now only a warning.
       "@typescript-eslint/no-explicit-any": ["warn"],
       // Ignore unused variables and arguments starting with underscore.
@@ -69,5 +67,13 @@ export default tseslint.config(
       }],
       // Double quotes.
       "@stylistic/js/quotes": ["error", "double"],
+      // Using two spaces.
+      "@stylistic/js/indent": ["error", 2],
+      // Spaces around objects.
+      "@stylistic/js/object-curly-spacing": ["error", "always"],
+      // No spaces around arrays.
+      "@stylistic/js/array-bracket-spacing": ["error", "never"],
+      // Force \n.
+      "@stylistic/js/linebreak-style": ["error", "unix"],
     },
   });
