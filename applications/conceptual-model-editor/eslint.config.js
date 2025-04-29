@@ -4,6 +4,7 @@ import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 import stylistic from "@stylistic/eslint-plugin-js";
+import reactCompiler from "eslint-plugin-react-compiler";
 
 export default tseslint.config(
   {
@@ -22,6 +23,7 @@ export default tseslint.config(
   reactHooks.configs["recommended-latest"],
   reactRefresh.configs.recommended,
   reactRefresh.configs.vite,
+  reactCompiler.configs.recommended,
   {
     languageOptions: {
       ecmaVersion: 2020,
@@ -41,7 +43,7 @@ export default tseslint.config(
       // Disallow the use of alert, confirm, and prompt.
       "no-alert": ["error"],
       // Prevent multiple empty lines.
-      "no-multiple-empty-lines": ["error", {
+      "@stylistic/js/no-multiple-empty-lines": ["error", {
         "max": 1,
       }],
       // Files should not be too big.
@@ -49,6 +51,9 @@ export default tseslint.config(
         "max": 666,
         "skipBlankLines": true,
       }],
+      // Suggest function size limit.
+      // https://tigerstyle.dev/
+      // "max-lines-per-function": ["warn", 70],
       // Use const where possible.
       "prefer-const": ["error", {
         "destructuring": "any",
