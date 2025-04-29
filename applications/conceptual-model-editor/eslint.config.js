@@ -33,44 +33,40 @@ export default tseslint.config(
     },
     rules: { // Sorted alphabetically.
       // Comments must start with a capital.
-      "capitalized-comments": [
-        "error",
-        "always",
-        { ignoreConsecutiveComments: true },
-      ],
+      "capitalized-comments": ["error", "always", {
+        "ignoreConsecutiveComments": true
+      }],
       // Use === and !==.
       "eqeqeq": ["error"],
       // Disallow the use of alert, confirm, and prompt.
       "no-alert": ["error"],
       // Prevent multiple empty lines.
-      "no-multiple-empty-lines": [
-        "error",
-        { "max": 1 }
-      ],
+      "no-multiple-empty-lines": ["error", {
+        "max": 1,
+      }],
       // Files should not be too big.
-      "max-lines": [
-        "warn",
-        { "max": 666, "skipBlankLines": true }
-      ],
+      "max-lines": ["warn", {
+        "max": 666,
+        "skipBlankLines": true,
+      }],
       // Use const where possible.
       "prefer-const": ["error", {
-        destructuring: "any",
-        ignoreReadBeforeAssign: false
+        "destructuring": "any",
+        "ignoreReadBeforeAssign": false,
       }],
       // Using two spaces, we may consider using tabs instead.
       "indent": ["error", 2],
       // For now only a warning.
       "@typescript-eslint/no-explicit-any": ["warn"],
       // Ignore unused variables and arguments starting with underscore.
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
-      ],
+      "@typescript-eslint/no-unused-vars": ["error", {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+      }],
       // Line length, we allow 120 as a compromise between 80 and infinity.
-      "@stylistic/js/max-len": [
-        "warn",
-        { "code": 120 },
-      ],
+      "@stylistic/js/max-len": ["warn", {
+        "code": 120,
+      }],
       // Double quotes.
       "@stylistic/js/quotes": ["error", "double"],
     },
