@@ -53,7 +53,7 @@ export const addEntityNeighborhoodToVisualModelAction = async (
       }
 
       // Try to add the domain node
-      addClassOrClassProfileToVisualModel(
+      await addClassOrClassProfileToVisualModel(
         notifications, classes, graph, diagram, visualModel,
         domain.concept, null, false, [identifier]);
 
