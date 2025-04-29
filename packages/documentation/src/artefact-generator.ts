@@ -22,6 +22,10 @@ export class TemplateArtifactGenerator implements ArtefactGenerator {
         output: StreamDictionary
     ): Promise<void> {
 
+        if (artefact["templateType"] !== "respec") {
+            return;
+        }
+
         // todo: I need to somehow obtain the original models..
 
         // @ts-ignore types
