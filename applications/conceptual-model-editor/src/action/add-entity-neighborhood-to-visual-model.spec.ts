@@ -268,6 +268,3 @@ test("Test relationship neighborhood - add attribute - on fully connected graph 
   expect(visualEntities.map(entry => entry[1]).filter(isVisualNode)[0].content.length).toBe(1);
   expect(domainNode.content.length).toBe(1);
 });
-
-
-ok no sice pekny ja ale zapomnel zavolat git merge takze zmen jsou ve 3 souborech - tady, entity-neighbor a test suite
