@@ -15,7 +15,7 @@ import {
 import { UseDiagramType } from "../../diagram/diagram-hook";
 import { UseNotificationServiceWriterType } from "../../notification/notification-service-context";
 import { ClassesContextType } from "@/context/classes-context";
-import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelAttribute, SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { createClass, CreatedEntityOperationResult, createGeneralization, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { SetStateAction } from "react";
@@ -26,6 +26,7 @@ import { ModelGraphContextType, UseModelGraphContextType } from "@/context/model
 import { CmeSpecialization } from "@/dataspecer/cme-model/model";
 import { addVisualDiagramNode } from "@/dataspecer/visual-model/operation/add-visual-diagram-node";
 import { fail } from "@/utilities/fail-test";
+import { representRdfsLiteral } from "@/dialog/utilities/dialog-utilities";
 
 type CreatedSemanticEntityData = {
   identifier: string,
@@ -531,6 +532,55 @@ export class ActionsTestSuite {
       position: visualDiagramNode.position
     };
     return result;
+  }
+
+
+  /**
+   * Creates semantic attribute, adds it to the model and extends the classes context
+   */
+  static createSemanticAttributeTestVariant(
+    classesContext: ClassesContextType,
+    models: Map<string, EntityModel>,
+    domainConceptIdentifier: string,
+    ModelDsIdentifier: string,
+    attributeName: string,
+  ) {
+
+    const range = representRdfsLiteral();
+    const name = {"en": attributeName};
+    const operation = createRelationship({
+      ends: [{
+        iri: null,
+        name: {},
+        description: {},
+        concept: domainConceptIdentifier,
+        cardinality: [0, 1],
+      }, {
+        name,
+        description: {},
+        concept: range.identifier,
+        cardinality: [0, 1],
+        iri: ActionsTestSuite.generateIriForName(name["en"]),
+      }]
+    });
+
+    const model: InMemorySemanticModel = models.get(ModelDsIdentifier) as InMemorySemanticModel;
+    const newAttribute = model.executeOperation(operation) as CreatedEntityOperationResult;
+    if (newAttribute.success === false || newAttribute.id === undefined) {
+      throw new Error("Failed in attribute creation");
+    }
+
+    const attributeObject = model.getEntities()[newAttribute.id];
+    if (!isSemanticModelAttribute(attributeObject)) {
+      throw new Error("Failed when creating attribute");
+    }
+    classesContext.relationships.push(attributeObject);
+    classesContext.rawEntities.push(attributeObject);
+
+    return {
+      identifier: newAttribute.id,
+      model,
+    };
   }
 
   static createSemanticRelationshipTestVariant(

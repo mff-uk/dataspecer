@@ -18,6 +18,14 @@ export enum CmeSemanticModelType {
   ExternalSemanticModel = "external",
 }
 
+/**
+ * As model's alias use only one language, we employ
+ * this as the language of the alias.
+ *
+ * Once there is proper support, this should be removed.
+ */
+export const CmeSemanticModelNameLanguage = "";
+
 export interface CmeSemanticModel {
 
   /**
@@ -45,3 +53,6 @@ export interface CmeSemanticModel {
   baseIri: string | null;
 
 }
+
+export type CmeSemanticModelChange =
+  Omit<CmeSemanticModel, "modelType" | "color">;
