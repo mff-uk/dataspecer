@@ -185,8 +185,10 @@ export class ActionsTestSuite {
       iri: null,
       color: "",
       group: null,
-      position: {x: 0, y: 0, anchored: true},
-      profileOf: null,
+      position: { x: 0, y: 0, anchored: true },
+      profileOf: [],
+      vocabulary: [],
+      options: {} as any,
       items: []
     };
     return node;
@@ -204,7 +206,11 @@ export class ActionsTestSuite {
       cardinalityTarget: null,
       color: "",
       waypoints: [],
-      profileOf: null
+      profileOf: [],
+      iri: null,
+      vocabulary: [],
+      options: {} as any,
+      mandatoryLevelLabel: null,
     }
     return edge;
   };
@@ -260,7 +266,7 @@ export class ActionsTestSuite {
     identifier?: string
   ): CreatedSemanticEntityData | null {
 
-    const name = {"en": givenName};
+    const name = { "en": givenName };
 
     const operation = createClass({
       iri: ActionsTestSuite.generateIriForName(givenName),
@@ -318,7 +324,7 @@ export class ActionsTestSuite {
     aggregator.addModel(visualModel);
     const aggregatorView = aggregator.getView();
     aggregatorView.changeActiveVisualModel(visualModel.getIdentifier());
-    const visualModels: Map<string, WritableVisualModel> = new Map(Object.entries({[visualModel.getIdentifier()]: visualModel}));
+    const visualModels: Map<string, WritableVisualModel> = new Map(Object.entries({ [visualModel.getIdentifier()]: visualModel }));
 
     const graph: ModelGraphContextType = {
       aggregator,
@@ -480,7 +486,7 @@ export class ActionsTestSuite {
       model,
       content: [],
       visualModels: [],
-      position: position !== undefined ? {...position, anchored: null} : { x: 0, y: 0, anchored: null },
+      position: position !== undefined ? { ...position, anchored: null } : { x: 0, y: 0, anchored: null },
     });
 
     return visualId;
@@ -494,7 +500,7 @@ export class ActionsTestSuite {
     representedVisualModel: string,
     position?: XY
   ): string {
-    const nodePosition = position !== undefined ? {...position, anchored: null} : { x: 0, y: 0, anchored: null };
+    const nodePosition = position !== undefined ? { ...position, anchored: null } : { x: 0, y: 0, anchored: null };
     const visualId = addVisualDiagramNode(visualModel, nodePosition, representedVisualModel);
     return visualId;
   }
@@ -504,7 +510,7 @@ export class ActionsTestSuite {
     representedVisualModel: string,
     position?: XY
   ): VisualModelDiagramNode {
-    const nodePosition = position !== undefined ? {...position, anchored: null} : { x: 0, y: 0, anchored: null };
+    const nodePosition = position !== undefined ? { ...position, anchored: null } : { x: 0, y: 0, anchored: null };
 
     const result: VisualModelDiagramNode = {
       identifier,
@@ -540,7 +546,7 @@ export class ActionsTestSuite {
     modelDsIdentifier: string,
     relationshipName: string,
   ): CreatedSemanticEntityData {
-    const name = {"en": relationshipName};
+    const name = { "en": relationshipName };
 
     const operation = createRelationship({
       id: `${domainConceptIdentifier}-${rangeConceptIdentifier}`,

@@ -210,7 +210,7 @@ export const useAlignmentController = (props: {
 
     const ADDITIONAL_SPACE_FOR_HELPER_LINE = 10000;
     const helperLineEndPoints = {
-      start: {x: 0, y: 0},
+      start: { x: 0, y: 0 },
       length: 0,
     };
     helperLineEndPoints.start[otherCoordinate] = (otherCoordinateSortedNodes[0]?.[1] ?? 0) as number - ADDITIONAL_SPACE_FOR_HELPER_LINE;

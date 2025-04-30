@@ -9,17 +9,20 @@ import {
 } from "@xyflow/react";
 
 import {
+  DiagramOptions,
+  EntityColor,
   isNodeRelationshipItem,
   isNodeTitleItem,
+  LabelVisual,
   NodeRelationshipItem,
   NodeTitleItem,
   NodeType,
+  ProfileOfVisual,
   type Node as ApiNode,
 } from "../diagram-model";
 import { DiagramContext, NodeMenuType } from "../diagram-controller";
 
 import "./entity-node.css";
-import { usePrefixForIri } from "../../service/prefix-service";
 import { t } from "../../application";
 
 // We can select zoom option and hide content when zoom is on given threshold.
@@ -43,11 +46,6 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
 
   const description: undefined | string = data.description ?? undefined;
 
-  let usageNote: undefined | string = undefined;
-  if (data.profileOf !== null && data.profileOf.usageNote !== null) {
-    usageNote = data.profileOf.usageNote;
-  }
-
   const context = useContext(DiagramContext);
 
   const moveItemUp = (identifier: string) => () =>
@@ -60,6 +58,11 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
     context?.callbacks().onEditEntityItem(identifier);
   }
 
+  // When we use IRI instead of a label we do not show the IRI again.
+  const hideIri = data.options.labelVisual === LabelVisual.Iri;
+  const label = prepareLabel(data.options, data);
+  const mainColor = prepareColor(data);
+
   return (
     <>
       <div className={"border border-black entity-node min-h-14 min-w-56"}>
@@ -67,29 +70,18 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
         <div className="entity-node-content">
 
           <div className="drag-handle bg-slate-300 p-1"
-            style={{ backgroundColor: data.color }}
+            style={{ backgroundColor: mainColor }}
             title={description}
           >
-            {data.profileOf === null ? null : (
-              <div className="text-gray-600">
-                <span className="underline" title={usageNote}>
-                  profile
-                </span>
-                &nbsp;of&nbsp;
-                <span>
-                  {data.profileOf.label}
-                </span>
-              </div>
-            )}
             <div className="relative flex w-full flex-row justify-between">
-              <div>{data.label}</div>
+              <div>{label}</div>
               {data.position.anchored ? <div>⚓</div> : null}
             </div>
+            <ProfileOf options={data.options} profileOf={data.profileOf} />
           </div>
-
-          <div className="overflow-x-clip text-gray-500 px-1">
-            {usePrefixForIri(data.iri)}
-          </div>
+          {hideIri ? null : <div className="overflow-x-clip text-gray-500 px-1">
+            {data.iri}
+          </div>}
           {data.items.map((item, index) => {
             if (isNodeRelationshipItem(item)) {
               return (
@@ -98,7 +90,8 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
                   className="relative flex w-full flex-row justify-between z-50"
                 >
                   <RelationshipItem
-                    item={item}
+                    options={data.options}
+                    data={item}
                     showToolbar={props.selected}
                     onEdit={editItem}
                     onMoveUp={moveItemUp}
@@ -130,6 +123,71 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
     </>
   );
 };
+
+function prepareLabel(
+  options: DiagramOptions,
+  data: {
+    label: string | null,
+    iri: string | null,
+    vocabulary: { label: string | null }[],
+  },
+) {
+  switch (options.labelVisual) {
+  case LabelVisual.Entity:
+    return data.label;
+  case LabelVisual.Iri:
+    return data.iri;
+  case LabelVisual.VocabularyOrEntity:
+    return data.vocabulary
+      .map(item => item.label)
+      .filter(item => item !== null)
+      .join(", ");
+  }
+}
+
+function prepareColor(data: ApiNode) {
+  switch (data.options.entityMainColor) {
+  case EntityColor.Entity:
+    return data.color;
+  case EntityColor.VocabularyOrEntity:
+    if (data.vocabulary.length === 0) {
+      return data.color;
+    }
+    // Just use the first one.
+    return data.vocabulary[0].color;
+  }
+}
+
+function ProfileOf({ options, profileOf }: {
+  options: DiagramOptions,
+  profileOf: {
+    label: string | null,
+    iri: string | null,
+  }[],
+}) {
+  if (profileOf.length ===0) {
+    return null;
+  }
+  let labels: (string | null)[] = [];
+  switch (options.profileOfVisual) {
+  case ProfileOfVisual.Entity:
+    labels = profileOf.map(item => item.label);
+    break;
+  case ProfileOfVisual.Iri:
+    labels = profileOf.map(item => item.iri);
+    break;
+  case ProfileOfVisual.None:
+    return;
+  }
+  return (
+    <div className="text-gray-600">
+      profile&nbsp;of&nbsp;
+      <span>
+        {labels.filter(item => item !== null).join(", ")}
+      </span>
+    </div>
+  )
+}
 
 function EntityNodeMenu(props: NodeProps<Node<ApiNode>>) {
   const context = useContext(DiagramContext);
@@ -252,49 +310,49 @@ function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
 }
 
 function RelationshipItem(props: {
-  item: NodeRelationshipItem,
+  options: DiagramOptions,
+  data: NodeRelationshipItem,
   showToolbar: boolean,
   onMoveUp: (identifier: string) => () => void | undefined,
   onMoveDown: (identifier: string) => () => void | undefined,
   onRemove: (identifier: string) => () => void | undefined,
   onEdit: (identifier: string) => () => void | undefined,
 }) {
-  const item = props.item;
-
-  let usageNote: undefined | string = undefined;
-  if (item.profileOf !== null && item.profileOf.usageNote !== null) {
-    usageNote = item.profileOf.usageNote;
-  }
-
+  const data = props.data;
+  const label = prepareLabel(data.options, data);
   return (
     <>
-      <div>
+      <div className="flex">
         <span>
-          - {item.label}
+          - {label}&nbsp;
         </span>
-        {item.profileOf === null ? null : (
-          <>
-            &nbsp;
-            <span className="text-gray-600 underline" title={usageNote}>
-              profile
-            </span>
-            &nbsp;of&nbsp;
-            <span>
-              {item.profileOf.label}
-            </span>
-          </>
-        )}
+        <ProfileOf options={data.options} profileOf={data.profileOf} />
+        <Cardinality options={data.options} data={data}/>
       </div>
       {props.showToolbar ? (
         <div>
-          <button onClick={props.onMoveUp(item.identifier)}>🔼</button>
-          <button onClick={props.onMoveDown(item.identifier)}>🔽</button>
-          <button onClick={props.onRemove(item.identifier)}>🕶️</button>
-          <button onClick={props.onEdit(item.identifier)}>✏️</button>
+          <button onClick={props.onMoveUp(data.identifier)}>🔼</button>
+          <button onClick={props.onMoveDown(data.identifier)}>🔽</button>
+          <button onClick={props.onRemove(data.identifier)}>🕶️</button>
+          <button onClick={props.onEdit(data.identifier)}>✏️</button>
         </div>
       ) : null}
     </>
   );
+}
+
+function Cardinality({ options, data }: {
+  options: DiagramOptions,
+  data: NodeRelationshipItem,
+}) {
+  if (!options.displayRangeDetail || data.cardinalityTarget === null) {
+    return null;
+  }
+  return (
+    <span>
+      &nbsp;{data.cardinalityTarget}
+    </span>
+  )
 }
 
 function TitleItem(props: {
