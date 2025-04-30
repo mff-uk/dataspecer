@@ -64,7 +64,7 @@ export function createEditClassDialogState(
 
   const entityState = createEditBaseEntityDialogState(
     language, graphContext.models, allModels,
-    { identifier: entity.id, model: model.getId()},
+    { identifier: entity.id, model: model.getId() },
     entity.iri ?? "", entity.name, entity.description,
     entity.externalDocumentationUrl ?? "",
     allSpecializations);

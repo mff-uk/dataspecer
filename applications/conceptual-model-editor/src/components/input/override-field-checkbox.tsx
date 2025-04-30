@@ -13,7 +13,7 @@ export const OverrideFieldCheckbox = (props: {
       defaultChecked={props.defaultChecked}
     />
     <label className="ml-0.5 text-nowrap" htmlFor={`${props.forElement}-override`}>
-            change in profile
+      change in profile
     </label>
   </div>
 );

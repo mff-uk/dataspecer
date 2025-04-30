@@ -60,10 +60,10 @@ export function SelectEntities<
         ? (
           <div className="flex w-full flex-row gap-1">
             <button onClick={onAdd}>
-                Add
+              Add
             </button>
             <button onClick={() => setAdding(!adding)}>
-                Cancel
+              Cancel
             </button>
             <SelectEntity
               language={props.language}
@@ -78,7 +78,7 @@ export function SelectEntities<
             onClick={openAdd}
             title={t("create-class-dialog.add-specialization")}
           >
-              ➕
+            ➕
           </button>
         ))}
     </div>

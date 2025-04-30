@@ -11,7 +11,7 @@ export function createEditVisualDiagramNodeDialogState(
 
   return {
     representedVisualModelIdentifier,
-    representedVisualModelName: representedVisualModelName ?? {en: "Visual model"},
+    representedVisualModelName: representedVisualModelName ?? { en: "Visual model" },
     language,
   };
 }

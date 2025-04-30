@@ -39,9 +39,9 @@ export function removeAttributesFromVisualModelAction(
   }
 
   // Perform the delete operation of collected visual entities.
-  Object.entries(nodeToRemovedAttributesMap).forEach(([nodeIdentifier, {node, attributesToRemove}]) => {
+  Object.entries(nodeToRemovedAttributesMap).forEach(([nodeIdentifier, { node, attributesToRemove }]) => {
     const content = node.content.filter(attribute => !attributesToRemove.includes(attribute));
-    visualModel.updateVisualEntity(nodeIdentifier, {content});
+    visualModel.updateVisualEntity(nodeIdentifier, { content });
   });
 }
 

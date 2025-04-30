@@ -49,7 +49,7 @@ export function removePartOfGroupContentAction(
     if(group.content.length === newGroupContent.length) {
       return false;
     }
-    visualModel.updateVisualEntity(groupIdentifier, {content: newGroupContent});
+    visualModel.updateVisualEntity(groupIdentifier, { content: newGroupContent });
     return false;
   }
 }

@@ -63,7 +63,7 @@ async function updatePositionsAndSplitIntoNodesAndEdges(
   const edges: ValidatedDataAboutEntity[] = [];
 
   for(const validatedEntityToAddToVisualModel of validatedEntitiesToAddToVisualModel) {
-    const {entity, position} = validatedEntityToAddToVisualModel
+    const { entity, position } = validatedEntityToAddToVisualModel
     if(isSemanticModelClass(entity)) {
       if(position === null) {
         classAndClassProfilesToFindPositionsFor.push(entity.id);
@@ -134,7 +134,7 @@ function validateEntities(
       notifications.error(`The entity ${entityIdentifier} can't be found in the relevant model`);
       continue;
     }
-    validatedEntitiesToAddToVisualModel.push({entity, model, position});
+    validatedEntitiesToAddToVisualModel.push({ entity, model, position });
   }
 
   return validatedEntitiesToAddToVisualModel;
@@ -148,7 +148,7 @@ async function addClassesAndClassProfilesToVisualModel(
   diagram: UseDiagramType,
   validatedNodesData: ValidatedDataAboutEntity[]
 ) {
-  for(const {entity, model, position} of validatedNodesData) {
+  for(const { entity, model, position } of validatedNodesData) {
     const modelIdentifier = model.getId();
     // TODO RadStr: Hotfix for https://github.com/mff-uk/dataspecer/issues/1017 since it is called here,
     //              so we catch the exception and move to next class
@@ -175,7 +175,7 @@ function addConnectionsToVisualModel(
   visualModel: WritableVisualModel,
   validatedEdgesData: ValidatedDataAboutEntity[]
 ) {
-  for(const {entity, model} of validatedEdgesData) {
+  for(const { entity, model } of validatedEdgesData) {
     const modelIdentifier = model.getId();
     if(isSemanticModelRelationship(entity)) {
       addSemanticRelationshipToVisualModelAction(

@@ -14,7 +14,7 @@ export const VisualDiagramNodeInfoDialog = (props: DialogProps<EditVisualDiagram
       <div className="bg-slate-100">
         <div className="flex">
           <div className="ml-auto mr-8">
-                      Language:&nbsp;
+            Language:&nbsp;
             <select
               name="langs"
               id="langs"

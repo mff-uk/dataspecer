@@ -13,7 +13,7 @@ export const MoveViewportToEntityButton = (props: { onClick: (entityNumberToBeCe
       title="Move viewport's center on entity"
       onClick={onClickHandler}
     >
-            🎯
+      🎯
     </button>
   );
 };

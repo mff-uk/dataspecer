@@ -35,7 +35,7 @@ export const AddNeighborhoodButton = ({ entity }: {
       title={t("add-neighborhood-button.title")}
       onClick={async () => await onClick()}
     >
-            🌎
+      🌎
     </button>
   );
 };
