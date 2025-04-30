@@ -1,8 +1,6 @@
 import {
   type SemanticModelClass,
   type SemanticModelEntity,
-  type SemanticModelGeneralization,
-  type SemanticModelRelationship,
   isSemanticModelClass,
   isSemanticModelGeneralization,
   isSemanticModelRelationship,
@@ -10,16 +8,18 @@ import {
 import type { EntityDetailSupportedType } from "./detail-utils";
 import {
   type SemanticModelClassUsage,
-  type SemanticModelRelationshipUsage,
   isSemanticModelClassUsage,
   isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import type { EntityModel } from "@dataspecer/core-v2";
+import type { Entity, EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import {
+  isSemanticModelClassProfile,
+  isSemanticModelRelationshipProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 import { getDomainAndRange } from "./relationship-utils";
 import { IRI } from "iri";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 /**
  * @param entity
@@ -28,17 +28,7 @@ import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, Semant
  * For unknown entity returns `null`
  */
 export const getIri = (
-  entity:
-        | SemanticModelClass
-        | SemanticModelClassUsage
-        | SemanticModelRelationship
-        | SemanticModelRelationshipUsage
-        | SemanticModelGeneralization
-        | SemanticModelEntity
-        | SemanticModelClassProfile
-        | SemanticModelRelationshipProfile
-        | null
-        | undefined,
+  entity: Entity | null | undefined,
   modelBaseIri?: string
 ) => {
   if (!entity) {
