@@ -101,6 +101,7 @@ const SKOS_PREFIX = "http://www.w3.org/2004/02/skos/core#";
 export const SKOS = {
   "prefLabel": IRI(SKOS_PREFIX + "prefLabel"),
   "definition": IRI(SKOS_PREFIX + "definition"),
+  "scopeNote": IRI(SKOS_PREFIX + "scopeNote"),
 };
 
 const VANN_PREFIX = "http://purl.org/vocab/vann/";

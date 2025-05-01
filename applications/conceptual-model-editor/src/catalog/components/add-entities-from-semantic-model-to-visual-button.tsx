@@ -23,7 +23,7 @@ export const ShowAllClassesFromSemanticModelButton = (props: { semanticModel: En
 
   return (
     <button className="hover:bg-teal-400" title={t("show-all-classes-from-semantic-model-to-visual-model-button.title")} onClick={async () => await onClick()}>
-            👁
+      👁
     </button>
   );
 };

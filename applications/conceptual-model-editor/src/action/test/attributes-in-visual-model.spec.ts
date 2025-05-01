@@ -410,7 +410,7 @@ function createSemanticAttributeTestVariant(
 ) {
 
   const range = representRdfsLiteral();
-  const name = {"en": attributeName};
+  const name = { "en": attributeName };
   const operation = createRelationship({
     ends: [{
       iri: null,
@@ -447,7 +447,7 @@ function createSemanticAttributeUsageTestVariant(
   attributeName: string,
 ) {
   const range = representRdfsLiteral();
-  const name = {"en": attributeName};
+  const name = { "en": attributeName };
   const operation = createRelationshipUsage({
     ends: [{
       iri: null,

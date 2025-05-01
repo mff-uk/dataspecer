@@ -80,7 +80,7 @@ const getTopLeftPosition = (nodes: Node<any>[]) => {
 };
 
 const getBotRightPosition = (nodes: Node<any>[]) => {
-  const botRight = {x: -10000000, y: -10000000};
+  const botRight = { x: -10000000, y: -10000000 };
   nodes.forEach(node => {
     const x = node.position.x + (node.measured?.width ?? 0);
     if(x > botRight.x) {
@@ -331,11 +331,11 @@ function useCreateReactStates() {
         if (node.type === "group") {
           return hideGroupNode(node);
         }
-        return {...node, selected: false};
+        return { ...node, selected: false };
       });
     });
     setSelectedEdges([]);
-    setEdges(prevEdges => prevEdges.map(edge => ({...edge, selected: false})));
+    setEdges(prevEdges => prevEdges.map(edge => ({ ...edge, selected: false })));
   }, [setSelectedNodes, selectedNodesRef, setUserSelectedNodes, userSelectedNodesRef, setNodes, setSelectedEdges]);
 
   return {
@@ -989,7 +989,7 @@ const findUnfinishedGroupUnselections = (
 const artificialChange: NodePositionChange = {
   id: "artificialChange",
   type: "position",
-  position: {x: 1234, y: 2345},
+  position: { x: 1234, y: 2345 },
 }
 
 /**
@@ -1372,7 +1372,7 @@ const createConnectEndHandler = (
       return;
     }
     const targetIsPane = (event.target as Element).classList.contains("react-flow__pane");
-    const flowPosition = reactFlow.screenToFlowPosition({x: (event as unknown as React.MouseEvent)?.clientX, y: (event as unknown as React.MouseEvent)?.clientY});
+    const flowPosition = reactFlow.screenToFlowPosition({ x: (event as unknown as React.MouseEvent)?.clientX, y: (event as unknown as React.MouseEvent)?.clientY });
     if (targetIsPane) {
       api.callbacks().onCreateConnectionToNothing(source.data, flowPosition);
     } else {
@@ -1462,8 +1462,8 @@ const createGroups = (
   previousGroups: Record<string, NodeIdentifierWithType[]>,
   groupsToAdd: GroupWithContent[]
 ) => {
-  const newGroups = {...previousGroups};
-  groupsToAdd.forEach(({group, content}) => {
+  const newGroups = { ...previousGroups };
+  groupsToAdd.forEach(({ group, content }) => {
     const contentWithType = content.map(element => ({
       identifier: element,
       isGroup: isGroup(element, previousGroups),
@@ -1478,8 +1478,8 @@ const createNodeToGroupMapping = (
   previousMapping: Record<string, string>,
   groupsToAdd: GroupWithContent[]
 ) => {
-  const newNodeToGroupMapping = {...previousMapping};
-  groupsToAdd.forEach(({group, content}) => {
+  const newNodeToGroupMapping = { ...previousMapping };
+  groupsToAdd.forEach(({ group, content }) => {
     content.forEach(identifier => {
       newNodeToGroupMapping[identifier] = newNodeToGroupMapping[identifier] ?? group.identifier;
     });
@@ -1541,7 +1541,7 @@ const createActions = (
       setNodes(prevNodes => {
         const newNodes = [...prevNodes];
         const nodeToGroupMapping = createNodeToGroupMapping({}, groups);
-        const nodeToGroupMappingCopy = {...nodeToGroupMapping};
+        const nodeToGroupMappingCopy = { ...nodeToGroupMapping };
         const groupIdentifiers = groups.map(group => group.group.identifier);
         // Not the most effective but there are only few groups so it doesn't matter
         // We have to collect the group nodes separately and in the down to top order,
@@ -1566,7 +1566,7 @@ const createActions = (
         groupProcessingOrdering.reverse();
 
         groupProcessingOrdering.forEach(currGroup => {
-          const foundGroup = groups.find(({group}) => group.identifier === currGroup);
+          const foundGroup = groups.find(({ group }) => group.identifier === currGroup);
           if(foundGroup === undefined) {
             console.warn("Programmer error - missing group which should be there");
             return;
@@ -1577,11 +1577,11 @@ const createActions = (
           newNodes.push(groupNode);
         });
 
-        groups.forEach(({group, content}) => {
+        groups.forEach(({ group, content }) => {
           for(const nodeInGroupIdentifier of content) {
             const nodeInGroupIndex = newNodes.findIndex(node => node.id === nodeInGroupIdentifier);
             if(nodeInGroupIndex === -1) {
-              console.error("Could not find node which is part of group in the list of diagram nodes", {newNodes, group, content, nodeInGroupIdentifier});
+              console.error("Could not find node which is part of group in the list of diagram nodes", { newNodes, group, content, nodeInGroupIdentifier });
               continue;
             }
 
@@ -1600,7 +1600,7 @@ const createActions = (
       console.log("Diagram.removeGroups", { groups });
 
       setGroups(prevGroups => {
-        const newGroups = {...prevGroups};
+        const newGroups = { ...prevGroups };
         for(const group of groups) {
           delete newGroups[group];
         }
@@ -1608,7 +1608,7 @@ const createActions = (
       });
 
       setNodeToGroupMapping(prevMapping => {
-        const newNodeToGroupMapping = {...prevMapping};
+        const newNodeToGroupMapping = { ...prevMapping };
         // Remove the references to the groups for nodes lying inside them
         Object.keys(newNodeToGroupMapping).forEach(nodeIdentifier => {
           if(groups.includes(newNodeToGroupMapping[nodeIdentifier])) {
@@ -1647,12 +1647,12 @@ const createActions = (
       console.log("Diagram.setGroup", { group, content });
 
       setGroups(prevGroups => {
-        const createdGroups = createGroups(prevGroups, [{group, content}]);
+        const createdGroups = createGroups(prevGroups, [{ group, content }]);
         return createdGroups;
       });
 
       setNodeToGroupMapping(prevMapping => {
-        const newNodeToGroupMapping = {...prevMapping};
+        const newNodeToGroupMapping = { ...prevMapping };
         Object.keys(prevMapping).forEach(key => {
           if(prevMapping[key] === group.identifier && !content.includes(key)) {
             delete newNodeToGroupMapping[key];
@@ -1821,9 +1821,9 @@ const createActions = (
       reactFlow.setEdges(prevEdges => {
         return prevEdges.map(edge => {
           if(edges.find(selectedEdge => selectedEdge === edge.id) !== undefined) {
-            return {...edge, selected: true};
+            return { ...edge, selected: true };
           }
-          return {...edge, selected: false};
+          return { ...edge, selected: false };
         });
       });
 
@@ -1873,15 +1873,15 @@ const createActions = (
       return diagramContentAsSvg(reactFlow.getNodes());
     },
     openDragEdgeToCanvasMenu(sourceNode, canvasPosition) {
-      console.log("openDragEdgeToCanvasToolbar", {sourceNode, canvasPosition});
+      console.log("openDragEdgeToCanvasToolbar", { sourceNode, canvasPosition });
       context?.onOpenCanvasContextMenu(sourceNode.identifier, canvasPosition, CanvasMenuCreatedByEdgeDrag);
     },
     openSelectionActionsMenu(sourceNode, canvasPosition) {
-      console.log("openSelectionActionsMenu", {sourceNode, canvasPosition});
+      console.log("openSelectionActionsMenu", { sourceNode, canvasPosition });
       context?.onOpenCanvasContextMenu(sourceNode.identifier, canvasPosition, SelectionActionsMenu);
     },
     openGroupMenu(groupIdentifier, canvasPosition) {
-      console.log("openGroupMenu", {groupIdentifier, canvasPosition});
+      console.log("openGroupMenu", { groupIdentifier, canvasPosition });
       context?.onOpenCanvasContextMenu(groupIdentifier, canvasPosition, GroupMenu);
     },
     highlightNodesInExplorationModeFromCatalog(nodeIdentifiers, modelOfClassWhichStartedHighlighting) {
@@ -1973,7 +1973,7 @@ const focusNodeAction = (reactFlow: ReactFlowContext, node: Node) => {
 
 // Should be superset of the focusNodeAction
 const focusNodesAction = (reactFlow: ReactFlowContext, nodes: Node[]) => {
-  reactFlow.fitView({nodes: nodes,
+  reactFlow.fitView({ nodes: nodes,
     duration: 1000,
     minZoom: 0.125
   });

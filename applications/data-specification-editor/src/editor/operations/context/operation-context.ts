@@ -14,7 +14,7 @@ export class OperationContext implements TechnicalLabelOperationContext {
     public labelRules: {
         languages: string[],
         namingConvention: typeof CASINGS[number],
-        specialCharacters: "allow" | "remove-diacritics" | "remove-all",
+        specialCharacters: "allow-all" | "allow" | "remove-diacritics" | "remove-all",
     } | null = null;
 
     /**
@@ -30,8 +30,13 @@ export class OperationContext implements TechnicalLabelOperationContext {
         if (text === undefined || text === null) return null;
 
         switch (this.labelRules.specialCharacters) {
+            case "allow":
+                // remove only problematic characters
+                text = text.replace(/["\\\/]/g, " "); // space-like
+                break;
             case "remove-all":
                 text = removeDiacritics(text);
+                text = text.replace(/["\\\/]/g, " "); // space-like
                 text = text.replace(/[^a-zA-Z0-9-_\s]/g, "");
                 break;
             case "remove-diacritics":

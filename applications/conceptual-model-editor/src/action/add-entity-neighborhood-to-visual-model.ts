@@ -226,7 +226,7 @@ const addClassNeighborhoodToVisualModelAction = async (
     VisibilityFilter.All, false, null);
 
   return neighborhoodPromise.then(async (neighborhood) => {
-    const classesOrClassProfilesToAdd: EntityToAddToVisualModel[] = [{identifier, position: null}];
+    const classesOrClassProfilesToAdd: EntityToAddToVisualModel[] = [{ identifier, position: null }];
 
     // We have to filter the source class, whose neighborhood we are adding, from the extension.
     // Because we don't want to have duplicate there.

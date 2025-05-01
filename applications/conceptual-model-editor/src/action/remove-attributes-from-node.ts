@@ -21,5 +21,5 @@ export function removeAttributesFromVisualNodeAction(
   }
 
   const content = node.content.filter(attribute => !attributesToRemove.includes(attribute));
-  visualModel.updateVisualEntity(domainNodeIdentifier, {content});
+  visualModel.updateVisualEntity(domainNodeIdentifier, { content });
 }

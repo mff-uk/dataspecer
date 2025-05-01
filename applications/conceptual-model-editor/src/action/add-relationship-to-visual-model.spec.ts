@@ -389,7 +389,7 @@ const prepareVisualModelWithFourNodes = () => {
   aggregator.addModel(model);
   aggregator.addModel(visualModel);
   const aggregatorView = aggregator.getView();
-  const visualModels: Map<string, WritableVisualModel> = new Map(Object.entries({[visualModel.getIdentifier()]: visualModel}));
+  const visualModels: Map<string, WritableVisualModel> = new Map(Object.entries({ [visualModel.getIdentifier()]: visualModel }));
 
   const graph: ModelGraphContextType = {
     aggregator,
@@ -443,7 +443,7 @@ function createSemanticRelationshipTestVariant(
   modelDsIdentifier: string,
   relationshipName: string,
 ): CreatedRelationshipData {
-  const name = {"en": relationshipName};
+  const name = { "en": relationshipName };
 
   const operation = createRelationship({
     ends: [{

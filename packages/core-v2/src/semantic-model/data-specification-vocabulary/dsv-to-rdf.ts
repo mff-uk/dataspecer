@@ -136,7 +136,7 @@ class ConceptualModelWriter {
     //
     this.addLiteral(profile.iri, SKOS.prefLabel, profile.prefLabel);
     this.addLiteral(profile.iri, SKOS.definition, profile.definition);
-    this.addLiteral(profile.iri, VANN.usageNote, profile.usageNote);
+    this.addLiteral(profile.iri, SKOS.scopeNote, profile.usageNote);
     this.addIris(profile.iri, DSV.specializationOf, profile.specializationOfIri);
     // We do not write this into properties.
     this.addIris(profile.iri, DSV.profileOf, profile.profileOfIri);

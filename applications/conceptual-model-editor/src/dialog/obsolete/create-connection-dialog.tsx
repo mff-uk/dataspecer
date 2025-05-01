@@ -110,7 +110,7 @@ export function createCreateConnectionState(
     //
     type: nextOpenConnectionType,
     iri: configuration().relationshipNameToIri(name),
-    name: {[language]: name},
+    name: { [language]: name },
     description: {},
     sourceCardinality: null,
     targetCardinality: null,
@@ -190,7 +190,7 @@ const TypeSwitch = (props: {
         disabled={disabled || isAssociation}
         onClick={() => onChange(ConnectionType.Association)}
       >
-                Relationship
+        Relationship
       </button>
       <span className="mx-2">|</span>
       <button
@@ -198,7 +198,7 @@ const TypeSwitch = (props: {
         disabled={disabled || isGeneralization}
         onClick={() => onChange(ConnectionType.Generalization)}
       >
-                Generalization
+        Generalization
       </button>
     </div>
   );

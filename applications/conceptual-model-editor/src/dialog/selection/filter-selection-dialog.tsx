@@ -64,7 +64,7 @@ const createCheckboxComponent = (
       <input type="checkbox"
         checked={checkboxData.checked}
         onChange={(event) => {
-          controller.setFilterActivness({index, isActive: event.target.checked});
+          controller.setFilterActivness({ index, isActive: event.target.checked });
         }}>
       </input>
       {t(checkboxData.checkboxText)}

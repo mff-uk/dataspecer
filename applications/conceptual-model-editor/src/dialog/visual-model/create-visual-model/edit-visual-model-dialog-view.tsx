@@ -2,10 +2,13 @@ import { type DialogProps } from "../../dialog-api";
 import { t } from "../../../application";
 import { InputLanguageString } from "../../components/input-language-string";
 import { DialogDetailRow } from "../../../components/dialog/dialog-detail-row";
-import { CreateVisualModelDialogState, useCreateVisualModelDialogController } from "./create-visual-model-dialog-controller";
+import { EditVisualModelDialogState } from "./edit-visual-model-dialog-state";
+import { useEditVisualModelDialogController } from "./edit-visual-model-dialog-controller";
 
-export const CreateVisualModelDialog = (props: DialogProps<CreateVisualModelDialogState>) => {
-  const controller = useCreateVisualModelDialogController(props);
+export const CreateVisualModelDialogView = (
+  props: DialogProps<EditVisualModelDialogState>,
+) => {
+  const controller = useEditVisualModelDialogController(props);
   const state = props.state;
   return (
     <>

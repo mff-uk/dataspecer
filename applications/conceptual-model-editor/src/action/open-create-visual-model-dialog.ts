@@ -5,9 +5,9 @@ import { Options } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { createNewVisualModelAction } from "./create-new-visual-model-from-source-visual-model";
 import { QueryParamsContextType } from "@/context/query-params-context";
-import { createCreateVisualModelDialog, createCreateVisualModelDialogState } from "@/dialog/visual-model/create-visual-model/create-create-visual-model-dialog";
-import { CreateVisualModelDialogState } from "@/dialog/visual-model/create-visual-model/create-visual-model-dialog-controller";
+import { createVisualModelDialog } from "@/dialog/visual-model/create-visual-model/edit-visual-model-dialog";
 import { changeVisualModelAction } from "./change-visual-model";
+import { createEditVisualModelDialogState, EditVisualModelDialogState } from "../dialog/visual-model/create-visual-model";
 
 export function openCreateVisualModelDialogAction(
   notifications: UseNotificationServiceWriterType,
@@ -22,17 +22,19 @@ export function openCreateVisualModelDialogAction(
   shouldSwitchToCreatedModel: boolean,
 ) {
 
-  const onConfirm = (nextState: CreateVisualModelDialogState) => {
+  const onConfirm = (nextState: EditVisualModelDialogState) => {
     const createdVisualModel = createNewVisualModelAction(
       notifications, graph, useGraph, visualModel, nextState.label, nodes, edges);
     if (shouldSwitchToCreatedModel) {
       if (createdVisualModel === null) {
         return;
       }
-      changeVisualModelAction(graph, queryParamsContext, createdVisualModel.getId());
+      changeVisualModelAction(
+        graph, queryParamsContext,
+        createdVisualModel.getIdentifier());
     }
   };
 
-  const state = createCreateVisualModelDialogState(options.language, null);
-  dialogs?.openDialog(createCreateVisualModelDialog(state, onConfirm));
+  const state = createEditVisualModelDialogState(options.language, null);
+  dialogs?.openDialog(createVisualModelDialog(state, onConfirm));
 }

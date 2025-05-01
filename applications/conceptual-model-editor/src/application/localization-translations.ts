@@ -88,6 +88,9 @@ const dialogVisualDiagramNode = prefix(
 const dialogVisualModel = prefix(
   "dialog.visual-model.", {
     "cancel": "❌ Cancel",
+    // Edit
+    "label-edit": "Edit visual model",
+    "ok-edit": "✅ Save changes",
     // Create
     "label-create": "Create new visual model",
     "ok-create": "✅ Create",

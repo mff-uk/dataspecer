@@ -154,7 +154,7 @@ const prepareModelWithFourNodes = () => {
   aggregator.addModel(model);
   aggregator.addModel(visualModel);
   const aggregatorView = aggregator.getView();
-  const visualModelsAsObjectEntries = Object.entries({[visualModel.getIdentifier()]: visualModel});
+  const visualModelsAsObjectEntries = Object.entries({ [visualModel.getIdentifier()]: visualModel });
   const visualModels: Map<string, WritableVisualModel> = new Map(visualModelsAsObjectEntries);
 
   const graph: ModelGraphContextType = {

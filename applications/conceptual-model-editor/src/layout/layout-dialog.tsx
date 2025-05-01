@@ -223,7 +223,7 @@ export const useConfigDialog = () => {
         </select>
       </div>
       <hr className="w-48 h-1 mx-auto my-3 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
-      {interactiveCheckbox({...props, algorithmName: "elk_force"})}
+      {interactiveCheckbox({ ...props, algorithmName: "elk_force" })}
       <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
       <RunOverlapRemovalAfterCombobox stateField={props.stateField}></RunOverlapRemovalAfterCombobox>
     </div>;
@@ -314,7 +314,7 @@ export const useConfigDialog = () => {
         {config?.[props.stateField]?.elk_stress?.["number_of_new_algorithm_runs"]}
       </div>
       <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
-      {interactiveCheckbox({...props, algorithmName: "elk_stress"})}
+      {interactiveCheckbox({ ...props, algorithmName: "elk_stress" })}
       <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
       <RunOverlapRemovalAfterCombobox stateField={props.stateField}></RunOverlapRemovalAfterCombobox>
     </div>;
@@ -361,7 +361,7 @@ export const useConfigDialog = () => {
         {config?.[props.stateField]?.elk_stress_profile?.["number_of_new_algorithm_runs"]}
       </div>
       <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
-      {interactiveCheckbox({...props, algorithmName: "elk_stress_profile"})}
+      {interactiveCheckbox({ ...props, algorithmName: "elk_stress_profile" })}
       <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
       <RunOverlapRemovalAfterCombobox stateField={props.stateField}></RunOverlapRemovalAfterCombobox>
     </div>;
@@ -394,7 +394,7 @@ export const useConfigDialog = () => {
 
       <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
       {/* <div className="my-2"/> */}
-      {interactiveCheckbox({...props, algorithmName: "elk_layered"})}
+      {interactiveCheckbox({ ...props, algorithmName: "elk_layered" })}
       <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
 
       <div className="flex flex-row">
@@ -495,7 +495,7 @@ export const useConfigDialog = () => {
       </div>
       <div className="flex flex-row">
         <select id="main-layout-alg" value={config["chosenMainAlgorithm"]}
-          onChange={(event) => setConfig({...config,
+          onChange={(event) => setConfig({ ...config,
             "chosenMainAlgorithm": event.target.value as AlgorithmName
           })
           }>

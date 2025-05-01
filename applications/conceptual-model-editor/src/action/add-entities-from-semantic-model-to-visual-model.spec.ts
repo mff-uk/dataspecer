@@ -158,7 +158,7 @@ test("Test - fully connected graph - Test attribute visibility when clicking the
   visualModel.addVisualNode({
     representedEntity: classWithAttribute,
     model: relevantModel.getId(),
-    position: {x: 0, y: 0, anchored: null},
+    position: { x: 0, y: 0, anchored: null },
     content: [createdAttributeProfile.identifier],
     visualModels: []
   });
@@ -237,7 +237,7 @@ function createSemanticClassTestVariant(
   specializations: CmeSpecialization[],
 ): CmeReference | null {
 
-  const name = {"en": givenName};
+  const name = { "en": givenName };
 
   const operation = createClass({
     iri: generateIriForName(givenName),
@@ -288,7 +288,7 @@ const prepareModelsWithSemanticData = () => {
   aggregator.addModel(visualModel);
   const aggregatorView = aggregator.getView();
   aggregatorView.changeActiveVisualModel(visualModel.getIdentifier());
-  const visualModels: Map<string, WritableVisualModel> = new Map(Object.entries({[visualModel.getIdentifier()]: visualModel}));
+  const visualModels: Map<string, WritableVisualModel> = new Map(Object.entries({ [visualModel.getIdentifier()]: visualModel }));
 
   const graph: ModelGraphContextType = {
     aggregator,
@@ -397,7 +397,7 @@ function createSemanticRelationshipTestVariant(
   modelDsIdentifier: string,
   relationshipName: string,
 ): CmeReference {
-  const name = {"en": relationshipName};
+  const name = { "en": relationshipName };
 
   const operation = createRelationship({
     ends: [{
@@ -571,7 +571,7 @@ function createSemanticAttributeTestVariant(
 ) {
 
   const range = representRdfsLiteral();
-  const name = {"en": attributeName};
+  const name = { "en": attributeName };
   const operation = createRelationship({
     ends: [{
       iri: null,

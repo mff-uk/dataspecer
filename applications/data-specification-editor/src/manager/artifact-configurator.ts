@@ -62,7 +62,7 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
       respec.publicUrl = `${this.baseURL}/${respecFileName}`;
       respec.artefacts = artifacts.map(a => a.iri);
       // @ts-ignore
-      respec.templateType = "respec";
+      respec.templateType = null;
       respec.configuration = configuration;
       artifacts.push(respec);
     }

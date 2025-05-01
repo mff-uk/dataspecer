@@ -13,7 +13,7 @@ export const ModelTypeIcon = (props: { model: EntityModel | undefined; onClick: 
       <>
         <span title={"local model\nbase iri: <" + model.getBaseIri() + ">"}>🏠</span>
         <button title={"click to edit base iri"} onClick={() => onClick(defaultModelIri)}>
-                    📑
+          📑
         </button>
       </>
     );
