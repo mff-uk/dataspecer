@@ -638,7 +638,7 @@ function createDiagramEdge(
   visualModel: VisualModel,
   semanticModels: SemanticModelMap,
   entities: SemanticEntityRecord,
-  visualNode: VisualRelationship,
+  visualRelationship: VisualRelationship,
   entity: SemanticModelRelationship | SemanticModelRelationshipUsage |
     SemanticModelGeneralization | SemanticModelRelationshipProfile,
   semanticModel: SemanticModel,
@@ -646,15 +646,15 @@ function createDiagramEdge(
   const identifier = entity.id;
   if (isSemanticModelRelationship(entity)) {
     return createDiagramEdgeForRelationship(
-      options, visualModel, semanticModels, entities, visualNode,
+      options, visualModel, semanticModels, entities, visualRelationship,
       entity, semanticModel);
   } else if (isSemanticModelRelationshipProfile(entity)) {
     return createDiagramEdgeForRelationshipProfile(
-      options, visualModel, semanticModels, entities, visualNode,
+      options, visualModel, semanticModels, entities, visualRelationship,
       entity, semanticModel);
   } else if (isSemanticModelGeneralization(entity)) {
     return createDiagramEdgeForGeneralization(
-      options, visualModel, visualNode, entity);
+      options, visualModel, visualRelationship, entity);
   }
   throw Error(`Unknown entity type ${identifier}.`);
 }
@@ -664,7 +664,7 @@ function createDiagramEdgeForRelationship(
   visualModel: VisualModel,
   semanticModels: SemanticModelMap,
   entities: SemanticEntityRecord,
-  visualNode: VisualRelationship,
+  visualRelationship: VisualRelationship,
   entity: SemanticModelRelationship,
   semanticModel: SemanticModel
 ): Edge {
@@ -673,15 +673,15 @@ function createDiagramEdgeForRelationship(
   return {
     options,
     type: EdgeType.Association,
-    identifier: visualNode.identifier,
+    identifier: visualRelationship.identifier,
     externalIdentifier: entity.id,
     label: getEntityLabelToShowInDiagram(language, entity),
-    source: visualNode.visualSource,
+    source: visualRelationship.visualSource,
     cardinalitySource: cardinalityToHumanLabel(domain?.cardinality),
-    target: visualNode.visualTarget,
+    target: visualRelationship.visualTarget,
     cardinalityTarget: cardinalityToHumanLabel(range?.cardinality),
-    color: visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR,
-    waypoints: visualNode.waypoints,
+    color: visualModel.getModelColor(visualRelationship.model) ?? DEFAULT_MODEL_COLOR,
+    waypoints: visualRelationship.waypoints,
     profileOf: [],
     vocabulary: prepareVocabulary(
       options, visualModel, semanticModels, entities, entity.id),
@@ -695,27 +695,27 @@ function createDiagramEdgeForRelationshipProfile(
   visualModel: VisualModel,
   semanticModels: SemanticModelMap,
   entities: SemanticEntityRecord,
-  visualNode: VisualRelationship,
+  visualRelationship: VisualRelationship,
   entity: SemanticModelRelationshipProfile,
   semanticModel: SemanticModel
 ): Edge {
   const { domain, range } = getDomainAndRange(entity);
   const label = getEntityLabelToShowInDiagram(options.language, entity);
   const iri = prepareIri(semanticModels, semanticModel, entity);
-  const color = visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR;
+  const color = visualModel.getModelColor(visualRelationship.model) ?? DEFAULT_MODEL_COLOR;
   return {
     options,
     type: EdgeType.AssociationProfile,
-    identifier: visualNode.identifier,
+    identifier: visualRelationship.identifier,
     externalIdentifier: entity.id,
     label,
     iri,
-    source: visualNode.visualSource,
+    source: visualRelationship.visualSource,
     cardinalitySource: cardinalityToHumanLabel(domain?.cardinality),
-    target: visualNode.visualTarget,
+    target: visualRelationship.visualTarget,
     cardinalityTarget: cardinalityToHumanLabel(range?.cardinality),
     color,
-    waypoints: visualNode.waypoints,
+    waypoints: visualRelationship.waypoints,
     profileOf: prepareProfileOf(
       options, semanticModels, entities, entity),
     vocabulary: prepareVocabulary(
@@ -727,21 +727,21 @@ function createDiagramEdgeForRelationshipProfile(
 function createDiagramEdgeForGeneralization(
   diagramOptions: DiagramOptions,
   visualModel: VisualModel,
-  visualNode: VisualRelationship,
+  visualRelationship: VisualRelationship,
   entity: SemanticModelGeneralization,
 ): Edge {
-  const color = visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR;
+  const color = visualModel.getModelColor(visualRelationship.model) ?? DEFAULT_MODEL_COLOR;
   return {
     type: EdgeType.Generalization,
-    identifier: visualNode.identifier,
+    identifier: visualRelationship.identifier,
     externalIdentifier: entity.id,
     label: null,
-    source: visualNode.visualSource,
+    source: visualRelationship.visualSource,
     cardinalitySource: null,
-    target: visualNode.visualTarget,
+    target: visualRelationship.visualTarget,
     cardinalityTarget: null,
     color,
-    waypoints: visualNode.waypoints,
+    waypoints: visualRelationship.waypoints,
     profileOf: [],
     iri: null,
     options: diagramOptions,
@@ -760,20 +760,20 @@ function createDiagramEdgeForGeneralization(
 function createDiagramEdgeForClassUsageOrProfile(
   diagramOptions: DiagramOptions,
   visualModel: VisualModel,
-  visualNode: VisualProfileRelationship,
+  visualProfileRelationship: VisualProfileRelationship,
   entity: SemanticModelClassUsage | SemanticModelClassProfile,
 ): Edge | null {
   return {
     type: EdgeType.ClassProfile,
-    identifier: visualNode.identifier,
+    identifier: visualProfileRelationship.identifier,
     externalIdentifier: entity.id,
     label: "<<profile>>",
-    source: visualNode.visualSource,
+    source: visualProfileRelationship.visualSource,
     cardinalitySource: null,
-    target: visualNode.visualTarget,
+    target: visualProfileRelationship.visualTarget,
     cardinalityTarget: null,
     color: "#000000",
-    waypoints: visualNode.waypoints,
+    waypoints: visualProfileRelationship.waypoints,
     profileOf: [],
     iri: null,
     options: diagramOptions,
