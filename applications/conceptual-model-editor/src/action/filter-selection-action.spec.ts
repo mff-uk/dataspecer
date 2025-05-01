@@ -38,7 +38,6 @@ test("Test filter - Class - visual identifiers", () => {
     notificationMockup, graph, classesContext, inputSelection,
     filters, visibilityFilter, semanticModelFilter);
 
-
   expect(result.nodeSelection).toEqual(inputNodeSelection);
   expect(result.edgeSelection).toEqual([]);
 });
@@ -75,7 +74,6 @@ test("Test filter - Class - semantic identifiers", () => {
     notificationMockup, graph, classesContext, inputSelection,
     filters, visibilityFilter, semanticModelFilter);
 
-
   expect(result.nodeSelection).toEqual(inputClassSelection);
   expect(result.edgeSelection).toEqual([]);
 });
@@ -111,7 +109,6 @@ test("Test filter - Class - Using wrong identifiers", () => {
     notificationMockup, graph, classesContext, inputSelection,
     filters, visibilityFilter, semanticModelFilter);
 
-
   expect(result.nodeSelection).toEqual([]); // We are expecting the wrong identifiers to not pass the class filter
   expect(result.edgeSelection).toEqual([]);
 });
@@ -140,7 +137,6 @@ test("Test filter - Relationships - visual identifiers", () => {
     areVisualModelIdentifiers: true
   };
 
-
   const result = filterSelectionAction(
     notificationMockup, graph, classesContext, inputSelection,
     filters, visibilityFilter, semanticModelFilter);
@@ -151,7 +147,6 @@ test("Test filter - Relationships - visual identifiers", () => {
   expect(result.nodeSelection).toEqual([]);
   expect(result.edgeSelection).toEqual(inputEdgeSelection);
 });
-
 
 test("Test filter - Relationships - semantic identifiers", () => {
   const connectionType = ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Association;
@@ -294,7 +289,6 @@ test("Test filter - Class profiles - visual identifiers", () => {
     .filter(visual => isVisualRelationship(visual) || isVisualProfileRelationship(visual))
     .map(edge => edge.identifier);
 
-
   const inputSelection: SelectionsWithIdInfo = {
     nodeSelection: [...nodes, createdProfileNodes[0]],
     edgeSelection: [...generalizations, ...allEdges],
@@ -306,9 +300,9 @@ test("Test filter - Class profiles - visual identifiers", () => {
     filters, visibilityFilter, semanticModelFilter);
 
   const expectedEdges = [...visualModel.getVisualEntities().entries()]
-  .map(visual => visual[1])
-  .filter(visual => isVisualProfileRelationship(visual))
-  .map(edge => edge.identifier)
+    .map(visual => visual[1])
+    .filter(visual => isVisualProfileRelationship(visual))
+    .map(edge => edge.identifier)
   expect(result.nodeSelection).toEqual([createdProfileNodes[0]]);
   expect(result.edgeSelection.sort()).toEqual(expectedEdges.sort());
 });
@@ -427,7 +421,6 @@ test("Test filter - Relationship profiles - visual identifiers", () => {
   expect(result.nodeSelection).toEqual([]);
   expect(result.edgeSelection).toEqual([relationshipProfilesVisuals[0]]);
 });
-
 
 test("Test filter - Relationship profiles - semantic identifiers", () => {
   const connectionType = ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Association;

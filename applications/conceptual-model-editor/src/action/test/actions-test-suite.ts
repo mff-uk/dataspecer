@@ -238,7 +238,7 @@ export class ActionsTestSuite {
    *  updates needs to be handled separately in test if necessary (but usually we don't want to update it for the test,
    *  we just need to have it as input for the action)
    */
-    static createClassesContextTypeForTests(
+  static createClassesContextTypeForTests(
     givenClasses: CreatedSemanticEntityData[],
     givenRelationships: CreatedSemanticEntityData[],
     givenGeneralizations: CreatedSemanticEntityData[],
@@ -264,11 +264,10 @@ export class ActionsTestSuite {
       relationshipProfilesAsSemanticEntities.push(relationshipProfile.model.getEntities()[relationshipProfile.identifier] as SemanticModelRelationshipProfile);
     });
 
-
     const rawEntities = (classesAsSemanticEntities as Entity[])
-                          .concat(relationshipsAsSemanticEntities)
-                          .concat(generalizationsAsSemanticEntities)
-                          .concat(relationshipProfilesAsSemanticEntities);
+      .concat(relationshipsAsSemanticEntities)
+      .concat(generalizationsAsSemanticEntities)
+      .concat(relationshipProfilesAsSemanticEntities);
 
     const classes: ClassesContextType = {
       classes: classesAsSemanticEntities,
@@ -577,7 +576,6 @@ export class ActionsTestSuite {
     return result;
   }
 
-
   static mapTestedSemanticConnectionToSemanticCheck = {
     [ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Association]: isSemanticModelRelationship,
     [ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Generalization]: isSemanticModelGeneralization,
@@ -612,7 +610,6 @@ export class ActionsTestSuite {
     return result;
   }
 
-
   /**
    * @param identifier if null, then unique identifier is created in the executeOperation
    */
@@ -640,7 +637,6 @@ export class ActionsTestSuite {
       model,
     };
   }
-
 
   private static createRelationshipProfileTestVariant(
     models: Map<string, EntityModel>,
@@ -705,7 +701,6 @@ export class ActionsTestSuite {
     };
   }
 
-
   private static createClassProfileTestVariant(
     models: Map<string, EntityModel>,
     modelDsIdentifier: string,
@@ -754,7 +749,6 @@ export class ActionsTestSuite {
       });
     }
 
-
     const newClassProfiles = createdIdentifiers.map(created => model.getEntities()[created.classProfile] as SemanticModelClassProfile);
     classesContext.classProfiles = classesContext.classProfiles.concat(newClassProfiles);
     return {
@@ -769,7 +763,7 @@ export class ActionsTestSuite {
     rangeConceptIdentifier: string,
     modelDsIdentifier: string,
   ): CreatedSemanticEntityData {
-    const name = {"en": ""};
+    const name = { "en": "" };
 
     const operation = createRelationship({
       id: `${domainConceptIdentifier}-${rangeConceptIdentifier}`,
@@ -821,7 +815,7 @@ export class ActionsTestSuite {
       model,
       content: [],
       visualModels: [],
-      position: position !== undefined ? {...position, anchored: null} : { x: 0, y: 0, anchored: null },
+      position: position !== undefined ? { ...position, anchored: null } : { x: 0, y: 0, anchored: null },
     });
 
     visualModel.addVisualProfileRelationship({
@@ -834,7 +828,6 @@ export class ActionsTestSuite {
 
     return profileVisualId;
   }
-
 
   private static currentRepresentedRelationshipIdentifier = 0;
   static createNewVisualRelationshipsForTestingFromSemanticEnds(
@@ -866,7 +859,6 @@ export class ActionsTestSuite {
 
     return visualId;
   }
-
 
   static addTestRelationshipToVisualModel(
     graph: ModelGraphContextType,
@@ -928,7 +920,7 @@ export class ActionsTestSuite {
     // Now add all edges since the ends already exist in visual model
     for(const entity of Object.values(modelToFillWith.getEntities())) {
       if(ActionsTestSuite.mapTestedSemanticConnectionToSemanticCheck[relationshipToTestType](entity)) {
-        let ends = [];
+        const ends = [];
         if(relationshipToTestType === ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Generalization) {
           ends.push((entity as SemanticModelGeneralization).child);
           ends.push((entity as SemanticModelGeneralization).parent);
