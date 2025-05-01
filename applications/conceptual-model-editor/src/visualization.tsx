@@ -400,7 +400,7 @@ function prepareItems(
       if (rangeEntity === null) {
         LOG.warn("Missing range.", entity);
       }
-      nextLevel = asMandatoryLevel(range.tags);
+      nextLevel = asMandatoryLevel(range.tags ?? []);
       nextItem = {
         options,
         type: NODE_ITEM_TYPE,
