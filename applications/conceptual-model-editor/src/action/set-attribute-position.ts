@@ -33,5 +33,5 @@ export function setAttributePositionAction(
   newContent.splice(oldPosition, 1);
   newContent.splice(position, 0, attributeIdentifier);
 
-  visualModel.updateVisualEntity(nodeIdentifier, {content: newContent})
+  visualModel.updateVisualEntity(nodeIdentifier, { content: newContent })
 }

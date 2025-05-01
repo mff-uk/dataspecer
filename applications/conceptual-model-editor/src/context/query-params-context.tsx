@@ -49,7 +49,7 @@ export const QueryParamsProvider = (props: { children: ReactNode }) => {
       // Change URL.
       const search = urlSearchParams.toString();
       const query = search ? `?${search}` : "";
-      console.log("setQueryParams", params, "=>", {query});
+      console.log("setQueryParams", params, "=>", { query });
       window.history.pushState({}, "", query);
     },
     [packageId, viewId]

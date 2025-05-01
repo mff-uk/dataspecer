@@ -93,7 +93,8 @@ export interface Configuration {
   defaultModelColor: string;
 
   /**
-   * For a given IRi contains a given prefix.
+   * For a given IRI contains a name.
+   * This allow us to alias multiple IRIs to same name.
    */
   prefixes: {[iri: string]: string};
 }

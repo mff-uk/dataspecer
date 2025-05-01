@@ -120,11 +120,11 @@ export const createDialogRendererContext = <S>(state: State, setState: React.Dis
       if (typeof next === "function") {
         // Little help for TypeScript here.
         const setter: (prevState: S) => S = next as any;
-        dialog = {...dialog, state: setter(dialog.state)};
+        dialog = { ...dialog, state: setter(dialog.state) };
       } else {
-        dialog = {...dialog, state: next};
+        dialog = { ...dialog, state: next };
       }
-      return {...state, dialogs: [...state.dialogs.slice(0, state.dialogs.length - 1), dialog]};
+      return { ...state, dialogs: [...state.dialogs.slice(0, state.dialogs.length - 1), dialog] };
     });
   };
 
@@ -132,14 +132,14 @@ export const createDialogRendererContext = <S>(state: State, setState: React.Dis
     if (dialog.onConfirm !== null) {
       dialog.onConfirm(dialog.state);
     }
-    setState({...state, dialogs: state.dialogs.slice(0, state.dialogs.length - 1)});
+    setState({ ...state, dialogs: state.dialogs.slice(0, state.dialogs.length - 1) });
   };
 
   const close = () => {
     if (dialog.onClose !== null) {
       dialog.onClose(dialog.state);
     }
-    setState({...state, dialogs: state.dialogs.slice(0, state.dialogs.length - 1)});
+    setState({ ...state, dialogs: state.dialogs.slice(0, state.dialogs.length - 1) });
   };
 
   return {

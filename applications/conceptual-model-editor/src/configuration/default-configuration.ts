@@ -5,6 +5,12 @@ const PREFIXES = {
   "http://www.w3.org/2001/XMLSchema#": "xml",
   "http://www.w3.org/1999/02/22-rdf-syntax-ns#": "rdf",
   "http://www.w3.org/2000/01/rdf-schema#": "rdfs",
+  "http://www.w3.org/ns/adms#": "adms",
+  "http://www.w3.org/ns/dcat#": "dcat",
+  "http://data.europa.eu/r5r/": "dcatap",
+  "http://purl.org/dc/terms/": "dcterms",
+  "http://xmlns.com/foaf/0.1/": "foaf",
+  "http://www.w3.org/2002/07/owl#": "owl",
 };
 
 /**

@@ -34,7 +34,7 @@ export function createNewVisualModelAction(
   }
 
   useGraph.addVisualModel(model);
-  model.setLabel(newVisualModelName ?? {en: "Visual model"});
+  model.setLabel(newVisualModelName ?? { en: "Visual model" });
   graph.setAggregatorView(graph.aggregator.getView());
 
   return model;
@@ -54,7 +54,7 @@ function addNodesFromSourceModelToTargetModel(
       continue;
     }
     if(isVisualNode(visualEntity)) {
-      const newIdentifier = targetVisualModel.addVisualNode({...visualEntity});
+      const newIdentifier = targetVisualModel.addVisualNode({ ...visualEntity });
       oldToNewIdMapping[visualEntity.identifier] = newIdentifier;
     }
     else if(isVisualDiagramNode(visualEntity)) {

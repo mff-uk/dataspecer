@@ -33,7 +33,7 @@ export function createDefaultWritableVisualModel(
   semanticModels: EntityModel[],
 ): WritableVisualModel {
   const result = visualModelFactory.createNewWritableVisualModelSync();
-  result.setLabel({"en":"Default"});
+  result.setLabel({ "en":"Default" });
   const colors = Object.entries(ColorPalette)
     .map(([_, value]) => value[500]);
   let index = 0;

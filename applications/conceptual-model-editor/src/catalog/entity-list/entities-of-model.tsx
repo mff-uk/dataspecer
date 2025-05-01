@@ -247,7 +247,7 @@ export const EntitiesOfModel = (props: {
   };
 
   const handleDeleteEntity = async (model: InMemorySemanticModel | ExternalSemanticModel, identifier: string) => {
-    await actions.deleteFromSemanticModels([{identifier, sourceModel: model.getId()}]);
+    await actions.deleteFromSemanticModels([{ identifier, sourceModel: model.getId() }]);
   };
 
   const handleSetViewportToEntity = (identifier: string, entityNumberToBeCentered: number) => {
@@ -260,7 +260,7 @@ export const EntitiesOfModel = (props: {
     <li style={{ backgroundColor: color }}>
       <div className="flex flex-row justify-between">
         <h4>
-                    Ⓜ {displayName}
+          Ⓜ {displayName}
         </h4>
         <div className="flex flex-row">
           {renderAddButton(actions, entityType, model)}

@@ -5,7 +5,7 @@ import { Position } from "../diagram-model";
 import "./canvas-menu-general.css";
 import { JSX } from "react";
 
-export type CanvasMenuContentType = ({menuProps}: {menuProps: CanvasMenuContentProps}) => JSX.Element | null;
+export type CanvasMenuContentType = ({ menuProps }: {menuProps: CanvasMenuContentProps}) => JSX.Element | null;
 
 /**
  * Represents the general toolbar for canvas. General toolbar is component, which gets

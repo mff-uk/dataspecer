@@ -75,7 +75,7 @@ function handleDeletionOfSemanticAttribute(
 
     for (const node of nodes) {
       const newContent = node.content.filter(attributeInNode => attributeInNode !== deletedEntity.id);
-      visualModel.updateVisualEntity(node.identifier, {content: newContent});
+      visualModel.updateVisualEntity(node.identifier, { content: newContent });
     }
   }
 }
@@ -115,15 +115,15 @@ function handleUpdateOfSemanticAttribute(
 
   for (const previousNode of previousNodes) {
     const newContentForPrevious = previousNode.content.filter(attributeInNode => attributeInNode !== previousEntity.id);
-    visualModel.updateVisualEntity(previousNode.identifier, {content: newContentForPrevious});
+    visualModel.updateVisualEntity(previousNode.identifier, { content: newContentForPrevious });
   }
 
   for (const nextNode of nextNodes) {
-    visualModel.updateVisualEntity(nextNode.identifier, {content: nextNode.content.concat([previousEntity.id])});
+    visualModel.updateVisualEntity(nextNode.identifier, { content: nextNode.content.concat([previousEntity.id]) });
   }
 
   // TODO RadStr: Debug
-  console.info("Updating attribute", {previousNodes, nextNodes});
+  console.info("Updating attribute", { previousNodes, nextNodes });
 }
 
 /**
@@ -191,7 +191,7 @@ function updateVisualRelationship(
 
   // Get domain and range.
   const { domain, range } = getDomainAndRangeConcepts(entity);
-  console.log("ENTITY", entity, {domain, range});
+  console.log("ENTITY", entity, { domain, range });
   if (domain === null || range === null) {
     visualModel.deleteVisualEntity(visual.identifier);
     LOG.invalidEntity(

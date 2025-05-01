@@ -33,7 +33,7 @@ export const addEntitiesFromSemanticModelToVisualModelAction = async (
     position: null,
   }));
 
-  entitiesToAddToVisualModel.push(...entitiesFromSemanticModel.edgeSelection.map(edge => ({identifier: edge, position: null})));
+  entitiesToAddToVisualModel.push(...entitiesFromSemanticModel.edgeSelection.map(edge => ({ identifier: edge, position: null })));
   // Find those which are not already on canvas.
   entitiesToAddToVisualModel = entitiesToAddToVisualModel
     .filter(entity => !visualModel.hasVisualEntityForRepresented(entity.identifier));

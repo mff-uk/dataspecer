@@ -35,14 +35,14 @@ export async function addSemanticClassProfileToVisualModelAction(
 
   const model = findSourceModelOfEntity(entityIdentifier, graph.models);
   if (model === null) {
-    LOG.error("Operation ignored, we fail to find model for given entity.", {identifier: entityIdentifier});
+    LOG.error("Operation ignored, we fail to find model for given entity.", { identifier: entityIdentifier });
     notifications.error("Can not find model for given entity");
     return;
   }
 
   const entity = entities[entityIdentifier].aggregatedEntity;
   if (entity === undefined || entity === null) {
-    LOG.error("Missing semantic entity.", {identifier: entityIdentifier, entities});
+    LOG.error("Missing semantic entity.", { identifier: entityIdentifier, entities });
     notifications.error("Missing semantic entity.");
     return;
   }

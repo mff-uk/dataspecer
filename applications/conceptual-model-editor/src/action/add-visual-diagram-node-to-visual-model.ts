@@ -99,7 +99,7 @@ function rerouteAllRelevantEdgesTotheVisualDiagramNode(
   }
 
   removeFromVisualModelByVisualAction(notifications, visualModelWithVisualDiagramNode, edgesToRemove);
-  for(const {edgeIdentifier, visualSource, visualTarget} of edgesToUpdate) {
-    visualModelWithVisualDiagramNode.updateVisualEntity(edgeIdentifier, {visualSource, visualTarget});
+  for(const { edgeIdentifier, visualSource, visualTarget } of edgesToUpdate) {
+    visualModelWithVisualDiagramNode.updateVisualEntity(edgeIdentifier, { visualSource, visualTarget });
   }
 }

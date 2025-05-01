@@ -1,4 +1,5 @@
 {
+  "abstract class": "Abstract class",
   "Add import": "Add import",
   "add interpreted class": "Add interpreted class",
   "add non-interpreted attribute": "Add non-interpreted attribute",
@@ -31,6 +32,8 @@
   },
   "includes content of": "includes content of",
   "is dematerialized": "is dematerialized",
+  "make class abstract": "Make class abstract",
+  "make class non-abstract": "Make class non-abstract",
   "no description": "no description",
   "no label": "no label",
   "OR": "OR",

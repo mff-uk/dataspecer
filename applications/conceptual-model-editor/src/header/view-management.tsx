@@ -22,8 +22,8 @@ export const ViewManagement = () => {
   const activeViewId = aggregatorView.getActiveViewId();
   const availableVisualModelIds = aggregatorView.getAvailableVisualModels()
     .map(item => [
-      item.getId(),
-      item.getLabel() === null ?  null : languageStringToString(
+      item.getIdentifier(),
+      item.getLabel() === null ? null : languageStringToString(
         configuration().languagePreferences, language, item.getLabel()!),
     ] as [string, string]);
 
@@ -40,7 +40,7 @@ export const ViewManagement = () => {
   };
 
   const handleCreateNewView = () => {
-    actions.openCreateNewVisualModelDialog(true);
+    actions.openCreateVisualModelDialog();
   };
 
   const handleViewDeleted = (viewId: string) => {
@@ -52,17 +52,37 @@ export const ViewManagement = () => {
   };
 
   return (
-    <DropDownCatalog
-      label="view"
-      valueSelected={activeViewId ?? null}
-      openCatalogTitle="change view"
-      availableValues={availableVisualModelIds}
-      onValueSelected={(value) => handleViewSelected(value)}
-      onValueDeleted={(value) => handleViewDeleted(value)}
-    >
-      <button className="white ml-2 text-[15px]" onClick={handleCreateNewView} title="create a new view">
-        <span className="font-bold">+</span>🖼️
+    <div className="flex">
+      <DropDownCatalog
+        label="View"
+        valueSelected={activeViewId ?? null}
+        openCatalogTitle="change view"
+        availableValues={availableVisualModelIds}
+        onValueSelected={(value) => handleViewSelected(value)}
+        onValueEdit={(value) => actions.openEditVisualModelDialog(value)}
+        onValueDeleted={(value) => handleViewDeleted(value)}
+      />
+      <button className="ml-2 white" onClick={handleCreateNewView} title="Create a new view">
+        <AddIcon />
       </button>
-    </DropDownCatalog>
+    </div>
   );
 };
+
+const AddIcon = () => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
+  )
+}

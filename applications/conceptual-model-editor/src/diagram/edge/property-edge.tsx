@@ -10,7 +10,7 @@ import {
 
 import { createLogger } from "../../application/";
 
-import { type Edge as EdgeApi } from "../diagram-model";
+import { DiagramOptions, EdgeType, EntityColor, LabelVisual, type Edge as ApiEdge } from "../diagram-model";
 import { DiagramContext } from "../diagram-controller";
 import { createSvgPath, createOrthogonalWaypoints, findLabelPosition } from "./edge-utilities";
 import { Waypoints } from "./waypoints";
@@ -18,7 +18,7 @@ import { Point } from "./math";
 
 const logger = createLogger(import.meta.url);
 
-export const PropertyEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
+export const PropertyEdge = (props: EdgeProps<Edge<ApiEdge>>) => {
   const sourceNode = useInternalNode(props.source);
   const targetNode = useInternalNode(props.target);
   const reactFlow = useReactFlow();
@@ -28,6 +28,8 @@ export const PropertyEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
     logger.error("Missing source or target.", { props, sourceNode, targetNode });
     return null;
   }
+
+  const data = props.data;
 
   // Prepare waypoints for the path.
   const waypoints = createOrthogonalWaypoints(sourceNode, props.data?.waypoints ?? [], targetNode);
@@ -52,11 +54,24 @@ export const PropertyEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
   const targetWaypoint = waypoints[waypoints.length - 1];
   const targetShift = getLabelTranslate(
     targetWaypoint, targetNode.position, targetNode.measured);
+    // DisplayRelationshipProfileArchetype
+
+  const labelPrefix =
+    data?.type === EdgeType.AssociationProfile
+    && data.options.displayRelationshipProfileArchetype
+      ? "<<profile>>\n"
+      : "";
+  const label = data === undefined ? props.label : prepareLabel(data.options, data);
+
+  const style = { ...props.style };
+  if (data !== undefined) {
+    style.stroke = prepareColor(data);
+  }
 
   return (
     <>
       <g onClick={onPathClick}>
-        <BaseEdge id={props.id} path={path} markerEnd={props.markerEnd} style={props.style} />
+        <BaseEdge id={props.id} path={path} markerEnd={props.markerEnd} style={style} />
       </g>
       <>
         {props.selected ? <Waypoints edge={props} waypoints={waypoints} data={props.data} /> : null}
@@ -74,6 +89,7 @@ export const PropertyEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
         {props.selected || props.label === null ? null : (
           <div
             style={{
+              textAlign: "center",
               position: "absolute",
               transform: `translate(-50%, -50%) translate(${labelPosition.x}px,${labelPosition.y}px)`,
               // We need this to make the content click-able.
@@ -88,7 +104,7 @@ export const PropertyEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
               opacity: props.style?.opacity,
             }}
           >
-            {props.label}
+            {labelPrefix}{label}
           </div>
         )}
         {props.data === undefined || props.data.cardinalityTarget === null ? null : (
@@ -107,7 +123,40 @@ export const PropertyEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
 
 export const PropertyEdgeName = "property-edge";
 
-const TRANSLATE_ZERO = "translate(0px,0px)";
+function prepareLabel(
+  options: DiagramOptions,
+  data: {
+    label: string | null,
+    iri: string | null,
+    vocabulary: { label: string | null }[],
+  },
+) {
+  console.log(">>", data);
+  switch (options.labelVisual) {
+  case LabelVisual.Entity:
+    return data.label;
+  case LabelVisual.Iri:
+    return data.iri;
+  case LabelVisual.VocabularyOrEntity:
+    return data.vocabulary
+      .map(item => item.label)
+      .filter(item => item !== null)
+      .join(", ");
+  }
+}
+
+function prepareColor(data: ApiEdge) {
+  switch (data.options.entityMainColor) {
+  case EntityColor.Entity:
+    return data.color;
+  case EntityColor.VocabularyOrEntity:
+    if (data.vocabulary.length === 0) {
+      return data.color;
+    }
+    // Just use the first one.
+    return data.vocabulary[0].color;
+  }
+}
 
 /**
  * @returns Shift of the object in percentage.
@@ -118,7 +167,8 @@ function getLabelTranslate(
   { width, height }: { width?: number, height?: number },
 ): string {
   if (width === undefined || height === undefined) {
-    return TRANSLATE_ZERO;
+    // No translation.
+    return "translate(0px,0px)";
   }
   let shiftX = "0%";
   if (point.x < (nodePosition.x)) {

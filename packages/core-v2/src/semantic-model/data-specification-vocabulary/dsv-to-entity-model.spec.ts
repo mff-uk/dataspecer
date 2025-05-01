@@ -4,7 +4,7 @@ import { ClassRole, DsvModel, PropertyProfile, RequirementLevel } from "./dsv-mo
 import { conceptualModelToEntityListContainer } from "./dsv-to-entity-model.ts";
 import { EntityListContainer } from "./entity-model.ts";
 import { entityListContainerToDsvModel, createContext } from "./entity-model-to-dsv.ts";
-import { DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL, VANN } from "./vocabulary.ts";
+import { DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL, SKOS } from "./vocabulary.ts";
 
 test("From DSV to entity model and back.", async () => {
 
@@ -17,7 +17,7 @@ test("From DSV to entity model and back.", async () => {
       "usageNote": {},
       "profileOfIri": [],
       "reusesPropertyValue": [{
-        "reusedPropertyIri": VANN.usageNote.id,
+        "reusedPropertyIri": SKOS.scopeNote.id,
         "propertyReusedFromResourceIri": "http://www.w3.org/ns/dcat#Dataset"
       }],
       "$type": ["class-profile"],

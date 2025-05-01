@@ -1,9 +1,73 @@
+
 export type DiagramNodeTypes = Node | VisualModelDiagramNode;
+
+export type DiagramOptions = {
+
+  labelVisual: LabelVisual;
+
+  entityMainColor: EntityColor;
+
+  profileOfVisual: ProfileOfVisual;
+
+  /**
+   * Show range label using {@link labelVisual} and cardinality.
+   */
+  displayRangeDetail: boolean;
+
+  /**
+   * When true <<profile>> is shown for relationship profiles.
+   */
+  displayRelationshipProfileArchetype: boolean;
+
+}
+
+export enum LabelVisual {
+  /**
+   * Use entity's IRI.
+   */
+  Iri,
+  /**
+   * Use entity label.
+   */
+  Entity,
+  /**
+   * Use labels from profiled vocabularies or entity.
+   */
+  VocabularyOrEntity,
+}
+
+export enum EntityColor {
+  /**
+   * Use entity model color.
+   */
+  Entity,
+  /**
+   * Use majority of vocabularies model color, or entity's model color.
+   */
+  VocabularyOrEntity,
+}
+
+export enum ProfileOfVisual {
+  /**
+   * Do not display profile of information.
+   */
+  None,
+  /**
+   * Use profile label.
+   */
+  Entity,
+  /**
+   * Use profile IRI.
+   */
+  Iri,
+}
 
 /**
  * Node can be a class or a class profile.
  */
 export type Node = {
+
+  options: DiagramOptions;
 
   type: NodeType;
 
@@ -28,7 +92,7 @@ export type Node = {
   description: string | null;
 
   /**
-   * Full IRI of represented entity or null.
+   * Absolute, prefixed or relative IRI of the represented entity.
    */
   iri: string | null;
 
@@ -47,13 +111,35 @@ export type Node = {
    */
   position: AnchoredPosition;
 
-  profileOf: null | {
+  /**
+   * Directly profiled entities.
+   */
+  profileOf: {
 
     label: string;
 
-    usageNote: string | null;
+    /**
+     * Absolute, prefixed or relative IRI of the represented entity.
+     */
+    iri: string | null;
 
-  }
+  }[];
+
+  /**
+   * Profiled vocabulary entities.
+   */
+  vocabulary: {
+
+    label: string | null;
+
+    /**
+     * Absolute, prefixed or relative IRI of the represented entity.
+     */
+    iri: string | null;
+
+    color: string;
+
+  }[];
 
   /**
    * Node content, i.e. attributes, properties.
@@ -143,17 +229,73 @@ export const NODE_ITEM_TYPE = "node-relationship-item";
 
 export interface NodeRelationshipItem extends NodeItem {
 
+  options: DiagramOptions;
+
   type: typeof NODE_ITEM_TYPE;
 
   identifier: string;
 
   label: string;
 
-  profileOf: null | {
+  /**
+   * Absolute, prefixed or relative IRI of the represented entity.
+   */
+  iri: string | null;
+
+  /**
+   * Directly profiled entities.
+   */
+  profileOf: {
 
     label: string;
 
-    usageNote: string | null;
+    /**
+     * Absolute, prefixed or relative IRI of the represented entity.
+     */
+    iri: string | null;
+
+  }[];
+
+  /**
+   * Profiled vocabulary entities.
+   */
+  vocabulary: {
+
+    label: string | null;
+
+    /**
+     * Absolute, prefixed or relative IRI of the represented entity.
+     */
+    iri: string | null;
+
+  }[];
+
+  cardinalitySource: string | null;
+
+  cardinalityTarget: string | null;
+
+  range: null | {
+
+    label: string;
+
+    /**
+     * Absolute, prefixed or relative IRI of the represented entity.
+     */
+    iri: string | null;
+
+    /**
+     * Profiled vocabulary entities.
+     */
+    vocabulary: {
+
+      label: string | null;
+
+      /**
+       * Absolute, prefixed or relative IRI of the represented entity.
+       */
+      iri: string | null;
+
+    }[];
 
   }
 
@@ -219,6 +361,8 @@ export type ViewportDimensions = {
  */
 export type Edge = {
 
+  options: DiagramOptions;
+
   type: EdgeType;
 
   identifier: string;
@@ -232,6 +376,11 @@ export type Edge = {
    * Human readable label.
    */
   label: string | null;
+
+  /**
+   * Absolute, prefixed or relative IRI of the represented entity.
+   */
+  iri: string | null;
 
   source: string;
 
@@ -248,13 +397,37 @@ export type Edge = {
 
   waypoints: Waypoint[];
 
-  profileOf: null | {
+  mandatoryLevelLabel: string | null;
+
+  /**
+   * Directly profiled entities.
+   */
+  profileOf: {
 
     label: string;
 
-    usageNote: string | null;
+    /**
+     * Absolute, prefixed or relative IRI of the represented entity.
+     */
+    iri: string | null;
 
-  }
+  }[];
+
+  /**
+   * Profiled vocabulary entities.
+   */
+  vocabulary: {
+
+    label: string | null;
+
+    /**
+     * Absolute, prefixed or relative IRI of the represented entity.
+     */
+    iri: string | null;
+
+    color: string;
+
+  }[];
 
 }
 

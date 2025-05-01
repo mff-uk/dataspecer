@@ -16,12 +16,18 @@ export interface Preferences {
    */
   pageSplitterValue: number;
 
+  /**
+   * Catalog component.
+   */
+  catalogComponent: "v1" | "v2";
+
 }
 
 const PREFERENCES_KEY = "dataspecer-cme-preferences";
 
 const DEFAULT_PREFERENCES: Preferences = Object.freeze({
   pageSplitterValue: 25,
+  catalogComponent: "v2",
 });
 
 let activePreferences: Preferences = (() => {

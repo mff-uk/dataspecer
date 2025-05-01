@@ -311,7 +311,7 @@ class EntityListContainerToConceptualModel {
       profile.usageNote = this.prepareString(item.usageNote);
     } else {
       profile.reusesPropertyValue.push({
-        reusedPropertyIri: VANN.usageNote.id,
+        reusedPropertyIri: SKOS.scopeNote.id,
         propertyReusedFromResourceIri: this.identifierToIri(item.usageNoteFromProfiled),
       });
     }

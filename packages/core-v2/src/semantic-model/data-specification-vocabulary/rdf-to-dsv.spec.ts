@@ -29,7 +29,7 @@ test("From RDF to DSV and back.", async () => {
   dsv:reusedFromResource <http://www.w3.org/ns/dcat#Dataset>
 ], [
   a dsv:PropertyValueReuse;
-  dsv:reusedProperty vann:usageNote;
+  dsv:reusedProperty skos:scopeNote;
   dsv:reusedFromResource <http://www.w3.org/ns/dcat#Dataset>
 ];
     dsv:externalDocumentation <http://documentation>;
@@ -46,7 +46,7 @@ test("From RDF to DSV and back.", async () => {
   dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution>
 ], [
   a dsv:PropertyValueReuse;
-  dsv:reusedProperty vann:usageNote;
+  dsv:reusedProperty skos:scopeNote;
   dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution>
 ];
     dsv:cardinality cardinality:0n;
@@ -83,7 +83,7 @@ test("From RDF to DSV and back.", async () => {
         "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
         "propertyReusedFromResourceIri": "http://www.w3.org/ns/dcat#Dataset",
       }, {
-        "reusedPropertyIri": "http://purl.org/vocab/vann/usageNote",
+        "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#scopeNote",
         "propertyReusedFromResourceIri": "http://www.w3.org/ns/dcat#Dataset",
       }],
       "externalDocumentationUrl": "http://documentation",
@@ -104,7 +104,7 @@ test("From RDF to DSV and back.", async () => {
           "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
           "propertyReusedFromResourceIri": "http://dcat-ap/ns/dcat#Distribution",
         }, {
-          "reusedPropertyIri": "http://purl.org/vocab/vann/usageNote",
+          "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#scopeNote",
           "propertyReusedFromResourceIri": "http://dcat-ap/ns/dcat#Distribution",
         }],
         "specializationOfIri": [],

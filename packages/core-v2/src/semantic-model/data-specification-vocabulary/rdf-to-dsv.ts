@@ -135,7 +135,8 @@ class ClassProfilesReader {
       iri: subject.value,
       prefLabel: reader.languageString(SKOS.prefLabel),
       definition: reader.languageString(SKOS.definition),
-      usageNote: reader.languageString(VANN.usageNote),
+      usageNote: reader.languageString(SKOS.scopeNote)
+        ?? reader.languageString(VANN.usageNote),
       profileOfIri: reader.iris(DSV.profileOf),
       reusesPropertyValue: [],
       specializationOfIri: reader.iris(DSV.specializationOf),
@@ -249,7 +250,11 @@ function loadReusesPropertyValue(
   profile: Profile,
 ) {
   const reader = new RdfPropertyReader(context, subject);
-  const reusedProperty = reader.iri(DSV.reusedProperty);
+  let reusedProperty = reader.iri(DSV.reusedProperty);
+  // Migration section.
+  if (reusedProperty === VANN.usageNote.id) {
+    reusedProperty = SKOS.scopeNote.id;
+  }
   const reusedFrom = reader.iri(DSV.reusedFromResource);
   if (reusedProperty === null || reusedFrom === null) {
     console.warn("Invalid dsv:PropertyValueReuse", {
@@ -304,7 +309,8 @@ class PropertyProfilesReader {
       iri: subject.value,
       prefLabel: reader.languageString(SKOS.prefLabel),
       definition: reader.languageString(SKOS.definition),
-      usageNote: reader.languageString(VANN.usageNote),
+      usageNote: reader.languageString(SKOS.scopeNote)
+        ?? reader.languageString(VANN.usageNote),
       profileOfIri: reader.iris(DSV.profileOf),
       reusesPropertyValue: [],
       specializationOfIri: reader.iris(DSV.specializationOf),

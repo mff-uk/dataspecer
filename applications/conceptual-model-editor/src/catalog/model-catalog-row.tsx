@@ -94,10 +94,10 @@ export const ModelItemRow = (props: { modelId: string }) => {
         }
         <ColorPicker currentColor={currentColor} saveColor={handleSaveColor} />
         <button className="hover:shadow-sm" onClick={handleModifyModelAliasClicked}>
-                    ✏
+          ✏
         </button>
         <button className="my-auto" onClick={handleRemoveButtonClicked}>
-                    🗑️
+          🗑️
         </button>
       </div>
     </div>

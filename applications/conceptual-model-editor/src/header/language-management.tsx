@@ -5,7 +5,7 @@ export const LanguageManagement = () => {
   const options = useOptions();
   return (
     <DropDownCatalog
-      label="lang"
+      label="Language"
       valueSelected={options.language}
       openCatalogTitle="Change preferred language"
       availableValues={SupportedLanguages}

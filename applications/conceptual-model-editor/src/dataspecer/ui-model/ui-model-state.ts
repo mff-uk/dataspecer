@@ -220,16 +220,22 @@ function withEntities<Type extends Entity>(
 ): void {
   for (const model of semanticModels) {
     const uiSemanticModel = secureUiSemanticModel(state, model);
-    for (const entityIdentifier of Object.keys(model.getEntities())) {
+    for (const [entityIdentifier, entity] of Object.entries(model.getEntities())) {
       const wrap = aggregatorEntities[entityIdentifier];
-      const raw = wrap.rawEntity;
-      const aggregate = wrap.aggregatedEntity;
+      if (wrap === undefined) {
+        LOG.invalidEntity(entityIdentifier,
+          "Wrap for an entity is undefined.",
+          { entity });
+        continue;
+      }
+      const raw = wrap?.rawEntity;
+      const aggregate = wrap?.aggregatedEntity;
       if (raw === null || aggregate === null) {
         // This should not happen, if it does it will produce a lot of
         // messages as this function is called multiple times.
         LOG.invalidEntity(entityIdentifier,
           "Raw entity or aggregate are null.",
-          { raw, aggregate });
+          { entity, raw, aggregate });
         continue;
       }
       if (filter(raw) && filter(aggregate)) {
