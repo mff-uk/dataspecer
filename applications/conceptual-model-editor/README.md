@@ -17,14 +17,7 @@ As Vite is using caching of sources, changes in the imported packages from this 
 To address this you need to force Vite to rebuild cache using `npx vite --force`.
 Keep in mind that this command takes a little bit more time.
 
-### CME
-
-We will shortly describe the architecture of the CME in general.
-It makes no sense to describe, in what places each feature is implemented,
-since it isn't that important and if anyone starts to work on the project,
-they should be relatively quickly able to tell, where is roughly what based on the given overview here.
-
-## More robust guide for development, which is more beginner friendly than the other "official" guides in github repository. But it may get deprecated over time.
+## More detailed guide, but may get deprecated over time
 
 - When you just want to test diagram without using packages, then there is nothing extra you need to do.
   - Run `npm install` from root directory
