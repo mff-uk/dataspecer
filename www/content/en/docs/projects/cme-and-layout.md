@@ -23,7 +23,10 @@ CME behaves like classic conceptual modelling with the additional option to reus
 the concept of profiling.
 
 **Terms:**
-- `Package` - You can think of it as a directory. CME's goal is then to allow view and modify subset of this package. Where the subset are semantic models (also called `Vocabularies`) and the `visual models`, TODO: Obrazek z manageru
+- `Package` - You can think of it as a directory. CME's goal is then to allow view and modify subset of this package. Where the subset are semantic models (also called `Vocabularies`) and the `visual models`,
+
+{{% tutorial-image "images/projects/cme-and-layout/package-manager.png" %}}
+
 - `Vocabulary` - Stores classes, relationships and attributes and profiles. The vocabulary itself contains some properties:
   - Name
   - IRI
@@ -70,7 +73,7 @@ Cme can be split into three main parts:
 - Catalog - Contains the semantic information about package and visual information relevant to currently active visual model. In the time of writing documentation it is the component seen on the left
 - Canvas - Takes the most part of the screen. Contains the visual representation of the visual model with nodes and edges.
 
-TODO: Obrazek s labely
+{{% tutorial-image "images/projects/cme-and-layout/catalog-canvas-header.png" %}}
 
 
 ## Working with views/visual models
@@ -161,7 +164,7 @@ This menu contains the following options:
 
 - Create relationship (association) target - This option creates new target of relationship.
 That means, new dialog is shown to create class. After confirmation new node representing the class is put
-at the position of the menu. Together with the node, relationship is created. This relationship has default parameters.
+at the position of the menu. Relationship is created together with the node. This relationship has default parameters.
 The source class is the class from which the dragging started. The target one is the created class.
 - Create relationship (association) source - Same as previous except the class from which we started the dragging is target and the newly
 created class is the source of the relationship
@@ -176,7 +179,7 @@ created class is the source of the relationship
 {{% tutorial-image "images/projects/cme-and-layout/node-actions-duplication.png" %}}
 
 User can create duplicate of node by clicking the `⿻` button.
-That is new visual node representing the same underlying concept is created.
+Creation node duplicate = New visual node representing the same underlying concept is created.
 
 Note: This feature is still not fully developed. So even though it works,
 some operations may be difficult to perform,
@@ -229,7 +232,7 @@ User can (un)anchor chosen node using the ⚓ button.
 
 Anchoring node means that once we run force-directed algorithm, the anchored nodes are not moved when layouting is finished.
 
-Other algorithms unfortunately move the node, the ELK layouting library doesn't support anchoring for others.
+Other algorithms unfortunately move the node, the Elk layouting library doesn't support anchoring for others.
 Sure we could just run the algorithm and then not update the anchored visual nodes in the visual model, but that's simply not
 really useful, since the layouting algorithm moved it, so by having it stay on old place, the layout may be significantly worse.
 
@@ -252,12 +255,12 @@ When it comes to layout of selection, I personally think that the most useful on
 can find all generalization children, and layout them, so we can have tree of depth 1
 - Node overlap algorithm, this can be also useful, for example when we run force-directed algorithm for the whole diagram
 and some small part of the layouted model is overlapping, or too close to each other
-- It may be also useful if we want for example node and its neighborhood to layout it like star
+- Sometimes It may be also useful to use force-directed algorithm, for example if we want node and its neighborhood to layout like star:
 
 {{% tutorial-image "images/projects/cme-and-layout/star-layout-force-directed.png" %}}
 
 
-### Selection buttons
+### Selection actions
 
 When user performs selection on more than 1 entity, the following buttons are shown.
 
@@ -349,8 +352,7 @@ The selection is restricted to the chosen options, which can be any combination 
 - Relationship profiles
 - Generalizations
 
-Possible use-case for this is for example. Put everything into canvas, but then we would like to have only the profiles
-on the canvas or something similar like this.
+Possible use-case is for example: Put everything on canvas, choose everything except profiles, hide it, which results in only the profiles being present on the canvas.
 
 #### Actions on selection
 
@@ -394,23 +396,21 @@ Note: The class profile and profiled class share position. On the left and on th
 {{% tutorial-image "images/projects/cme-and-layout/profile-selection-with-profiling-shared-end.png" %}}
 
 #### Groups
-Group is entity in visual model, which contains nodes or other groups.
+Group is entity in visual model, which contains nodes and/or other groups.
 
 ##### Creating Group
 
 {{% tutorial-image "images/projects/cme-and-layout/group-button.png" %}}
 
 User can create group from selection clicking the ⛓️ button. Group from user perspective means that
-when user moves node, he also moves all nodes in the group.
-Note that when user performs action on selection all the nodes in group behave as selected.
+when user moves node, he also moves all nodes in the group. It also behaves as one node in context of layouting.
+In other words the relative positions between nodes in group are always kept
 
-Advanced explanation: Just to fully understand what is happening, there are two types of selection.
-In one selection are the elements specifically selected by user, in the second are those selected by user +
-those not selected by user but are part of groups. And actions on selection affect all of them.
+Note that when user performs action on selection, all the nodes in group behave as selected.
 
 ##### Dissolving Group
 Click on any node in the group, which you want to dissolve and click on the ⛓️‍💥 button.
-The group will no longer exist and the nodes will be kept on place.
+The group will no longer exist. The positions of nodes inside group won't be affected.
 
 #### Visual nodes representing visual models
 We can create special type of visual node which represents visual model from the list of available visual models in the current package using the 📦 button.
@@ -418,7 +418,7 @@ We can create special type of visual node which represents visual model from the
 {{% tutorial-image "images/projects/cme-and-layout/creating-visual-diagram-node-from-existing.png" %}}
 
 Similarly we can can select entities on canvas and click the 📦 button.
-This creates dialogs, which asks user to insert name of to be created visual model.
+This creates dialog, which asks user to insert name of to be created visual model.
 The selected entities are removed from the canvas, put into the new visual model and in the current visual model,
 the visual diagram node referencing the newly created visual model is created.
 
@@ -468,7 +468,7 @@ We split the talk about into 2 sections, quick guide and detailed explanation. T
 - First you should try `force-directed with clusters` with default settings
 - If you are not satisfied, just try force-directed - if it looks better, you can bump up the number of runs, which may improve results.
 Just note that the gain in layout quality isn't linear.
-Meaning if you run the algorithm 1 time, 10 times and 100 times, then the layout after 10 runs may be actually 10 times better than running only once, but running 100 times definitely won't be 100 times better.
+Meaning if you run the algorithm 1 time, 10 times and 100 times, then the layout after 10 runs may be actually 10 times better than running only once, but running 100 times definitely won't be 100 times better. After certain number it is just waste of time. I think that on mid-sized graphs 10-50 should be the range to look for.
 - If you want to layout diagram in layers (hierarchy), use hierarchical
 - If you want to make the diagram more spacy or remove overlaps use Node overlap removal algorithm.
 
@@ -483,14 +483,17 @@ Layout solution is based on the ElkJS layouting library.
 ### Force-directed algorithms
 Layouted DCAT-AP using force-directed algorithm:
 
-{{% tutorial-image "images/projects/cme-and-layout/elk-stress-dcat-ap.png" %}}
-
 - Should be the first class of algorithms to try if you don't know, what layout to choose or how the data looks like.
 
 - These types of algorithms are based on physical simulation.
 The resulting layout tends to be symmetric, edges being of similar length and with low amount of edge crossings.
 
-#### [Force-directed](https://eclipse.dev/elk/reference/algorithms/org-eclipse-elk-stress.html)
+- They are run multiple times, which is controlled by the number of runs parameter. After the runs, best layout is chosen, where the best layout is the one with best metric values. `Metric` is value, which describes how good certain layout is. There are many metrics, we have implemented the most important ones based on articles. The edge-edge crossings and edge-node crossings. But there are more like area, orthogonality, edge crossing angle, etc.
+
+#### [Force-directed](https://eclipse.dev/Elk/reference/algorithms/org-eclipse-Elk-stress.html)
+
+{{% tutorial-image "images/projects/cme-and-layout/Elk-stress-dcat-ap.png" %}}
+
 - Very simple to use
   - It has single parameter - ideal edge length. The algorithm then tries to layout nodes in such a way that all edges have this length.
 
@@ -543,7 +546,7 @@ Layouted DCAT-AP using random algorithm with node overlap removal:
 
 Randomly places nodes on canvas. Very basic, not really recommended to use. Basically fallback if all the other fail due to programmer error/faulty data.
 
-#### [Node overlap removal](https://eclipse.dev/elk/reference/algorithms/org-eclipse-elk-sporeOverlap.html)
+#### [Node overlap removal](https://eclipse.dev/Elk/reference/algorithms/org-eclipse-Elk-sporeOverlap.html)
 
 
 Has single parameter:
@@ -557,9 +560,11 @@ In such cases this algorithm is run with small value (around 50).
 For example the Elk stress algorithm considers the edge length, but not the node sizes, because of that node overlaps may occur even
 when you would not expect it. So this algorithm removes such overlaps. It is also useful, if we want to layout only part of graph, because the nodes in the specific part are too close together.
 
-#### Hierarchical algorithm - [Elk layered](https://eclipse.dev/elk/reference/algorithms/org-eclipse-elk-layered.html)
+#### Hierarchical algorithm - [Elk layered](https://eclipse.dev/Elk/reference/algorithms/org-eclipse-Elk-layered.html)
 
 {{% tutorial-image "images/projects/cme-and-layout/layered-algorithm-dcat-ap.png" %}}
+
+**Description taken from the Elk library reference:**
 
 This algorithm is based on the algorithm proposed by Sugiyama, Tagawa and Toda in 1981.
 
@@ -587,7 +592,7 @@ Parameters:
 ## Skipped algorithms:
 We have initially implemented more algorithms, but later in development hid them from users for good reasons.
 
-### [Elk Force](https://eclipse.dev/elk/reference/algorithms/org-eclipse-elk-force.html)
+### [Elk Force](https://eclipse.dev/Elk/reference/algorithms/org-eclipse-Elk-force.html)
 This algorithm is similar to the Elk stress, but while providing similar results it has some issues:
 - The configuration is hard to understand and set up
 - We already have Elk stress
@@ -604,26 +609,30 @@ Unfortunately that is highly non-trivial:
   - How to weight them?
     - We can't do that by eye, we would have to get all possible specification diagrams and use some state search algorithm. Even then the results might not be as good.
 
-### [Elk radial](https://eclipse.dev/elk/reference/algorithms/org-eclipse-elk-radial.html)
-While nice at first sight. The algorithm does not work and I mean on the Elk layouting library level:
+### [Elk radial](https://eclipse.dev/Elk/reference/algorithms/org-eclipse-Elk-radial.html)
+While nice at first sight. The algorithm does not work on the Elk layouting library level:
 
-- Ignoring the edge length parameter
+- It ignores the edge length parameter, respectively the parameter is used only for the neighbors of the root
 - Infinite recursion for bigger graphs
 
-Not working examples. Well actually for some reason it sometimes work,
-but try to remove some empty line and you will get error that the algorithm ran for more than 5 seconds,
-which doesn't happen even for large graphs layouted through elk stress, which is much more resource heavy algorithm:
-[Example of radial elk algorithm running for long time](https://rtsys.informatik.uni-kiel.de/elklive/elkgraph.html?compressedContent=IYGw5g9gTglgLgCwLYC4AEVgBMagFB4B2EWApmoQIxoDeeaaIwARqSGgERUd4C+BxMhQBMteoxZtOhYT35ES5QgGYxDJq3ZdlcgYooAWNRM3SDuhUMIBWYxqldrFwUoBsdyVsKvn+wgHYPUy5-XysADiCHQnCwpQBOKK94iwJSLDAlagBaAD4RPHTMihz8lUKMrLQ8wwriqmqy6zwAeha6pVUawgMOw0aKeNb2oqVbbtc+mwGA4bnRikDuobm5oA)
-[Infinite recursion example for radial elk on online elk demonstrator](https://rtsys.informatik.uni-kiel.de/elklive/elkgraph.html?compressedContent=PTCWDsBcFMCcEMDGlQDdoBl4E8D2BXSALgAJJZ9oAoEaAGwGsA6AE1FmmVF3FICUAkgHEAEgBUq8OgHNcsUJAAWAW1II2UqlXC4W0EuACMJAN5USJOvABG9EgCIj9qgF8tOvQYBMp85Zt2jl7Obtq6+uAAzL4WVrZ0DlEh7uEGACwx-vGJaclhnuAArJlxgUV5HhEAbCUBCY5VFangAOy12Y4tTQUAHO1lPd0RAJz99eDDQwaGAAxjibNTRsZmsXULhkuGPqtZZdtb0bul44aRWxnH646Gua5aVNAs0hHGALQAfN6Pz68knwZIj8XtN-l9wGlgX8AUUaMAoYCwekEVEkbCniDUTCqijojCeri0cM4SiMjDiSAUcVsVS0S0SZSMRE2uSUSzwbMSUyDH0YZzKbRfgZ2dMZlyhUY5nzDOLMYZ3hyvLLXj4+UDGRKzmjbkA)
+**Not working examples:**
 
-### [Mr. Tree](https://eclipse.dev/elk/reference/algorithms/org-eclipse-elk-mrtree.html)
+Well actually for some reason the first sometimes work,
+but try to remove some empty line and you will get error that the algorithm ran for more than 5 seconds,
+which doesn't happen even for large graphs layouted through Elk stress, which is much more resource heavy algorithm.
+
+[Example of radial Elk algorithm running for long time](https://rtsys.informatik.uni-kiel.de/Elklive/Elkgraph.html?compressedContent=IYGw5g9gTglgLgCwLYC4AEVgBMagFB4B2EWApmoQIxoDeeaaIwARqSGgERUd4C+BxMhQBMteoxZtOhYT35ES5QgGYxDJq3ZdlcgYooAWNRM3SDuhUMIBWYxqldrFwUoBsdyVsKvn+wgHYPUy5-XysADiCHQnCwpQBOKK94iwJSLDAlagBaAD4RPHTMihz8lUKMrLQ8wwriqmqy6zwAeha6pVUawgMOw0aKeNb2oqVbbtc+mwGA4bnRikDuobm5oA)
+
+[Infinite recursion example for radial Elk on online Elk demonstrator](https://rtsys.informatik.uni-kiel.de/Elklive/Elkgraph.html?compressedContent=PTCWDsBcFMCcEMDGlQDdoBl4E8D2BXSALgAJJZ9oAoEaAGwGsA6AE1FmmVF3FICUAkgHEAEgBUq8OgHNcsUJAAWAW1II2UqlXC4W0EuACMJAN5USJOvABG9EgCIj9qgF8tOvQYBMp85Zt2jl7Obtq6+uAAzL4WVrZ0DlEh7uEGACwx-vGJaclhnuAArJlxgUV5HhEAbCUBCY5VFangAOy12Y4tTQUAHO1lPd0RAJz99eDDQwaGAAxjibNTRsZmsXULhkuGPqtZZdtb0bul44aRWxnH646Gua5aVNAs0hHGALQAfN6Pz68knwZIj8XtN-l9wGlgX8AUUaMAoYCwekEVEkbCniDUTCqijojCeri0cM4SiMjDiSAUcVsVS0S0SZSMRE2uSUSzwbMSUyDH0YZzKbRfgZ2dMZlyhUY5nzDOLMYZ3hyvLLXj4+UDGRKzmjbkA)
+
+### [Mr. Tree](https://eclipse.dev/Elk/reference/algorithms/org-eclipse-Elk-mrtree.html)
 Very difficult to use and configure and to integrate into application. Doesn't seem to provide any additional value over Elk layered.
 
 ## Issues
 
 ### Layouting of subgraphs
 
-The issue lies both in our implementation and elk implementation. We have been doing a lot of experiments and debugging
+The issue lies both in our implementation and Elk implementation. We have been doing a lot of experiments and debugging
 with this functionality, but eventually it was disabled.
 Not completely though - group of nodes is technically a subgraph. So if you ever layout graph which contains group and wonder why it looks bad, after reading this section you should understand.
 
@@ -631,23 +640,27 @@ For example at first I wanted to have any algorithm run with the option to layou
 User would choose the preferred edge direction in hierarchy. Then first the generalization subgraphs would be layouted
 followed by layout of the subgraphs replaced by single nodes.
 
-But here comes the big issue - Elk does support the fact that we can say about group of nodes, that they are subgraph. But it does not allow the edges to go between hierachy levels, that is from node inside subgraph to node/subgraph outside.
-So we tried splitting the edges, which works, but the layout of edges becomes aboslutely unusable and the end results is
-much worse than if we layouted the graph normally. If we would do the double layout manually, that is we would really replace
-the subgraph with one node, instead of it being actual subgraph, we end up in the same situation.
+But here comes the big issue - Even though Elk does support the fact that we can say about group of nodes, that they are subgraph. First problem is that it does not allow the edges to go between hierachy levels, that is from node inside subgraph to node/subgraph outside.
+So we split the edges, which works, but the layout of edges becomes aboslutely unusable and the end results is
+much worse than if we layouted the graph normally.
+
+We can also handle the layouting of subgrahps manually by performing two-run layout, that is we would really replace
+the subgraph with one node, instead of it being actual subgraph, but we end up in the same situation.
 Sure on the high level we are fine, but we don't consider the content inside the subgraph for optimal layout result. So the issue is in the fact that we need to consider whole graph when layouting, we can't just layout the subgraph and then the rest of graph.
 
-So the issue is really highly non-trivial to solve, since even the layouting library can not deal with it.
+Therefore the issue is really highly non-trivial to solve, since even the layouting library can not deal with it.
 
 ### Layout package architecture
 
-Index - contains the main layout method and behaves as API for the rest of the Dataspecer.
+`index.ts` - contains the main layout method and behaves as API for the rest of the Dataspecer. The main function called by the API methods, which handles the running of algorithms multiple times and chooses the best one based on computed metrics is the `runMainLayoutAlgorithm`.
 
 In the API user provides entities to layout and user given algorithm configurations.
-Note that entities to layout can be both present and not present visual model.
+Note that entities to layout can be both present and not present (so called outsiders) in visual model.
 
 Those entities are then transformed into graph representation, which is later further transformed into to the graph representation
 for the layouting library (in our case ElkJS). Same transformation then takes place in the opposite direction.
+
+  {{% tutorial-image "images/projects/cme-and-layout/layout-representations-conversion.png" %}}
 
 When it comes to the user given algorithm configurations. Those are transformed into `ConfigurationContainer` which contains
 specific `GraphTransformationActions` and `AlgorithmConfiguration` steps which need to be performed for the
@@ -656,32 +669,31 @@ concrete algorithm. The `AlgorithmConfiguration` is basically wrapper around the
 ### Layout package directory structure:
 
 - `configurations`
-  - `elk` - Contain the elk specific configurations
-    - `elk-configurations.ts` - Contains the elk classes for the different elk layouting algorithms. They hold the user given algorithm parameters and conversion of those the elk parameters.
-    - `elk-utils.ts` - Contains the mappings of configuration parameters from general name to the elk specifics
-  - `user-algorithm-configurations.ts` - Contains the `UserGivenAlgorithmConfigurations` - That is the layout configuration, in which
-    each algorithm has specific parameters, so each algorithm has different parameters, which can be also found this file in the corresponding interfaces.
+  - `Elk` - Contain the Elk specific configurations
+    - `Elk-configurations.ts` - Contains the Elk typescript classes for the different Elk layouting algorithms. They hold the user given algorithm parameters and conversion of those the Elk parameters. They are Elk implementations of the typescript class found in `algorithm-configuration.ts`.
+    - `Elk-utils.ts` - Contains the mappings of configuration parameters from general name to the Elk specifics. Because we are not using the Elk parameters, the idea was to make the code more general (for example if we wanted to introduce another library which does similar stuff). So we use general names, which are then transformed to Elk equivalents.
+  - `user-algorithm-configurations.ts` - Contains the `UserGivenAlgorithmConfigurations` interface, which describes the layout configuration. It contains the chosen algorithm and list of all available algorithms, where each algorithm has specific parameters, which can be also found in this file in the corresponding interfaces.
   - `algorithm-configuration.ts` - Similar to the previous one, but the distinction is that this are class implementations, while the previous ones are interfaces which are used when creating the user configurations, these are used in the layouting itself, so they take the interface in the constructor and create object of it with additional data, which make it easier to pass the information to the layouting system.
-  - `configuration-factories.ts` - This file behaves as factory to create the configuration containers - that is, in the factory
-based on the parameters and algorithms it constructs the container object. This is probably the most important file to look at if you are writing your own algorithm. Since you also need to extend the factory + it really helps to understand the code/workflow
-  - `configuration-container.ts` - Contains the configuration containter, which stores all layouting and graph actions in order which they should be performed in `performLayoutingBasedOnConfigurations` inside the `index.ts` fle
+  - `configuration-factories.ts` - This file contains factory to create the configuration containers
+based on the parameters and algorithms. This is probably the most important file to look at if you are writing your own algorithm. Since you also need to extend the factory + it really helps to understand the code/workflow. But what to exactly do is described in the next section in more detail.
+  - `configuration-container.ts` - Contains the configuration container, which stores all layouting and graph actions in order which they should be performed in `performLayoutingBasedOnConfigurations` inside the `index.ts` file
   - `graph-conversion-action.ts` - Contains so called graph conversion actions, these are actions on graph, which are not layouting itself but somehow transform the graph or find some information about it. For example turn the graph into tree or find clusters.
-- `dimension-estimators` - Contains classes used to estimate the width and height of a node. Currently there is constant estimator and more complex one which takes into consideration name, attributes, etc. and tries to estimate how big will be the node when rendered.
+- `dimension-estimators` - Contains typescript classes used to estimate the width and height of a node. Currently there is constant estimator and more complex one which takes into consideration name, attributes, etc. and tries to estimate how big will be the node when rendered.
 - `graph`
   - `graph-metrics` - Contains interface for representation of metric and implementations of some chosen metrics. Also just a interesting implementation detail, I noticed that if only metric(s) is used as name, it can sometimes result into page-block caused by some browser add-ons, possibly adblock.
-  - `representation` - contains files used for representation of the graph.
-- `layout-algorithms` - Contains the graph transformers a layout algorithm interface and implementations
+  - `representation` - Contains files used for representation of the graph.
+- `layout-algorithms` - Contains the graph transformers, `LayoutAlgorithm` interface and implementations
   - `graph-transformers`
-    - `graph-transformer-interface.ts` - Contains interface to implement, when new layouting library is introduced. The interface handles the transformation to the layouting library representation from the general graph representation and the conversion back or rather the update of the existing representation.
-    - `elk-graph-transformer.ts` - is the implementation of the transformer for the elk layouting library.
+    - `graph-transformer-interface.ts` - Contains interface which should be implemented, when new layouting library is introduced. The interface handles the transformation to the layouting library representation from the general graph representation and the conversion back (respectively the update of the existing representation).
+    - `Elk-graph-transformer.ts` - is the implementation of the transformer for the Elk layouting library.
   - `implementations` - Implements the `LayoutAlgorithm` for the corresponding layouting algorithms
-  - `layout-algorithms-interfaces.ts` - Concretely the interface `LayoutAlgorithm`, which has to be implemented by any layouting algorithm.
-  - `list-of-layout-algorithms.ts` - This file contains list of all implemented algorithms, this is the first place you should extend if you want to implement your own algorithm. The compiler error will then guide you to most of the places you should touch upon to add the new algorithm. But to consult this in more detail check the
-  - `entity-budles.ts` - Transforms given data from semantic models into bundels to they are easier to work with, when we are creating the general graph (not the layouting library one) to layout
+    - `layout-algorithms-interfaces.ts` - Concretely the interface `LayoutAlgorithm`, which has to be implemented by all layouting algorithm.
+    - `list-of-layout-algorithms.ts` - This file contains list of all implemented algorithms. This is the first place you should extend if you want to implement your own algorithm. The compiler error will then guide you to most of the places you should touch upon to add the new algorithm. But to consult this in more detail check the following section.
+    - `entity-budles.ts` - Transforms given data from semantic models into bundles to they are easier to work with, when we are creating the general graph (not the layouting library one) to layout
 - `util` - Contains utility functionality needed in other parts of the package.
 
 - `index.ts` file - Contains the main layout functions, which are exported, so they can be also used in other parts of Dataspecer
-- `explicit-anchors.ts` file - Contains the functionality for anchor overriding, since sometimes we want to override the given anchor settings, for example when we are adding new nodes and edges to already existing graph (when click the show button vocabulary),
+- `explicit-anchors.ts` file - Contains the functionality for anchor overriding, because sometimes we want to override the given anchor settings. For example when we are adding new nodes and edges to already existing graph (when click the show button vocabulary),
 we want to keep the existing nodes in place, so we override their anchor settings.
 - `graph-algorithms.ts` file - Contains some needed graph algorithms, for example to compute clusters for cluster-based layouting algorithm or to turn graph into trees, etc.
 
@@ -689,32 +701,30 @@ we want to keep the existing nodes in place, so we override their anchor setting
 1. Go into the `list-of-layout-algorithms.ts` and extend the `AlgorithmName` type and the map `ALGORITHM_NAME_TO_LAYOUT_MAPPING`
 2. Fix the introduced errors by this. That is
   - Put your algorithm into `/implementations`, so it implements `LayoutAlgorithm` interface and point to it from the map.
-  - Fix the errors in `elk-utils.ts`, if it is not using elk set it to the same values like `random` alfoirthm for example, if it is then set it how it should be.
-  - Extend the `UserGivenAlgorithmConfigurationInterfaces` and `UserGivenAlgorithmConfigurationInterfacesUnion` by NEWLY introduced user given parameters (just check the others if you dont know how it should look, for example `UserGivenAlgorithmConfigurationLayered`)
+  - Fix the errors in `Elk-utils.ts`, if it is not using Elk set it to the same values like `random` algorithm for example, if it is then set it how it should be.
+  - Extend the `UserGivenAlgorithmConfigurationInterfaces` and `UserGivenAlgorithmConfigurationInterfacesUnion` by NEWLY introduced user given parameters (just check the others if you dont know how it should look, for example `UserGivenAlgorithmConfigurationLayered`).
 In short just create interface, put in the correct `layout_alg` name and add the parameters. It should also extend the `UserGivenAlgorithmConfigurationBase` interface.
-  - Introduce the class implementing configuration (just take a look at the `RandomConfiguration`, just create class which extend `DefaultAlgorithmConfiguration` with generic set to your `UserGivenConfiguration` or if you are extending elk, some of the elk ones) and extend the `getDefaultUserGivenAlgorithmConfigurationsMap` as all the others do it.
+  - Introduce the class implementing configuration (just take a look at the `RandomConfiguration`, just create class which extend `DefaultAlgorithmConfiguration` with generic set to your `UserGivenConfiguration` or if you are extending Elk, some of the Elk ones) and extend the `getDefaultUserGivenAlgorithmConfigurationsMap` as all the others do it.
   - Now it should compile, but we are still not finished unfortunately, but we would notice that if we tried running the algorithm, since we would get explicit run-time errors explaining that we are not finished.
-3. Go into the `user-algorithm-configurations.ts` - Contains the `UserGivenAlgorithmConfigurations` and `algorithm-configuration.ts` and introduce new configurations.
-That is create new interfaces and classes and extend the `UserGivenAlgorithmConfigurations`
-4. Finally introduce the new algorithm into the `configurations/configuration-factories.ts`, that is extend the switch inside the `addAlgorithmConfigurationLayoutActions` method, by looking at the other algorithms you should quickly find out how.
-5. Also extend the `addToLayoutActionsInPreMainRunBasedOnConfiguration`, oterwise you will get run time error, that being said you an usually get away with not doing anything in the switch, here you should only do stuff if you want to perform something before running the layouting loop (that is the loop which runs the multiple times and chooses the best layout based on metrics.)
+3. Go into the `user-algorithm-configurations.ts`, which contains the `UserGivenAlgorithmConfigurations` and then go to `algorithm-configuration.ts` and introduce new configurations.
+That is create new interfaces and classes and extend the `UserGivenAlgorithmConfigurations`.
+4. Finally introduce the new algorithm into the `configurations/configuration-factories.ts`, that is extend the switch inside the `addAlgorithmConfigurationLayoutActions` method. Looking at the other algorithms should be enough to quickly find out how.
+5. Also extend the `addToLayoutActionsInPreMainRunBasedOnConfiguration`, otherwise you will get run time error, that being said you can usually get away with not doing anything in the switch, here you should only do stuff if you want to perform something before running the layouting loop (that is the loop which runs the multiple times and chooses the best layout based on metrics.)
 
-In step 3, when extending you may notice these 2 methods, basically since the class behaves as container for parameters from users
-and internal parameters (for example in case of elk the user data transformed to elk data), this method should handle the conversion
-if we add new user parameter internally (as programmer) inside the program, then these should set the underlying data (so in case of elk the elk data)
-`addAlgorithmConfigurationToUnderlyingData`, `addAdvancedSettingsToUnderlyingData`
+In step 3, when extending you may notice two at first slightly confusing methods (`addAlgorithmConfigurationToUnderlyingData`, `addAdvancedSettingsToUnderlyingData`). Since the class behaves as container for parameters from users
+and internal parameters (for example in case of Elk the user data transformed to Elk data), this method should handle the extension of the internal parameters (so for example the Elk data). If we add new user parameter internally (as programmer) inside the program, then these should set the underlying data (so in case of Elk the Elk data).
 
-This should be all, unless new layouting library was introduced you should create new `layout-algorithms/graph-transformers/graph-transformer-interface.ts` in a similar way the elk is implemented in the same directory.
+This should be all, unless new layouting library was introduced you should create new `layout-algorithms/graph-transformers/graph-transformer-interface.ts` in a similar way the Elk is implemented in the same directory.
 
 ### Advanced settings
 You may notice that each algorithm contains the `advanced_settings` property, this one is working, but currently unable to be set from user UI.
-Basically the idea behind advanced_settings is that since elk contains ton of parameters, we would like to provide them through this setting, since it is unfeasible to have it all in user UI.
+Basically the idea behind advanced_settings is that since Elk contains ton of parameters, we would like to provide them through this setting, since it is unfeasible to have it all in user UI.
 
 ## Implementation
 
 ### CME
 
-We will shortly describe here the architecture of the CME in general.
+We will shortly describe the architecture of the CME in general.
 It makes no sense to describe, in what places each feature is implemented,
 since it isn't that important and if anyone starts to work on the project,
 they should be relatively quickly able to tell, where is roughly what based on the given overview here.
@@ -757,68 +767,7 @@ Where the layout is the layout package, so technically it is not part of CME.
 - `catalog (newly catalog-v2)` - represents the catalog component in CME. ![img_6.png](cme-catalog-dev-docs.png)
 - `components` - Some exported React components
 - `configuration` - Language options and static configuration for diagram, etc.
-- `context` - Model, Class and query params context.
-- `dataspecer` - Communication with backend containing packages and communication layer for core-v2 models.
-- `diagram` - The diagram component of CME. Should be separated from the rest of CME. So we can swap out the rendering library if necessary.
-  - `diagram-api.tsx` - The API used for communication with the rest of CME.
-  - `diagram-controller.ts` - The controller handling logic for diagram component.
-  - `diagram-hook.ts` - The diagram hook used to provide diagram functionality to rest of CME.
-  - `diagram-model.ts` - The entities used in diagram - Node types and Edge types, etc. in diagram
-  - `diagram.tsx` - The react component, which handles rendering of diagram.
-- `dialog` - Contains all the dialogs available in CME.
-- `features` - Some unrelated features, like autosave or color picker. Probably the features contained in header.
-- `header` - The stuff related to header. ![img_6.png](cme-header.png)
-
-`visualization.tsx` file - Creates the diagram component and handles callbacks caused by changes to entities in semantic model and changes in entities in visual model and the model itself and propagates them to the diagram component.
-
-## Implementation
-
-### CME
-
-We will shortly describe here the architecture of the CME in general.
-It makes no sense to describe, in what places each feature is implemented,
-since it isn't that important and if anyone starts to work on the project,
-they should be relatively quickly able to tell, where is roughly what based on the given overview here.
-
-#### Running CME
-
-##### Here is quick quide by me, which is more beginner friendly than the other "official" guides in github repository. But it may get deprecated over time.
-
-- When you just want to test diagram without using packages, then there is nothing extra you need to do.
-  - Run `npm install` from root directory
-  - Run `npm run build` from root directory
-  - Run `npm run dev` from the applications/conceptual-model-editor directory
-
-- Running manager - sometimes you want to access packages and not only run the diagram part:
-  - In the applications/conceptual-model-editor directory create .env file from .env.example
-    - When you want to use the official Dataspecer backend:
-      - VITE_PUBLIC_APP_BACKEND="https://tool.dataspecer.com/api"
-      - When you also want to run the manager and connect it to locally running CME, create .env.local from .env and set the backend to
-        - VITE_BACKEND=https://tool.dataspecer.com/api
-        - And run the manager using `npm run dev` from the applications/manager
-    - When you want to run backend locally set the backend variables mentioned above to http://localhost:3100
-and run the backend as described [here](https://github.com/mff-uk/dataspecer/tree/main/services/backend) (that being said I am no longer able to run the backend, so not sure if it still works, might be related to the https://github.com/mff-uk/dataspecer/issues/1145)
-
-##### The official build guides.
-- The main tutorial is contained here: https://github.com/mff-uk/dataspecer/
-- To build CME you can consult this page: https://github.com/mff-uk/dataspecer/tree/main/applications/conceptual-model-editor#installation
-
-
-#### C4 component diagram
-On very high level the CME component looks like this:
-
-![img_6.png](c4-component-diagram-cme.png)
-
-Where the layout is the layout package, so technically it is not part of CME.
-
-
-#### Directory structure
-
-- `action` - The actions that can user do, so basically business logic.
-- `catalog (newly catalog-v2)` - represents the catalog component in CME. ![img_6.png](cme-catalog-dev-docs.png)
-- `components` - Some exported React components
-- `configuration` - Language options and static configuration for diagram, etc.
-- `context` - Model, Class and query params context.
+- `context` - Model, Class, Layout configuration and query params context.
 - `dataspecer` - Communication with backend containing packages and communication layer for core-v2 models.
 - `diagram` - The diagram component of CME. Should be separated from the rest of CME. So we can swap out the rendering library if necessary.
   - `diagram-api.tsx` - The API used for communication with the rest of CME.
