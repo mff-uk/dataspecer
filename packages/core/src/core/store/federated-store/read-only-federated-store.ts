@@ -1,5 +1,5 @@
-import { CoreResourceReader } from "../../core-reader";
-import { CoreResource } from "../../core-resource";
+import { CoreResourceReader } from "../../core-reader.ts";
+import { CoreResource } from "../../core-resource.ts";
 
 export class ReadOnlyFederatedStore implements CoreResourceReader {
   readonly readers: CoreResourceReader[];

@@ -1,7 +1,7 @@
 import {DataSpecification} from "@dataspecer/core/data-specification/model";
-import {DataSpecificationWithStores} from "../interfaces/data-specification-with-stores";
-import {DataSpecificationWithMetadata} from "../interfaces/data-specification-with-metadata";
-import {UpdateDataSpecification} from "../interfaces/update-data-specification";
+import {DataSpecificationWithStores} from "../interfaces/data-specification-with-stores.ts";
+import {DataSpecificationWithMetadata} from "../interfaces/data-specification-with-metadata.ts";
+import {UpdateDataSpecification} from "../interfaces/update-data-specification.ts";
 import {HttpFetch} from "@dataspecer/core/io/fetch/fetch-api";
 import { CoreResource } from "@dataspecer/core/core";
 

@@ -3,13 +3,13 @@ import {
   CoreExecutorResult,
   CreateNewIdentifier,
   CoreResource,
-} from "../../core";
-import { DataPsmCreateExternalRoot } from "../operation";
+} from "../../core/index.ts";
+import { DataPsmCreateExternalRoot } from "../operation/index.ts";
 import {
   DataPsmExecutorResultFactory,
   loadDataPsmSchema,
-} from "./data-psm-executor-utils";
-import { DataPsmExternalRoot } from "../model";
+} from "./data-psm-executor-utils.ts";
+import { DataPsmExternalRoot } from "../model/index.ts";
 
 export async function executeDataPsmCreateExternalRoot(
   reader: CoreResourceReader,

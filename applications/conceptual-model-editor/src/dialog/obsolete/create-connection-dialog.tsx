@@ -8,7 +8,7 @@ import type {
 
 import { ModelGraphContextType } from "../../context/model-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
+import { InputLanguageString } from "../components/input-language-string";
 import { IriInput } from "../../components/input/iri-input";
 import { getModelIri } from "../../util/iri-utils";
 import { CardinalityOptions } from "../../components/cardinality-options";
@@ -110,7 +110,7 @@ export function createCreateConnectionState(
     //
     type: nextOpenConnectionType,
     iri: configuration().relationshipNameToIri(name),
-    name: {[language]: name},
+    name: { [language]: name },
     description: {},
     sourceCardinality: null,
     targetCardinality: null,
@@ -190,7 +190,7 @@ const TypeSwitch = (props: {
         disabled={disabled || isAssociation}
         onClick={() => onChange(ConnectionType.Association)}
       >
-                Relationship
+        Relationship
       </button>
       <span className="mx-2">|</span>
       <button
@@ -198,7 +198,7 @@ const TypeSwitch = (props: {
         disabled={disabled || isGeneralization}
         onClick={() => onChange(ConnectionType.Generalization)}
       >
-                Generalization
+        Generalization
       </button>
     </div>
   );
@@ -236,11 +236,11 @@ const AssociationSection = (props: DialogProps<CreateConnectionState>) => {
   return (
     <>
       <DialogDetailRow detailKey={t("create-connection-dialog.name")}>
-        <MultiLanguageInputForLanguageString
-          ls={props.state.name}
-          setLs={setName}
+        <InputLanguageString
+          value={props.state.name}
+          onChange={setName}
           inputType="text"
-          defaultLang={language}
+          defaultLanguage={language}
         />
       </DialogDetailRow>
       <DialogDetailRow detailKey={t("create-connection-dialog.iri")}>
@@ -255,11 +255,11 @@ const AssociationSection = (props: DialogProps<CreateConnectionState>) => {
         />
       </DialogDetailRow>
       <DialogDetailRow detailKey={t("create-connection-dialog.description")}>
-        <MultiLanguageInputForLanguageString
-          ls={props.state.description}
-          setLs={setDescription}
+        <InputLanguageString
+          value={props.state.description}
+          onChange={setDescription}
           inputType="textarea"
-          defaultLang={language}
+          defaultLanguage={language}
         />
       </DialogDetailRow>
 

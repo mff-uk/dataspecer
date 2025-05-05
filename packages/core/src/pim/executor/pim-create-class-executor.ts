@@ -1,11 +1,11 @@
-import { PimCreateClass, PimCreateClassResult } from "../operation";
+import { PimCreateClass, PimCreateClassResult } from "../operation/index.ts";
 import {
   CoreExecutorResult,
   CoreResourceReader,
   CreateNewIdentifier,
-} from "../../core";
-import { PimExecutorResultFactory, loadPimSchema } from "./pim-executor-utils";
-import { PimClass } from "../model";
+} from "../../core/index.ts";
+import { PimExecutorResultFactory, loadPimSchema } from "./pim-executor-utils.ts";
+import { PimClass } from "../model/index.ts";
 
 export async function executePimCreateClass(
   reader: CoreResourceReader,

@@ -4,21 +4,6 @@ export const RDF = {
   langString: "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
 };
 
-const OFN_TYPE_PREFIX =
-    "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/";
-
-export const OFN = {
-  boolean: OFN_TYPE_PREFIX + "boolean",
-  date: OFN_TYPE_PREFIX + "datum",
-  time: OFN_TYPE_PREFIX + "čas",
-  dateTime: OFN_TYPE_PREFIX + "datum-a-čas",
-  integer: OFN_TYPE_PREFIX + "celé-číslo",
-  decimal: OFN_TYPE_PREFIX + "desetinné-číslo",
-  url: OFN_TYPE_PREFIX + "url",
-  string: OFN_TYPE_PREFIX + "řetězec",
-  text: OFN_TYPE_PREFIX + "text",
-};
-
 export const RDFS = {
   subClassOf: "http://www.w3.org/2000/01/rdf-schema#subClassOf",
   subPropertyOf: "http://www.w3.org/2000/01/rdf-schema#subPropertyOf",
@@ -74,6 +59,7 @@ export const XSD = {
   boolean: XSD_PREFIX + "boolean",
   date: XSD_PREFIX + "date",
   time: XSD_PREFIX + "time",
+  dateTime: XSD_PREFIX + "dateTime",
   dateTimeStamp: XSD_PREFIX + "dateTimeStamp",
   anyURI: XSD_PREFIX + "anyURI",
 };

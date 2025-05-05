@@ -1,6 +1,6 @@
-import { Entity, EntityIdentifier } from "../../../entity-model/entity";
-import { isSemanticModelClass, isSemanticModelRelationship, LanguageString, SemanticModelClass, SemanticModelRelationship } from "../../concepts";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipEndProfile, SemanticModelRelationshipProfile } from "../concepts";
+import { Entity, EntityIdentifier } from "../../../entity-model/entity.ts";
+import { isSemanticModelClass, isSemanticModelRelationship, LanguageString, SemanticModelClass, SemanticModelRelationship } from "../../concepts/index.ts";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipEndProfile, SemanticModelRelationshipProfile } from "../concepts/index.ts";
 
 /**
  * Given an entity analyze and return dependencies to other entities.
@@ -15,10 +15,12 @@ export interface DependencyAnalyzer {
 }
 
 export interface AggregatedProfiledSemanticModelClass extends SemanticModelClassProfile {
+
   /**
    * List of IRIs of the original classes that were referenced by the profile.
    */
   conceptIris: string[];
+
 }
 
 export function isAggregatedProfiledSemanticModelClass(entity: Entity | null): entity is AggregatedProfiledSemanticModelClass {
@@ -30,10 +32,12 @@ export interface AggregatedProfiledSemanticModelRelationship extends SemanticMod
 }
 
 export interface AggregatedProfiledSemanticModelRelationshipEnd extends SemanticModelRelationshipEndProfile {
+
   /**
    * List of IRIs of the original ends that were referenced by the profile.
    */
   conceptIris: string[];
+
 }
 
 export interface ProfileAggregator {
@@ -103,13 +107,15 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
 
     return {
       // Add all properties from aggregated entities and from this one.
-      ...otherPropertiesAggregated,
-      ...profile,
+      ...otherPropertiesAggregated as {}, // enforce all members to be explicitly defined
+      ...profile as {}, // enforce all members to be explicitly defined
       //
       id: profile.id,
       type: profile.type,
       profiling: profile.profiling,
       iri: profile.iri,
+      externalDocumentationUrl: profile.externalDocumentationUrl,
+      tags: profile.tags,
       //
       usageNote: (profiled(profile.usageNoteFromProfiled) as SemanticModelClassProfile)?.usageNote ?? usageNote ?? null,
       usageNoteFromProfiled: profile.usageNoteFromProfiled,
@@ -130,18 +136,20 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
     const profiled = createProfiledGetter(aggregatedProfiled, profile);
     return {
       // Add all properties from the profile.
-      ...profile,
+      ...profile as {}, // enforce all members to be explicitly defined
       //
       id: profile.id,
       type: profile.type,
       //
       ends: profile.ends.map((end, index) => ({
         // Add all properties from the profile and profiled entities.
-        ...end.profiling.map(profiled).reduce((p, c) => Object.assign(p, c?.ends[index]), {}),
-        ...end,
+        ...end.profiling.map(profiled).reduce((p, c) => Object.assign(p, c?.ends[index]), {}) as {}, // enforce all members to be explicitly defined
+        ...end as {}, // enforce all members to be explicitly defined
         //
         profiling: end.profiling,
         iri: end.iri,
+        externalDocumentationUrl: end.externalDocumentationUrl,
+        tags: end.tags,
         //
         name: profiled(end.nameFromProfiled)?.ends[index]?.name ?? end.name ?? null,
         nameFromProfiled: end.nameFromProfiled,

@@ -4,12 +4,13 @@
     "declaration": true,
     "declarationMap": true,
     "esModuleInterop": true,
-    "moduleResolution": "Node16",
-    "module": "Node16",
+    "moduleResolution": "nodenext",
+    "module": "NodeNext",
+    "rewriteRelativeImportExtensions": true,
     "outDir": "./lib",
     "sourceMap": true,
     "target": "ESNext",
-    "types": ["@types/jest"],
+    "types": ["vitest/globals"]
   },
   "include": [
     "src/**/*", "src/tests/support/jsonLdCreator.ts", "node_modules/stream-chunks/chunks.js"

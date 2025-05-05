@@ -15,15 +15,6 @@ export default defineConfig({
       namespaceResolution: 'basename'
     })
   ],
-  optimizeDeps: {
-    include: [
-      "@dataspecer/core-v2/**",
-      "@dataspecer/core-v2/project",
-      "@dataspecer/backend-utils/connectors/specification",
-      "@dataspecer/documentation/**",
-      "@dataspecer/specification/**",
-    ]
-  },
   build: {
     commonjsOptions: {
       include: [/packages\//, /node_modules/],

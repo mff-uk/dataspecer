@@ -2,9 +2,9 @@ import {
   CoreResourceReader,
   CoreExecutorResult,
   CreateNewIdentifier,
-} from "../../core";
-import { DataPsmDeleteAssociationEnd } from "../operation";
-import { removeFromClass } from "./data-psm-executor-utils";
+} from "../../core/index.ts";
+import { DataPsmDeleteAssociationEnd } from "../operation/index.ts";
+import { removeFromClass } from "./data-psm-executor-utils.ts";
 
 export async function executeDataPsmDeleteAssociationEnd(
   reader: CoreResourceReader,

@@ -1,7 +1,7 @@
-import {ConceptualModel, ConceptualModelPrimitiveType} from "../../conceptual-model";
-import {StructureModel} from "../model";
-import {clone} from "../../core";
-import {buildPropertyMap} from "../../conceptual-model/utils";
+import {ConceptualModel, ConceptualModelPrimitiveType} from "../../conceptual-model/index.ts";
+import {StructureModel} from "../model/index.ts";
+import {clone} from "../../core/index.ts";
+import {buildPropertyMap} from "../../conceptual-model/utils.ts";
 
 /**
  * Add regex from {@link ConceptualModel} if they are missing.

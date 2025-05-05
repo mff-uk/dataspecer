@@ -1,6 +1,6 @@
 import { PimResource } from "@dataspecer/core/pim/model";
 import { IriProvider } from "@dataspecer/core/cim";
-import { WdEntityDescOnly } from "../wikidata-entities/wd-entity";
+import { WdEntityDescOnly } from "../wikidata-entities/wd-entity.ts";
 
 export function loadWikidataEntityToResource(
     entity: WdEntityDescOnly,

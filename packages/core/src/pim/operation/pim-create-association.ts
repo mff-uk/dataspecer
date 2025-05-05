@@ -1,6 +1,6 @@
-import { CoreOperationResult, CoreResource, CoreTyped } from "../../core";
-import { PimCreate } from "./pim-create";
-import * as PIM from "../pim-vocabulary";
+import { CoreOperationResult, CoreResource, CoreTyped } from "../../core/index.ts";
+import { PimCreate } from "./pim-create.ts";
+import * as PIM from "../pim-vocabulary.ts";
 
 export class PimCreateAssociation extends PimCreate {
   static readonly TYPE = PIM.CREATE_ASSOCIATION;

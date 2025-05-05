@@ -1,3 +1,3 @@
-export * from "./visual-entity";
-export * from "./visual-model";
-export { createDefaultVisualModelFactory } from "./visual-model-factory";
+export * from "./visual-entity.ts";
+export * from "./visual-model.ts";
+export { createDefaultVisualModelFactory } from "./visual-model-factory.ts";

@@ -1,9 +1,9 @@
 import { LOCAL_PACKAGE } from "@dataspecer/core-v2/model/known-models";
-import { ZipStreamDictionary } from "../generate/zip-stream-dictionary";
-import { BaseResource, ResourceModel } from "../models/resource-model";
+import { ZipStreamDictionary } from "../generate/zip-stream-dictionary.ts";
+import { BaseResource, ResourceModel } from "../models/resource-model.ts";
 import { v4 as uuidv4 } from 'uuid';
-import { currentVersion } from "../tools/migrations";
-import configuration from "../configuration";
+import { currentVersion } from "../tools/migrations/index.ts";
+import configuration from "../configuration.ts";
 
 export class PackageExporter {
   resourceModel: ResourceModel;

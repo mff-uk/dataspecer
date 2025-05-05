@@ -1,5 +1,5 @@
-import {LanguageString} from "../../core";
-import {StructureModelProperty} from "./structure-model-property";
+import {LanguageString} from "../../core/index.ts";
+import {StructureModelProperty} from "./structure-model-property.ts";
 
 export class StructureModelClass {
   /**
@@ -101,6 +101,11 @@ export class StructureModelClass {
    * List of defined IRI prefixes for JSON-LD context.
    */
   jsonLdDefinedPrefixes: { [prefix: string]: string } = {};
+
+  /**
+   * Type iri to label used for @types.
+   */
+  jsonLdTypeMapping: { [iri: string]: string } = {};
 
   /**
    * Whether the regex pattern on IRI should be translated to accommodate defined prefixes.

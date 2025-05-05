@@ -10,7 +10,7 @@ export const CreateProfileButton = ({ onClickHandler }: { onClickHandler?: () =>
       title={t("create-profile-button.title")}
       onClick={onClickHandler}
     >
-            🧲
+      🧲
     </button>
   );
 };

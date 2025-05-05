@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { DataPsmCreateSchema } from "../operation";
-import { executeDataPsmCreateSchema } from "./data-psm-create-schema-executor";
-import * as PSM from "../data-psm-vocabulary";
+} from "../../core/index.ts";
+import { DataPsmCreateSchema } from "../operation/index.ts";
+import { executeDataPsmCreateSchema } from "./data-psm-create-schema-executor.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 test("Create data PSM schema.", async () => {
   const operation = new DataPsmCreateSchema();

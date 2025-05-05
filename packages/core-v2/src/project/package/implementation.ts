@@ -1,15 +1,15 @@
 import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
-import { EntityModel } from "../../entity-model";
-import { HttpEntityModel } from "../../entity-model/http-entity-model";
-import { LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL } from "../../model/known-models";
-import { createPimModel, createRdfsModel, createSgovModel } from "../../semantic-model/simplified";
-import { createInMemorySemanticModel } from "../../semantic-model/simplified/in-memory-semantic-model";
-import { createVisualModel } from "../../semantic-model/simplified/visual-model";
-import { PimStoreWrapper } from "../../semantic-model/v1-adapters";
-import { WritableSemanticModelAdapter } from "../../semantic-model/writable-semantic-model-adapter";
-import { VisualModel } from "../../visual-model";
-import { BaseResource, Package, ResourceEditable } from "../resource/resource";
-import { PackageService, SemanticModelPackageService } from "./package-service";
+import { EntityModel } from "../../entity-model/index.ts";
+import { HttpEntityModel } from "../../entity-model/http-entity-model.ts";
+import { LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL } from "../../model/known-models.ts";
+import { createPimModel, createRdfsModel, createSgovModel } from "../../semantic-model/simplified/index.ts";
+import { createInMemorySemanticModel } from "../../semantic-model/simplified/in-memory-semantic-model.ts";
+import { createVisualModel } from "../../semantic-model/simplified/visual-model.ts";
+import { PimStoreWrapper } from "../../semantic-model/v1-adapters/index.ts";
+import { WritableSemanticModelAdapter } from "../../semantic-model/writable-semantic-model-adapter.ts";
+import { VisualModel } from "../../visual-model/index.ts";
+import { BaseResource, Package, ResourceEditable } from "../resource/resource.ts";
+import { PackageService, SemanticModelPackageService } from "./package-service.ts";
 
 async function createHttpSemanticModel(data: any, httpFetch: HttpFetch): Promise<WritableSemanticModelAdapter> {
     const baseModel = HttpEntityModel.createFromDescriptor(data, httpFetch);

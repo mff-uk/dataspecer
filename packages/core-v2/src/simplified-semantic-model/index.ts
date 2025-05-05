@@ -1,2 +1,2 @@
-export {semanticModelToSimplifiedSemanticModel, simplifiedSemanticModelToSemanticModel} from "./adapter";
-export type {SimplifiedSemanticModel} from "./schema";
+export {semanticModelToSimplifiedSemanticModel, simplifiedSemanticModelToSemanticModel} from "./adapter.ts";
+export type {SimplifiedSemanticModel} from "./schema.ts";

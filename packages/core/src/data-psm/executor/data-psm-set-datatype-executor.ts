@@ -3,10 +3,10 @@ import {
   CoreExecutorResult,
   CreateNewIdentifier,
   CoreResource,
-} from "../../core";
-import { DataPsmSetDatatype } from "../operation";
-import { DataPsmExecutorResultFactory } from "./data-psm-executor-utils";
-import { DataPsmAttribute } from "../model";
+} from "../../core/index.ts";
+import { DataPsmSetDatatype } from "../operation/index.ts";
+import { DataPsmExecutorResultFactory } from "./data-psm-executor-utils.ts";
+import { DataPsmAttribute } from "../model/index.ts";
 
 export async function executeDataPsmSetDatatype(
   reader: CoreResourceReader,

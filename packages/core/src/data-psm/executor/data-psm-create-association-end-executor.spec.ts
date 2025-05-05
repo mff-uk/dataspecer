@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { DataPsmCreateAssociationEnd } from "../operation";
-import { executeDataPsmCreateAssociationEnd } from "./data-psm-create-association-end-executor";
-import * as PSM from "../data-psm-vocabulary";
+} from "../../core/index.ts";
+import { DataPsmCreateAssociationEnd } from "../operation/index.ts";
+import { executeDataPsmCreateAssociationEnd } from "./data-psm-create-association-end-executor.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 test("Create data PSM association-end.", async () => {
   const operation = new DataPsmCreateAssociationEnd();

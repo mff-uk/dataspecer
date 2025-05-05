@@ -2,9 +2,9 @@ import {
   CoreResourceReader,
   CoreExecutorResult,
   CreateNewIdentifier,
-} from "../../core";
-import { DataPsmDeleteInclude } from "../operation";
-import { removeFromClass } from "./data-psm-executor-utils";
+} from "../../core/index.ts";
+import { DataPsmDeleteInclude } from "../operation/index.ts";
+import { removeFromClass } from "./data-psm-executor-utils.ts";
 
 export function executeDataPsmDeleteInclude(
   reader: CoreResourceReader,

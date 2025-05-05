@@ -1,9 +1,9 @@
 import { SchemaInterface, createLens } from "ldkit";
 import { dbo, rdfs, xsd, dcterms, createNamespace } from "ldkit/namespaces";
 import { type Context, setDefaultContext } from "ldkit";
-import { AggregateMetadata } from "./readers/aggregate-data-provider-model";
-import { LdkitArtefactGenerator } from "./ldkit-generator";
-import { CatalogSchema } from "./schemas/catalog-schema";
+import { AggregateMetadata } from "./readers/aggregate-data-provider-model.ts";
+import { LdkitArtefactGenerator } from "./ldkit-generator.ts";
+import { CatalogSchema } from "./schemas/catalog-schema.ts";
 
 async function demo() {
 

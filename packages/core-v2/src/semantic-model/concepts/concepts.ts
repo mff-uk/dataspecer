@@ -1,5 +1,5 @@
-import { Entity } from "../../entity-model/entity";
-import { SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_RELATIONSHIP } from "./concepts-utils";
+import { Entity } from "../../entity-model/entity.ts";
+import { SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_RELATIONSHIP } from "./concepts-utils.ts";
 
 /**
  * A human text that is translated into multiple languages.
@@ -32,6 +32,17 @@ export interface SemanticModelClass extends NamedThing, SemanticModelEntity {
     type: [typeof SEMANTIC_MODEL_CLASS];
 
     // todo: is it class, enumeration, datatype, code list, ...
+
+    /**
+     * URL of external documentation.
+     *
+     * The URL can be absolute or relative.
+     *
+     * This value is optional as it can be missing in the source data.
+     * You should not set the value to undefined manually.
+     * Use null to indicate an absence of a value.
+     */
+    externalDocumentationUrl?: string | null;
 }
 
 /**
@@ -51,6 +62,17 @@ export interface SemanticModelRelationshipEnd extends NamedThing {
 
     /** {@link SemanticModelClass} */
     concept: string | null;
+
+    /**
+     * URL of external documentation.
+     *
+     * The URL can be absolute or relative.
+     *
+     * This value is optional as it can be missing in the source data.
+     * You should not set the value to undefined manually.
+     * Use null to indicate an absence of a value.
+     */
+    externalDocumentationUrl?: string | null;
 }
 
 /**

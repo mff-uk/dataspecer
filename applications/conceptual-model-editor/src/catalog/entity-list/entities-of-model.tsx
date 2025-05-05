@@ -98,8 +98,8 @@ export const EntitiesOfModel = (props: {
     .map(item => (aggregatedEntities[item.id]?.aggregatedEntity ?? item) as EntityTypes);
 
   /**
-     * Initialize.
-     */
+   * Initialize.
+   */
   useEffect(() => {
     if (activeVisualModel === null) {
       // We need to wait to get the model.
@@ -165,7 +165,7 @@ export const EntitiesOfModel = (props: {
               return newVisible;
             });
           } else if (previous !== null && next !== null) {
-
+            // Update
             if(isVisualNode(next)) {
               const { removed: removedAtrtibutes, added: addedAttributes } =
                 getRemovedAndAdded((previous as VisualNode).content, next.content);
@@ -181,7 +181,6 @@ export const EntitiesOfModel = (props: {
                 return newVisible;
               });
             }
-            // Update
           }
         }
       },
@@ -248,7 +247,7 @@ export const EntitiesOfModel = (props: {
   };
 
   const handleDeleteEntity = async (model: InMemorySemanticModel | ExternalSemanticModel, identifier: string) => {
-    await actions.deleteFromSemanticModels([{identifier, sourceModel: model.getId()}]);
+    await actions.deleteFromSemanticModels([{ identifier, sourceModel: model.getId() }]);
   };
 
   const handleSetViewportToEntity = (identifier: string, entityNumberToBeCentered: number) => {
@@ -261,7 +260,7 @@ export const EntitiesOfModel = (props: {
     <li style={{ backgroundColor: color }}>
       <div className="flex flex-row justify-between">
         <h4>
-                    Ⓜ {displayName}
+          Ⓜ {displayName}
         </h4>
         <div className="flex flex-row">
           {renderAddButton(actions, entityType, model)}

@@ -145,7 +145,7 @@ export function useExtendSelectionController({ state, changeState }: DialogProps
     };
 
     const toggleExtendOnlyThroughEdges = () => {
-      changeState({...state, shouldExtendOnlyThroughEdges: !state.shouldExtendOnlyThroughEdges});
+      changeState({ ...state, shouldExtendOnlyThroughEdges: !state.shouldExtendOnlyThroughEdges });
     };
 
     return {

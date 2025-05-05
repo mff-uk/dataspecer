@@ -1,5 +1,5 @@
-import * as Support from "./support/testSupport";
-import  SimpleObjectModelCreator from "./support/SimpleObjectModelCreator";
+import * as Support from "./support/testSupport.ts";
+import  SimpleObjectModelCreator from "./support/SimpleObjectModelCreator.ts";
 
 const testType = "simpleObject";
 const modelCreator = new SimpleObjectModelCreator();

@@ -1,8 +1,8 @@
 import { StructureModel } from "@dataspecer/core/structure-model/model/structure-model";
-import { QName } from "../conventions";
+import { QName } from "../conventions.ts";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
 import { SemanticPathStep } from "@dataspecer/core/structure-model/model";
-import { XmlConfiguration } from "../configuration";
+import { XmlConfiguration } from "../configuration.ts";
 
 /**
  * Represents an xs:schema definition.
@@ -29,6 +29,8 @@ export class XmlSchema {
    */
   imports: XmlSchemaImportDeclaration[];
 
+  namespaces: XmlSchemaNamespaceDefinition[];
+
   /**
    * Location of XML file containing shared things for XML.
    */
@@ -50,25 +52,20 @@ export class XmlSchema {
 }
 
 /**
- * Represents an import/include declaration to an artifact.
+ * Defines imports/includes of external schemas (in different/same namespace).
  */
 export class XmlSchemaImportDeclaration {
-  /**
-   * The namespace prefix used by the schema.
-   */
-  prefix: string | null;
-
-  /**
-   * The namespace IRI used by the schema.
-   */
   namespace: string | null;
-
-  /**
-   * The location of the schema file.
-   */
   schemaLocation: string;
-
   model: StructureModel | null;
+}
+
+/**
+ * Defines namespaces used in the schema.
+ */
+export class XmlSchemaNamespaceDefinition {
+  prefix: string;
+  namespace: string;
 }
 
 /**
@@ -178,6 +175,10 @@ export class XmlSchemaSimpleType extends XmlSchemaType {
   simpleDefinition: XmlSchemaSimpleItem;
 }
 
+export class XmlSchemaLangStringType extends XmlSchemaType {
+  specialType: "langString";
+}
+
 export function xmlSchemaTypeIsComplex(
   type: XmlSchemaType | null
 ): type is XmlSchemaComplexType {
@@ -190,6 +191,13 @@ export function xmlSchemaTypeIsSimple(
 ): type is XmlSchemaSimpleType {
   return type != null &&
     (type as XmlSchemaSimpleType).simpleDefinition !== undefined;
+}
+
+export function xmlSchemaTypeIsLangString(
+  type: XmlSchemaType | null
+): type is XmlSchemaLangStringType {
+  return type != null &&
+    (type as XmlSchemaLangStringType).specialType === "langString";
 }
 
 /**

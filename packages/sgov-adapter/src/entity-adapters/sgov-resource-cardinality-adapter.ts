@@ -1,6 +1,6 @@
 import { RdfSourceWrap } from "@dataspecer/core/core/adapter/rdf";
 import { PimAssociationEnd, PimAttribute } from "@dataspecer/core/pim/model";
-import { OWL } from "../sgov-vocabulary";
+import { OWL } from "../sgov-vocabulary.ts";
 
 export async function loadSgovCardinalities(
   rdfEntity: RdfSourceWrap,

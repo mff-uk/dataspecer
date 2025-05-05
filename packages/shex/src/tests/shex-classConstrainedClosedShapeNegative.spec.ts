@@ -1,5 +1,5 @@
-import * as Support from "./support/testSupport";
-import ClassConstrainedClosedModelCreator from "./support/ClassConstrainedClosedModelCreator";
+import * as Support from "./support/testSupport.ts";
+import ClassConstrainedClosedModelCreator from "./support/ClassConstrainedClosedModelCreator.ts";
 
 const testType = "classConstrainedClosedNegative";
 const modelCreator = new ClassConstrainedClosedModelCreator();

@@ -3,10 +3,10 @@ import {
   CoreExecutorResult,
   CreateNewIdentifier,
   CoreResource,
-} from "../../core";
-import { PimAttribute } from "../model";
-import { PimSetDatatype } from "../operation";
-import { PimExecutorResultFactory } from "./pim-executor-utils";
+} from "../../core/index.ts";
+import { PimAttribute } from "../model/index.ts";
+import { PimSetDatatype } from "../operation/index.ts";
+import { PimExecutorResultFactory } from "./pim-executor-utils.ts";
 
 export async function executePimSetDataType(
   reader: CoreResourceReader,

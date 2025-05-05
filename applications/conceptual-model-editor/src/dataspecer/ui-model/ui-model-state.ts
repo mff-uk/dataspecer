@@ -1,334 +1,344 @@
-import { EntityModel } from "@dataspecer/core-v2";
-import { HexColor, isVisualNode, isVisualProfileRelationship, isVisualRelationship, VisualEntity, VisualModel } from "@dataspecer/core-v2/visual-model";
 import { AggregatedEntityWrapper, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
-
-import { entityModelToUiModel, entityModelToUiState, removeVisualModelToUiState, semanticModelChangeToUiState, visualModelToUiState, } from "./aggregator-to-ui-model-adapter";
-import { configuration, createLogger, t, TranslationFunction } from "../../application";
-import { UiVocabulary, UiVocabularyType, UiModelState } from "./ui-model";
-import { ModelIdentifier } from "../../../../../packages/core-v2/lib/visual-model/entity-model/entity-model";
-import { addToRecordArray, replaceInArray } from "../../utilities/functional";
-import { EntityDsIdentifier, ModelDsIdentifier } from "../entity-model";
+import { UI_UNKNOWN_ENTITY_TYPE, UiClass, UiClassProfile, UiEntity, UiGeneralization, UiPrimitiveType, UiRelationship, UiRelationshipProfile, UiSemanticModel } from "./model";
+import { cmeClassAggregateToUiClassProfile, cmeClassToUiClass, cmeGeneralizationToCmeGeneralization, cmePrimitiveTypeToUiPrimitiveType, cmeRelationshipAggregateToUiRelationshipProfile, cmeRelationshipToUiRelationship, cmeSemanticModelToUiSemanticModel } from "./adapter";
+import { HexColor, VisualModel } from "@dataspecer/core-v2/visual-model";
+import { SemanticModel } from "../semantic-model";
+import { createLogger } from "../../application";
+import { createUiAdapterContext, UiAdapterContext } from "./adapter/adapter-context";
+import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { listCmePrimitiveTypes, semanticClassToCmeClass, semanticGeneralizationToCmeGeneralization, semanticRelationshipToCmeRelationship } from "../cme-model/adapter";
+import { semanticClassProfileToCmeClassAggregate } from "../cme-model/adapter/cme-class-profile-aggregate";
+import { semanticRelationshipProfileToCmeRelationshipAggregate } from "../cme-model/adapter/cme-relationship-aggregate-adapter";
+import { OwlCmeSemanticModel, OwlThingCmeEntity, UnknownCmeEntity, UnknownCmeSemanticModel, UnspecifiedCmeEntity, semanticModelToCmeSemanticModel } from "../cme-model";
+import { languageStringToString } from "../../utilities/string";
+import { EntityDsIdentifier } from "../entity-model";
+import { Entity } from "@dataspecer/core-v2";
 
 const LOG = createLogger(import.meta.url);
 
-export function createEmptyState(): UiModelState {
+export interface UiModelState {
+
+  /**
+   * Represent an undefined or missing semantic model.
+   */
+  unknownSemanticModel: UiSemanticModel;
+
+  unknownUiEntity: UiEntity;
+
+  unspecifiedUiEntity: UiEntity;
+
+  primitiveTypes: UiPrimitiveType[];
+
+  semanticModels: UiSemanticModel[];
+
+  classes: UiClass[];
+
+  classProfiles: UiClassProfile[];
+
+  relationships: UiRelationship[];
+
+  relationshipProfiles: UiRelationshipProfile[];
+
+  generalizations: UiGeneralization[];
+
+  /**
+   * Here we store unknown entities.
+   * Those are entities referenced from other entities but not found.
+   */
+  unknown: UiEntity[];
+
+}
+
+export function createEmptyUiModelState(
+  language: string,
+  languagePreferences: string[],
+  defaultModelColor: HexColor,
+): UiModelState {
+  //
+  const unknownSemanticModel: UiSemanticModel = {
+    identifier: UnknownCmeSemanticModel.identifier,
+    modelType: UnknownCmeSemanticModel.modelType,
+    label: languageStringToString(
+      languagePreferences, language, UnknownCmeSemanticModel.name),
+    color: defaultModelColor,
+    buildIn: true,
+  };
+  Object.freeze(unknownSemanticModel);
+  //
+  const unknownUiEntity: UiEntity = {
+    identifier: UnknownCmeEntity.identifier,
+    label: languageStringToString(
+      languagePreferences, language, UnknownCmeEntity.name),
+    model: unknownSemanticModel,
+    type: UI_UNKNOWN_ENTITY_TYPE,
+    buildIn: true,
+  };
+  Object.freeze(unknownUiEntity);
+  //
+  const unspecifiedUiEntity: UiEntity = {
+    identifier: UnspecifiedCmeEntity.identifier,
+    label: languageStringToString(
+      languagePreferences, language, UnspecifiedCmeEntity.name),
+    model: unknownSemanticModel,
+    type: UI_UNKNOWN_ENTITY_TYPE,
+    buildIn: true,
+  };
+  Object.freeze(unspecifiedUiEntity);
+  //
+  const owlSemanticModel: UiSemanticModel = {
+    identifier: OwlCmeSemanticModel.identifier,
+    modelType: OwlCmeSemanticModel.modelType,
+    label: languageStringToString(
+      languagePreferences, language, OwlCmeSemanticModel.name),
+    color: defaultModelColor,
+    buildIn: true,
+  }
+  //
+  const owlThing: UiEntity = {
+    identifier: OwlThingCmeEntity.identifier,
+    label: languageStringToString(
+      languagePreferences, language, OwlThingCmeEntity.name),
+    model: owlSemanticModel,
+    type: UI_UNKNOWN_ENTITY_TYPE,
+    buildIn: true,
+  };
+  //
+  const primitiveTypes: UiPrimitiveType[] = listCmePrimitiveTypes()
+    .map(item => cmePrimitiveTypeToUiPrimitiveType({
+      selectLabel: value => languageStringToString(
+        languagePreferences, language, value),
+    }, unknownSemanticModel, item));
+  Object.freeze(primitiveTypes);
   return {
-    defaultWriteVocabulary: null,
-    visualModel: null,
-    vocabularies: [],
+    unknownSemanticModel,
+    unknownUiEntity,
+    unspecifiedUiEntity,
+    primitiveTypes,
+    semanticModels: [],
     classes: [],
     classProfiles: [],
-    attributes: [],
-    attributeProfiles: [],
-    associations: [],
-    associationProfiles: [],
+    relationships: [],
+    relationshipProfiles: [],
     generalizations: [],
+    unknown: [owlThing],
   };
 }
 
 /**
- * Create a new state with content of given semantic models and the visual model.
+ * Create ui-model state using cme-model from semantic model.
  */
-export function createState(
-  semanticModels: EntityModel[],
-  visualModel: VisualModel | null,
+export function createUiModelState(
   aggregatorView: SemanticModelAggregatorView,
-  languages: string[],
+  semanticModels: SemanticModel[],
+  language: string,
+  languagePreferences: string[],
+  visualModel: VisualModel | null,
+  defaultModelColor: HexColor,
 ): UiModelState {
-  const entities = aggregatorView.getEntities();
-  const state = entityModelToUiState(
-    configuration().defaultModelColor, t,
-    semanticModels, semanticModels,
-    entities, visualModel, languages);
-  return {
-    ...state,
-    defaultWriteVocabulary: selectWritableModel(state.vocabularies),
-    visualModel,
-  };
+  const state = createEmptyUiModelState(
+    language, languagePreferences, defaultModelColor);
+
+  // Prepare context.
+  const context = createUiAdapterContext(
+    language, languagePreferences, visualModel,
+    defaultModelColor, semanticModels);
+
+  loadUiSemanticModels(
+    visualModel, defaultModelColor, context, semanticModels, state);
+
+  // Problem with loading entities are dependencies.
+  // Luckily we can load them in order of class, relationship and generalization.
+  // Then when loading one the required should be already loaded.
+  const entityMap: Map<EntityDsIdentifier, UiEntity> = new Map();
+  updateEntityMap(entityMap, state.primitiveTypes);
+  updateEntityMap(entityMap, state.unknown);
+
+  const aggregatorEntities = aggregatorView.getEntities();
+
+  loadUiClassesAndProfiles(
+    context, semanticModels, aggregatorEntities, state);
+  updateEntityMap(entityMap, state.classes);
+  updateEntityMap(entityMap, state.classProfiles);
+
+  loadUiRelationshipAndProfiles(
+    context, semanticModels, aggregatorEntities, entityMap, state);
+  updateEntityMap(entityMap, state.relationships);
+  updateEntityMap(entityMap, state.relationshipProfiles);
+
+  loadUiGeneralizations(
+    semanticModels, aggregatorEntities, entityMap, state);
+
+  return state;
 }
 
-function selectWritableModel(models: UiVocabulary[]): UiVocabulary | null {
-  return models.find(model => model.vocabularyType === UiVocabularyType.InMemorySemanticModel) ?? null;
+function loadUiSemanticModels(
+  visualModel: VisualModel | null,
+  defaultModelColor: HexColor,
+  context: UiAdapterContext,
+  semanticModels: SemanticModel[],
+  state: UiModelState,
+): void {
+  state.semanticModels = semanticModels
+    .map(model => semanticModelToCmeSemanticModel(
+      model, visualModel, defaultModelColor, id => id))
+    .map(model => cmeSemanticModelToUiSemanticModel(context, model));
+}
+
+function loadUiClassesAndProfiles(
+  context: UiAdapterContext,
+  semanticModels: SemanticModel[],
+  aggregatorEntities: Record<string, AggregatedEntityWrapper>,
+  state: UiModelState,
+): void {
+  withEntities(semanticModels, state, aggregatorEntities,
+    item => isSemanticModelClass(item) || isSemanticModelClassProfile(item),
+    (model, raw, aggregate) => {
+      if (isSemanticModelClass(aggregate)) {
+        const cme = semanticClassToCmeClass(model.identifier, aggregate);
+        state.classes.push(cmeClassToUiClass(context, model, cme));
+      }
+      if (isSemanticModelClassProfile(raw)
+        && isSemanticModelClassProfile(aggregate)) {
+        const cme = semanticClassProfileToCmeClassAggregate(
+          model.identifier, raw, aggregate);
+        state.classProfiles.push(cmeClassAggregateToUiClassProfile(
+          context, model, cme));
+      }
+    });
 }
 
 /**
- * Handle change in array of semantic model, i.e. new model, removed model.
- * In addition check for changes in model properties.
+ * Find entities that pass {@link filter} and call {@link accept} on them.
  */
-export function onChangeSemanticModels(
-  defaultModelColor: HexColor,
-  t: TranslationFunction,
-  _languages: string[],
-  previous: UiModelState,
-  semanticModels: EntityModel[],
-): UiModelState {
-  const nextModels: UiVocabulary[] = [];
+function withEntities<Type extends Entity>(
+  semanticModels: SemanticModel[],
+  state: UiModelState,
+  aggregatorEntities: Record<string, AggregatedEntityWrapper>,
+  filter: (entity: Entity) => entity is Type,
+  accept: (semanticModel: UiSemanticModel, raw: Type, aggregate: Type) => void,
+): void {
   for (const model of semanticModels) {
-    const nextModel = entityModelToUiModel(defaultModelColor, t, model, previous.visualModel);
-    const prevModel = previous.vocabularies.find(item => item.dsIdentifier === nextModel.dsIdentifier);
-    if (prevModel === undefined) {
-      // This is a new model.
-      nextModels.push(nextModel);
-    } else if (modelEqual(prevModel, nextModel)) {
-      // They are the same, we keep the old.
-      nextModels.push(prevModel);
-    } else {
-      // Model has changed.
-      nextModels.push(nextModel);
+    const uiSemanticModel = secureUiSemanticModel(state, model);
+    for (const [entityIdentifier, entity] of Object.entries(model.getEntities())) {
+      const wrap = aggregatorEntities[entityIdentifier];
+      if (wrap === undefined) {
+        LOG.invalidEntity(entityIdentifier,
+          "Wrap for an entity is undefined.",
+          { entity });
+        continue;
+      }
+      const raw = wrap?.rawEntity;
+      const aggregate = wrap?.aggregatedEntity;
+      if (raw === null || aggregate === null) {
+        // This should not happen, if it does it will produce a lot of
+        // messages as this function is called multiple times.
+        LOG.invalidEntity(entityIdentifier,
+          "Raw entity or aggregate are null.",
+          { entity, raw, aggregate });
+        continue;
+      }
+      if (filter(raw) && filter(aggregate)) {
+        accept(uiSemanticModel, raw, aggregate);
+      }
     }
   }
+}
 
-  // We need to reselect the default model as it may be removed.
-  let defaultWriteModel = nextModels
-    .find(item => item.dsIdentifier === previous.defaultWriteVocabulary?.dsIdentifier)
-    ?? null;
-  if (defaultWriteModel === null) {
-    defaultWriteModel = selectWritableModel(nextModels);
+function secureUiSemanticModel(
+  state: UiModelState,
+  semanticModel: SemanticModel,
+): UiSemanticModel {
+  const identifier = semanticModel.getId();
+  const uiSemanticModel = state.semanticModels
+    .find(item => item.identifier === identifier);
+  if (uiSemanticModel === undefined) {
+    // This should not happen as all models should be part of the state.
+    LOG.error("Missing semantic model.", { state, identifier });
+    return state.unknownSemanticModel;
   }
+  return uiSemanticModel;
+}
 
-  // Collect removed model.
-  const removedModels = previous.vocabularies
-    .filter(model => nextModels.find(item => item.dsIdentifier === model.dsIdentifier) === undefined)
-    .map(model => model.dsIdentifier);
+function updateEntityMap(
+  entityMap: Map<EntityDsIdentifier, UiEntity>, entities: UiEntity[],
+): void {
+  entities.forEach(item => entityMap.set(item.identifier, item));
+}
 
-  if (removedModels.length === 0) {
-    return {
-      ...previous,
-      defaultWriteVocabulary: defaultWriteModel,
-      vocabularies: nextModels,
+function loadUiRelationshipAndProfiles(
+  context: UiAdapterContext,
+  semanticModels: SemanticModel[],
+  aggregatorEntities: Record<string, AggregatedEntityWrapper>,
+  entityMap: Map<EntityDsIdentifier, UiEntity>,
+  state: UiModelState,
+): void {
+
+  const findEntity = createFindEntity(entityMap, state);
+
+  withEntities(semanticModels, state, aggregatorEntities,
+    item => isSemanticModelRelationship(item) || isSemanticModelRelationshipProfile(item),
+    (model, raw, aggregate) => {
+      if (isSemanticModelRelationship(aggregate)) {
+        const cme = semanticRelationshipToCmeRelationship(
+          model.identifier, aggregate);
+        state.relationships.push(cmeRelationshipToUiRelationship(
+          context, model, cme, findEntity(cme.domain), findEntity(cme.range)));
+      }
+      if (isSemanticModelRelationshipProfile(raw)
+        && isSemanticModelRelationshipProfile(aggregate)) {
+        const cme = semanticRelationshipProfileToCmeRelationshipAggregate(
+          model.identifier, raw, aggregate);
+        state.relationshipProfiles.push(
+          cmeRelationshipAggregateToUiRelationshipProfile(
+            context, model, cme, findEntity(cme.domain), findEntity(cme.range)));
+      }
+    });
+}
+
+function createFindEntity(
+  entityMap: Map<EntityDsIdentifier, UiEntity>,
+  state: UiModelState,
+) {
+  return (identifier: EntityDsIdentifier | null): UiEntity => {
+    if (identifier === null) {
+      return state.unspecifiedUiEntity;
+    }
+    const entity = entityMap.get(identifier);
+    if (entity !== undefined) {
+      return entity;
+    }
+    // We have identifier but no entity, we create a representant
+    const result: UiEntity = {
+      ...state.unknownUiEntity,
+      identifier,
     };
-  }
-
-  // We need to filter the entities.
-  return {
-    defaultWriteVocabulary: defaultWriteModel,
-    vocabularies: nextModels,
-    visualModel: previous.visualModel,
-    classes: removeWithVocabularies(previous.classes, removedModels),
-    classProfiles: removeWithVocabularies(previous.classProfiles, removedModels),
-    attributes: removeWithVocabularies(previous.attributes, removedModels),
-    attributeProfiles: removeWithVocabularies(previous.attributeProfiles, removedModels),
-    associations: removeWithVocabularies(previous.associations, removedModels),
-    associationProfiles: removeWithVocabularies(previous.associationProfiles, removedModels),
-    generalizations: removeWithVocabularies(previous.generalizations, removedModels),
+    // Remove build-in flag.
+    delete result.buildIn;
+    // Add to list of unknowns.
+    state.unknown.push(result);
+    // We also add this to the entity list to avoid duplicities.
+    entityMap.set(result.identifier, result);
+    return result;
   };
 }
 
-function modelEqual(left: UiVocabulary, right: UiVocabulary): boolean {
-  return left.baseIri === right.baseIri &&
-    left.displayColor === right.displayColor &&
-    left.displayLabel === right.displayLabel &&
-    left.dsIdentifier === right.dsIdentifier &&
-    left.vocabularyType === right.vocabularyType;
-}
+function loadUiGeneralizations(
+  semanticModels: SemanticModel[],
+  aggregatorEntities: Record<string, AggregatedEntityWrapper>,
+  entityMap: Map<EntityDsIdentifier, UiEntity>,
+  state: UiModelState,
+): void {
 
-function removeWithVocabularies<
-  T extends { vocabulary: UiVocabulary }
->(items: T[], vocabularies: ModelDsIdentifier[]): T[] {
-  return items.filter(item => !vocabularies.includes(item.vocabulary.dsIdentifier));
-}
+  const findEntity = createFindEntity(entityMap, state);
 
-/**
- * Handle change of visual model, including removal by change to null.
- * Does not register for visual model listener.
- */
-export function onChangeVisualModel(
-  defaultModelColor: HexColor,
-  visualModel: VisualModel | null,
-  previous: UiModelState,
-): UiModelState {
-  if (visualModel === null) {
-    return removeVisualModelToUiState(previous, defaultModelColor);
-  } else {
-    return visualModelToUiState(previous, visualModel, defaultModelColor);
-  }
-}
-
-/**
- * Handle changes in semantic models' aggregator.
- */
-export function onChangeInAggregatorView(
-  semanticModels: EntityModel[],
-  visualModel: VisualModel | null,
-  languages: string[],
-  previous: UiModelState,
-  updated: AggregatedEntityWrapper[],
-  removed: string[],
-): UiModelState {
-  const state = semanticModelChangeToUiState(
-    updated, removed, semanticModels, visualModel, languages, previous);
-  return {
-    ...state,
-    defaultWriteVocabulary: selectWritableModel(state.vocabularies),
-  };
-}
-
-/**
- * Handle changed of visual entities.
- */
-export function onVisualEntitiesDidChange(
-  entities: {
-    previous: VisualEntity | null,
-    next: VisualEntity | null
-  }[],
-  previous: UiModelState,
-): UiModelState {
-  const changes = collectVisualRepresentedChange(entities);
-  return {
-    ...previous,
-    classes: updateVisual(previous.classes, changes),
-    classProfiles: updateVisual(previous.classProfiles, changes),
-    attributes: updateVisual(previous.attributes, changes),
-    attributeProfiles: updateVisual(previous.attributeProfiles, changes),
-    associations: updateVisual(previous.associations, changes),
-    associationProfiles: updateVisual(previous.associationProfiles, changes),
-    generalizations: updateVisual(previous.generalizations, changes),
-  };
-}
-
-/**
- * @returns For a represented entity returns new values of visual entity.
- */
-function collectVisualRepresentedChange(
-  entities: {
-    previous: VisualEntity | null,
-    next: VisualEntity | null
-  }[],
-): Record<EntityDsIdentifier, EntityDsIdentifier[]> {
-  const result: Record<EntityDsIdentifier, EntityDsIdentifier[]> = {};
-  for (const change of entities) {
-    if (change.previous !== null && change.next === null) {
-      // Existing entity is removed.
-      // We change the value to null, but only if is was not set
-      // by other entity update.
-      const represented = getRepresentedByVisual(change.previous);
-      if (represented !== null) {
-        removeFromMapValue(result, represented);
-      }
-      continue;
-    }
-
-    if (change.previous === null && change.next !== null) {
-      // New entity is created.
-      const represented = getRepresentedByVisual(change.next);
-      if (represented !== null) {
-        addToRecordArray(represented, change.next.identifier, result);
-      }
-      continue;
-    }
-
-    if (change.previous !== null && change.next !== null) {
-      // There is a change in visual entity.
-      const prev = getRepresentedByVisual(change.previous);
-      const next = getRepresentedByVisual(change.next);
-      if (prev === next) {
-        // There is no relevant change.
-        if(prev !== null) {
-          addToRecordArray(prev, change.next.identifier, result);
-          continue;
-        }
-      }
-      //
-      if (prev !== null) {
-        // We need to remove the visual from the old entity,
-        // unless set by other update.
-        removeFromMapValue(result, prev);
-      }
-      if (next !== null) {
-        // We add a new value.
-        addToRecordArray(next, change.next.identifier, result);
-      }
-      continue;
-    }
-  }
-
-  return result;
-}
-
-function removeFromMapValue<T>(map: Record<string, T[]>, key: string) {
-  const existingValue = map[key];
-  if(existingValue === undefined) {
-    map[key] = [];
-    return;
-  }
-}
-
-function getRepresentedByVisual(visual: VisualEntity): EntityDsIdentifier | null {
-  if (isVisualNode(visual)) {
-    return visual.representedEntity;
-  } else if (isVisualRelationship(visual)) {
-    return visual.representedRelationship;
-  } else if (isVisualProfileRelationship(visual)) {
-    // While profile is bound to an entity it does not represent,
-    // the entity. Thus we ignore it here.
-    return null;
-  } else {
-    return null;
-  }
-}
-
-/**
- * Apply changes od visualDsIdentifier to given items.
- */
-function updateVisual<T extends {
-  dsIdentifier: EntityDsIdentifier,
-  visualDsIdentifiers: EntityDsIdentifier[],
-}>(items: T[], changes: Record<EntityDsIdentifier, EntityDsIdentifier[]>): T[] {
-  return items.map(item => ({
-    ...item,
-    visualDsIdentifiers: changes[item.dsIdentifier],
-  }));
-}
-
-/**
- * Handle change of semantic model color.
- */
-export function onModelColorDidChange(
-  defaultModelColor: HexColor,
-  identifier: ModelIdentifier,
-  next: HexColor | null,
-  previous: UiModelState,
-): UiModelState {
-  const previousModel = previous.vocabularies.find(model => model.dsIdentifier === identifier);
-  if (previousModel === undefined) {
-    // No mode find.
-    LOG.warn("Ignored color change for missing model.", { model: identifier })
-    return previous;
-  }
-  const nextModel: UiVocabulary = {
-    ...previousModel,
-    displayColor: next ?? defaultModelColor,
-  }
-
-  // We may need to update defaultWriteModel.
-  const defaultWriteModel = previous.defaultWriteVocabulary?.dsIdentifier === previousModel.dsIdentifier
-    ? nextModel : previous.defaultWriteVocabulary;
-
-  // Now we need to replace the model in all entities.
-  return {
-    defaultWriteVocabulary: defaultWriteModel,
-    vocabularies: replaceInArray(previousModel, nextModel, previous.vocabularies),
-    visualModel: previous.visualModel,
-    classes: updateModelInEntities(previousModel, nextModel, previous.classes),
-    classProfiles: updateModelInEntities(previousModel, nextModel, previous.classProfiles),
-    attributes: updateModelInEntities(previousModel, nextModel, previous.attributes),
-    attributeProfiles: updateModelInEntities(previousModel, nextModel, previous.attributeProfiles),
-    associations: updateModelInEntities(previousModel, nextModel, previous.associations),
-    associationProfiles: updateModelInEntities(previousModel, nextModel, previous.associationProfiles),
-    generalizations: updateModelInEntities(previousModel, nextModel, previous.generalizations),
-  };
-}
-
-function updateModelInEntities<T extends { vocabulary: UiVocabulary }>(
-  previous: UiVocabulary,
-  next: UiVocabulary,
-  entities: T[],
-): T[] {
-  return entities.map(item => {
-    if (item.vocabulary === previous) {
-      return { ...item, vocabulary: next };
-    } else {
-      return item;
-    }
-  })
+  withEntities(semanticModels, state, aggregatorEntities,
+    item => isSemanticModelGeneralization(item),
+    (model, raw, aggregate) => {
+      const cme = semanticGeneralizationToCmeGeneralization(
+        model.identifier, aggregate);
+      state.generalizations.push(cmeGeneralizationToCmeGeneralization(
+        model, cme,
+        findEntity(cme.parentIdentifier), findEntity(cme.childIdentifier)));
+    });
 }

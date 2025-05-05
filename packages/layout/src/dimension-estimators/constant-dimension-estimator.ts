@@ -1,5 +1,5 @@
-import { NodeDimensionQueryHandler } from "..";
-import { Node } from "../graph/representation/node";
+import { NodeDimensionQueryHandler } from "../index.ts";
+import { Node } from "../graph/representation/node.ts";
 
 /**
  * Simple dimension query handler, which returns constant values as estimation of node dimensions.

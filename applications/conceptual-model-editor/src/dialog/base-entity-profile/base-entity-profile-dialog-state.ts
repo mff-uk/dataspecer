@@ -158,7 +158,7 @@ export function createNewBaseEntityProfileDialogState<
 
   const availableSpecializations = sanitizeDuplicitiesInRepresentativeLabels(
     allModels,
-    allSpecializations.filter(item => item.vocabularyDsIdentifier === model.dsIdentifier));
+    allSpecializations.filter(item => item.model === model.identifier));
   sortRepresentatives(language, availableSpecializations);
 
   const source = profiles[0];
@@ -203,6 +203,8 @@ export function createNewBaseEntityProfileDialogState<
     usageNoteSourceValue: usageNoteSource.usageNote ?? {},
     availableUsageNoteSources,
     hideUsageNoteProfile: usageNoteSource === noProfile,
+    //
+    externalDocumentationUrl: "",
   };
 }
 
@@ -292,6 +294,7 @@ export function createEditBaseEntityProfileDialogState
   nameSourceIdentifier: string | null,
   description: LanguageString | null,
   descriptionSourceIdentifier: string | null,
+  externalDocumentationUrl: string,
   usageNote: LanguageString | null,
   usageNoteSourceIdentifier: string | null,
   allSpecializations: EntityRepresentative[],
@@ -327,7 +330,7 @@ export function createEditBaseEntityProfileDialogState
 
   const availableSpecializations = sanitizeDuplicitiesInRepresentativeLabels(
     allModels, allSpecializations
-      .filter(item => item.vocabularyDsIdentifier === model.dsIdentifier)
+      .filter(item => item.model === model.identifier)
       .filter(item => item.identifier !== entity.identifier));
   sortRepresentatives(language, availableSpecializations);
 
@@ -372,16 +375,18 @@ export function createEditBaseEntityProfileDialogState
     availableSpecializations,
     specializations: representSpecializations(
       entity.identifier, allSpecializations, semanticModels),
+    //
+    externalDocumentationUrl,
   };
 }
 
-function findByIdentifier<Type extends { dsIdentifier: string }>(
+function findByIdentifier<Type extends { identifier: string }>(
   items: Type[], identifier: string | null,
 ): Type | null {
   if (identifier === null) {
     return null;
   }
-  return items.find(item => item.dsIdentifier === identifier) ?? null;
+  return items.find(item => item.identifier === identifier) ?? null;
 }
 
 // Same function is in base-entity-dialog-state
@@ -407,7 +412,7 @@ function representSpecializations(
         iri: entity.iri ?? "",
         specializationOf: {
           identifier: specialized?.identifier ?? entity.parent,
-          model: specialized?.vocabularyDsIdentifier ?? UNDEFINED_MODEL,
+          model: specialized?.model ?? UNDEFINED_MODEL,
         },
         generalization: {
           identifier: entity.id,

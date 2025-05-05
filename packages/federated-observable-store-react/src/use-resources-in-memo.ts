@@ -1,6 +1,6 @@
 import { Entity } from '@dataspecer/core-v2';
 import {CoreResource} from "@dataspecer/core/core";
-import {useFederatedObservableStore} from "./store";
+import {useFederatedObservableStore} from "./store.ts";
 import {Resource} from "@dataspecer/federated-observable-store/resource";
 import {useCallback, useEffect, useRef, useState} from "react";
 

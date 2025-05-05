@@ -1,5 +1,5 @@
-import { ConfigurationsContainer } from "../../configurations/configurations-container";
-import { Graph } from "../../graph/representation/graph";
+import { ConfigurationsContainer } from "../../configurations/configurations-container.ts";
+import { Graph } from "../../graph/representation/graph.ts";
 
 /**
  * This interface defines methods for transformation between our graph representation and layouting library representation.

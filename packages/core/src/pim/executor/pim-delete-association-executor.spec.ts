@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { PimDeleteAssociation } from "../operation";
-import { executePimDeleteAssociation } from "./pim-delete-association-executor";
-import * as PIM from "../pim-vocabulary";
+} from "../../core/index.ts";
+import { PimDeleteAssociation } from "../operation/index.ts";
+import { executePimDeleteAssociation } from "./pim-delete-association-executor.ts";
+import * as PIM from "../pim-vocabulary.ts";
 
 test("Delete association.", async () => {
   const operation = new PimDeleteAssociation();

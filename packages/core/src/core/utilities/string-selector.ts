@@ -1,4 +1,4 @@
-import { LanguageString } from "../core-resource";
+import { LanguageString } from "../core-resource.ts";
 
 export type StringSelector = (string: LanguageString | null) => string | null;
 

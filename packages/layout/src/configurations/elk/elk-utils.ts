@@ -1,6 +1,6 @@
 import { LayoutOptions } from "elkjs";
-import { AlgorithmName } from "../..";
-import { UserGivenAlgorithmConfigurationInterfacesUnion } from "../user-algorithm-configurations";
+import { AlgorithmName } from "../../index.ts";
+import { UserGivenAlgorithmConfigurationInterfacesUnion } from "../user-algorithm-configurations.ts";
 
 
 export const CONFIG_TO_ELK_CONFIG_MAP: Record<keyof Omit<UserGivenAlgorithmConfigurationInterfacesUnion, "number_of_new_algorithm_runs" | "advanced_settings" | "interactive">, string[]> = {

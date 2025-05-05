@@ -1,8 +1,8 @@
 import z from "zod";
 import express from "express";
-import { resourceModel } from "../main";
-import configuration from "../configuration";
-import { asyncHandler } from "../utils/async-handler";
+import { resourceModel } from "../main.ts";
+import configuration from "../configuration.ts";
+import { asyncHandler } from "../utils/async-handler.ts";
 import { ApplicationGenerator, GenappConfiguration } from "@dataspecer/genapp";
 
 export const getGeneratedApplication = asyncHandler(async (request: express.Request, response: express.Response) => {

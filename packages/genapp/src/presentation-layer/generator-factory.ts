@@ -1,19 +1,19 @@
-import { AggregateMetadata } from "../application-config";
+import { AggregateMetadata } from "../application-config.ts";
 import {
     CREATE_CAPABILITY_ID,
     DELETE_CAPABILITY_ID,
     DETAIL_CAPABILITY_ID,
     EDIT_CAPABILITY_ID,
     LIST_CAPABILITY_ID
-} from "../capabilities";
-import { PresentationLayerGenerator } from "./strategy-interface";
+} from "../capabilities/index.ts";
+import { PresentationLayerGenerator } from "./strategy-interface.ts";
 import {
     CreateComponentGenerator,
     DeleteComponentGenerator,
     DetailComponentGenerator,
     EditComponentGenerator,
     ListComponentGenerator,
-} from "./template-generators";
+} from "./template-generators/index.ts";
 
 export type PresentationLayerGeneratorFactory = {
     getPresentationLayerGenerator: (aggregateMetadata: AggregateMetadata, capabilityIdentifier: string) => PresentationLayerGenerator;

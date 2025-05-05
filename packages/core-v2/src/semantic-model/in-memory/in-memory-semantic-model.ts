@@ -1,6 +1,6 @@
-import { InMemoryEntityModel } from "../../entity-model/in-memory-entity-model";
-import { LOCAL_SEMANTIC_MODEL } from "../../model/known-models";
-import { WritableSemanticModelAdapter } from "../writable-semantic-model-adapter";
+import { InMemoryEntityModel } from "../../entity-model/in-memory-entity-model.ts";
+import { LOCAL_SEMANTIC_MODEL } from "../../model/known-models.ts";
+import { WritableSemanticModelAdapter } from "../writable-semantic-model-adapter.ts";
 
 export class InMemorySemanticModel extends WritableSemanticModelAdapter {
     private baseIri: string = "";

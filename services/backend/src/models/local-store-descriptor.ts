@@ -1,6 +1,6 @@
 import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
-import {LocalStoreModel} from "./local-store-model";
-import {LocalStore} from "./local-store";
+import {LocalStoreModel} from "./local-store-model.ts";
+import {LocalStore} from "./local-store.ts";
 
 /**
  * Describes store, that is managed by {@link LocalStoreModel}.

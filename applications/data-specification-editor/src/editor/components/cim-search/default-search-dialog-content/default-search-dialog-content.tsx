@@ -1,4 +1,4 @@
-import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelClass, SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
 import { StoreContext } from "@dataspecer/federated-observable-store-react/store";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import SearchIcon from '@mui/icons-material/Search';
@@ -35,7 +35,7 @@ export const DefaultSearchDialogContent: React.FC<DialogParameters & { selected:
 
   const DetailDialog = useDialog(PimClassDetailDialog);
 
-  const newStore = useNewFederatedObservableStoreFromSemanticEntities(findResults ? findResults.map(e => e.aggregatedEntity) : []);
+  const newStore = useNewFederatedObservableStoreFromSemanticEntities(findResults ? findResults.map(e => e.aggregatedEntity as SemanticModelEntity) : []);
 
   useDebounceEffect(() => {
       setError(false);

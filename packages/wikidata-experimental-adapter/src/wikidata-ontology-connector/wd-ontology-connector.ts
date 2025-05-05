@@ -1,21 +1,21 @@
 import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
-import { WdEntityId } from "../wikidata-entities/wd-entity";
-import { WdGetSearchResponse, WdSearchResults } from "./api-types/get-search";
-import { WdErrorResponse, isWdErrorResponse } from "./api-types/error";
+import { WdEntityId } from "../wikidata-entities/wd-entity.ts";
+import { WdGetSearchResponse, WdSearchResults } from "./api-types/get-search.ts";
+import { WdErrorResponse, isWdErrorResponse } from "./api-types/error.ts";
 import {
     WdClassPropertyEndpoints,
     WdDomainsOrRanges,
     WdGetClassPropertyEndpointsResponse,
     WdBaseOrInheritOrder,
-} from "./api-types/get-class-property-endpoints";
-import { WdClassWithSurroundingsDesc, WdGetClassWithSurroundingsDescResponse } from "./api-types/get-class";
-import { WdGetPropertyWithSurroundingDescResponse, WdPropertyWithSurroundingDesc } from "./api-types/get-property";
-import { WdClassHierarchy, WdGetClassHierarchyResponse, WdHierarchyPart } from "./api-types/get-class-hierarchy";
-import { WdClassSurroundings, WdGetClassSurroundingsResponse } from "./api-types/get-class-surroundings";
-import { WdFilterByInstance, WdGetFilterByInstanceResponse } from "./api-types/get-filter-by-instance";
-import { WdPostSearchResponse, WdPostSearchResults, WdSearchClassesConfig, WdSearchPropertiesConfig } from "./api-types/post-experimental-search";
-import { WdClassHierarchyDescOnly } from "../wikidata-entities/wd-class";
-import { WdPropertyDescOnly } from "../wikidata-entities/wd-property";
+} from "./api-types/get-class-property-endpoints.ts";
+import { WdClassWithSurroundingsDesc, WdGetClassWithSurroundingsDescResponse } from "./api-types/get-class.ts";
+import { WdGetPropertyWithSurroundingDescResponse, WdPropertyWithSurroundingDesc } from "./api-types/get-property.ts";
+import { WdClassHierarchy, WdGetClassHierarchyResponse, WdHierarchyPart } from "./api-types/get-class-hierarchy.ts";
+import { WdClassSurroundings, WdGetClassSurroundingsResponse } from "./api-types/get-class-surroundings.ts";
+import { WdFilterByInstance, WdGetFilterByInstanceResponse } from "./api-types/get-filter-by-instance.ts";
+import { WdPostSearchResponse, WdPostSearchResults, WdSearchClassesConfig, WdSearchPropertiesConfig } from "./api-types/post-experimental-search.ts";
+import { WdClassHierarchyDescOnly } from "../wikidata-entities/wd-class.ts";
+import { WdPropertyDescOnly } from "../wikidata-entities/wd-property.ts";
 
 export class WdOntologyConnector {
     private readonly httpFetch: HttpFetch;

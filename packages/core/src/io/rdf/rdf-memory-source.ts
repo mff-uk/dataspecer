@@ -1,4 +1,4 @@
-import { RdfSource, RdfQuad, RdfObject, RdfTermType, RdfNode } from "./rdf-api";
+import { RdfSource, RdfQuad, RdfObject, RdfTermType, RdfNode } from "./rdf-api.ts";
 
 /**
  * Can be used as a base class for sources that load chunk of data

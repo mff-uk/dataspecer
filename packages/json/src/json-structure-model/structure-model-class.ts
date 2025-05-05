@@ -26,4 +26,10 @@ export class JsonStructureModelClass extends StructureModelClass {
      * If set to undefined, the default value will be used.
      */
     jsonTypeRequired: boolean | undefined = undefined;
+
+    /**
+     * Whether you are allowed to use prefixes in the IRI and therefore it needs
+     * to fallback to string instead of iri.
+     */
+    iriUsesPrefixes: boolean | undefined = undefined;
 }

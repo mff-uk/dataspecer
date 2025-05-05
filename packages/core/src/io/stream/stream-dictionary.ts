@@ -1,5 +1,5 @@
-import { InputStream } from "./input-stream";
-import { OutputStream } from "./output-stream";
+import { InputStream } from "./input-stream.ts";
+import { OutputStream } from "./output-stream.ts";
 
 export interface StreamDictionary {
   readPath(path: string): InputStream;

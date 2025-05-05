@@ -14,6 +14,7 @@ import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usag
 import { ShiftAttributeDirection, shiftAttributePositionAction } from "./shift-attribute";
 import { notificationMockup } from "./test/actions-test-suite";
 import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
+import { fail } from "@/utilities/fail-test";
 
 test("Test shift attribute - up and down", () => {
   const {
@@ -24,7 +25,7 @@ test("Test shift attribute - up and down", () => {
   const newAttributes = [];
   //
   for(let i = 0; i < 3; i++) {
-    const createdAttributeData = createSemanticAttributeTestVariant(models, `${i}`, cmeModels[0].dsIdentifier, `attribute-${i}`);
+    const createdAttributeData = createSemanticAttributeTestVariant(models, `${i}`, cmeModels[0].identifier, `attribute-${i}`);
     newAttributes.push(createdAttributeData);
     addSemanticAttributeToVisualModelAction(
       notificationMockup, visualModel, "0", createdAttributeData.identifier, false);
@@ -56,7 +57,7 @@ test("Test shift attribute - up and down over boundary", () => {
   const newAttributes = [];
   //
   for(let i = 0; i < 3; i++) {
-    const createdAttributeData = createSemanticAttributeTestVariant(models, `${i}`, cmeModels[0].dsIdentifier, `attribute-${i}`);
+    const createdAttributeData = createSemanticAttributeTestVariant(models, `${i}`, cmeModels[0].identifier, `attribute-${i}`);
     newAttributes.push(createdAttributeData);
     addSemanticAttributeToVisualModelAction(
       notificationMockup, visualModel, "0", createdAttributeData.identifier, false);
@@ -91,7 +92,7 @@ function createSemanticAttributeTestVariant(
 ) {
 
   const range = representRdfsLiteral();
-  const name = {"en": attributeName};
+  const name = { "en": attributeName };
   const operation = createRelationship({
     ends: [{
       iri: null,
@@ -128,7 +129,7 @@ function _createSemanticAttributeUsageTestVariant(
   attributeName: string,
 ) {
   const range = representRdfsLiteral();
-  const name = {"en": attributeName};
+  const name = { "en": attributeName };
   const operation = createRelationshipUsage({
     ends: [{
       iri: null,

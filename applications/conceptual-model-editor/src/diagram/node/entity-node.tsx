@@ -8,11 +8,21 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 
-import { NodeType, type Node as ApiNode, type NodeItem } from "../diagram-model";
+import {
+  DiagramOptions,
+  EntityColor,
+  isNodeRelationshipItem,
+  isNodeTitleItem,
+  LabelVisual,
+  NodeRelationshipItem,
+  NodeTitleItem,
+  NodeType,
+  ProfileOfVisual,
+  type Node as ApiNode,
+} from "../diagram-model";
 import { DiagramContext, NodeMenuType } from "../diagram-controller";
 
 import "./entity-node.css";
-import { usePrefixForIri } from "../../service/prefix-service";
 import { t } from "../../application";
 
 // We can select zoom option and hide content when zoom is on given threshold.
@@ -36,24 +46,22 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
 
   const description: undefined | string = data.description ?? undefined;
 
-  let usageNote: undefined | string = undefined;
-  if (data.profileOf !== null && data.profileOf.usageNote !== null) {
-    usageNote = data.profileOf.usageNote;
-  }
-
   const context = useContext(DiagramContext);
 
-  const isSingleNodeSelected = context?.getShownNodeMenuType() === NodeMenuType.SingleNodeMenu;
-
-  const moveAttributeUp = (attribute: string) => () =>
-    context?.callbacks().onMoveAttributeUp(attribute, props.data.identifier);
-  const moveAttributeDown = (attribute: string) => () =>
-    context?.callbacks().onMoveAttributeDown(attribute, props.data.identifier);
-  const removeAttributeFromNode = (attribute: string) => () =>
-    context?.callbacks().onRemoveAttributeFromNode(attribute, props.data.identifier);
-  const editAttribute = (attribute: string) => () => {
-    context?.callbacks().onEditEntityItem(attribute);
+  const moveItemUp = (identifier: string) => () =>
+    context?.callbacks().onMoveAttributeUp(identifier, props.data.identifier);
+  const moveItemDown = (identifier: string) => () =>
+    context?.callbacks().onMoveAttributeDown(identifier, props.data.identifier);
+  const removeItem = (identifier: string) => () =>
+    context?.callbacks().onRemoveAttributeFromNode(identifier, props.data.identifier);
+  const editItem = (identifier: string) => () => {
+    context?.callbacks().onEditEntityItem(identifier);
   }
+
+  // When we use IRI instead of a label we do not show the IRI again.
+  const hideIri = data.options.labelVisual === LabelVisual.Iri;
+  const label = prepareLabel(data.options, data);
+  const mainColor = prepareColor(data);
 
   return (
     <>
@@ -62,42 +70,49 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
         <div className="entity-node-content">
 
           <div className="drag-handle bg-slate-300 p-1"
-            style={{ backgroundColor: data.color }}
+            style={{ backgroundColor: mainColor }}
             title={description}
           >
-            {data.profileOf === null ? null : (
-              <div className="text-gray-600">
-                <span className="underline" title={usageNote}>
-                  profile
-                </span>
-                &nbsp;of&nbsp;
-                <span>
-                  {data.profileOf.label}
-                </span>
-              </div>
-            )}
             <div className="relative flex w-full flex-row justify-between">
-              <div>{data.label}</div>
+              <div>{label}</div>
               {data.position.anchored ? <div>⚓</div> : null}
             </div>
+            <ProfileOf options={data.options} profileOf={data.profileOf} />
           </div>
-
-          <div className="overflow-x-clip text-gray-500 px-1">
-            {usePrefixForIri(data.iri)}
-          </div>
-          {data.items.map(item =>
-          {
-            return <li key={`${item.identifier}-li`} className="relative flex w-full flex-row justify-between z-50">
-              <EntityNodeItem item={item} />
-              {(props.selected !== true || !isSingleNodeSelected) ? null :
-                <div>
-                  <button onClick={moveAttributeUp(item.identifier)}>🔼</button>
-                  <button onClick={moveAttributeDown(item.identifier)}>🔽</button>
-                  <button onClick={removeAttributeFromNode(item.identifier)}>🕶️</button>
-                  <button onClick={editAttribute(item.identifier)}>✏️</button>
-                </div>
-              }
-            </li>
+          {hideIri ? null : <div className="overflow-x-clip text-gray-500 px-1">
+            {data.iri}
+          </div>}
+          {data.items.map((item, index) => {
+            if (isNodeRelationshipItem(item)) {
+              return (
+                <li
+                  key={`${item.identifier}-li`}
+                  className="relative flex w-full flex-row justify-between z-50"
+                >
+                  <RelationshipItem
+                    options={data.options}
+                    data={item}
+                    showToolbar={props.selected}
+                    onEdit={editItem}
+                    onMoveUp={moveItemUp}
+                    onMoveDown={moveItemDown}
+                    onRemove={removeItem}
+                  />
+                </li>
+              );
+            } else if (isNodeTitleItem(item)) {
+              return (
+                <li
+                  key={`${index}-${item.title}-li`}
+                  className="relative flex w-full flex-row justify-between z-50"
+                >
+                  <TitleItem item={item} />
+                </li>
+              );
+            } else {
+              console.error("Unknown node item.", { item });
+              return null;
+            }
           })
           }
         </div>
@@ -108,6 +123,71 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
     </>
   );
 };
+
+function prepareLabel(
+  options: DiagramOptions,
+  data: {
+    label: string | null,
+    iri: string | null,
+    vocabulary: { label: string | null }[],
+  },
+) {
+  switch (options.labelVisual) {
+  case LabelVisual.Entity:
+    return data.label;
+  case LabelVisual.Iri:
+    return data.iri;
+  case LabelVisual.VocabularyOrEntity:
+    return data.vocabulary
+      .map(item => item.label)
+      .filter(item => item !== null)
+      .join(", ");
+  }
+}
+
+function prepareColor(data: ApiNode) {
+  switch (data.options.entityMainColor) {
+  case EntityColor.Entity:
+    return data.color;
+  case EntityColor.VocabularyOrEntity:
+    if (data.vocabulary.length === 0) {
+      return data.color;
+    }
+    // Just use the first one.
+    return data.vocabulary[0].color;
+  }
+}
+
+function ProfileOf({ options, profileOf }: {
+  options: DiagramOptions,
+  profileOf: {
+    label: string | null,
+    iri: string | null,
+  }[],
+}) {
+  if (profileOf.length ===0) {
+    return null;
+  }
+  let labels: (string | null)[] = [];
+  switch (options.profileOfVisual) {
+  case ProfileOfVisual.Entity:
+    labels = profileOf.map(item => item.label);
+    break;
+  case ProfileOfVisual.Iri:
+    labels = profileOf.map(item => item.iri);
+    break;
+  case ProfileOfVisual.None:
+    return;
+  }
+  return (
+    <div className="text-gray-600">
+      profile&nbsp;of&nbsp;
+      <span>
+        {labels.filter(item => item !== null).join(", ")}
+      </span>
+    </div>
+  )
+}
 
 function EntityNodeMenu(props: NodeProps<Node<ApiNode>>) {
   const context = useContext(DiagramContext);
@@ -120,11 +200,10 @@ function EntityNodeMenu(props: NodeProps<Node<ApiNode>>) {
     return null;
   }
 
-  if (context.getShownNodeMenuType() === NodeMenuType.SelectionMenu) {
-    return <SelectionMenu {...props}/>;
-  }
-  else if (context.getShownNodeMenuType() === NodeMenuType.SingleNodeMenu) {
-    return <PrimaryNodeMenu {...props}/>;
+  if (context.getShownNodeMenuType() === NodeMenuType.SingleNodeMenu) {
+    return <PrimaryNodeMenu {...props} />;
+  } else if (context.getShownNodeMenuType() === NodeMenuType.SelectionMenu) {
+    return <SelectionMenu {...props} />;
   }
   else {
     console.error("Missing node menu of required type:",
@@ -147,7 +226,7 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
   const onAnchor = () => context?.callbacks().onToggleAnchorForNode(props.data.identifier);
   const onDissolveGroup = () => context?.callbacks().onDissolveGroup(props.data.group);
   const onAddAttribute = () => context?.callbacks().onCreateAttributeForNode(props.data);
-  const onEditAttributes = () => context?.callbacks().onEditVisualNode(props.data) ;
+  const onEditAttributes = () => context?.callbacks().onEditVisualNode(props.data);
 
   const shouldShowToolbar = props.selected === true;
 
@@ -184,7 +263,7 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
         &nbsp;
         <button onClick={onAnchor} title={isPartOfGroup ? t("group-anchor-button") : t("node-anchor-button")} >⚓</button>
         &nbsp;
-        <button onClick={onAddAttribute} title={addAttributeTitle}>➕</button>
+        <button onClick={onAddAttribute} title={addAttributeTitle} >➕</button>
         &nbsp;
       </NodeToolbar>
     </>);
@@ -200,7 +279,7 @@ function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
   }
 
   const onOpenSelectionActionsMenu = (event: React.MouseEvent) => {
-    const absoluteFlowPosition = reactFlow.screenToFlowPosition({x: event.clientX, y: event.clientY});
+    const absoluteFlowPosition = reactFlow.screenToFlowPosition({ x: event.clientX, y: event.clientY });
     context?.callbacks().onShowSelectionActionsMenu(props.data, absoluteFlowPosition);
   }
   const onLayoutSelection = () => context?.callbacks().onLayoutSelection();
@@ -210,24 +289,11 @@ function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
   const onShowExpandSelection = () => context?.callbacks().onShowExpandSelection();
   const onShowFilterSelection = () => context?.callbacks().onShowFilterSelection();
 
-  const onOpenAlignmentMenu = (event: React.MouseEvent) => {
-    const absoluteFlowPosition = reactFlow.screenToFlowPosition({x: event.clientX, y: event.clientY});
-    context?.callbacks().onOpenAlignmentMenu(props.data, absoluteFlowPosition);
-  }
   return (<>
     <NodeToolbar isVisible={shouldShowMenu} position={Position.Top} className="flex gap-2 entity-node-menu" >
       <button onClick={onOpenSelectionActionsMenu} title={t("selection-action-button")}>🎬</button>
       &nbsp;
-      <button onClick={onLayoutSelection} title={t("selection-layout-button")}>🔀</button>
-      &nbsp;
-      <button onClick={(event) => onOpenAlignmentMenu(event)}>
-        { /* https://www.svgrepo.com/svg/535125/align-left */}
-        <svg width="24px" height="24px" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M1 1H3V15H1V1Z" fill="#000000"/>
-          <path d="M5 13H15V9H5V13Z" fill="#000000"/>
-          <path d="M11 7H5V3H11V7Z" fill="#000000"/>
-        </svg>
-      </button>
+      <button onClick={onLayoutSelection} title={t("selection-layout-button")} disabled>🔀</button>
       &nbsp;
     </NodeToolbar>
     <NodeToolbar isVisible={shouldShowMenu} position={Position.Right} className="flex gap-2 entity-node-menu" >
@@ -243,34 +309,60 @@ function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
   );
 }
 
-function EntityNodeItem({ item }: {
-  item: NodeItem,
+function RelationshipItem(props: {
+  options: DiagramOptions,
+  data: NodeRelationshipItem,
+  showToolbar: boolean,
+  onMoveUp: (identifier: string) => () => void | undefined,
+  onMoveDown: (identifier: string) => () => void | undefined,
+  onRemove: (identifier: string) => () => void | undefined,
+  onEdit: (identifier: string) => () => void | undefined,
 }) {
-
-  let usageNote: undefined | string = undefined;
-  if (item.profileOf !== null && item.profileOf.usageNote !== null) {
-    usageNote = item.profileOf.usageNote;
-  }
-
+  const data = props.data;
+  const label = prepareLabel(data.options, data);
   return (
-    <div>
-      <span>
-        - {item.label}
-      </span>
-      {item.profileOf === null ? null : (
-        <>
-          &nbsp;
-          <span className="text-gray-600 underline" title={usageNote}>
-            profile
-          </span>
-          &nbsp;of&nbsp;
-          <span>
-            {item.profileOf.label}
-          </span>
-        </>
-      )}
-    </div>
+    <>
+      <div className="flex">
+        <span>
+          - {label}&nbsp;
+        </span>
+        <ProfileOf options={data.options} profileOf={data.profileOf} />
+        <Cardinality options={data.options} data={data}/>
+      </div>
+      {props.showToolbar ? (
+        <div>
+          <button onClick={props.onMoveUp(data.identifier)}>🔼</button>
+          <button onClick={props.onMoveDown(data.identifier)}>🔽</button>
+          <button onClick={props.onRemove(data.identifier)}>🕶️</button>
+          <button onClick={props.onEdit(data.identifier)}>✏️</button>
+        </div>
+      ) : null}
+    </>
   );
+}
+
+function Cardinality({ options, data }: {
+  options: DiagramOptions,
+  data: NodeRelationshipItem,
+}) {
+  if (!options.displayRangeDetail || data.cardinalityTarget === null) {
+    return null;
+  }
+  return (
+    <span>
+      &nbsp;{data.cardinalityTarget}
+    </span>
+  )
+}
+
+function TitleItem(props: {
+  item: NodeTitleItem,
+}) {
+  return (
+    <span className="ml-2">
+      {props.item.title}
+    </span>
+  )
 }
 
 export const EntityNodeName = "entity-node";

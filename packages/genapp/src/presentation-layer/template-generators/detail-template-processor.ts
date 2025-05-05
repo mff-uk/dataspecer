@@ -1,10 +1,10 @@
-import { ArtifactCache } from "../../utils/artifact-saver";
-import { LayerArtifact } from "../../engine/layer-artifact";
-import { AllowedTransition } from "../../engine/transitions/transitions-generator";
-import { ApplicationGraphEdgeType } from "../../engine/graph";
-import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
-import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
-import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "./presentation-layer-template-generator";
+import { ArtifactCache } from "../../utils/artifact-saver.ts";
+import { LayerArtifact } from "../../engine/layer-artifact.ts";
+import { AllowedTransition } from "../../engine/transitions/transitions-generator.ts";
+import { ApplicationGraphEdgeType } from "../../engine/graph/index.ts";
+import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator.ts";
+import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces.ts";
+import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "./presentation-layer-template-generator.ts";
 
 interface DetailReactComponentTemplate extends TemplateModel {
     placeholders: {

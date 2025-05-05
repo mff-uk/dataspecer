@@ -2,8 +2,8 @@ import {
   CoreExecutorResult,
   CoreResource,
   CoreResourceReader,
-} from "../../core";
-import { PimSchema } from "../model";
+} from "../../core/index.ts";
+import { PimSchema } from "../model/index.ts";
 
 export async function loadPimSchema(
   modelReader: CoreResourceReader

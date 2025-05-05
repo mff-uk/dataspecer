@@ -1,11 +1,11 @@
 import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { VisualEntitiesWithOutsiders, XY } from "../..";
-import { Graph } from "./graph";
+import { VisualEntitiesWithOutsiders, XY } from "../../index.ts";
+import { Graph } from "./graph.ts";
 import { isSemanticModelGeneralization, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { VISUAL_PROFILE_RELATIONSHIP_TYPE, VISUAL_RELATIONSHIP_TYPE, VisualModel, VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { AllowedEdgeBundleTypes, ExtractedModels } from "../../layout-algorithms/entity-bundles";
-import { capitalizeFirstLetter, createIdentifier } from "../../util/utils";
-import { Node } from "./node";
+import { AllowedEdgeBundleTypes, ExtractedModels } from "../../layout-algorithms/entity-bundles.ts";
+import { capitalizeFirstLetter, createIdentifier } from "../../util/utils.ts";
+import { Node } from "./node.ts";
 
 export type AllowedEdgeTypes = SemanticModelGeneralization |
                         SemanticModelRelationship |
@@ -212,25 +212,45 @@ export class DefaultEdge implements Edge {
         return this.visualEdge.visualEdge;
     }
 
+    /**
+     * The semantic information about represented relationship may be missing
+     */
     private createNewVisualRelationshipBasedOnEndPoints(
         start: EdgeEndPoint,
-        end: EdgeEndPoint
+        end: EdgeEndPoint,
+        edgeProfileType: EdgeProfileType,
+        sourceModelIdentifier: string | null,
     ): VisualRelationship | VisualProfileRelationship {
         // TODO Hard to solve by myself - Radstr:
         //      It makes sense to use the cme methods to create the visual entities - Instead of implementing it all again - just define method and call it
         //      ... for example I am not sure the type should cotnain only the VISUAL_RELATIONSHIP_TYPE or also some other type, so for such cases constistency would be nice
         //      But currently it seems sufficient
-        const edgeToReturn: VisualProfileRelationship = {
-            identifier: createIdentifier(),
-            entity: "",
-            type: [VISUAL_RELATIONSHIP_TYPE],
-            waypoints: [],
-            model: "",
-            visualSource: start.id,
-            visualTarget: end.id,
-        };
+        if(edgeProfileType === "CLASS-PROFILE") {
+            const edgeToReturn: VisualProfileRelationship = {
+                identifier: createIdentifier(),
+                entity: start?.semanticEntityRepresentingNode?.id ?? "",
+                type: [VISUAL_PROFILE_RELATIONSHIP_TYPE],
+                waypoints: [],
+                model: sourceModelIdentifier ?? "",
+                visualSource: start.id,
+                visualTarget: end.id,
+            };
 
-        return edgeToReturn;
+            return edgeToReturn;
+        }
+        else {
+            const edgeToReturn: VisualRelationship = {
+                identifier: createIdentifier(),
+                representedRelationship: "",
+                type: [VISUAL_RELATIONSHIP_TYPE],
+                waypoints: [],
+                model: sourceModelIdentifier ?? "",
+                visualSource: start.id,
+                visualTarget: end.id,
+            };
+
+            return edgeToReturn;
+        }
     }
 
 
@@ -254,7 +274,7 @@ export class DefaultEdge implements Edge {
             return new VisualEdge(createdVisualRelationship, true);
         }
         else {
-            return new VisualEdge(this.createNewVisualRelationshipBasedOnEndPoints(start, end), true);
+            return new VisualEdge(this.createNewVisualRelationshipBasedOnEndPoints(start, end, edgeProfileType, sourceModelIdentifier), true);
         }
     }
 }
@@ -408,7 +428,7 @@ function createNewVisualRelationshipBasedOnSemanticData(
     if(edgeProfileType === "CLASS-PROFILE") {
         const edgeToReturn: VisualProfileRelationship = {
             identifier: createIdentifier(),
-            entity: start.id,
+            entity: start.semanticEntityRepresentingNode.id,
             type: [VISUAL_PROFILE_RELATIONSHIP_TYPE],
             waypoints: [],
             model: sourceModelIdentifier ?? "",

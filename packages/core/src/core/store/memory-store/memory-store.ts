@@ -1,11 +1,11 @@
-import {CoreOperation, CoreOperationResult} from "../../operation";
-import {CoreResource} from "../../core-resource";
-import {CoreExecutorResult, CoreOperationExecutor, CreateNewIdentifier,} from "../../executor";
-import {assert, assertNot} from "../../utilities/assert";
-import {clone} from "../../utilities/clone";
-import {CoreResourceReader} from "../../core-reader";
-import {CoreResourceWriter} from "../../core-writer";
-import {createExecutorMap, ExecutorMap} from "../executor-map";
+import {CoreOperation, CoreOperationResult} from "../../operation/index.ts";
+import {CoreResource} from "../../core-resource.ts";
+import {CoreExecutorResult, CoreOperationExecutor, CreateNewIdentifier,} from "../../executor/index.ts";
+import {assert, assertNot} from "../../utilities/assert.ts";
+import {clone} from "../../utilities/clone.ts";
+import {CoreResourceReader} from "../../core-reader.ts";
+import {CoreResourceWriter} from "../../core-writer.ts";
+import {createExecutorMap, ExecutorMap} from "../executor-map.ts";
 
 export class MemoryStore implements CoreResourceReader, CoreResourceWriter {
   protected readonly executors: ExecutorMap;

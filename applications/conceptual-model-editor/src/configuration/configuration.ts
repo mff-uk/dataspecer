@@ -91,6 +91,12 @@ export interface Configuration {
    * Fallback model color.
    */
   defaultModelColor: string;
+
+  /**
+   * For a given IRI contains a name.
+   * This allow us to alias multiple IRIs to same name.
+   */
+  prefixes: {[iri: string]: string};
 }
 
 const CONFIGURATIONS: Record<string, Configuration> = {

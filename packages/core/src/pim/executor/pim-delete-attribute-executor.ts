@@ -3,9 +3,9 @@ import {
   CoreExecutorResult,
   CreateNewIdentifier,
   CoreResource,
-} from "../../core";
-import { PimExecutorResultFactory, loadPimSchema } from "./pim-executor-utils";
-import { PimDeleteAttribute } from "../operation";
+} from "../../core/index.ts";
+import { PimExecutorResultFactory, loadPimSchema } from "./pim-executor-utils.ts";
+import { PimDeleteAttribute } from "../operation/index.ts";
 
 export async function executePimDeleteAttribute(
   reader: CoreResourceReader,

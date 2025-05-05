@@ -7,10 +7,10 @@ import { DataPsmSchema } from "@dataspecer/core/data-psm/model";
 import { PimResource } from "@dataspecer/core/pim/model";
 import * as PIM from "@dataspecer/core/pim/pim-vocabulary";
 import { cloneDeep } from "lodash";
-import { ComplexOperation } from "./complex-operation";
-import { FederatedCoreResourceWriter } from "./federated-core-resource-writer";
-import { ImmediateCoreResourceReader } from "./immediate-core-resource-reader";
-import { Resource } from "./resource";
+import { ComplexOperation } from "./complex-operation.ts";
+import { FederatedCoreResourceWriter } from "./federated-core-resource-writer.ts";
+import { ImmediateCoreResourceReader } from "./immediate-core-resource-reader.ts";
+import { Resource } from "./resource.ts";
 import { InMemorySemanticModel } from '@dataspecer/core-v2/semantic-model/in-memory';
 
 /**
@@ -177,7 +177,8 @@ export class FederatedObservableStore implements FederatedCoreResourceWriter {
 
         // Drop immediately if there are no more subscribers
         if (entry.subscribers.length === 0) {
-            this.subscriptions.delete(iri);
+            // todo: keep old cached resource
+            //this.subscriptions.delete(iri);
         }
     }
 

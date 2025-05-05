@@ -1,9 +1,9 @@
-import { AutomaticLayout } from "./implementations/automatic-layout";
-import { RandomLayout } from "./implementations/basic-layout";
-import { ElkLayout } from "./implementations/elk-layout";
-import { ElkProfileLayout } from "./implementations/elk-profile-specific-layout";
-import { NoActionLayout } from "./implementations/no-action-layouts";
-import { LayoutAlgorithm } from "./layout-algorithms-interfaces";
+import { AutomaticLayout } from "./implementations/automatic-layout.ts";
+import { RandomLayout } from "./implementations/basic-layout.ts";
+import { ElkLayout } from "./implementations/elk-layout.ts";
+import { ElkProfileLayout } from "./implementations/elk-profile-specific-layout.ts";
+import { NoActionLayout } from "./implementations/no-action-layouts.ts";
+import { LayoutAlgorithm } from "./layout-algorithms-interfaces.ts";
 
 export type AlgorithmName = "none" | "elk_stress" | "elk_layered" | "elk_force" | "random" |
                             "elk_radial" | "elk_overlapRemoval" |

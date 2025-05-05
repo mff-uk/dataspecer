@@ -73,13 +73,117 @@ const dialogClassProfile = prefix(
     "ok-create": "✅ Create",
   });
 
-  const dialogLayoutVisualModel = prefix(
-    "dialog.layout-visual-model.", {
-      "cancel": "❌ Cancel",
-      // Perfrom layout
-      "label-perform": "Autolayout algorithm configuration",
-      "ok-perform": "✅ Perform layout",
-    });
+ const dialogLayoutVisualModel = prefix(
+  "dialog.layout-visual-model.", {
+    "cancel": "❌ Cancel",
+    // Perfrom layout
+    "label-perform": "Autolayout algorithm configuration",
+    "ok-perform": "✅ Perform layout",
+  });
+
+const dialogVisualDiagramNode = prefix(
+  "dialog.visual-diagram-node.", {
+    "cancel": "❌ Cancel",
+    // Edit
+    "label-edit": "Edit a visual diagram node",
+    "label-info": "Show info about visual diagram node",
+    "ok-edit": "✅ Save changes",
+    // Create
+    "label-create": "Create a new visual diagram node",
+    "ok-create": "✅ Create",
+  });
+
+const dialogVisualModel = prefix(
+  "dialog.visual-model.", {
+    "cancel": "❌ Cancel",
+    // Edit
+    "label-edit": "Edit visual model",
+    "ok-edit": "✅ Save changes",
+    // Create
+    "label-create": "Create new visual model",
+    "ok-create": "✅ Create",
+  });
+
+const dialogVisualNode = prefix(
+  "edit-visual-node-dialog.", {
+    "label": "Edit visual node",
+    "btn-ok": "✅ Accept",
+    "btn-cancel": "❌ Cancel",
+    "content-visible": "Visible content:",
+    "content-available": "Available content:",
+    "level-mandatory": "mandatory",
+    "level-optional": "optional",
+    "level-recommended": "recommended",
+  });
+
+const editSemanticModelDialog = prefix(
+  "edit-semantic-model-dialog.", {
+    "title": "Edit semantic model",
+    "base-iri": "Base IRI",
+    "label": "Label",
+    "color": "Color",
+    "ok": "✅ Save changes",
+    "cancel": "❌ Cancel",
+    "external-model-message": "You are allowed to only change a color for an external model."
+  },
+);
+
+const searchExternalSemanticModelDialog = prefix(
+  "search-external-semantic-model-dialog.", {
+    "title": "Add entities from an external semantic model",
+    "search": "Search",
+    "ok": "✅ Add entities changes",
+    "cancel": "❌ Cancel",
+  },
+);
+
+const catalog = prefix(
+  "catalog.", {
+    "model.show": "Show all entities in the diagram.",
+    "model.hide": "Hide all entities in the diagram.",
+    "model.edit": "Edit semantic model.",
+    "model.delete": "Delete the semantic model.",
+    "model.add": "Add a new semantic model.",
+    "model.toggle": "Toggle diagram visibility.",
+    "model.extend-external": "Search and add entities from semantic model.",
+    "model.create-class": "Create a new class.",
+    "model.create-association": "Create a new association.",
+    "model.create-attribute": "Create a new attribute.",
+    "class.expand": "Load class's surrounding.",
+    "class.focus": "Focus in the diagram.",
+    "class.delete": "Delete the class.",
+    "class.edit": "Edit the class.",
+    "class.detail": "Show class detail.",
+    "class.toggle": "Toggle visibility in the diagram.",
+    "class.profile": "Create a new profile.",
+    "class.neighborhood": "Add related entities to the diagram.",
+    "class-profile.focus": "Focus in the diagram.",
+    "class-profile.delete": "Delete the class profile.",
+    "class-profile.edit": "Edit the class profile.",
+    "class-profile.detail": "Show profile class detail.",
+    "class-profile.toggle": "Toggle visibility in the diagram.",
+    "class-profile.profile": "Create a new profile.",
+    "class-profile.neighborhood": "Add related entities to the diagram.",
+    "relationship.focus": "Focus in the diagram.",
+    "relationship.delete": "Delete the relationship.",
+    "relationship.edit": "Edit the relationship.",
+    "relationship.detail": "Show relationship detail.",
+    "relationship.toggle": "Toggle visibility in the diagram.",
+    "relationship.profile": "Create a new profile.",
+    "relationship.neighborhood": "Add domain and range to the diagram.",
+    "relationship-profile.focus": "Focus in the diagram.",
+    "relationship-profile.delete": "Delete the relationship profile.",
+    "relationship-profile.edit": "Edit the relationship profile.",
+    "relationship-profile.detail": "Show relationship profile detail.",
+    "relationship-profile.toggle": "Toggle visibility in the diagram.",
+    "relationship-profile.profile": "Create a new profile.",
+    "relationship-profile.neighborhood": "Add domain and range to the diagram.",
+    "generalization.delete": "Delete the generalization.",
+    "generalization.detail": "Show generalization detail.",
+    "generalization.toggle": "Toggle visibility in the diagram.",
+    "clear": "Clear",
+    "search-title": "Search by label",
+  });
 
 const dataspecer = prefix(
   "dataspecer", {
@@ -98,8 +202,14 @@ export const translations: Record<string, string | Function> = {
   ...dialogAttributeProfile,
   ...dialogClass,
   ...dialogClassProfile,
+  ...dialogVisualDiagramNode,
+  ...dialogVisualModel,
   ...dialogLayoutVisualModel,
   ...dataspecer,
+  ...dialogVisualNode,
+  ...editSemanticModelDialog,
+  ...searchExternalSemanticModelDialog,
+  ...catalog,
   //
   "notification.icon-error": "Error icon",
   "notification.icon-success": "Check icon",
@@ -117,11 +227,21 @@ export const translations: Record<string, string | Function> = {
   "create-class-dialog.name": "Name",
   "create-class-dialog.iri": "IRI",
   "create-class-dialog.description": "Definition",
+  "create-class-dialog.external-documentation-url": "External documentation URL",
   "create-class-dialog.error-iri-not-set": "iri not set",
   "create-class-dialog.btn-ok": "✅ create",
   "create-class-dialog.btn-cancel": "❌ cancel",
   "create-class-dialog.add-specialization": "Add specialization",
   "create-class-dialog.no-specialization-available": "There is nothing to specialize",
+  "create-class-dialog.class-role": "Role",
+  "class-profile.role.undefined": "Undefined",
+  "class-profile.role.main": "Main",
+  "class-profile.role.supportive": "Supportive",
+  "relationship-profile.mandatory-level": "Mandatory level",
+  "relationship-profile.mandatory-level.undefined": "Undefined",
+  "relationship-profile.mandatory-level.mandatory": "Mandatory",
+  "relationship-profile.mandatory-level.recommended": "Recommended",
+  "relationship-profile.mandatory-level.optional": "Optional",
   //
   "create-profile-button.title": "Create profile",
   //
@@ -206,12 +326,14 @@ export const translations: Record<string, string | Function> = {
   "add-model-dialog.tab-predefined.introduction": "Select vocabulary from bellow to import. You can import multiple at once.",
   "add-model-dialog.tab-create.introduction": "Create an empty vocabulary.",
   //
+  "create-visual-diagram-node-dialog.model-name": "Name of the referenced visual model",
+  //
   "model.vocabularies": "Vocabularies",
   "model.classes": "Classes",
   "model.relationship": "Relationship",
   "model.attributes": "Attributes",
   "model.profiles": "Profiles",
-  "model.warnings": "⚠️&nbsp;Warnings",
+  "model.generalizations": "Generalizations",
   "model-catalog.add-vocabulary": "➕",
   //
   "detail-dialog.btn-close": "Close",
@@ -259,7 +381,10 @@ export const translations: Record<string, string | Function> = {
   "edit-node-attributes-visiblity-button": "Edit visibility of attributes on node",
   "duplicate-node-button": "Create new copy of the node on canvas",
   //
-  "add-neighborhood-button.title": "Add entity's neighborhood (Classes or class profiles connected by either association or generalization)",
+  "add-neighborhood-button.title": "Add entity's neighborhood. That is: \n" +
+    "For attributes the domain class \n" +
+    "For relationships the relationship together with ends (if not present) \n" +
+    "For classes and class profiles all the connected classes together with edges",
   //
   "node-anchor-button": "(Un)anchor node for layouting using force-directed layouting algorithm",
   "node-connection-handle": "Drag from this button to create connection (Dragging to canvas shows menu)",
@@ -295,7 +420,6 @@ export const translations: Record<string, string | Function> = {
   "extend-selection-dialog.label": "Extend selection by",
   "extend-selection-dialog.btn-ok": "✅ Accept",
   "extend-selection-dialog.btn-cancel": "❌ Cancel",
-  "extend-selection-tooltip": "Blue color (🔵) indicates selected element, Red color (🔴) indicates element which was not selected, but will be. For example:\n🔵⭢🔴=Extend current selection by association targets",
   "extend-selection-association-name": "Association",
   "extend-selection-generalization-name": "Generalization",
   "extend-selection-association-profile-name": "Association profile",
@@ -314,11 +438,17 @@ export const translations: Record<string, string | Function> = {
   "drag-edge-to-canvas-create-generalization-parent": "Create new parent",
   "drag-edge-to-canvas-create-generalization-child": "Create new child",
   //
-  "edit-visual-node-dialog.label": "Edit visual node",
-  "edit-visual-node-dialog.btn-ok": "✅ Accept",
-  "edit-visual-node-dialog.btn-cancel": "❌ Cancel",
-  "edit-visual-node-dialog.content-visible": "Visible content:",
-  "edit-visual-node-dialog.content-available": "Available content:",
+  "visual-diagram-node-dissolve-button": "Dissolves node representing visual model. That is the content of the diagram node is put back on canvas.",
+  "visual-diagram-node-hide-button": "Removes the diagram node from canvas.",
+  "visual-diagram-node-add-relationships-button": "Adds all the relationships related to the content of the visual diagram node",
+  "visual-diagram-node-move-to-source-visual-model-button": "Change visual model to the visual model represented by this diagram node",
+  "visual-diagram-node-edit-button": "Edit diagram node's properties",
+  "visual-diagram-node-detail-button": "Show info about visual model diagram node",
+  "visual-diagram-node-create-from-selection-button": "Creates new visual model with selected entities and puts diagram node representing the newly created model to the original visual model",
+  //
+  "visual-diagram-node-info-dialog.representedVisualModelName": "Represented visual model",
+  //
+  "create-visual-model-dialog.label": "Visual model name",
   //
   "align-left.title": "Align selected nodes the most left one and in such a way that the lefts of nodes are aligned",
   "align-horizontal-mid.title": "Align selected nodes the middle horizontally, that is |",

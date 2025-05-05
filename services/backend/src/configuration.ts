@@ -1,5 +1,5 @@
 // @ts-ignore
-import configuration from "../main.config";
+import configuration from "../main.config.js";
 
 export interface Configuration {
     /**

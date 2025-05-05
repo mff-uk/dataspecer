@@ -1,7 +1,7 @@
-import { HttpFetch } from "../../fetch/fetch-api";
-import { RdfMemorySource } from "../rdf-memory-source";
-import { fetchRdfQuads } from "../http/http-adapter";
-import { createSparqlQueryUrl } from "./sparql-adapter";
+import { HttpFetch } from "../../fetch/fetch-api.ts";
+import { RdfMemorySource } from "../rdf-memory-source.ts";
+import { fetchRdfQuads } from "../http/http-adapter.ts";
+import { createSparqlQueryUrl } from "./sparql-adapter.ts";
 
 /**
  * Executes a user-defined SPARQL query on a triplestore and provides the

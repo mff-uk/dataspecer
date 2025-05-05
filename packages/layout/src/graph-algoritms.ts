@@ -1,12 +1,12 @@
-import { Direction, ReactflowDimensionsConstantEstimator } from ".";
+import { Direction, ReactflowDimensionsConstantEstimator } from "./index.ts";
 import {
   Graph,
   MainGraph,
-} from "./graph/representation/graph";
-import { EdgeNodeCrossingMetric } from "./graph/graph-metrics/implemented-metrics/edge-node-crossing";
-import { addToRecordArray } from "./util/utils";
-import { Node, DefaultNode, VisualNodeComplete } from "./graph/representation/node";
-import { DefaultEdge, EdgeEndPoint, Edge } from "./graph/representation/edge";
+} from "./graph/representation/graph.ts";
+import { EdgeNodeCrossingMetric } from "./graph/graph-metrics/implemented-metrics/edge-node-crossing.ts";
+import { addToRecordArray } from "./util/utils.ts";
+import { Node, DefaultNode, VisualNodeComplete } from "./graph/representation/node.ts";
+import { DefaultEdge, EdgeEndPoint, Edge } from "./graph/representation/edge.ts";
 
 export enum ToConsiderFilter {
   OnlyLayouted,

@@ -1,13 +1,13 @@
 import jsStringEscape from "js-string-escape";
-import search from "./queries/search.sparql";
-import getClass from "./queries/get-class.sparql";
-import getSurroundingsAttributes from "./queries/get-surroundings-attributes.sparql";
-import getSurroundingsInwardsRelations from "./queries/get-surroundings-inwards-relations.sparql";
-import getSurroundingsOutwardsRelations from "./queries/get-surroundings-outwards-relations.sparql";
-import getSurroundingsParent from "./queries/get-surroundings-parent.sparql";
-import getSurroundingsComplexAttributes from "./queries/get-surroundings-complex-attributes.sparql";
-import getHierarchy from "./queries/get-hierarchy.sparql";
-import getGroup from "./queries/get-group.sparql";
+import search from "./queries/search.sparql.ts";
+import getClass from "./queries/get-class.sparql.ts";
+import getSurroundingsAttributes from "./queries/get-surroundings-attributes.sparql.ts";
+import getSurroundingsInwardsRelations from "./queries/get-surroundings-inwards-relations.sparql.ts";
+import getSurroundingsOutwardsRelations from "./queries/get-surroundings-outwards-relations.sparql.ts";
+import getSurroundingsParent from "./queries/get-surroundings-parent.sparql.ts";
+import getSurroundingsComplexAttributes from "./queries/get-surroundings-complex-attributes.sparql.ts";
+import getHierarchy from "./queries/get-hierarchy.sparql.ts";
+import getGroup from "./queries/get-group.sparql.ts";
 import { CimAdapter, IriProvider } from "@dataspecer/core/cim";
 import { SparqlQueryRdfSource } from "@dataspecer/core/io/rdf/sparql/sparql-query-rdf-source";
 import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
@@ -15,18 +15,18 @@ import { RdfSource, RdfSourceWrap } from "@dataspecer/core/core/adapter/rdf";
 import {
   isSgovClass,
   loadSgovClass,
-} from "./entity-adapters/sgov-class-adapter";
+} from "./entity-adapters/sgov-class-adapter.ts";
 import { CoreResource, ReadOnlyMemoryStore } from "@dataspecer/core/core";
 import { FederatedSource } from "@dataspecer/core/io/rdf/federated/federated-rdf-source";
-import { RDFS, SKOS } from "./sgov-vocabulary";
+import { RDFS, SKOS } from "./sgov-vocabulary.ts";
 import {
   isSgovAssociation,
   loadSgovAssociation,
-} from "./entity-adapters/sgov-association-adapter";
+} from "./entity-adapters/sgov-association-adapter.ts";
 import {
   isSgovAttribute,
   loadSgovAttribute,
-} from "./entity-adapters/sgov-attribute-adapter";
+} from "./entity-adapters/sgov-attribute-adapter.ts";
 import { PimClass } from "@dataspecer/core/pim/model";
 
 const getSurroundings = [

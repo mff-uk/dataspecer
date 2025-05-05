@@ -148,9 +148,9 @@ export const useConfigDialog = () => {
   }) => {
     return <div>
       <input type="checkbox"
-              id="checkbox-run-overlap-removal-after"
-              name="checkbox-run-overlap-removal-after"
-              checked={config?.[props.stateField]?.[config.chosenMainAlgorithm]?.run_node_overlap_removal_after}
+        id="checkbox-run-overlap-removal-after"
+        name="checkbox-run-overlap-removal-after"
+        checked={config?.[props.stateField]?.[config.chosenMainAlgorithm]?.run_node_overlap_removal_after}
         onChange={e => {
           setConfig({
             ...config,
@@ -223,7 +223,7 @@ export const useConfigDialog = () => {
         </select>
       </div>
       <hr className="w-48 h-1 mx-auto my-3 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
-      {interactiveCheckbox({...props, algorithmName: "elk_force"})}
+      {interactiveCheckbox({ ...props, algorithmName: "elk_force" })}
       <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
       <RunOverlapRemovalAfterCombobox stateField={props.stateField}></RunOverlapRemovalAfterCombobox>
     </div>;
@@ -250,7 +250,6 @@ export const useConfigDialog = () => {
     {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
                     (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
   }
-
 
   const StressWithClustersConfig = (props: {stateField: MainType}) =>
     <div>
@@ -315,21 +314,13 @@ export const useConfigDialog = () => {
         {config?.[props.stateField]?.elk_stress?.["number_of_new_algorithm_runs"]}
       </div>
       <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
-      {interactiveCheckbox({...props, algorithmName: "elk_stress"})}
+      {interactiveCheckbox({ ...props, algorithmName: "elk_stress" })}
       <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
       <RunOverlapRemovalAfterCombobox stateField={props.stateField}></RunOverlapRemovalAfterCombobox>
     </div>;
 
   const StressProfileConfig = (props: {stateField: MainType}) =>
     <div>
-      <div className="flex flex-row">
-        <label htmlFor={`${props.stateField}-main-alg-direction`}>Preferred edge direction for profiles: </label>
-      </div>
-      <div className="flex flex-row">
-        <LayeredAlgorithmDirectionDropdown direction={config?.[props.stateField]?.["elk_stress_profile"]?.["preferredProfileDirection"] ?? Direction.Down} setDirection={(newDirection: Direction) => {
-          setConfigWithNewValue("elk_stress_profile", props.stateField, "preferredProfileDirection", newDirection);
-        }}></LayeredAlgorithmDirectionDropdown>
-      </div>
       <div className="flex flex-row">
         <label htmlFor="range-stress-edge-len">Ideal edge length: </label>
       </div>
@@ -344,7 +335,7 @@ export const useConfigDialog = () => {
         {config?.[props.stateField]?.elk_stress_profile?.["stress_edge_len"]}
       </div>
       <div className="flex flex-row">
-        <label htmlFor="range-stress-profile-edge-len">Ideal profile edge length: </label>
+        <label htmlFor="range-stress-profile-edge-len">Ideal class profile edge length: </label>
       </div>
       <div className="flex flex-row">
         <input type="range" min="0" max="1000" step="10" className="slider" id="range-stress-profile-edge-len" draggable="false"
@@ -370,7 +361,7 @@ export const useConfigDialog = () => {
         {config?.[props.stateField]?.elk_stress_profile?.["number_of_new_algorithm_runs"]}
       </div>
       <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
-      {interactiveCheckbox({...props, algorithmName: "elk_stress_profile"})}
+      {interactiveCheckbox({ ...props, algorithmName: "elk_stress_profile" })}
       <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
       <RunOverlapRemovalAfterCombobox stateField={props.stateField}></RunOverlapRemovalAfterCombobox>
     </div>;
@@ -403,7 +394,7 @@ export const useConfigDialog = () => {
 
       <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
       {/* <div className="my-2"/> */}
-      {interactiveCheckbox({...props, algorithmName: "elk_layered"})}
+      {interactiveCheckbox({ ...props, algorithmName: "elk_layered" })}
       <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
 
       <div className="flex flex-row">
@@ -472,26 +463,26 @@ export const useConfigDialog = () => {
     advancedSettingsForAlgorithms.current = config.main[config.chosenMainAlgorithm].advanced_settings;
 
     switch(config.chosenMainAlgorithm) {
-      case "elk_stress_advanced_using_clusters":
-        return <StressWithClustersConfig stateField="main"></StressWithClustersConfig>;
-      case "elk_stress":
-        return <StressConfig stateField="main"></StressConfig>;
-      case "elk_layered":
-        return <LayeredConfig stateField="main"></LayeredConfig>;
-      case "elk_force":
-        return <ForceConfig stateField="main"></ForceConfig>;
-      case "elk_radial":
-        return <RadialConfig stateField="main"></RadialConfig>;
-      case "elk_overlapRemoval":
-        return <OverlapRemovalConfig stateField="main"></OverlapRemovalConfig>;
-      case "automatic":
-        return <AutomaticConfig stateField="main"></AutomaticConfig>;
-      case "random":
-        return <RunOverlapRemovalAfterCombobox stateField="main"></RunOverlapRemovalAfterCombobox>
-      case "elk_stress_profile":
-        return <StressProfileConfig stateField="main"></StressProfileConfig>
-      default:
-        return null;
+    case "elk_stress_advanced_using_clusters":
+      return <StressWithClustersConfig stateField="main"></StressWithClustersConfig>;
+    case "elk_stress":
+      return <StressConfig stateField="main"></StressConfig>;
+    case "elk_layered":
+      return <LayeredConfig stateField="main"></LayeredConfig>;
+    case "elk_force":
+      return <ForceConfig stateField="main"></ForceConfig>;
+    case "elk_radial":
+      return <RadialConfig stateField="main"></RadialConfig>;
+    case "elk_overlapRemoval":
+      return <OverlapRemovalConfig stateField="main"></OverlapRemovalConfig>;
+    case "automatic":
+      return <AutomaticConfig stateField="main"></AutomaticConfig>;
+    case "random":
+      return <RunOverlapRemovalAfterCombobox stateField="main"></RunOverlapRemovalAfterCombobox>
+    case "elk_stress_profile":
+      return <StressProfileConfig stateField="main"></StressProfileConfig>
+    default:
+      return null;
     }
   };
 
@@ -504,18 +495,17 @@ export const useConfigDialog = () => {
       </div>
       <div className="flex flex-row">
         <select id="main-layout-alg" value={config["chosenMainAlgorithm"]}
-          onChange={(event) => setConfig({...config,
+          onChange={(event) => setConfig({ ...config,
             "chosenMainAlgorithm": event.target.value as AlgorithmName
           })
           }>
           <option value="elk_layered">Layered (Hierarchical)</option>
           <option value="elk_stress">Elk Stress (Force-based algorithm)</option>
-          <option value="elk_stress_profile">Elk Stress profile (Force-based algorithm)</option>
+          <option value="elk_stress_profile">Elk Stress class profile (Force-based algorithm)</option>
           <option value="elk_stress_advanced_using_clusters">Elk Stress (Force-based algorithm) with clustering</option>
           <option value="elk_force">Elk Force (Force-based algorithm)</option>
           <option value="elk_radial">Radial</option>
           <option value="elk_overlapRemoval">Overlap removal</option>
-          <option value="automatic">Automatic</option>
           <option value="random">Random</option>
         </select>
       </div>
@@ -524,28 +514,6 @@ export const useConfigDialog = () => {
       {config.chosenMainAlgorithm === "random" ? null : <h3 className="font-black">Algorithm settings </h3>}
       {renderMainAlgorithmConfig()}
       <hr className="my-2"/>
-      <label htmlFor="advanced-settings-textbox">Advanced settings:</label>
-      <textarea id="advanced-settings-textbox"
-                value={String(advancedSettingsForAlgorithms.current)}
-                onChange={handleAdvancedSettingsChange}></textarea>
-      <hr className="my-4"/>
-      <input type="checkbox" id="checkbox-main-layout-alg" name="checkbox-main-layout-alg" checked={config.chosenGeneralAlgorithm !== "none"}
-        onChange={e => setConfig({...config,
-          general: {
-            ...config.general,
-            elk_layered: {
-              ...config.general.elk_layered,
-            }
-          },
-          chosenGeneralAlgorithm: e.target.checked ? "elk_layered" : "none"
-          })} />
-      <label htmlFor="checkbox-main-layout-alg">Process generalization hierarchies separately ⚠️ WIP ⚠️</label>
-      {config.chosenGeneralAlgorithm === "none" ? null :
-        <div>
-          <div className='h-2'></div>
-          <LayeredConfig stateField='general'></LayeredConfig>
-        </div>
-      }
     </div>;
 
   return {

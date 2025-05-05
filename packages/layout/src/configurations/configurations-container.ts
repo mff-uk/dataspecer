@@ -1,10 +1,10 @@
-import { AlgorithmConfiguration } from "./algorithm-configurations";
+import { AlgorithmConfiguration } from "./algorithm-configurations.ts";
 import {
     DefaultGraphConversionActionConfiguration,
     GraphConversionActionConfiguration,
-} from "./graph-conversion-action";
-import { ElkConfiguration } from "./elk/elk-configurations";
-import { UserGivenAlgorithmConfigurationBase } from "./user-algorithm-configurations";
+} from "./graph-conversion-action.ts";
+import { ElkConfiguration } from "./elk/elk-configurations.ts";
+import { UserGivenAlgorithmConfigurationBase } from "./user-algorithm-configurations.ts";
 
 /**
  * Behaves like container for configurations for graph layout.

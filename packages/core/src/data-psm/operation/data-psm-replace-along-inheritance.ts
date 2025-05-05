@@ -1,5 +1,5 @@
-import { CoreOperation, CoreResource } from "../../core";
-import * as PSM from "../data-psm-vocabulary";
+import { CoreOperation, CoreResource } from "../../core/index.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 /**
  * Replaces data PSM class with another class that is ancestor or descendant of

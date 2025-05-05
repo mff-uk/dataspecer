@@ -1,14 +1,23 @@
-import { Entity, EntityModel } from "../entity-model";
-import { isSemanticModelClass, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "../semantic-model/concepts";
-import { InMemorySemanticModel } from "../semantic-model/in-memory";
-import { ExternalEntityWrapped, LocalEntityWrapped, SemanticModelAggregator } from "./interfaces";
-import { getSearchRelevance } from "./utils/get-search-relevance";
-import { withAbsoluteIri } from "../semantic-model/utils";
+import { Entity, EntityModel } from "../entity-model/index.ts";
+import { isSemanticModelClass, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "../semantic-model/concepts/index.ts";
+import { InMemorySemanticModel } from "../semantic-model/in-memory/index.ts";
+import { ExternalEntityWrapped, LocalEntityWrapped, SemanticModelAggregator } from "./interfaces.ts";
+import { getSearchRelevance } from "./utils/get-search-relevance.ts";
+import { withAbsoluteIri } from "../semantic-model/utils/index.ts";
+
+const VOCABULARY_AGGREGATOR_TYPE = "vocabulary-aggregator";
+
+/**
+ * Result of the aggregation from VocabularyAggregator.
+ */
+export interface AggregatedEntityInVocabularyAggregator<T extends SemanticModelEntity = SemanticModelEntity> extends LocalEntityWrapped<T> {
+  type: typeof VOCABULARY_AGGREGATOR_TYPE;
+}
 
 export class VocabularyAggregator implements SemanticModelAggregator {
   private readonly vocabulary: InMemorySemanticModel | EntityModel;
-  private readonly entities: Record<string, LocalEntityWrapped> = {};
-  private readonly subscribers: Set<(updated: Record<string, LocalEntityWrapped>, removed: string[]) => void> = new Set();
+  private readonly entities: Record<string, AggregatedEntityInVocabularyAggregator> = {};
+  private readonly subscribers: Set<(updated: Record<string, AggregatedEntityInVocabularyAggregator>, removed: string[]) => void> = new Set();
   thisVocabularyChain: object;
   protected readonly baseIri?: string;
 
@@ -30,13 +39,17 @@ export class VocabularyAggregator implements SemanticModelAggregator {
    * When entities from this model (profile) change this function is called.
    */
   private updateLocalEntities(updated: Record<string, Entity>, removed: string[]) {
-    const toUpdate: Record<string, LocalEntityWrapped> = {};
+    const toUpdate: Record<string, AggregatedEntityInVocabularyAggregator> = {};
     for (const entity of Object.values(updated)) {
+      const rawEntity = withAbsoluteIri(entity as SemanticModelEntity, this.baseIri);
       const update = {
-        aggregatedEntity: withAbsoluteIri(entity as SemanticModelEntity, this.baseIri),
+        id: entity.id,
+        type: VOCABULARY_AGGREGATOR_TYPE,
+        aggregatedEntity: rawEntity,
         vocabularyChain: [this.thisVocabularyChain],
-        isReadOnly: true,
-      };
+        // rawEntity,
+        // sources: [],
+      } satisfies AggregatedEntityInVocabularyAggregator;
       this.entities[entity.id] = update;
       toUpdate[entity.id] = update;
     }
@@ -68,9 +81,9 @@ export class VocabularyAggregator implements SemanticModelAggregator {
     const results: ExternalEntityWrapped[] = [];
 
     const entities = Object.values(this.entities);
-    const classes = entities.filter(entity => isSemanticModelClass(entity.aggregatedEntity)) as LocalEntityWrapped<SemanticModelClass>[];
-    const localResults = classes.map(cls => ([cls, getSearchRelevance(query, cls.aggregatedEntity)]) as [LocalEntityWrapped<SemanticModelClass>, number | false])
-      .filter((([_, relevance]) => relevance !== false) as (result: [LocalEntityWrapped<SemanticModelClass>, number | false]) => result is [LocalEntityWrapped<SemanticModelClass>, number])
+    const classes = entities.filter(entity => isSemanticModelClass(entity.aggregatedEntity)) as AggregatedEntityInVocabularyAggregator<SemanticModelClass>[];
+    const localResults = classes.map(cls => ([cls, getSearchRelevance(query, cls.aggregatedEntity)]) as [AggregatedEntityInVocabularyAggregator<SemanticModelClass>, number | false])
+      .filter((([_, relevance]) => relevance !== false) as (result: [AggregatedEntityInVocabularyAggregator<SemanticModelClass>, number | false]) => result is [AggregatedEntityInVocabularyAggregator<SemanticModelClass>, number])
       .sort(([_, a], [__, b]) => a - b);
 
     for (const [cls] of localResults) {
@@ -117,23 +130,23 @@ export class VocabularyAggregator implements SemanticModelAggregator {
     return this.getHierarchy(localEntityId);
   }
 
-  getLocalEntity(id: string): LocalEntityWrapped | null {
+  getLocalEntity(id: string): AggregatedEntityInVocabularyAggregator | null {
     return this.entities[id] ?? null;
   }
 
-  subscribeToChanges(callback: (updated: Record<string, LocalEntityWrapped>, removed: string[]) => void) {
+  subscribeToChanges(callback: (updated: Record<string, AggregatedEntityInVocabularyAggregator>, removed: string[]) => void) {
     this.subscribers.add(callback);
   }
 
-  getAggregatedEntities(): Record<string, LocalEntityWrapped> {
+  getAggregatedEntities(): Record<string, AggregatedEntityInVocabularyAggregator> {
     return this.entities;
   }
 
-  async externalEntityToLocalForHierarchyExtension(fromEntity: string, entity: ExternalEntityWrapped<SemanticModelClass>, isEntityMoreGeneral: boolean, sourceSemanticModel: ExternalEntityWrapped[]): Promise<LocalEntityWrapped> {
+  async externalEntityToLocalForHierarchyExtension(fromEntity: string, entity: ExternalEntityWrapped<SemanticModelClass>, isEntityMoreGeneral: boolean, sourceSemanticModel: ExternalEntityWrapped[]): Promise<AggregatedEntityInVocabularyAggregator> {
     return this.entities[entity.aggregatedEntity.id]!;
   }
 
-  async externalEntityToLocalForSurroundings(fromEntity: string, entity: ExternalEntityWrapped<SemanticModelRelationship>, direction: boolean, sourceSemanticModel: ExternalEntityWrapped[]): Promise<LocalEntityWrapped> {
+  async externalEntityToLocalForSurroundings(fromEntity: string, entity: ExternalEntityWrapped<SemanticModelRelationship>, direction: boolean, sourceSemanticModel: ExternalEntityWrapped[]): Promise<AggregatedEntityInVocabularyAggregator> {
     return this.entities[entity.aggregatedEntity.id]!;
   }
 }

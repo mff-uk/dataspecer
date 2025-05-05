@@ -763,7 +763,7 @@ async function extendThroughAssociation(
       }
     }
 
-    extension.forEach(({classInExtension, edgeAddingClass}) => {
+    extension.forEach(({ classInExtension, edgeAddingClass }) => {
       addToExtensionIfSatisfiesVisibilityFilter(outputToExtend, visibilityFilter, classInExtension.id, edgeAddingClass,
         visualModel, selectedClassId, nodeSelection.areIdentifiersFromVisualModel, contextEntities);
     });

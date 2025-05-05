@@ -1,15 +1,15 @@
 import { DeepPartial } from "@dataspecer/core/core/utilities/deep-partial";
 import { DataSpecificationConfiguration } from "@dataspecer/core/data-specification/configuration";
-import { useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
 import { FormControl, FormGroup, FormHelperText, Input, InputLabel, Typography } from "@mui/material";
 import { cloneDeep } from "lodash";
 import { FC, useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import { DefaultConfigurationContext } from "../../../../application";
 import { getDefaultConfigurators } from "../../../../configurators";
+import { provideConfiguration } from "../../../../editor/configuration/provided-configuration";
 import { useAsyncMemo } from "../../../../editor/hooks/use-async-memo";
-import { DataSpecificationsContext } from "../../../app";
 import { ArtifactConfigurator } from "../../../artifact-configurator";
+import { SpecificationContext } from "../../../routes/specification/specification";
 
 const artefactTitle = {
   "http://example.com/generator/json-schema": {
@@ -91,20 +91,23 @@ export const ArtifactNames: FC<{
   currentConfiguration: object,
   //fullCurrentConfiguration: object,
 }> = ({input, onChange, defaultObject, currentConfiguration}) => {
-  const {dataSpecifications} = useContext(DataSpecificationsContext);
+  const [specification] = useContext(SpecificationContext);
   const defaultConfiguration = useContext(DefaultConfigurationContext);
   const [searchParams] = useSearchParams();
   const dataSpecificationIri = searchParams.get("dataSpecificationIri");
-  const store = useFederatedObservableStore();
 
   const [currentArtifactConfiguration] = useAsyncMemo(async () => {
-    const modifiedDataSpecification = cloneDeep(dataSpecifications);
+    const clonedSpecification = cloneDeep(specification);
+    console.log("clonedSpecification", clonedSpecification);
+
     // @ts-ignore
-    modifiedDataSpecification[dataSpecificationIri].artefactConfiguration = currentConfiguration;
+    clonedSpecification.artefactConfiguration = currentConfiguration;
+
+    const {store, dataSpecifications: ds2} = await provideConfiguration(specification.id, "");
 
     // We know, that the current data specification and its stores are present
     const configurator = new ArtifactConfigurator(
-      Object.values(modifiedDataSpecification),
+      [clonedSpecification],
       store,
       defaultConfiguration,
       getDefaultConfigurators(),
@@ -115,7 +118,7 @@ export const ArtifactNames: FC<{
     const generators = [...new Set(artifacts.map(a => a.generator))];
 
     return generators;
-  }, []);
+  }, [specification]);
 
   return <FormGroup>
     <Typography sx={{mb: 3}}>

@@ -11,97 +11,6 @@ import { addSemanticClassToVisualModelAction } from "./add-class-to-visual-model
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
 import { computeRelatedAssociationsBarycenterAction } from "./utilities";
 
-// TODO RadStr: Document and put into separate file
-export async function layoutGivenVisualEntitiesAdvancedAction(
-  notifications: UseNotificationServiceWriterType,
-  classes: ClassesContextType,
-  diagram: UseDiagramType,
-  graph: ModelGraphContextType,
-  visualModel: WritableVisualModel,
-  configuration: UserGivenAlgorithmConfigurations,
-  visualEntitiesToLayout: string[],
-  explicitAnchors?: ExplicitAnchors,
-  shouldUpdatePositionsInVisualModel?: boolean,
-  outsiders?: Record<string, XY | null>,
-  shouldPutOutsidersInVisualModel?: boolean,
-) {
-  const models = graph.models;
-
-  const reactflowDimensionQueryHandler = createExactNodeDimensionsQueryHandler(diagram);
-
-  outsiders = outsiders ?? {};
-
-  const entitiesToLayout = {
-    visualEntities: visualEntitiesToLayout,
-    outsiders
-  }
-
-  return performLayout(
-    visualModel, models, entitiesToLayout, configuration,
-    reactflowDimensionQueryHandler, explicitAnchors
-  ).then(layoutResult => {
-    const topLeftLayouted = findTopLeft(layoutResult);
-    const view = diagram.actions().getViewport();
-    const shiftX = topLeftLayouted.x - (view.position.x + Math.trunc(view.width / 4));
-    const shiftY = topLeftLayouted.y - (view.position.y + Math.trunc(view.height / 4));
-    for (const layoutedEntity of Object.values(layoutResult)) {
-      if(isVisualNode(layoutedEntity.visualEntity)) {
-        layoutedEntity.visualEntity.position.x -= shiftX;
-        layoutedEntity.visualEntity.position.y -= shiftY;
-      }
-      else if (isVisualRelationship(layoutedEntity.visualEntity) ||
-                isVisualProfileRelationship(layoutedEntity.visualEntity)) {
-        layoutedEntity.visualEntity.waypoints.forEach(waypoint => {
-          waypoint.x -= shiftX;
-          waypoint.y -= shiftY;
-        });
-      }
-    }
-    processLayoutResult(
-      notifications, classes, diagram, graph, visualModel,
-      shouldUpdatePositionsInVisualModel ?? true, shouldPutOutsidersInVisualModel ?? false, layoutResult);
-    return layoutResult;
-  }).catch((e) => {
-    console.warn(e);
-    return Promise.resolve();
-  });
-}
-
-export function layouGivenVisualEntitiesAction(
-  notifications: UseNotificationServiceWriterType,
-  classes: ClassesContextType,
-  diagram: UseDiagramType,
-  graph: ModelGraphContextType,
-  visualModel: WritableVisualModel,
-  configuration: UserGivenAlgorithmConfigurations,
-  visualEntitiesToLayout: string[],
-  explicitAnchors?: ExplicitAnchors,
-) {
-  return layoutGivenVisualEntitiesAdvancedAction(
-    notifications, classes, diagram, graph, visualModel, configuration,
-    visualEntitiesToLayout, explicitAnchors, true, {}, false);
-}
-
-function findTopLeft(
-  layoutResult: LayoutedVisualEntities
-): XY {
-  let topLeftX = 10000000;
-  let topLeftY = 10000000;
-
-  for (const layoutedEntity of Object.values(layoutResult)) {
-    if(isVisualNode(layoutedEntity.visualEntity)) {
-      topLeftX = Math.min(topLeftX, layoutedEntity.visualEntity.position.x);
-      topLeftY = Math.min(topLeftY, layoutedEntity.visualEntity.position.y);
-    }
-  }
-
-  return {
-    x: topLeftX,
-    y: topLeftY,
-  };
-}
-
-
 /**
  * @param configuration The configuration for layouting algorithm.
  * @param explicitAnchors For more context check the type {@link ExplicitAnchors}. But in short it is used to override the anchors stored in visual model.
@@ -165,6 +74,19 @@ export async function layoutActiveVisualModelAction(
 
 //
 
+export async function findPositionForNewNodeUsingLayouting(
+  notifications: UseNotificationServiceWriterType,
+  diagram: UseDiagramType,
+  graph: ModelGraphContextType,
+  visualModel: WritableVisualModel,
+  classes: ClassesContextType,
+  identifier: string,
+): Promise<XY> {
+  const positions = await findPositionForNewNodesUsingLayouting(
+    notifications, diagram, graph, visualModel, classes, [identifier]);
+  return positions[identifier];
+}
+
 export async function findPositionForNewNodesUsingLayouting(
   notifications: UseNotificationServiceWriterType,
   diagram: UseDiagramType,
@@ -201,7 +123,7 @@ export async function findPositionForNewNodesUsingLayouting(
   configuration.main.elk_stress.run_node_overlap_removal_after = true;
   configuration.main.elk_stress.interactive = true;   // If set to false, then the result is deterministic (always same)
   configuration.main.elk_stress.number_of_new_algorithm_runs = 1;
-  // TODO Radstr: Maybe can be improved by using average edge length in diagram, but who knows.
+  // Maybe can be improved by using average edge length in diagram
   configuration.main.elk_stress.stress_edge_len = 500;
 
   // We only want to get the new positions, so we don't update the visual model.

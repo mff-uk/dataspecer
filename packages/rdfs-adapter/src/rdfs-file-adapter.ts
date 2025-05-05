@@ -5,9 +5,9 @@ import {RdfHttpSource} from "@dataspecer/core/io/rdf/http/http-rdf-source";
 import {HttpFetch} from "@dataspecer/core/io/fetch/fetch-api";
 import {RdfNode, RdfObject, RdfMemorySourceWrap} from "@dataspecer/core/core/adapter/rdf";
 import {RdfMemorySource} from "@dataspecer/core/io/rdf/rdf-memory-source";
-import {OFN, OWL, RDF, RDFS, SCHEMAORG, XSD} from "./rdfs-vocabulary";
+import {OWL, RDF, RDFS, SCHEMAORG, XSD} from "./rdfs-vocabulary.ts";
 import {CoreResource, ReadOnlyMemoryStore} from "@dataspecer/core/core";
-import {loadRdfsEntityToResource} from "./entity-adapters/rdfs-entity-adapter";
+import {loadRdfsEntityToResource} from "./entity-adapters/rdfs-entity-adapter.ts";
 import {PimAssociation, PimAssociationEnd, PimAttribute} from "@dataspecer/core/pim/model";
 
 const UNION_DOMAIN_PREFIX = "https://dataspecer.com/cim/abstract-class-union-domain/";
@@ -80,21 +80,16 @@ export class RdfsFileAdapter implements CimAdapter {
             [RDFS.Literal]: RDFS.Literal,
             [RDF.langString]: RDF.langString,
 
-            [SCHEMAORG.Boolean]: OFN.boolean,
-            [SCHEMAORG.Date]: OFN.date,
-            [SCHEMAORG.DateTime]: OFN.dateTime,
-            [SCHEMAORG.Number]: OFN.decimal,
-            [SCHEMAORG.Text]: OFN.string,
-            [SCHEMAORG.Time]: OFN.time,
+            [SCHEMAORG.Boolean]: XSD.boolean,
+            [SCHEMAORG.Date]: XSD.date,
+            [SCHEMAORG.DateTime]: XSD.dateTime,
+            [SCHEMAORG.Number]: XSD.decimal,
+            [SCHEMAORG.Text]: XSD.string,
+            [SCHEMAORG.Time]: XSD.time,
+        }
 
-            [XSD.boolean]: OFN.boolean,
-            [XSD.date]: OFN.date,
-            [XSD.time]: OFN.time,
-            [XSD.dateTimeStamp]: OFN.dateTime,
-            [XSD.integer]: OFN.integer,
-            [XSD.decimal]: OFN.decimal,
-            [XSD.anyURI]: OFN.url,
-            [XSD.string]: OFN.string,
+        if (iri.startsWith("http://www.w3.org/2001/XMLSchema#")) {
+            return iri;
         }
 
         if (Object.hasOwn(mapping, iri)) {
@@ -283,13 +278,13 @@ export class RdfsFileAdapter implements CimAdapter {
             rangeNodes.push(...entity.nodes(rangeProp));
         }
 
-        // Treat rdfs:Resource as owl:Thing
-        if (domainNodes.includes(RDFS.Resource)) {
-            domainNodes = domainNodes.map((n, i) => n === RDFS.Resource ? OWL.Thing : n);
-        }
-        if (rangeNodes.includes(RDFS.Resource)) {
-            rangeNodes = rangeNodes.map((n, i) => n === RDFS.Resource ? OWL.Thing : n);
-        }
+        // // Treat rdfs:Resource as owl:Thing
+        // if (domainNodes.includes(RDFS.Resource)) {
+        //     domainNodes = domainNodes.map((n, i) => n === RDFS.Resource ? OWL.Thing : n);
+        // }
+        // if (rangeNodes.includes(RDFS.Resource)) {
+        //     rangeNodes = rangeNodes.map((n, i) => n === RDFS.Resource ? OWL.Thing : n);
+        // }
 
         // CIM IRI of the domain class
         let domainClassIri: string;

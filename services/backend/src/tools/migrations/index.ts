@@ -1,4 +1,4 @@
-import m1 from './pim-to-semantic-model';
+import m1 from './pim-to-semantic-model.ts';
 
 export const migrations = {
   1: m1,

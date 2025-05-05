@@ -5,10 +5,10 @@ import { DataPsmSchemaXmlExtension } from "@dataspecer/core/data-psm/xml-extensi
 import { DataSpecification, DataSpecificationSchema } from "@dataspecer/core/data-specification/model";
 import { ArtefactGeneratorContext } from "@dataspecer/core/generator";
 import { coreResourcesToStructuralModel } from "@dataspecer/core/structure-model";
-import { iriElementName } from "../../conventions";
-import { getResource } from "../../xml/tests/resources/resource-provider";
-import { XmlSchemaGenerator } from "../xml-schema-generator";
-import { XmlSchemaComplexContentElement, xmlSchemaComplexContentIsElement, XmlSchemaComplexSequence, xmlSchemaComplexTypeDefinitionIsExtension, xmlSchemaComplexTypeDefinitionIsSequence, XmlSchemaSimpleType, xmlSchemaTypeIsComplex } from "../xml-schema-model";
+import { iriElementName } from "../../conventions.ts";
+import { getResource } from "../../xml/tests/resources/resource-provider.ts";
+import { XmlSchemaGenerator } from "../xml-schema-generator.ts";
+import { XmlSchemaComplexContentElement, xmlSchemaComplexContentIsElement, XmlSchemaComplexSequence, xmlSchemaComplexTypeDefinitionIsExtension, xmlSchemaComplexTypeDefinitionIsSequence, XmlSchemaSimpleType, xmlSchemaTypeIsComplex } from "../xml-schema-model.ts";
 
 const testPrefix = "XSD generator: ";
 
@@ -180,6 +180,5 @@ test.skip(testPrefix + "imports are present", async () => {
   expect(schema.imports.length).toBe(2);
   const importDecl = schema.imports[0];
   expect(await importDecl.namespace).toBe(null);
-  expect(await importDecl.prefix).toBe(null);
   expect(importDecl.schemaLocation).toBe("../contact/schema.xsd");
 });

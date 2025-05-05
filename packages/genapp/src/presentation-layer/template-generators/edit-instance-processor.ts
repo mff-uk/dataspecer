@@ -1,11 +1,11 @@
-import { LayerArtifact } from "../../engine/layer-artifact";
-import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "./presentation-layer-template-generator";
-import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
-import { ApplicationGraphEdgeType } from "../../engine/graph";
-import { AllowedTransition } from "../../engine/transitions/transitions-generator";
-import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
-import { AggregateMetadata } from "../../application-config";
-import { ArtifactCache } from "../../utils/artifact-saver";
+import { LayerArtifact } from "../../engine/layer-artifact.ts";
+import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "./presentation-layer-template-generator.ts";
+import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces.ts";
+import { ApplicationGraphEdgeType } from "../../engine/graph/index.ts";
+import { AllowedTransition } from "../../engine/transitions/transitions-generator.ts";
+import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator.ts";
+import { AggregateMetadata } from "../../application-config.ts";
+import { ArtifactCache } from "../../utils/artifact-saver.ts";
 
 interface EditInstanceReactComponentTemplate extends TemplateModel {
     placeholders: {

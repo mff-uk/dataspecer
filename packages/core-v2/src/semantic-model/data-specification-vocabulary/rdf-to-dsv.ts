@@ -12,13 +12,15 @@ import {
   DatatypePropertyProfileType,
   Cardinality,
   Profile,
-} from "./dsv-model";
+  ClassRole,
+  RequirementLevel,
+} from "./dsv-model.ts";
 
 import {
   stringN3ToRdf,
-} from "./n3-reader";
+} from "./n3-reader.ts";
 
-import { RDF, DSV, SKOS, VANN, DCT } from "./vocabulary";
+import { RDF, DSV, SKOS, VANN, DCT, DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL } from "./vocabulary.ts";
 
 export async function rdfToConceptualModel(
   rdfAsString: string,
@@ -133,14 +135,17 @@ class ClassProfilesReader {
       iri: subject.value,
       prefLabel: reader.languageString(SKOS.prefLabel),
       definition: reader.languageString(SKOS.definition),
-      usageNote: reader.languageString(VANN.usageNote),
+      usageNote: reader.languageString(SKOS.scopeNote)
+        ?? reader.languageString(VANN.usageNote),
       profileOfIri: reader.iris(DSV.profileOf),
       reusesPropertyValue: [],
+      specializationOfIri: reader.iris(DSV.specializationOf),
+      externalDocumentationUrl: reader.iri(DSV.externalDocumentation),
       // ClassProfile
       $type: [ClassProfileType],
       profiledClassIri: reader.iris(DSV.class),
       properties: [],
-      specializationOfIri: reader.iris(DSV.specializationOf),
+      classRole: iriToClassRole(reader.iri(DSV.classRole)),
     };
     // Load inherited values.
     for (const node of reader.irisAsSubjects(DSV.reusesPropertyValue)) {
@@ -161,6 +166,20 @@ class ClassProfilesReader {
     return classProfile;
   }
 
+}
+
+function iriToClassRole(iri: string | null): ClassRole {
+  if (iri === null) {
+    return ClassRole.undefined;
+  }
+  switch (iri) {
+    case DSV_CLASS_ROLE.main:
+      return ClassRole.main;
+    case DSV_CLASS_ROLE.supportive:
+      return ClassRole.supportive;
+    default:
+      return ClassRole.undefined;
+  }
 }
 
 /**
@@ -231,7 +250,11 @@ function loadReusesPropertyValue(
   profile: Profile,
 ) {
   const reader = new RdfPropertyReader(context, subject);
-  const reusedProperty = reader.iri(DSV.reusedProperty);
+  let reusedProperty = reader.iri(DSV.reusedProperty);
+  // Migration section.
+  if (reusedProperty === VANN.usageNote.id) {
+    reusedProperty = SKOS.scopeNote.id;
+  }
   const reusedFrom = reader.iri(DSV.reusedFromResource);
   if (reusedProperty === null || reusedFrom === null) {
     console.warn("Invalid dsv:PropertyValueReuse", {
@@ -286,13 +309,16 @@ class PropertyProfilesReader {
       iri: subject.value,
       prefLabel: reader.languageString(SKOS.prefLabel),
       definition: reader.languageString(SKOS.definition),
-      usageNote: reader.languageString(VANN.usageNote),
+      usageNote: reader.languageString(SKOS.scopeNote)
+        ?? reader.languageString(VANN.usageNote),
       profileOfIri: reader.iris(DSV.profileOf),
+      reusesPropertyValue: [],
       specializationOfIri: reader.iris(DSV.specializationOf),
+      externalDocumentationUrl: reader.iri(DSV.externalDocumentation),
       // PropertyProfile
       cardinality: this.loadCardinality(reader),
       profiledPropertyIri: reader.iris(DSV.property),
-      reusesPropertyValue: [],
+      requirementLevel: iriToRequirementLevel(reader.iri(DSV.requirementLevel)),
     };
     // Load inherited values.
     for (const node of reader.irisAsSubjects(DSV.reusesPropertyValue)) {
@@ -312,15 +338,15 @@ class PropertyProfilesReader {
         return Cardinality.ManyToOne;
       } else if (DSV.ManyToZero.equals(object)) {
         return Cardinality.ManyToZero;
-      } else if (DSV.OneToMany.equals(object)) {
+      } else if (DSV.OneToManyV1.equals(object) || DSV.OneToMany.equals(object)) {
         return Cardinality.OneToMany;
-      } else if (DSV.OneToOne.equals(object)) {
+      } else if (DSV.OneToOneV1.equals(object) || DSV.OneToOne.equals(object)) {
         return Cardinality.OneToOne;
       } else if (DSV.OneToZero.equals(object)) {
         return Cardinality.OneToZero;
-      } else if (DSV.ZeroToMany.equals(object)) {
+      } else if (DSV.ZeroToManyV1.equals(object) || DSV.ZeroToMany.equals(object)) {
         return Cardinality.ZeroToMany;
-      } else if (DSV.ZeroToOne.equals(object)) {
+      } else if (DSV.ZeroToOneV1.equals(object) || DSV.ZeroToOne.equals(object)) {
         return Cardinality.ZeroToOne;
       } else if (DSV.ZeroToZero.equals(object)) {
         return Cardinality.ZeroToZero;
@@ -357,5 +383,21 @@ class PropertyProfilesReader {
     this.addToClass(reader, propertyProfile);
   }
 
+}
+
+function iriToRequirementLevel(iri: string | null): RequirementLevel {
+  if (iri === null) {
+    return RequirementLevel.undefined;
+  }
+  switch (iri) {
+    case DSV_MANDATORY_LEVEL.mandatory:
+      return RequirementLevel.mandatory;
+    case DSV_MANDATORY_LEVEL.optional:
+      return RequirementLevel.optional;
+    case DSV_MANDATORY_LEVEL.recommended:
+      return RequirementLevel.recommended;
+    default:
+      return RequirementLevel.undefined;
+  }
 }
 

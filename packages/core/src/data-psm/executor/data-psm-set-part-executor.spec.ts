@@ -2,11 +2,11 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { DataPsmSetPart } from "../operation";
-import { executeDataPsmSetPart } from "./data-psm-set-part-executor";
-import * as PSM from "../data-psm-vocabulary";
-import { DataPsmAssociationEnd, DataPsmClassReference } from "../model";
+} from "../../core/index.ts";
+import { DataPsmSetPart } from "../operation/index.ts";
+import { executeDataPsmSetPart } from "./data-psm-set-part-executor.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
+import { DataPsmAssociationEnd, DataPsmClassReference } from "../model/index.ts";
 
 test("Update data PSM association end resource part.", async () => {
   const operation = new DataPsmSetPart();

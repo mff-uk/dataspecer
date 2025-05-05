@@ -1,10 +1,10 @@
 import JSZip from "jszip";
-import DalApi from "../dal-generator-api";
+import DalApi from "../dal-generator-api.ts";
 import { AxiosResponse } from "axios";
-import { normalizeName } from "../../utils/utils";
+import { normalizeName } from "../../utils/utils.ts";
 import { PimSchema } from "@dataspecer/core/pim/model";
-import { LayerArtifact } from "../../engine/layer-artifact";
-import { AggregateMetadata } from "../../application-config";
+import { LayerArtifact } from "../../engine/layer-artifact.ts";
+import { AggregateMetadata } from "../../application-config.ts";
 
 function isAxiosResponse(
     dataLayerResult: LayerArtifact | AxiosResponse<LayerArtifact, any> | AxiosResponse<Buffer, any>

@@ -27,7 +27,7 @@ export const useExplorationCanvasHighlightingController = (
   useEffect(() => {
     if(Object.keys(highlightLevels).length > 0) {
       setNodes(prevNodes => {
-        const {highlightedNodes, mainHighlightedNodes} = createHighlightedNodes(prevNodes, highlightLevels);
+        const { highlightedNodes, mainHighlightedNodes } = createHighlightedNodes(prevNodes, highlightLevels);
         setEdgesHighlighting(mainHighlightedNodes, setEdges);
         // Set highlighting of nodes
         return prevNodes.map(prevNode => {
@@ -61,7 +61,7 @@ export const useExplorationCanvasHighlightingController = (
           return prevNodes.map(prevNode => {
             return {
               ...prevNode,
-              style: {...prevNode.style, outline: undefined},
+              style: { ...prevNode.style, outline: undefined },
             };
           });
         });
@@ -72,7 +72,7 @@ export const useExplorationCanvasHighlightingController = (
           return prevEdges.map(edge => {
             return {
               ...edge,
-              style: {...edge.style, stroke: edge.data.color},
+              style: { ...edge.style, stroke: edge.data.color },
             };
           });
         });
@@ -105,15 +105,15 @@ function createHighlightedNodes(nodes: Node<any>[], highlightLevels: Record<stri
     }
 
     if(level === 0) {
-      highlightedNodes.push({...node, className: replaceClassNameWith(node.className, nodesHighlightingLevelToClassnameMap[0], true, true)});
+      highlightedNodes.push({ ...node, className: replaceClassNameWith(node.className, nodesHighlightingLevelToClassnameMap[0], true, true) });
       mainHighlightedNodes.push(node);
     }
     else if(level === 1) {
-      highlightedNodes.push({...node, className: replaceClassNameWith(node.className, nodesHighlightingLevelToClassnameMap[1], true, true)});
+      highlightedNodes.push({ ...node, className: replaceClassNameWith(node.className, nodesHighlightingLevelToClassnameMap[1], true, true) });
     }
   });
 
-  return {mainHighlightedNodes, highlightedNodes};
+  return { mainHighlightedNodes, highlightedNodes };
 }
 
 function setEdgesHighlighting(
@@ -142,7 +142,7 @@ function setEdgesHighlighting(
             ...prevEdge,
             markerEnd: selectMarkerEnd(prevEdge.data, prevEdge.data.color),
             animated: false,
-            style: {...prevEdge.style, opacity: edgeHighlightOpacityMap["highlight-opposite"]}
+            style: { ...prevEdge.style, opacity: edgeHighlightOpacityMap["highlight-opposite"] }
           };
         }
         return prevEdge;
@@ -162,7 +162,7 @@ function resetHighlightingToDefault(
           ...edge,
           markerEnd: selectMarkerEnd(edge.data, null),
           animated: false,
-          style: {...edge.style, opacity: edgeHighlightOpacityMap["no-highlight"]}
+          style: { ...edge.style, opacity: edgeHighlightOpacityMap["no-highlight"] }
         };
       }
       return edge;

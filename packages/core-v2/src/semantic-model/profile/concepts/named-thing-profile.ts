@@ -1,4 +1,4 @@
-import { LanguageString } from "../../concepts";
+import { LanguageString } from "../../concepts/index.ts";
 
 /**
  * For each property we can have a value, or inherit it from a given profiled entity.

@@ -19,7 +19,7 @@ export const InputEntityRow = (props: { onClickHandler: (search: string) => void
           setSearchInput("");
         }}
       >
-                Search
+        Search
       </button>
     </div>
   );

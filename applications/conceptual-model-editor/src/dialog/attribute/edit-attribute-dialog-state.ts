@@ -149,6 +149,7 @@ export function createEditAttributeDialogState(
     language, graphContext.models, allModels,
     { identifier: entity.id, model: model.getId() },
     range.iri ?? "", range.name, range.description,
+    range.externalDocumentationUrl ?? "",
     allSpecializations);
 
   // RelationshipState
@@ -202,7 +203,7 @@ export function createAddAttributeDialogState(
   // EntityState
 
   const entityState = createNewBaseEntityDialogState(
-    language, defaultModel.dsIdentifier, allModels, allSpecializations,
+    language, defaultModel.identifier, allModels, allSpecializations,
     configuration().relationshipNameToIri);
 
   // RelationshipState

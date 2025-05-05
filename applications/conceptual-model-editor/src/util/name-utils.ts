@@ -1,33 +1,25 @@
 import {
-  type SemanticModelClass,
-  type SemanticModelGeneralization,
-  type SemanticModelRelationship,
   isSemanticModelClass,
   isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
-  type SemanticModelClassUsage,
-  type SemanticModelRelationshipUsage,
   isSemanticModelClassUsage,
   isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+  isSemanticModelClassProfile,
+  isSemanticModelRelationshipProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { Entity } from "@dataspecer/core-v2";
 
 import { getIri } from "./iri-utils";
 import { getDomainAndRange } from "./relationship-utils";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 export const getNameLanguageString = (
-  resource:
-        | null
-        | SemanticModelClass
-        | SemanticModelRelationship
-        | SemanticModelClassUsage
-        | SemanticModelRelationshipUsage
-        | SemanticModelClassProfile
-        | SemanticModelRelationshipProfile
+  resource: null | Entity,
 ) => {
   if (isSemanticModelClass(resource) || isSemanticModelClassUsage(resource)
-      || isSemanticModelClassProfile(resource)) {
+    || isSemanticModelClassProfile(resource)) {
     return resource.name ?? null;
   } else if (isSemanticModelRelationship(resource)) {
     const range = getDomainAndRange(resource)?.range;
@@ -44,15 +36,7 @@ export const getNameLanguageString = (
 };
 
 export const getDescriptionLanguageString = (
-  resource:
-        | null
-        | SemanticModelClass
-        | SemanticModelRelationship
-        | SemanticModelClassUsage
-        | SemanticModelRelationshipUsage
-        | SemanticModelGeneralization
-        | SemanticModelClassProfile
-        | SemanticModelRelationshipProfile
+  resource: null | Entity,
 ) => {
   if (isSemanticModelClass(resource) || isSemanticModelClassUsage(resource)
     || isSemanticModelClassProfile(resource)) {
@@ -72,15 +56,7 @@ export const getDescriptionLanguageString = (
 };
 
 export const getUsageNoteLanguageString = (
-  resource:
-        | null
-        | SemanticModelClass
-        | SemanticModelRelationship
-        | SemanticModelClassUsage
-        | SemanticModelRelationshipUsage
-        | SemanticModelGeneralization
-        | SemanticModelClassProfile
-        | SemanticModelRelationshipProfile
+  resource: null | Entity,
 ) => {
   if (isSemanticModelClassUsage(resource)) {
     return resource.usageNote;
@@ -103,15 +79,7 @@ export const getUsageNoteLanguageString = (
  * @returns 1. absolute `iri` (computed with `modelBaseIri`), 2. relative `iri`, 3. or `resource.id`, 4. null otherwise
  */
 export const getFallbackDisplayName = (
-  resource:
-        | null
-        | SemanticModelClass
-        | SemanticModelRelationship
-        | SemanticModelClassUsage
-        | SemanticModelRelationshipUsage
-        | SemanticModelGeneralization
-        | SemanticModelClassProfile
-        | SemanticModelRelationshipProfile,
+  resource: null | Entity,
   modelBaseIri?: string
 ) => {
   return getIri(resource, modelBaseIri) ?? resource?.id ?? null;

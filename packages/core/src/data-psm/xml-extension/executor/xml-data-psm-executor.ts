@@ -1,8 +1,8 @@
-import { CoreOperation, CoreOperationExecutor } from "../../../core";
-import * as Operations from "../operation";
-import { executeDataPsmSetIsXmlAttribute } from "./data-psm-set-is-xml-attribute";
-import { executeDataPsmSetNamespaceXmlExtension } from "./data-psm-set-namespace-executor-xml-extension";
-import { executeDataPsmSetXmlSkipRootElement } from "./data-psm-set-xml-skip-root-element";
+import { CoreOperation, CoreOperationExecutor } from "../../../core/index.ts";
+import * as Operations from "../operation/index.ts";
+import { executeDataPsmSetIsXmlAttribute } from "./data-psm-set-is-xml-attribute.ts";
+import { executeDataPsmSetNamespaceXmlExtension } from "./data-psm-set-namespace-executor-xml-extension.ts";
+import { executeDataPsmSetXmlSkipRootElement } from "./data-psm-set-xml-skip-root-element.ts";
 
 export const xmlDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
   CoreOperationExecutor.create(

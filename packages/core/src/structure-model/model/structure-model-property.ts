@@ -1,6 +1,6 @@
-import { ConceptualModelProperty, ConceptualModelClass } from "../../conceptual-model";
-import {LanguageString} from "../../core";
-import {StructureModelType} from "./structure-model-type";
+import { ConceptualModelProperty, ConceptualModelClass } from "../../conceptual-model/index.ts";
+import {LanguageString} from "../../core/index.ts";
+import {StructureModelType} from "./structure-model-type.ts";
 
 /**
  * Represents one step in the semantic graph from one entity to another.
@@ -91,6 +91,12 @@ export class StructureModelProperty {
    * Whether the property was wrapped in OR
    */
   isInOr: boolean = false;
+
+  /**
+   * Whether the property, which is local is referencing an object. This is used
+   * as API workaround when there is OR as a referenced root.
+   */
+  isReferencing: boolean = false;
 
   /**
    * Technical label of the wrapping OR. If the OR is not wrapped, then it is empty.

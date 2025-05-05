@@ -12,7 +12,7 @@ import {
     getEdgeSourceAndTargetRelationship,
     RelationshipBundle,
     RelationshipProfileBundle
- } from "../../layout-algorithms/entity-bundles";
+ } from "../../layout-algorithms/entity-bundles.ts";
 
 import {
     VisualModel,
@@ -31,23 +31,23 @@ import {
     getTopLeftPosition,
     PhantomElementsFactory,
     placePositionOnGrid,
-} from "../../util/utils";
-import { LayoutedVisualEntities } from "../../migration-to-cme-v2";
+} from "../../util/utils.ts";
+import { LayoutedVisualEntities } from "../../migration-to-cme-v2.ts";
 import { EntityModel } from "@dataspecer/core-v2";
-import { ExplicitAnchors } from "../../explicit-anchors";
+import { ExplicitAnchors } from "../../explicit-anchors.ts";
 import {
     NodeDimensionQueryHandler,
     ReactflowDimensionsEstimator,
      VisualEntitiesWithOutsiders,
      XY
-    } from "../..";
+    } from "../../index.ts";
 import {
     SemanticModelClassProfile,
 } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
-import { addNodeToGraph, getAllEdges, getAllIncomingEdges, getAllOutgoingEdges, Node, isNodeInVisualModel, VisualNodeComplete, getAllIncomingUniqueEdges, getAllOutgoingUniqueEdges, getAllUniqueEdges } from "./node";
-import { GraphFactory } from "./graph-factory";
-import { AllowedEdgeBundleWithType, AllowedEdgeTypes, convertOutgoingEdgeTypeToIncoming, DefaultEdge, EdgeEndPoint, getEdgeTypeNameFromEdge, Edge } from "./edge";
+import { addNodeToGraph, getAllEdges, getAllIncomingEdges, getAllOutgoingEdges, Node, isNodeInVisualModel, VisualNodeComplete, getAllIncomingUniqueEdges, getAllOutgoingUniqueEdges, getAllUniqueEdges } from "./node.ts";
+import { GraphFactory } from "./graph-factory.ts";
+import { AllowedEdgeBundleWithType, AllowedEdgeTypes, convertOutgoingEdgeTypeToIncoming, DefaultEdge, EdgeEndPoint, getEdgeTypeNameFromEdge, Edge } from "./edge.ts";
 
 
 /**

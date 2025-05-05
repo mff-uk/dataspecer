@@ -55,9 +55,9 @@ smallLimit = "300"
 
 # Footer
 footer = """
-<p align=\"left\"> <img src=\"/images/eosc-cz.webp\" alt=\"EOSC CZ Logo\" height=\"75\"> </p>
-<p> This documentation was partially developed within the <a href="https://www.eosc.cz/">EOSC CZ</a> initiative with support from public funding <strong>Open Science I</strong> calls under the <strong>Jan Amos Comenius Programme (OP JAK)</strong> of the Ministry of Education, Youth and Sports of the Czech Republic (MŠMT).</p>
-<p align=\"left\"> <img src=\"/images/eu-mšmt.webp\" alt=\"EU and MŠMT Logos\" height=\"80\"> </p>
+<p align=\"left\"> <img src=\"/images/eu-mšmt.webp\" alt=\"EU and MŠMT Logos\" width=\"100%\"> </p>
+<p> This project output was developed with financial contributions from the <a href="https://www.eosc.cz/projekty/narodni-podpora-pro-eosc">EOSC CZ</a> initiative through the project <strong>National Repository Platform for Research Data</strong> (CZ.02.01.01/00/23_014/0008787) founded by Programme Johannes Amos Comenius (P JAC) of the Ministry of Education, Youth and Sports of the Czech Republic (MEYS).</p>
+<p align=\"left\"> <img src=\"/images/eosc-cz.webp\" alt=\"EOSC CZ Logo\" width=\"100%\"> </p>
 <p> This documentation site is powered by <a class=\"text-muted\" href=\"https://pages.cloudflare.com/\">Cloudflare</a>, <a class=\"text-muted\" href=\"https://gohugo.io/\">Hugo</a>, and <a class=\"text-muted\" href=\"https://getdoks.org/\">Doks</a>.</p>
 """
 

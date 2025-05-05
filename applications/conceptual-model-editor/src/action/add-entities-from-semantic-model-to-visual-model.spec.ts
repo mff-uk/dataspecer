@@ -21,6 +21,7 @@ import { isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic
 import { createCmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 import { notificationMockup } from "./test/actions-test-suite";
 import { CmeReference, CmeSpecialization } from "../dataspecer/cme-model/model";
+import { fail } from "@/utilities/fail-test";
 
 // TODO RadStr: For now - since layout prints a lot of debug stuff
 //             (based on https://stackoverflow.com/questions/44467657/better-way-to-disable-console-inside-unit-tests)
@@ -158,7 +159,7 @@ test("Test - fully connected graph - Test attribute visibility when clicking the
   visualModel.addVisualNode({
     representedEntity: classWithAttribute,
     model: relevantModel.getId(),
-    position: {x: 0, y: 0, anchored: null},
+    position: { x: 0, y: 0, anchored: null },
     content: [createdAttributeProfile.identifier],
     visualModels: []
   });
@@ -233,11 +234,11 @@ const generateIriForName = (name: string) => {
 function createSemanticClassTestVariant(
   models: Map<string, EntityModel>,
   givenName: string,
-  dsIdentifier: string,
+  identifier: string,
   specializations: CmeSpecialization[],
 ): CmeReference | null {
 
-  const name = {"en": givenName};
+  const name = { "en": givenName };
 
   const operation = createClass({
     iri: generateIriForName(givenName),
@@ -245,7 +246,7 @@ function createSemanticClassTestVariant(
     description: {},
   });
 
-  const model: InMemorySemanticModel = models.get(dsIdentifier) as InMemorySemanticModel;
+  const model: InMemorySemanticModel = models.get(identifier) as InMemorySemanticModel;
   const newClass = model.executeOperation(operation) as CreatedEntityOperationResult;
   if (newClass.success === false || newClass.id === undefined) {
     return null;
@@ -288,7 +289,7 @@ const prepareModelsWithSemanticData = () => {
   aggregator.addModel(visualModel);
   const aggregatorView = aggregator.getView();
   aggregatorView.changeActiveVisualModel(visualModel.getIdentifier());
-  const visualModels: Map<string, WritableVisualModel> = new Map(Object.entries({[visualModel.getIdentifier()]: visualModel}));
+  const visualModels: Map<string, WritableVisualModel> = new Map(Object.entries({ [visualModel.getIdentifier()]: visualModel }));
 
   const graph: ModelGraphContextType = {
     aggregator,
@@ -318,7 +319,7 @@ const prepareModelsWithSemanticData = () => {
   const cmeModels = semanticModelMapToCmeSemanticModel(models, visualModel, "", identifier => identifier);
   for(let i = 0; i < modelCount; i++) {
     for(let j = 0; j < 4; j++) {
-      const createdClass = createSemanticClassTestVariant(models, `${i}-${j}`, cmeModels[i].dsIdentifier, []);
+      const createdClass = createSemanticClassTestVariant(models, `${i}-${j}`, cmeModels[i].identifier, []);
       if(createdClass === null) {
         fail("Failed on setup");
       }
@@ -330,19 +331,19 @@ const prepareModelsWithSemanticData = () => {
     case 0:
       break;
     case 1:
-      squareRelationships = createRelationshipSquare(models, cmeModels[i].dsIdentifier, createdClasses, i);
+      squareRelationships = createRelationshipSquare(models, cmeModels[i].identifier, createdClasses, i);
       createdRelationships[i].push(...squareRelationships);
       break;
     case 2:
-      squareRelationships = createRelationshipSquare(models, cmeModels[i].dsIdentifier, createdClasses, i);
+      squareRelationships = createRelationshipSquare(models, cmeModels[i].identifier, createdClasses, i);
       createdRelationships[i].push(...squareRelationships);
       createdDiagonalRelationship = createSemanticRelationshipTestVariant(
         models, createdClasses[i][0].identifier,
-        createdClasses[i][3].identifier, cmeModels[i].dsIdentifier, "");
+        createdClasses[i][3].identifier, cmeModels[i].identifier, "");
       createdRelationships[i].push(createdDiagonalRelationship);
       createdDiagonalRelationship = createSemanticRelationshipTestVariant(
         models, createdClasses[i][1].identifier,
-        createdClasses[i][2].identifier, cmeModels[i].dsIdentifier, "");
+        createdClasses[i][2].identifier, cmeModels[i].identifier, "");
       createdRelationships[i].push(createdDiagonalRelationship);
       break;
     default:
@@ -369,7 +370,7 @@ const prepareModelsWithSemanticData = () => {
 
 const createRelationshipSquare = (
   models: Map<string, EntityModel>,
-  dsIdentifier: string,
+  identifier: string,
   createdClasses: CmeReference[][],
   currentModel: number,
 ): CmeReference[] => {
@@ -379,7 +380,7 @@ const createRelationshipSquare = (
       models,
       createdClasses[currentModel][i].identifier,
       createdClasses[currentModel][(i+1)%4].identifier,
-      dsIdentifier, "");
+      identifier, "");
     createdRelationships.push(created);
   }
 
@@ -397,7 +398,7 @@ function createSemanticRelationshipTestVariant(
   modelDsIdentifier: string,
   relationshipName: string,
 ): CmeReference {
-  const name = {"en": relationshipName};
+  const name = { "en": relationshipName };
 
   const operation = createRelationship({
     ends: [{
@@ -544,9 +545,6 @@ const createTestDiagramForNodePlacement = () => {
         ): void {
           throw new Error("Function not implemented.");
         },
-        openAlignmentMenu: function (sourceNode: Node, canvasPosition: Position): void {
-          throw new Error("Function not implemented.");
-        }
       }
 
       return diagramActions;
@@ -574,7 +572,7 @@ function createSemanticAttributeTestVariant(
 ) {
 
   const range = representRdfsLiteral();
-  const name = {"en": attributeName};
+  const name = { "en": attributeName };
   const operation = createRelationship({
     ends: [{
       iri: null,
@@ -634,6 +632,8 @@ function createSemanticAttributeProfileTestVariant(
     domainCardinality: null,
     range: range.identifier,
     rangeCardinality: null,
+    externalDocumentationUrl: null,
+    mandatoryLevel: null,
   });
 
   const createdAttributeProfile = model.getEntities()[result.identifier];

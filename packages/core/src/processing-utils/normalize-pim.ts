@@ -1,6 +1,6 @@
-import { CoreResource } from "../core";
-import { DataPsmResource } from "../data-psm/model";
-import { PimAssociation, PimAssociationEnd, PimAttribute, PimClass, PimResource, PimSchema } from "../pim/model";
+import { CoreResource } from "../core/index.ts";
+import { DataPsmResource } from "../data-psm/model/index.ts";
+import { PimAssociation, PimAssociationEnd, PimAttribute, PimClass, PimResource, PimSchema } from "../pim/model/index.ts";
 
 export type NormalizePimResult = {
     removedResourcesCount: number;

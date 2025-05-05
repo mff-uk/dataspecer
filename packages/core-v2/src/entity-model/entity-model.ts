@@ -1,4 +1,4 @@
-import { Entities, Entity } from "./entity";
+import { Entities, Entity } from "./entity.ts";
 
 /**
  * Represents a model (storage, container) that contains stand-alone, indivisible, entities.

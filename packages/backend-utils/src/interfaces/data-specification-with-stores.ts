@@ -1,5 +1,5 @@
 import {DataSpecification} from "@dataspecer/core/data-specification/model";
-import {StoreDescriptor} from "../store-descriptor";
+import {StoreDescriptor} from "../store-descriptor/index.ts";
 
 /**
  * Extends data specification structure with store descriptors.

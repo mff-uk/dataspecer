@@ -1,8 +1,8 @@
-import { JsonSchemaDataProvider } from "./readers/jsonschema-data-providers";
-import { LdkitSchema, LdkitSchemaPropertyMap } from "./ldkit-schema-model";
-import { AggregateDefinitionProvider, AggregateIdentifier, AggregateMetadata } from "./readers/aggregate-data-provider-model";
-import { getSupportedWriter } from "./utils/utils";
-import { SourceCodeWriter } from "./writers/source-code-writer-model";
+import { JsonSchemaDataProvider } from "./readers/jsonschema-data-providers.ts";
+import { LdkitSchema, LdkitSchemaPropertyMap } from "./ldkit-schema-model.ts";
+import { AggregateDefinitionProvider, AggregateIdentifier, AggregateMetadata } from "./readers/aggregate-data-provider-model.ts";
+import { getSupportedWriter } from "./utils/utils.ts";
+import { SourceCodeWriter } from "./writers/source-code-writer-model.ts";
 
 export class LdkitArtefactGenerator {
 

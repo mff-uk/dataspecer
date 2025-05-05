@@ -1,4 +1,4 @@
-import { StringJsonWriter } from "./string-json-writer";
+import { StringJsonWriter } from "./string-json-writer.ts";
 import { MemoryOutputStream } from "@dataspecer/core/io/stream/memory-output-stream";
 
 test("Write a simple object with arrays and strings.", async () => {

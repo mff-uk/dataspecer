@@ -2,7 +2,7 @@ import {ArtefactGenerator, ArtefactGeneratorContext} from "@dataspecer/core/gene
 import {DataSpecification, DataSpecificationArtefact,DataSpecificationSchema} from "@dataspecer/core/data-specification/model";
 import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary.js";
 import {assertFailed, assertNot} from "@dataspecer/core/core";
-import {ShexAdapter} from "./shex-adapter.js";
+import {ShexAdapter} from "./shex-adapter.ts";
 import {DataSpecificationConfigurator, DefaultDataSpecificationConfiguration, DataSpecificationConfiguration} from "@dataspecer/core/data-specification/configuration";
 import {transformStructureModel, structureModelAddDefaultValues} from "@dataspecer/core/structure-model/transformation";
 

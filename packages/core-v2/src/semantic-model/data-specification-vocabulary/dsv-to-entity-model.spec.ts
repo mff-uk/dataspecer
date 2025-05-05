@@ -1,26 +1,28 @@
-import { SemanticModelEntity, SemanticModelRelationship } from "../concepts";
-import { DsvModel, PropertyProfile } from "./dsv-model";
-import { conceptualModelToEntityListContainer } from "./dsv-to-entity-model";
-import { entityListContainerToDsvModel, createContext } from "./entity-model-to-dsv";
-import { VANN } from "./vocabulary";
+import { SemanticModelEntity, SemanticModelRelationship } from "../concepts/index.ts";
+import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "../profile/concepts/index.ts";
+import { ClassRole, DsvModel, PropertyProfile, RequirementLevel } from "./dsv-model.ts";
+import { conceptualModelToEntityListContainer } from "./dsv-to-entity-model.ts";
+import { EntityListContainer } from "./entity-model.ts";
+import { entityListContainerToDsvModel, createContext } from "./entity-model-to-dsv.ts";
+import { DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL, SKOS } from "./vocabulary.ts";
 
 test("From DSV to entity model and back.", async () => {
 
   const dsv = {
     "iri": "http://dcat-ap-cz/model",
-    "profiles": [{
+    "profiles": [{ // dcat-ap-0001
       "iri": "https://dcat-ap/#Dataset",
       "prefLabel": {},
       "definition": {},
       "usageNote": {},
       "profileOfIri": [],
       "reusesPropertyValue": [{
-        "reusedPropertyIri": VANN.usageNote.id,
+        "reusedPropertyIri": SKOS.scopeNote.id,
         "propertyReusedFromResourceIri": "http://www.w3.org/ns/dcat#Dataset"
       }],
       "$type": ["class-profile"],
       "profiledClassIri": ["http://www.w3.org/ns/dcat#Dataset"],
-      "properties": [{
+      "properties": [{ // dcat-ap-0005
         "iri": "http://www.w3.org/ns/dcat#distribution-profile",
         "cardinality": "0-n",
         "prefLabel": {},
@@ -34,9 +36,13 @@ test("From DSV to entity model and back.", async () => {
           "http://dcat-ap/ns/dcat#Distribution"
         ],
         "specializationOfIri": [],
+        "externalDocumentationUrl": "external-5",
+        "requirementLevel": RequirementLevel.optional,
       }],
       "specializationOfIri": [],
-    }, {
+      "externalDocumentationUrl": "external-1",
+      "classRole": ClassRole.main,
+    }, { // dcat-ap-0002
       "iri": "https://dcat-ap-cz/#Dataset",
       "prefLabel": {},
       "definition": {},
@@ -47,7 +53,9 @@ test("From DSV to entity model and back.", async () => {
       "profiledClassIri": [],
       "properties": [],
       "specializationOfIri": [],
-    }, {
+      "externalDocumentationUrl": "external-2",
+      "classRole": ClassRole.supportive,
+    }, { // dcat-ap-0003
       "iri": "http://dcat-ap/ns/dcat#Distribution",
       "prefLabel": {},
       "definition": {},
@@ -58,6 +66,8 @@ test("From DSV to entity model and back.", async () => {
       "profiledClassIri": ["http://www.w3.org/ns/dcat#Distribution"],
       "properties": [],
       "specializationOfIri": [],
+      "externalDocumentationUrl": "external-3",
+      "classRole": ClassRole.undefined,
     }],
     "specializationOfIri": [],
   } as DsvModel;
@@ -80,7 +90,7 @@ test("From DSV to entity model and back.", async () => {
     iriToIdentifier: iri => iriToIdentifier[iri] ?? `MISSING ${iri}`,
   });
 
-  const expectedEntityListContainer = {
+  const expectedEntityListContainer: EntityListContainer = {
     "baseIri": "",
     "entities": [{
       "id": "dcat-ap-0001",
@@ -93,7 +103,9 @@ test("From DSV to entity model and back.", async () => {
       "descriptionFromProfiled": null,
       "usageNote": {},
       "usageNoteFromProfiled": "http://www.w3.org/ns/dcat#Dataset",
-    }, {
+      "externalDocumentationUrl": "external-1",
+      "tags": [DSV_CLASS_ROLE.main],
+    } as SemanticModelClassProfile, {
       "id": "dcat-ap-0005",
       "type": ["relationship-profile"],
       "ends": [{
@@ -107,6 +119,8 @@ test("From DSV to entity model and back.", async () => {
         "usageNoteFromProfiled": null,
         "iri": null,
         "profiling": [],
+        "externalDocumentationUrl": null,
+        "tags": [],
       }, {
         "name": {},
         "nameFromProfiled": null,
@@ -118,8 +132,10 @@ test("From DSV to entity model and back.", async () => {
         "usageNoteFromProfiled": null,
         "iri": "http://www.w3.org/ns/dcat#distribution-profile",
         "profiling": ["http://www.w3.org/ns/dcat#distribution"],
+        "externalDocumentationUrl": "external-5",
+        "tags": [DSV_MANDATORY_LEVEL.optional],
       }]
-    }, {
+    } as SemanticModelRelationshipProfile, {
       "id": "dcat-ap-0002",
       "profiling": ["dcat-ap-0001"],
       "type": ["class-profile"],
@@ -130,7 +146,9 @@ test("From DSV to entity model and back.", async () => {
       "descriptionFromProfiled": null,
       "usageNote": {},
       "usageNoteFromProfiled": null,
-    }, {
+      "externalDocumentationUrl": "external-2",
+      "tags": [DSV_CLASS_ROLE.supportive],
+    } as SemanticModelClassProfile, {
       "id": "dcat-ap-0003",
       "profiling": ["http://www.w3.org/ns/dcat#Distribution"],
       "type": ["class-profile"],
@@ -141,7 +159,9 @@ test("From DSV to entity model and back.", async () => {
       "descriptionFromProfiled": null,
       "usageNote": {},
       "usageNoteFromProfiled": null,
-    }],
+      "externalDocumentationUrl": "external-3",
+      "tags": [],
+    } as SemanticModelClassProfile],
   };
 
   expect(entityListContainer).toStrictEqual(expectedEntityListContainer);
@@ -232,7 +252,9 @@ test("Issue #1005", () => {
         "propertyReusedFromResourceIri": "http://dcat/model/juicyBusiness"
       }],
       "profiledClassIri": ["http://dcat/model/juicyBusiness"],
-      "specializationOfIri": []
+      "specializationOfIri": [],
+      "externalDocumentationUrl": "external-1",
+      "classRole": ClassRole.supportive,
     }, {
       "iri": "http://dcat/model/bulkyForce",
       "prefLabel": {},
@@ -258,7 +280,9 @@ test("Issue #1005", () => {
         ],
         "specializationOfIri": [],
         "$type": ["object-property-profile"],
-        "rangeClassIri": ["http://dcat/model/juicyBusiness"]
+        "rangeClassIri": ["http://dcat/model/juicyBusiness"],
+        "externalDocumentationUrl": "external-2",
+        "requirementLevel": RequirementLevel.mandatory,
       } as PropertyProfile, {
         "iri": "http://dcat/model/JuicyBusiness.juicyWorkSpecial",
         "cardinality": null,
@@ -276,7 +300,9 @@ test("Issue #1005", () => {
         }],
         "specializationOfIri": ["http://dcat/model/BulkyForce.juicyWork"],
         "$type": ["object-property-profile"],
-        "rangeClassIri": ["http://dcat/model/juicyBusiness"]
+        "rangeClassIri": ["http://dcat/model/juicyBusiness"],
+        "externalDocumentationUrl": "external-3",
+        "requirementLevel": RequirementLevel.recommended,
       } as PropertyProfile],
       "reusesPropertyValue": [{
         "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
@@ -286,7 +312,9 @@ test("Issue #1005", () => {
         "propertyReusedFromResourceIri": "http://dcat/model/bulkyForce"
       }],
       "profiledClassIri": ["http://dcat/model/bulkyForce"],
-      "specializationOfIri": ["http://dcat/model/juicyBusiness"]
+      "specializationOfIri": ["http://dcat/model/juicyBusiness"],
+      "externalDocumentationUrl": "external-4",
+      "classRole": ClassRole.undefined,
     }]
   };
 
@@ -315,9 +343,7 @@ test("Issue #1005", () => {
     "iri": "http://dcat/model/juicyWork",
     "name": {},
     "description": {},
-    "type": [
-      "relationship"
-    ],
+    "type": ["relationship"],
     "ends": [{
       "iri": null,
       "concept": null,

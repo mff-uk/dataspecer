@@ -1,6 +1,6 @@
-import { DefaultGraph, Graph } from "../../representation/graph";
-import { getBotRightPosition, getTopLeftPosition } from "../../../util/utils";
-import { AllMetricData, ComputedMetricValues, Metric } from "../graph-metric";
+import { DefaultGraph, Graph } from "../../representation/graph.ts";
+import { getBotRightPosition, getTopLeftPosition } from "../../../util/utils.ts";
+import { AllMetricData, ComputedMetricValues, Metric } from "../graph-metric.ts";
 
 // Experimental
 /**

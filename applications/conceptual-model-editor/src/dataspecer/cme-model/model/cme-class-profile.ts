@@ -1,5 +1,6 @@
-import { LanguageString } from "@dataspecer/core/core/core-resource";
-import { EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
+import { LanguageString, EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
+import { CmeEntity } from "./cme-entity";
+import { CmeClassProfileRole } from "./cme-well-known";
 
 export interface NewCmeClassProfile {
 
@@ -21,9 +22,13 @@ export interface NewCmeClassProfile {
 
   usageNoteSource: EntityDsIdentifier | null;
 
+  externalDocumentationUrl: string | null;
+
+  role: CmeClassProfileRole | null;
+
 }
 
-export interface CmeClassProfile extends NewCmeClassProfile {
+export interface CmeClassProfile extends CmeEntity, NewCmeClassProfile {
 
   identifier: EntityDsIdentifier;
 

@@ -1,10 +1,10 @@
 import _ from "lodash";
-import { AlgorithmName, getBestMetricResultAggregation, performLayoutFromGraph } from "../..";
-import { ConfigurationsContainer } from "../../configurations/configurations-container";
-import { Graph, MainGraph } from "../../graph/representation/graph";
-import { LayoutAlgorithm } from "../layout-algorithms-interfaces";
-import { AutomaticConfiguration } from "../../configurations/algorithm-configurations";
-import { getDefaultUserGivenAlgorithmConfigurationsFull } from "../../configurations/user-algorithm-configurations";
+import { AlgorithmName, getBestMetricResultAggregation, performLayoutFromGraph } from "../../index.ts";
+import { ConfigurationsContainer } from "../../configurations/configurations-container.ts";
+import { Graph, MainGraph } from "../../graph/representation/graph.ts";
+import { LayoutAlgorithm } from "../layout-algorithms-interfaces.ts";
+import { AutomaticConfiguration } from "../../configurations/algorithm-configurations.ts";
+import { getDefaultUserGivenAlgorithmConfigurationsFull } from "../../configurations/user-algorithm-configurations.ts";
 
 export class AutomaticLayout implements LayoutAlgorithm {
   prepareFromGraph(graph: Graph, configurations: ConfigurationsContainer): void {

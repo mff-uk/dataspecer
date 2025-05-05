@@ -2,13 +2,13 @@ import {
   CoreResourceReader,
   CoreExecutorResult,
   CreateNewIdentifier,
-} from "../../core";
-import { DataPsmUnsetChoice } from "../operation";
+} from "../../core/index.ts";
+import { DataPsmUnsetChoice } from "../operation/index.ts";
 import {
   DataPsmClass,
   DataPsmOr,
-} from "../model";
-import { DataPsmExecutorResultFactory } from "./data-psm-executor-utils";
+} from "../model/index.ts";
+import { DataPsmExecutorResultFactory } from "./data-psm-executor-utils.ts";
 
 export async function executeDataPsmUnsetChoice(
   reader: CoreResourceReader,

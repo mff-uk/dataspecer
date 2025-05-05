@@ -19,9 +19,11 @@ export class SetTechnicalLabel implements ComplexOperation {
   async execute(): Promise<void> {
     const schema = this.store.getSchemaForResource(this.forDataPsmResourceIri) as string;
 
+    const technicalLabel = this.dataPsmTechnicalLabel === "" ? null : this.dataPsmTechnicalLabel;
+
     const dataPsmSetTechnicalLabel = new DataPsmSetTechnicalLabel();
     dataPsmSetTechnicalLabel.dataPsmResource = this.forDataPsmResourceIri;
-    dataPsmSetTechnicalLabel.dataPsmTechnicalLabel = this.dataPsmTechnicalLabel;
+    dataPsmSetTechnicalLabel.dataPsmTechnicalLabel = technicalLabel;
     await this.store.applyOperation(schema, dataPsmSetTechnicalLabel);
   }
 }

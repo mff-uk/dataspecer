@@ -1,5 +1,5 @@
-import { DataPsmResource } from "../../model";
-import { JSON_EXTENSION } from "../vocabulary";
+import { DataPsmResource } from "../../model/index.ts";
+import { JSON_EXTENSION } from "../vocabulary.ts";
 
 class JsonPropertyExtension {
   useKeyValueForLangString: boolean = false;

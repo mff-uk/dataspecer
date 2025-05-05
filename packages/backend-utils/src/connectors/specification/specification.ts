@@ -1,5 +1,5 @@
 // @ts-nocheck due to circular dependencies
-import { HttpStoreDescriptor, StoreDescriptor } from "../../store-descriptor";
+import { HttpStoreDescriptor, StoreDescriptor } from "../../store-descriptor/index.ts";
 import { EntityModel } from "@dataspecer/core-v2";
 import { LOCAL_SEMANTIC_MODEL, V1 } from "@dataspecer/core-v2/model/known-models";
 import { BackendPackageService, Package } from "@dataspecer/core-v2/project";

@@ -1,7 +1,7 @@
-import { Entity, EntityIdentifier } from "../../../entity-model/entity";
-import { Operation } from "../../operations";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SEMANTIC_MODEL_CLASS_PROFILE, SEMANTIC_MODEL_RELATIONSHIP_PROFILE, SemanticModelClassProfile, SemanticModelRelationshipEndProfile, SemanticModelRelationshipProfile, } from "../concepts";
-import { CreateSemanticModelClassProfile, ModifySemanticModelClassProfile, CreateSemanticModelRelationshipProfile, ModifySemanticModelRelationshipProfile, isCreateSemanticModelClassProfile, isModifySemanticModelClassProfile, isCreateSemanticModelRelationshipProfile, isModifySemanticModelRelationshipProfile } from "./operations";
+import { Entity, EntityIdentifier } from "../../../entity-model/entity.ts";
+import { Operation } from "../../operations/index.ts";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SEMANTIC_MODEL_CLASS_PROFILE, SEMANTIC_MODEL_RELATIONSHIP_PROFILE, SemanticModelClassProfile, SemanticModelRelationshipEndProfile, SemanticModelRelationshipProfile, } from "../concepts/index.ts";
+import { CreateSemanticModelClassProfile, ModifySemanticModelClassProfile, CreateSemanticModelRelationshipProfile, ModifySemanticModelRelationshipProfile, isCreateSemanticModelClassProfile, isModifySemanticModelClassProfile, isCreateSemanticModelRelationshipProfile, isModifySemanticModelRelationshipProfile } from "./operations.ts";
 
 export interface IdentifierSource {
 
@@ -132,6 +132,8 @@ function executeModifySemanticModelClassProfile(
     usageNote: entity.usageNote ?? previous.usageNote,
     usageNoteFromProfiled: mergeFromProfiled(entity.usageNoteFromProfiled, previous.usageNoteFromProfiled),
     profiling: entity.profiling ?? previous.profiling,
+    externalDocumentationUrl: mergeFromProfiled(entity.externalDocumentationUrl, previous.externalDocumentationUrl),
+    tags: mergeFromProfiled(entity.tags, previous.tags),
   };
   entityWriter.change({ [identifier]: updatedEntity }, []);
   return {
@@ -140,15 +142,15 @@ function executeModifySemanticModelClassProfile(
   }
 }
 
-function mergeFromProfiled(
-  next: string | null | undefined,
-  previous: string | null,
-): string | null {
-  // We actually need to store null.
-  if (next === null) {
-    return null;
+function mergeFromProfiled<T>(
+  next: T | undefined,
+  previous: T,
+): T {
+  // We need to store null, if next is null.
+  if (next === undefined) {
+    return previous;
   }
-  return next ?? previous;
+  return next;
 }
 
 function executeCreateSemanticModelRelationshipProfile(
@@ -173,7 +175,8 @@ function executeCreateSemanticModelRelationshipProfile(
   };
 }
 
-function defaultRelationshipEndProfile() {
+function defaultRelationshipEndProfile():
+  Omit<SemanticModelRelationshipEndProfile, "concept"> {
   return {
     name: null,
     nameFromProfiled: null,
@@ -184,6 +187,8 @@ function defaultRelationshipEndProfile() {
     usageNote: null,
     usageNoteFromProfiled: null,
     profiling: [],
+    externalDocumentationUrl: null,
+    tags: [],
   }
 }
 

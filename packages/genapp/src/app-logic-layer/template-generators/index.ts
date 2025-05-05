@@ -1,8 +1,8 @@
-import { CreateInstanceAppLayerTemplateProcessor } from "./create-instance-generator";
-import { DeleteAppLayerTemplateProcessor } from "./delete-instance-generator";
-import { DetailAppLayerTemplateProcessor } from "./instance-detail-generator";
-import { ListAppLayerTemplateProcessor } from "./instance-list-generator";
-import { EditInstanceAppLayerTemplateProcessor } from "./edit-instance-generator";
+import { CreateInstanceAppLayerTemplateProcessor } from "./create-instance-generator.ts";
+import { DeleteAppLayerTemplateProcessor } from "./delete-instance-generator.ts";
+import { DetailAppLayerTemplateProcessor } from "./instance-detail-generator.ts";
+import { ListAppLayerTemplateProcessor } from "./instance-list-generator.ts";
+import { EditInstanceAppLayerTemplateProcessor } from "./edit-instance-generator.ts";
 
 
 export {

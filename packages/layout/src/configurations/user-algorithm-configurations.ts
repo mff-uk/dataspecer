@@ -1,8 +1,8 @@
-import { AlgorithmName } from "../layout-algorithms/list-of-layout-algorithms";
-import { Direction } from "../util/utils";
-import { AutomaticConfiguration, RandomConfiguration } from "./algorithm-configurations";
-import { AffectedNodesGroupingsType, EdgeRouting, GraphConversionActionConfiguration } from "./graph-conversion-action";
-import { ElkForceAlgType, ElkForceConfiguration, ElkLayeredConfiguration, ElkRadialConfiguration, ElkSporeOverlapConfiguration, ElkStressAdvancedUsingClustersConfiguration, ElkStressConfiguration, ElkStressProfileLayoutConfiguration } from "./elk/elk-configurations";
+import { AlgorithmName } from "../layout-algorithms/list-of-layout-algorithms.ts";
+import { Direction } from "../util/utils.ts";
+import { AutomaticConfiguration, RandomConfiguration } from "./algorithm-configurations.ts";
+import { AffectedNodesGroupingsType, EdgeRouting, GraphConversionActionConfiguration } from "./graph-conversion-action.ts";
+import { ElkForceAlgType, ElkForceConfiguration, ElkLayeredConfiguration, ElkRadialConfiguration, ElkSporeOverlapConfiguration, ElkStressAdvancedUsingClustersConfiguration, ElkStressConfiguration, ElkStressProfileLayoutConfiguration } from "./elk/elk-configurations.ts";
 
 export type UserGivenAlgorithmConfigurationInterfaces =
     | UserGivenAlgorithmConfigurationLayered

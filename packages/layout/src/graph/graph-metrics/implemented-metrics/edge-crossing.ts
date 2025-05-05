@@ -1,9 +1,9 @@
 import { Position } from "@dataspecer/core-v2/visual-model";
-import { DefaultGraph, Graph } from "../../representation/graph";
-import { AllMetricData, ComputedMetricValues, Metric } from "../graph-metric";
-import { findNodeBorder } from "../../../util/utils";
-import { XY } from "../../..";
-import { VisualNodeComplete } from "../../representation/node";
+import { DefaultGraph, Graph } from "../../representation/graph.ts";
+import { AllMetricData, ComputedMetricValues, Metric } from "../graph-metric.ts";
+import { findNodeBorder } from "../../../util/utils.ts";
+import { XY } from "../../../index.ts";
+import { VisualNodeComplete } from "../../representation/node.ts";
 
 /**
  * Metric for the number of crossing edges

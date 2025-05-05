@@ -1,6 +1,6 @@
-import { LOCAL_VISUAL_MODEL } from "../../model/known-models";
-import { createDefaultVisualModelFactory } from "../../visual-model";
-import { createDefaultEntityModel } from "../../visual-model/entity-model/default-entity-model";
+import { LOCAL_VISUAL_MODEL } from "../../model/known-models.ts";
+import { createDefaultVisualModelFactory } from "../../visual-model/index.ts";
+import { createDefaultEntityModel } from "../../visual-model/entity-model/default-entity-model.ts";
 
 const factory = createDefaultVisualModelFactory();
 

@@ -38,7 +38,7 @@ export function useAttributeProfileDialogController(
 
     const setModel = (model: CmeSemanticModel) => {
       entityProfileController.setModel(model);
-      relationshipProfileController.onModelDidChange(model);
+      relationshipProfileController.updateDomains(model);
       changeState(state => configuration().relationshipProfileToIri(state));
     };
 

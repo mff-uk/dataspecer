@@ -1,5 +1,5 @@
 import { CoreResource } from "@dataspecer/core/core/core-resource";
-import { EntityModel } from './entity-model';
+import { EntityModel } from './entity-model.ts';
 import { CoreResourceReader } from "@dataspecer/core/core/core-reader";
 
 export class EntityModelAsCoreResourceReader implements CoreResourceReader {

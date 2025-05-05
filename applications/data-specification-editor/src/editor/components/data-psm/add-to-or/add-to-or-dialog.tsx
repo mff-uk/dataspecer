@@ -19,19 +19,19 @@ export const AddToOrDialog = dialog<{
   const { t } = useTranslation("psm");
 
   const { resource: pimResource } = useResource<SemanticModelClass>(typePimClassIri);
-  const cimIri = pimResource?.iri;
+  const semanticClassId = pimResource?.id;
 
   const { semanticModelAggregator } = React.useContext(ConfigurationContext);
-  const [fullInheritance] = useAsyncMemo(async () => cimIri ? await semanticModelAggregator.getHierarchy(pimResource.id) : null, [cimIri]);
+  const [fullInheritance] = useAsyncMemo(async () => semanticClassId ? await semanticModelAggregator.getHierarchyForLookup(pimResource.id) : null, [semanticClassId]);
 
   const PimClassDetail = useDialog(PimClassDetailDialog);
 
   const [descendantsOrSelf] = useAsyncMemo(async () => {
-    if (!fullInheritance || !cimIri) {
+    if (!fullInheritance || !semanticClassId) {
       return [];
     }
 
-    const middleClassIri = cimIri;
+    const middleClassIri = semanticClassId;
 
     const descendants: ExternalEntityWrapped<SemanticModelClass>[] = [];
 
@@ -53,7 +53,7 @@ export const AddToOrDialog = dialog<{
     <DialogContent>
       <Box style={{ maxHeight: 400, overflow: 'auto' }}>
         {descendantsOrSelf.map(resource => <Item
-          semanticModelClass={resource.aggregatedEntity}
+          semanticModelClass={resource}
           onClick={async () => {
             const localEntity = await semanticModelAggregator.externalEntityToLocalForHierarchyExtension(pimResource.id, resource, false, fullInheritance);
             onSelected(localEntity.aggregatedEntity.id);

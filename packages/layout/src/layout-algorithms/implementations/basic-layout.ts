@@ -1,8 +1,8 @@
-import { ConfigurationsContainer } from "../../configurations/configurations-container";
-import { Graph, MainGraph, } from "../../graph/representation/graph";
+import { ConfigurationsContainer } from "../../configurations/configurations-container.ts";
+import { Graph, MainGraph, } from "../../graph/representation/graph.ts";
 import _ from "lodash";
 import { VisualNode } from "@dataspecer/core-v2/visual-model";
-import { LayoutAlgorithm } from "../layout-algorithms-interfaces";
+import { LayoutAlgorithm } from "../layout-algorithms-interfaces.ts";
 
 
 /**

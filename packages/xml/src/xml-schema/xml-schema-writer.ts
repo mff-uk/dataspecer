@@ -20,10 +20,11 @@ import {
   xmlSchemaComplexTypeDefinitionIsExtension,
   xmlSchemaSimpleTypeDefinitionIsRestriction,
   XmlSchemaAttribute,
-} from "./xml-schema-model";
+  xmlSchemaTypeIsLangString,
+} from "./xml-schema-model.ts";
 
-import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
-import { langStringName } from "../conventions";
+import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer.ts";
+import { langStringName } from "../conventions.ts";
 
 const xsNamespace = "http://www.w3.org/2001/XMLSchema";
 const xsVerNamespace = "http://www.w3.org/2007/XMLSchema-versioning";
@@ -54,7 +55,7 @@ async function writeSchemaBegin(
   await writer.writeXmlDeclaration("1.0", "utf-8");
   writer.registerNamespace("xs", xsNamespace);
   await writer.writeElementBegin("xs", "schema");
-  await writer.writeNamespaceDeclaration("xs", xsNamespace);
+  await writer.writeNamespaceDeclaration("xs", xsNamespace); // This is kept here to make it first in the list - special case.
   await writer.writeAndRegisterNamespaceDeclaration("vc", xsVerNamespace);
   await writer.writeAttributeValue("vc", "minVersion", "1.1");
   if (model.targetNamespace != null) {
@@ -63,45 +64,17 @@ async function writeSchemaBegin(
       "targetNamespace",
       model.targetNamespace
     );
-    if (model.targetNamespacePrefix != null) {
-      await writer.writeAndRegisterNamespaceDeclaration(
-        model.targetNamespacePrefix,
-        model.targetNamespace
-      );
-    }
   } else {
     await writer.writeLocalAttributeValue("elementFormDefault", "unqualified");
   }
 
-  const registered: Record<string, string> = {};
-
-  for (const importDeclaration of model.imports) {
-    const namespace = importDeclaration.namespace;
-    const prefix = importDeclaration.prefix;
-    if (
-      namespace != null &&
-      prefix != null
-    ) {
-      if (registered[prefix] == null) {
-        await writer.writeAndRegisterNamespaceDeclaration(
-          prefix,
-          namespace
-        );
-        registered[prefix] = namespace;
-      } else if (registered[prefix] !== namespace) {
-        throw new Error(
-          `Imported namespace prefix "${prefix}:" is used for two ` +
-          `different namespaces, "${registered[prefix]}" and "${namespace}".`
-        );
-      }
+  // Register all (prefix - namespace) in the schema.
+  for (const namespace of model.namespaces) {
+    if (namespace.prefix === "xs" || namespace.prefix === "vc") {
+      // Skip xs and vc as it is already registered few lines above as special case.
+      continue;
     }
-  }
-
-  if (model.options.generateSawsdl) {
-    await writer.writeAndRegisterNamespaceDeclaration(
-      "sawsdl",
-      "http://www.w3.org/ns/sawsdl"
-    );
+    await writer.writeAndRegisterNamespaceDeclaration(namespace.prefix, namespace.namespace);
   }
 }
 
@@ -272,7 +245,7 @@ async function writeElement(
     } else {
       await writer.writeLocalAttributeValue("name", name[1]);
       const type = element.type;
-      if (!xmlSchemaTypeIsComplex(type) && !xmlSchemaTypeIsSimple(type)) {
+      if (!xmlSchemaTypeIsComplex(type) && !xmlSchemaTypeIsSimple(type) && !xmlSchemaTypeIsLangString(type)) {
         // The type is specified in the schema, simply use its name.
         await writer.writeLocalAttributeValue(
           "type",
@@ -284,6 +257,8 @@ async function writeElement(
         await writeAnnotation(element, writer);
         if (xmlSchemaTypeIsComplex(type)) {
           await writeComplexType(type, writer);
+        } else if (xmlSchemaTypeIsLangString(type)) {
+          await writeLanguageStringType(writer);
         } else if (xmlSchemaTypeIsSimple(type)) {
           await writeSimpleType(type, writer);
         } else {
@@ -428,6 +403,28 @@ async function writeComplexContainer(
       await writeComplexContent(content.item, content, writer);
     }
   }
+}
+
+async function writeLanguageStringType(
+  writer: XmlWriter
+): Promise<void> {
+  await writer.writeElementFull("xs", "complexType")(async writer => {
+    await writer.writeElementFull("xs", "simpleContent")(async writer => {
+      await writer.writeElementFull("xs", "extension")(async writer => {
+        await writer.writeLocalAttributeValue(
+          "base",
+          writer.getQName("xs", "string")
+        );
+        await writer.writeElementFull("xs", "attribute")(async writer => {
+          await writer.writeLocalAttributeValue(
+            "ref",
+            writer.getQName("xml", "lang")
+          );
+          await writer.writeLocalAttributeValue("use", "required");
+        });
+      });
+    });
+  });
 }
 
 /**

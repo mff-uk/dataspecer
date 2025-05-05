@@ -2,15 +2,15 @@
 import { Entity, EntityModel } from "@dataspecer/core-v2";
 // @ts-ignore
 import { ExtendedSemanticModelClass, ExtendedSemanticModelRelationship, isSemanticModelAttribute, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { CoreResourceReader } from "../../core";
-import { OFN } from "../../well-known";
+import { CoreResourceReader } from "../../core/index.ts";
+import { OFN } from "../../well-known/index.ts";
 import {
   ConceptualModel,
   ConceptualModelClass,
   ConceptualModelComplexType,
   ConceptualModelPrimitiveType,
   ConceptualModelProperty,
-} from "../model";
+} from "../model/index.ts";
 
 interface WithConceptIris {
   /**

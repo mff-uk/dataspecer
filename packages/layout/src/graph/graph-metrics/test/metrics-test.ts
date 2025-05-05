@@ -1,7 +1,7 @@
-import { NodeDimensionQueryHandler } from "../../..";
-import { MainGraph } from "../../representation/graph";
-import { EdgeCrossingMetric } from "../implemented-metrics/edge-crossing";
-import { EdgeNodeCrossingMetric } from "../implemented-metrics/edge-node-crossing";
+import { NodeDimensionQueryHandler } from "../../../index.ts";
+import { MainGraph } from "../../representation/graph.ts";
+import { EdgeCrossingMetric } from "../implemented-metrics/edge-crossing.ts";
+import { EdgeNodeCrossingMetric } from "../implemented-metrics/edge-node-crossing.ts";
 
 // TODO: The metrics here works, I just extracted the test code here in case if I need some tests in future to proof that it works even if I tested it manually.
 function testMetrics(graph: MainGraph, nodeDimensionQueryHandler: NodeDimensionQueryHandler) {

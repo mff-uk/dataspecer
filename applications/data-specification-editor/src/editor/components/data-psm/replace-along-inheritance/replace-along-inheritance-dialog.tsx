@@ -31,10 +31,11 @@ export const ReplaceAlongInheritanceDialog = dialog<{
     const store = useFederatedObservableStore();
 
     const {pimResource} = useDataPsmAndInterpretedPim(dataPsmClassIri);
+    const semanticEntityId = pimResource?.id;
     const cimIri = pimResource?.iri;
 
     const {operationContext, semanticModelAggregator} = React.useContext(ConfigurationContext);
-    const [fullInheritance] = useAsyncMemo(async () => cimIri ? await semanticModelAggregator.getHierarchy(pimResource.id) : null, [cimIri]);
+    const [fullInheritance] = useAsyncMemo(async () => cimIri ? await semanticModelAggregator.getHierarchyForLookup(pimResource.id) : null, [cimIri]);
 
     // @ts-ignore
     const previewStore = useNewFederatedObservableStoreFromSemanticEntities(fullInheritance);
@@ -42,11 +43,11 @@ export const ReplaceAlongInheritanceDialog = dialog<{
     const PimClassDetail = useDialog(PimClassDetailDialog);
 
     const [[ancestors, descendants]] = useAsyncMemo(async () => {
-        if (!fullInheritance || !cimIri) {
+        if (!fullInheritance || !semanticEntityId) {
             return [[],[]];
         }
 
-        const middleClassIri = cimIri;
+        const middleClassIri = semanticEntityId;
 
         const ancestors: ExternalEntityWrapped<SemanticModelClass>[] = [];
         const descendants: ExternalEntityWrapped<SemanticModelClass>[] = [];
@@ -62,7 +63,9 @@ export const ReplaceAlongInheritanceDialog = dialog<{
         }
 
         return [ancestors, descendants];
-    }, [fullInheritance], [[],[]]) as [[ExternalEntityWrapped<SemanticModelClass>[], ExternalEntityWrapped<SemanticModelClass>[]], boolean];
+    }, [fullInheritance, semanticEntityId], [[],[]]) as [[ExternalEntityWrapped<SemanticModelClass>[], ExternalEntityWrapped<SemanticModelClass>[]], boolean];
+
+    console.log(ancestors, descendants);
 
     const onSelected = async (selectedResource: ExternalEntityWrapped<SemanticModelClass>, isMoreGeneral: boolean) => {
         if (!fullInheritance) {
@@ -96,14 +99,14 @@ export const ReplaceAlongInheritanceDialog = dialog<{
 
                         <Box style={{maxHeight: 400, overflow: 'auto'}}>
                             {ancestors.map(resource => <Item
-                                semanticModelClass={resource.aggregatedEntity}
+                                semanticModelClass={resource}
                                 onClick={() => onSelected(resource, true)}
                                 onInfo={() => PimClassDetail.open({iri: resource.aggregatedEntity.id})}
                             />)}
                             {ancestors.length === 0 &&
-                                <Typography variant="body2" gutterBottom>
+                                <ListItem disabled>
                                     {t("generalization.no-ancestors")}
-                                </Typography>
+                                </ListItem>
                             }
                         </Box>
                     </Grid>
@@ -114,7 +117,7 @@ export const ReplaceAlongInheritanceDialog = dialog<{
 
                         <Box style={{maxHeight: 400, overflow: 'auto'}}>
                             {descendants.map(resource => <Item
-                                semanticModelClass={resource.aggregatedEntity}
+                                semanticModelClass={resource}
                                 onClick={() => onSelected(resource, false)}
                                 onInfo={() => PimClassDetail.open({iri: resource.aggregatedEntity.id})}
                             />)}

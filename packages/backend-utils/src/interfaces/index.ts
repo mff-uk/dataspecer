@@ -1,3 +1,3 @@
-export * from "./data-specification-with-metadata";
-export * from "./data-specification-with-stores";
-export * from "./update-data-specification";
+export * from "./data-specification-with-metadata.ts";
+export * from "./data-specification-with-stores.ts";
+export * from "./update-data-specification.ts";

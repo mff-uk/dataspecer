@@ -1,4 +1,4 @@
-import {Entity} from "../../entity-model";
+import {Entity} from "../../entity-model/index.ts";
 
 export function searchQuery(search: string) {
     return "search:" + search;

@@ -5,7 +5,10 @@ export enum Language {
   English = "en",
 };
 
-export const SupportedLanguages = [Language.Czech, Language.English];
+export const SupportedLanguages: [string, string][] = [
+  [Language.Czech, "Čeština"],
+  [Language.English, "English"]
+];
 
 /**
  * Runtime options that can be changed by the user.

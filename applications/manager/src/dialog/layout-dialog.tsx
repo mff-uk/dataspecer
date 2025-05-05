@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
   AlgorithmName,
   Direction,
@@ -13,62 +13,13 @@ import LayeredAlgorithmDirectionDropdown from "./direction-graphic-combobox/reac
 type MainType = "main";
 type MainOrGeneralType = MainType | "general";
 
-// TODO RadStr:
-// 1) Make it more general - a lot of repeating code and the same strings on multiple of places (create new react components or something)
-// 2) Make it map to the Constraint interface (and pass only the relevant settings further) ... and better typing - kinda done
-// 3) Style it better - but it is kind of throwaway so it doesn't really matter
-// 4) Have dialog localization
 export const useConfigDialog = () => {
   const [config, setConfig] = useState<UserGivenAlgorithmConfigurations>(getDefaultUserGivenAlgorithmConfigurationsFull());
-  const advancedSettingsForAlgorithms = useRef<Record<string, string>>({});
-  const handleAdvancedSettingsChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    advancedSettingsForAlgorithms.current[config.chosenMainAlgorithm] = event.target.value;
-    let newAdvancedSettings;
-    try {
-      newAdvancedSettings = JSON.parse(event.target.value);
-    }
-    catch {
-      return;
-    }
-    setConfig(previousConfig => ({
-      ...previousConfig,
-      main: {
-        ...previousConfig.main,
-        [config.chosenMainAlgorithm]: {
-          ...previousConfig.main[config.chosenMainAlgorithm],
-          advanced_settings: newAdvancedSettings
-        }
-      }
-    }));
-  };
 
-  // Const updateConfig = (key: string, e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
-  //     setConfig({...config, [key]: parseInt(e.target.value)});
-  // }
-
-  // Before V2 we tried filtering, right now just put in everything and pick the correct ones, the responsibility on picking correct one should lie in the layout package anyways
-  // TODO RadStr: So it may be renamed to getConfig instead
-  const getValidConfig = () => {
+  const getConfig = () => {
     return _.cloneDeep(config);
   };
 
-  const resetConfig = () => {
-    if(!_.isEqual(config, getDefaultUserGivenAlgorithmConfigurationsFull())) {
-      setConfig(getDefaultUserGivenAlgorithmConfigurationsFull());
-    }
-  };
-
-  // Const ConfigSlider = (props: {
-  //     min: number;
-  //     max: number;
-  //     step: number;
-  //     configName: string;
-  //     defaultValue: number;
-  //     setConfig: () => void;
-  // }) => {
-  //     return <input type="range" min={props.min} max={props.max} step={props.step}
-  //     className="slider" id={`range- + ${props.configName}`} draggable="false" defaultValue={props.defaultValue} onMouseUp={(e) => { setConfig({...config, [props.configName]: parseInt(e.target.value)});}}></input>
-  // }
 
   const OverlapRemovalConfig = (props: {stateField: MainType}) => {
     return <div>
@@ -167,17 +118,6 @@ export const useConfigDialog = () => {
     </div>;
   };
 
-  const interactiveCheckbox = (props: {algorithmName: AlgorithmName, stateField: MainOrGeneralType}) => {
-    return <div>
-      <input type="checkbox" id={`checkbox-interactive${props.stateField}`} name="checkbox-interactive"
-        checked={(config?.[props.stateField])?.[props.algorithmName]?.interactive}
-        onChange={e => {
-          setConfigWithNewValue(props.algorithmName, props.stateField, "interactive", e.target.checked);
-        }} />
-      <label htmlFor={`checkbox-interactive${props.stateField}`}>Take existing layout into consideration</label>
-    </div>;
-  };
-
   const ForceConfig = (props: {stateField: MainType}) =>
     <div>
       <div className="flex flex-row">
@@ -212,18 +152,12 @@ export const useConfigDialog = () => {
       <div className="flex flex-row">
         <select id="force-alg-type" value={config?.[props.stateField].elk_force?.["force_alg_type"]} onChange={(event) => {
           setConfigWithNewValue("elk_force", props.stateField, "force_alg_type", event.target.value as ElkForceAlgType);
-          // // Based on https://stackoverflow.com/questions/17380845/how-do-i-convert-a-string-to-enum-in-typescript
-          // setConfig({...config,
-          //            [props.stateField]: {
-          //                 ...config[props.stateField],
-          //                 "force_alg_type": event.target.value as ElkForceAlgType }});
         }}>
           <option value="EADES">Eades</option>
           <option value="FRUCHTERMAN_REINGOLD">Fruchterman Reingold</option>
         </select>
       </div>
       <hr className="w-48 h-1 mx-auto my-3 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
-      {interactiveCheckbox({...props, algorithmName: "elk_force"})}
       <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
       <RunOverlapRemovalAfterCombobox stateField={props.stateField}></RunOverlapRemovalAfterCombobox>
     </div>;
@@ -315,21 +249,12 @@ export const useConfigDialog = () => {
         {config?.[props.stateField]?.elk_stress?.["number_of_new_algorithm_runs"]}
       </div>
       <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
-      {interactiveCheckbox({...props, algorithmName: "elk_stress"})}
       <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
       <RunOverlapRemovalAfterCombobox stateField={props.stateField}></RunOverlapRemovalAfterCombobox>
     </div>;
 
   const StressProfileConfig = (props: {stateField: MainType}) =>
     <div>
-      <div className="flex flex-row">
-        <label htmlFor={`${props.stateField}-main-alg-direction`}>Preferred edge direction for profiles: </label>
-      </div>
-      <div className="flex flex-row">
-        <LayeredAlgorithmDirectionDropdown direction={config?.[props.stateField]?.["elk_stress_profile"]?.["preferredProfileDirection"] ?? Direction.Down} setDirection={(newDirection: Direction) => {
-          setConfigWithNewValue("elk_stress_profile", props.stateField, "preferredProfileDirection", newDirection);
-        }}></LayeredAlgorithmDirectionDropdown>
-      </div>
       <div className="flex flex-row">
         <label htmlFor="range-stress-edge-len">Ideal edge length: </label>
       </div>
@@ -344,7 +269,7 @@ export const useConfigDialog = () => {
         {config?.[props.stateField]?.elk_stress_profile?.["stress_edge_len"]}
       </div>
       <div className="flex flex-row">
-        <label htmlFor="range-stress-profile-edge-len">Ideal profile edge length: </label>
+        <label htmlFor="range-stress-profile-edge-len">Ideal class profile edge length: </label>
       </div>
       <div className="flex flex-row">
         <input type="range" min="0" max="1000" step="10" className="slider" id="range-stress-profile-edge-len" draggable="false"
@@ -370,7 +295,6 @@ export const useConfigDialog = () => {
         {config?.[props.stateField]?.elk_stress_profile?.["number_of_new_algorithm_runs"]}
       </div>
       <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
-      {interactiveCheckbox({...props, algorithmName: "elk_stress_profile"})}
       <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
       <RunOverlapRemovalAfterCombobox stateField={props.stateField}></RunOverlapRemovalAfterCombobox>
     </div>;
@@ -386,7 +310,6 @@ export const useConfigDialog = () => {
         }}></LayeredAlgorithmDirectionDropdown>
       </div>
 
-      {/* TODO RadStr: I should define it as component since I reuse this split on more places */}
       <hr className="w-48 h-1 mx-auto my-1 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
 
       <div className="flex flex-row">
@@ -403,12 +326,10 @@ export const useConfigDialog = () => {
 
       <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
       {/* <div className="my-2"/> */}
-      {interactiveCheckbox({...props, algorithmName: "elk_layered"})}
       <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
 
       <div className="flex flex-row">
         { /* It has to be onMouseUp, if I put it onChange then react forces redraw and stops the "drag" event I guess */ }
-        { /* TOOD: Rewrite like this or similar <ConfigSlider min={0} max={1000} step={10} configName='layer-gap' defaultValue={100} setConfig={setConfig}></ConfigSlider> */}
         <label htmlFor={`range-${props.stateField}-layer-gap`}>Distance between layers: </label>
       </div>
       <div className="flex flex-row">
@@ -465,12 +386,6 @@ export const useConfigDialog = () => {
     </div>;
 
   const renderMainAlgorithmConfig = () => {
-    // TODO RadStr: resetConfig is not it, the state has to be solved differently - different algorithms share non-relevant parameters, but it affects them
-    //       (For example running layered after layered, because I checked it for stress layout)
-    // resetConfig();
-
-    advancedSettingsForAlgorithms.current = config.main[config.chosenMainAlgorithm].advanced_settings;
-
     switch(config.chosenMainAlgorithm) {
       case "elk_stress_advanced_using_clusters":
         return <StressWithClustersConfig stateField="main"></StressWithClustersConfig>;
@@ -510,47 +425,22 @@ export const useConfigDialog = () => {
           }>
           <option value="elk_layered">Layered (Hierarchical)</option>
           <option value="elk_stress">Elk Stress (Force-based algorithm)</option>
-          <option value="elk_stress_profile">Elk Stress profile (Force-based algorithm)</option>
+          <option value="elk_stress_profile">Elk Stress class profile (Force-based algorithm)</option>
           <option value="elk_stress_advanced_using_clusters">Elk Stress (Force-based algorithm) with clustering</option>
           <option value="elk_force">Elk Force (Force-based algorithm)</option>
           <option value="elk_radial">Radial</option>
           <option value="elk_overlapRemoval">Overlap removal</option>
-          <option value="automatic">Automatic</option>
           <option value="random">Random</option>
         </select>
       </div>
       <hr className="my-2"/>
-      {/* TODO RadStr: Just for now */}
       {config.chosenMainAlgorithm === "random" ? null : <h3 className="font-black">Algorithm settings </h3>}
       {renderMainAlgorithmConfig()}
       <hr className="my-2"/>
-      <label htmlFor="advanced-settings-textbox">Advanced settings:</label>
-      <textarea id="advanced-settings-textbox"
-                value={String(advancedSettingsForAlgorithms.current)}
-                onChange={handleAdvancedSettingsChange}></textarea>
-      <hr className="my-4"/>
-      <input type="checkbox" id="checkbox-main-layout-alg" name="checkbox-main-layout-alg" checked={config.chosenGeneralAlgorithm !== "none"}
-        onChange={e => setConfig({...config,
-          general: {
-            ...config.general,
-            elk_layered: {
-              ...config.general.elk_layered,
-            }
-          },
-          chosenGeneralAlgorithm: e.target.checked ? "elk_layered" : "none"
-          })} />
-      <label htmlFor="checkbox-main-layout-alg">Process generalization hierarchies separately ⚠️ WIP ⚠️</label>
-      {config.chosenGeneralAlgorithm === "none" ? null :
-        <div>
-          <div className='h-2'></div>
-          <LayeredConfig stateField='general'></LayeredConfig>
-        </div>
-      }
     </div>;
 
   return {
-    getValidConfig,
+    getConfig,
     ConfigDialog,
-    resetConfig
   };
 };

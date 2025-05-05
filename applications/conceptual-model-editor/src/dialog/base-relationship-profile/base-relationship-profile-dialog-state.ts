@@ -11,6 +11,7 @@ import {
 } from "../utilities/dialog-utilities";
 import { validationNoProblem, validationNotEvaluated, ValidationState } from "../utilities/validation-utilities";
 import { validateBaseRelationshipDialogState } from "../base-relationship/base-relationship-dialog-validation";
+import { CmeRelationshipProfileMandatoryLevel } from "@/dataspecer/cme-model/model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -55,13 +56,45 @@ export interface BaseRelationshipProfileDialogState<RangeType>
 
   rangeCardinalityValidation: ValidationState;
 
+  // Mandatory level
+
+  availableMandatoryLevels: {
+
+    value: string;
+
+    label: string;
+
+    cme: CmeRelationshipProfileMandatoryLevel | null;
+
+  }[];
+
+  mandatoryLevel: string;
+
 }
+
+const MANDATORY_LEVELS = [{
+  value: "undefined",
+  label: "relationship-profile.mandatory-level.undefined",
+  cme: null,
+}, {
+  value: "mandatory",
+  label: "relationship-profile.mandatory-level.mandatory",
+  cme: CmeRelationshipProfileMandatoryLevel.Mandatory,
+}, {
+  value: "recommended",
+  label: "relationship-profile.mandatory-level.recommended",
+  cme: CmeRelationshipProfileMandatoryLevel.Recommended,
+}, {
+  value: "optional",
+  label: "relationship-profile.mandatory-level.optional",
+  cme: CmeRelationshipProfileMandatoryLevel.Optional
+}];
 
 export function createBaseRelationshipProfileDialogState<RangeType extends {
   identifier: string,
   iri: string | null,
   label: LanguageString,
-  vocabularyDsIdentifier: string,
+  model: string,
 }>(
   model: CmeSemanticModel,
   vocabularies: CmeSemanticModel[],
@@ -75,6 +108,7 @@ export function createBaseRelationshipProfileDialogState<RangeType extends {
   allRanges: RangeType[],
   rangeFilter: ItemFilter<RangeType>,
   invalidRange: RangeType,
+  tags: string[],
 ): BaseRelationshipProfileDialogState<RangeType> {
 
   // Filter domains for given model.
@@ -129,5 +163,9 @@ export function createBaseRelationshipProfileDialogState<RangeType extends {
     rangeCardinalityValidation: validationNoProblem(),
     //
     availableCardinalities: listProfileCardinalities(),
+    // Mandatory level
+    availableMandatoryLevels: MANDATORY_LEVELS,
+    mandatoryLevel: MANDATORY_LEVELS.find(item => tags.includes(item.cme ?? ""))?.value
+      ?? MANDATORY_LEVELS[0].value,
   });
 }

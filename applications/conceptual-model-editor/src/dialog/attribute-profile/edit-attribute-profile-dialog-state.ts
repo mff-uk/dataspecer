@@ -85,7 +85,8 @@ export function createNewAttributeProfileDialogState(
     profile.domain, profile.domainCardinality.cardinality, allDomains,
     filterByModel, representUndefinedClassProfile(),
     profile.range, profile.rangeCardinality.cardinality, allRanges,
-    items => items, representUndefinedDataType());
+    items => items, representUndefinedDataType(),
+    []);
 
   const result = {
     ...entityProfileState,
@@ -160,6 +161,7 @@ export function createEditAttributeProfileDialogState(
     allProfiles, range.profiling, noProfile, range.iri ?? "",
     range.name, range.nameFromProfiled,
     range.description, range.descriptionFromProfiled,
+    range.externalDocumentationUrl ?? "",
     range.usageNote, range.usageNoteFromProfiled,
     allSpecializations);
 
@@ -171,7 +173,8 @@ export function createEditAttributeProfileDialogState(
     domain.concept, domain.cardinality, allDomains,
     filterByModel, representUndefinedClassProfile(),
     range.concept, range.cardinality, allRanges,
-    items => items, representUndefinedDataType());
+    items => items, representUndefinedDataType(),
+    range.tags ?? []);
 
   return {
     ...entityProfileState,
@@ -266,7 +269,7 @@ export function createAddAttributeProfileDialogState(
     domainIdentifier, profile.domainCardinality.cardinality, allDomains,
     filterByModel, representUndefinedClassProfile(),
     profile.range, profile.rangeCardinality.cardinality, allRanges,
-    items => items, representUndefinedDataType());
+    items => items, representUndefinedDataType(), []);
 
   const result = {
     ...entityProfileState,

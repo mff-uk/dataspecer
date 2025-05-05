@@ -12,9 +12,11 @@ import {
   DatatypePropertyProfile,
   isDatatypePropertyProfile,
   Cardinality,
-} from "./dsv-model";
+  ClassRole,
+  RequirementLevel,
+} from "./dsv-model.ts";
 
-import { RDF, DSV, DCT, SKOS, VANN } from "./vocabulary";
+import { RDF, DSV, DCT, SKOS, VANN, DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL } from "./vocabulary.ts";
 
 const IRI = DataFactory.namedNode;
 
@@ -69,6 +71,10 @@ function createDefaultConfiguration(): ConceptualModelToRdfConfiguration {
       "dsv": "https://w3id.org/dsv#",
       "owl": "http://www.w3.org/2002/07/owl#",
       "skos": "http://www.w3.org/2004/02/skos/core#",
+      "vann": "http://purl.org/vocab/vann/",
+      "cardinality": "https://w3id.org/dsv/cardinality#",
+      "requirement": "https://w3id.org/dsv/requirement-level#",
+      "role": "https://w3id.org/dsv/class-role#",
     },
     "prettyPrint": true,
   };
@@ -100,6 +106,17 @@ class ConceptualModelWriter {
     this.writeProfileBase(profile)
     this.addType(profile.iri, DSV.ClassProfile);
     this.addIris(profile.iri, DSV.class, profile.profiledClassIri);
+    // Role
+    switch (profile.classRole) {
+      case ClassRole.main:
+        this.addIri(profile.iri, DSV.classRole, DSV_CLASS_ROLE.main);
+        break;
+      case ClassRole.supportive:
+        this.addIri(profile.iri, DSV.classRole, DSV_CLASS_ROLE.supportive);
+        break;
+      case ClassRole.undefined:
+        break;
+    }
     // Properties.
     for (const property of profile.properties) {
       this.addIri(property.iri, DSV.domain, profile.iri);
@@ -119,7 +136,7 @@ class ConceptualModelWriter {
     //
     this.addLiteral(profile.iri, SKOS.prefLabel, profile.prefLabel);
     this.addLiteral(profile.iri, SKOS.definition, profile.definition);
-    this.addLiteral(profile.iri, VANN.usageNote, profile.usageNote);
+    this.addLiteral(profile.iri, SKOS.scopeNote, profile.usageNote);
     this.addIris(profile.iri, DSV.specializationOf, profile.specializationOfIri);
     // We do not write this into properties.
     this.addIris(profile.iri, DSV.profileOf, profile.profileOfIri);
@@ -140,6 +157,7 @@ class ConceptualModelWriter {
         }])
       ));
     }
+    this.addIri(profile.iri, DSV.externalDocumentation, profile.externalDocumentationUrl);
   }
 
   private addIris(subject: string, predicate: N3.NamedNode, values: string[]) {
@@ -185,6 +203,20 @@ class ConceptualModelWriter {
     const cardinality = cardinalityToIri(profile.cardinality);
     this.addIri(profile.iri, DSV.cardinality, cardinality);
     this.addIris(profile.iri, DSV.property, profile.profiledPropertyIri);
+    // Requirement level
+    switch (profile.requirementLevel) {
+      case RequirementLevel.mandatory:
+        this.addIri(profile.iri, DSV.requirementLevel, DSV_MANDATORY_LEVEL.mandatory);
+        break;
+      case RequirementLevel.optional:
+        this.addIri(profile.iri, DSV.requirementLevel, DSV_MANDATORY_LEVEL.optional);
+        break;
+      case RequirementLevel.recommended:
+        this.addIri(profile.iri, DSV.requirementLevel, DSV_MANDATORY_LEVEL.recommended);
+        break;
+      case RequirementLevel.undefined:
+        break;
+    }
   }
 
   writeDatatypePropertyProfile(profile: DatatypePropertyProfile) {

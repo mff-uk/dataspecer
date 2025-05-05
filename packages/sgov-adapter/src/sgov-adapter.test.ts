@@ -1,4 +1,4 @@
-import { SgovAdapter } from "./sgov-adapter";
+import { SgovAdapter } from "./sgov-adapter.ts";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-nodejs";
 import { PimClass } from "@dataspecer/core/pim/model";
 import { CimAdapter, IriProvider, PrefixIriProvider } from "@dataspecer/core/cim";

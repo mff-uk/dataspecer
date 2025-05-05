@@ -1,5 +1,5 @@
-import { CoreOperation, CoreResource } from "../../core";
-import * as PSM from "../data-psm-vocabulary";
+import { CoreOperation, CoreResource } from "../../core/index.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 export class DataPsmSetJsonSchemaPrefixesInIriRegex extends CoreOperation {
   static readonly TYPE = PSM.SET_JSON_SCHEMA_PREFIXES_IN_IRI_REGEX;

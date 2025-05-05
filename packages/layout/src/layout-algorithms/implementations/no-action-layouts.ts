@@ -1,6 +1,6 @@
-import { ConfigurationsContainer } from "../../configurations/configurations-container";
-import { Graph } from "../../graph/representation/graph";
-import { LayoutAlgorithm } from "../layout-algorithms-interfaces";
+import { ConfigurationsContainer } from "../../configurations/configurations-container.ts";
+import { Graph } from "../../graph/representation/graph.ts";
+import { LayoutAlgorithm } from "../layout-algorithms-interfaces.ts";
 
 export class NoActionLayout implements LayoutAlgorithm {
   prepareFromGraph(graph: Graph, _configurations: ConfigurationsContainer) {

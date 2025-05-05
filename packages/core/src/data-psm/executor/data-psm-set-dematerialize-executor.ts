@@ -2,10 +2,10 @@ import {
   CoreResourceReader,
   CoreExecutorResult,
   CreateNewIdentifier,
-} from "../../core";
-import { DataPsmSetDematerialized } from "../operation";
-import { DataPsmAssociationEnd } from "../model";
-import { DataPsmExecutorResultFactory } from "./data-psm-executor-utils";
+} from "../../core/index.ts";
+import { DataPsmSetDematerialized } from "../operation/index.ts";
+import { DataPsmAssociationEnd } from "../model/index.ts";
+import { DataPsmExecutorResultFactory } from "./data-psm-executor-utils.ts";
 
 export async function executeDataPsmSetDematerialize(
   reader: CoreResourceReader,

@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { DataPsmSetInterpretation } from "../operation";
-import { executeDataPsmSetInterpretation } from "./data-psm-set-interpretation-executor";
-import * as PSM from "../data-psm-vocabulary";
+} from "../../core/index.ts";
+import { DataPsmSetInterpretation } from "../operation/index.ts";
+import { executeDataPsmSetInterpretation } from "./data-psm-set-interpretation-executor.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 test("Update data PSM resource interpretation.", async () => {
   const operation = new DataPsmSetInterpretation();

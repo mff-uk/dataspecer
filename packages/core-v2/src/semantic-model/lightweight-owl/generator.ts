@@ -5,18 +5,18 @@ import {
     SemanticModelEntity,
     SemanticModelGeneralization,
     SemanticModelRelationship,
-} from "../concepts/concepts";
+} from "../concepts/concepts.ts";
 import * as N3 from "n3";
 import { DataFactory, Quad_Predicate, Quad_Subject } from "n3";
-import namedNode = DataFactory.namedNode;
-import literal = DataFactory.literal;
+const namedNode = DataFactory.namedNode;
+const literal = DataFactory.literal;
 import {
     isSemanticModelAttribute,
     isSemanticModelClass,
     isSemanticModelGeneralization,
     isSemanticModelRelationship,
-} from "../concepts";
-import { getDomainAndRange } from "../relationship-utils/utils";
+} from "../concepts/index.ts";
+import { getDomainAndRange } from "../relationship-utils/utils.ts";
 
 function simpleIdSort(a: SemanticModelEntity, b: SemanticModelEntity) {
     return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;

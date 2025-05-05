@@ -16,8 +16,9 @@ import { useSaveHandler } from "../../helper/save-handler";
 import { InDifferentLanguages } from "./InDifferentLanguages";
 import { skip } from "node:test";
 import { XmlSetSkipRootElement } from "../../../operations/xml-set-skip-root-element";
-import { SetPrefixes } from "./set-prefixes";
+import { SetKeyValue } from "./set-key-value";
 import { SetJsonPrefixes } from "../../../operations/set-json-prefixes";
+import { SetJsonTypeMapping } from "../../../operations/set-json-type-mapping";
 
 function cardinalityFromPsm(entity?: DataPsmSchema): Cardinality {
   return {
@@ -170,6 +171,20 @@ export const DataPsmSchemaCard: React.FC<{ iri: string; onClose: () => void }> =
   );
   // endregion
 
+  // region JSON type mapping
+  const [jsonTypeMapping, setJsonTypeMapping] = useState<Record<string, string>>({});
+  useEffect(() => {
+    if (resource) {
+      const prefixes = resource.jsonLdDefinedTypeMapping ?? {};
+      setJsonTypeMapping(prefixes);
+    }
+  }, [resource]);
+  useSaveHandler(
+    resource && !isEqual(resource.jsonLdDefinedTypeMapping ?? {}, jsonTypeMapping),
+    () => store.executeComplexOperation(new SetJsonTypeMapping(iri, jsonTypeMapping))
+  );
+  // endregion
+
   return (
     <>
       <Grid container spacing={5} sx={{ pt: 3 }}>
@@ -205,15 +220,35 @@ export const DataPsmSchemaCard: React.FC<{ iri: string; onClose: () => void }> =
           <Typography variant="h6" component="h2">
             {t("JSON attributes")}
           </Typography>
-          <Typography variant="subtitle1" component="h2">
+          <Typography variant="subtitle1" component="h2" sx={{mt: 2}}>
             {t("JSON-LD IRI prefixes")}
             <InfoHelp text={t("JSON-LD IRI prefixes help")} />
           </Typography>
 
-          <Box sx={{mt: 2}}>
-            <SetPrefixes
-              currentPrefixes={jsonPrefixes}
-              setCurrentPrefixes={setJsonPrefixes}
+          <Box sx={{mt: 0}}>
+            <SetKeyValue
+              currentKV={jsonPrefixes}
+              setCurrentKV={setJsonPrefixes}
+
+              keyTitle="prefix"
+              valueTitle="IRI"
+              keyWidthPercent={20}
+            />
+          </Box>
+
+          <Typography variant="subtitle1" component="h2" sx={{mt: 2}}>
+            {t("JSON-LD type mapping")}
+            <InfoHelp text={t("JSON-LD type mapping help")} />
+          </Typography>
+
+          <Box sx={{mt: 0}}>
+            <SetKeyValue
+              currentKV={jsonTypeMapping}
+              setCurrentKV={setJsonTypeMapping}
+
+              keyTitle="IRI"
+              valueTitle="text"
+              keyWidthPercent={60}
             />
           </Box>
 

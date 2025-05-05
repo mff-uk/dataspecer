@@ -1,1 +1,1 @@
-export * from "./iri-utils";
+export * from "./iri-utils.ts";

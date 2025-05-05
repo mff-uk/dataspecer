@@ -1,1 +1,1 @@
-export {RdfsAdapter} from "./adapter";
+export {RdfsAdapter} from "./adapter.ts";

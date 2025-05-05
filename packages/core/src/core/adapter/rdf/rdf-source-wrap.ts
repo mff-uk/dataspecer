@@ -1,5 +1,5 @@
-import { RdfNode, RdfObject, RdfSource } from "./rdf-api";
-import {RdfMemorySource} from "../../../io/rdf/rdf-memory-source";
+import { RdfNode, RdfObject, RdfSource } from "./rdf-api.ts";
+import {RdfMemorySource} from "../../../io/rdf/rdf-memory-source.ts";
 
 const TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 

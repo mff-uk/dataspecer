@@ -2,17 +2,21 @@
 @config "../tailwind.config.js";
 
 /* Quick dirty fixes */
-input {
-  background-color: white;
-}
 
-select {
-  background-color: white;
-}
-
+input,
+select,
 textarea {
-  background-color: white;
+  background-color: var(--color-slate-50);
+  border: 2px solid var(--color-slate-200);
 }
+
+input[disabled],
+select[disabled],
+textarea[disabled] {
+  background-color: var(--color-slate-100);
+  border: 2px solid var(--color-slate-100);
+}
+
 
 /*---break---
  */

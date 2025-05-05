@@ -209,7 +209,7 @@ const computeBarycenter = (positions: Position[], diagram: UseDiagramType): Comp
     accumulator.y += currentValue.y;
 
     return accumulator;
-  }, {x: 0, y: 0, anchored: null});
+  }, { x: 0, y: 0, anchored: null });
 
   let isInCenterOfViewport;
   if(positions.length >= 1) {
@@ -240,7 +240,7 @@ const findAssociatedClassesAndClassProfiles = async (
 ) => {
   // Is synchronous for this case
   const selection = await extendSelectionAction(notifications, graph, classesContext,
-    {areIdentifiersFromVisualModel: false, identifiers: [classToFindAssociationsFor]},
+    { areIdentifiersFromVisualModel: false, identifiers: [classToFindAssociationsFor] },
     [ExtensionType.Association, ExtensionType.Generalization],
     VisibilityFilter.OnlyVisibleNodes, false, null);
   return selection;

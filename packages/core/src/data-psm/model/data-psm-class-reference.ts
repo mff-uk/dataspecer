@@ -1,5 +1,5 @@
-import {ExtendableCoreResource} from "./extendable-core-resource";
-import * as PSM from "../data-psm-vocabulary";
+import {ExtendableCoreResource} from "./extendable-core-resource.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 /**
  * Allow us to reference a class in another schema.

@@ -1,4 +1,4 @@
-import { AggregateMetadata } from "../readers/aggregate-data-provider-model";
+import { AggregateMetadata } from "../readers/aggregate-data-provider-model.ts";
 
 /**
  * Represents the type for the list of currently supported langauges.

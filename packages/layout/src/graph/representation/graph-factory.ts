@@ -1,11 +1,11 @@
 import { EntityModel } from "@dataspecer/core-v2";
-import { NodeDimensionQueryHandler, VisualEntitiesWithOutsiders } from "../..";
-import { ExplicitAnchors } from "../../explicit-anchors";
-import { ExtractedModels } from "../../layout-algorithms/entity-bundles";
-import { PhantomElementsFactory } from "../../util/utils";
-import { DefaultGraph, Graph, MainGraph, DefaultMainGraph } from "./graph";
+import { NodeDimensionQueryHandler, VisualEntitiesWithOutsiders } from "../../index.ts";
+import { ExplicitAnchors } from "../../explicit-anchors.ts";
+import { ExtractedModels } from "../../layout-algorithms/entity-bundles.ts";
+import { PhantomElementsFactory } from "../../util/utils.ts";
+import { DefaultGraph, Graph, MainGraph, DefaultMainGraph } from "./graph.ts";
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
-import { EdgeEndPoint } from "./edge";
+import { EdgeEndPoint } from "./edge.ts";
 
 /**
  * Factory class to create graphs with.

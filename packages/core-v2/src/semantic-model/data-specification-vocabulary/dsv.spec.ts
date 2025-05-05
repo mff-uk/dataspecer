@@ -1,10 +1,11 @@
-import { SemanticModelRelationshipProfile } from "../profile/concepts";
-import { Cardinality, DsvModel, DatatypePropertyProfile, ObjectPropertyProfile } from "./dsv-model";
-import { conceptualModelToEntityListContainer } from "./dsv-to-entity-model";
-import { conceptualModelToRdf } from "./dsv-to-rdf";
-import { EntityListContainer } from "./entity-model";
-import { createContext, entityListContainerToDsvModel } from "./entity-model-to-dsv";
-import { rdfToConceptualModel } from "./rdf-to-dsv";
+import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "../profile/concepts/index.ts";
+import { Cardinality, DsvModel, DatatypePropertyProfile, ObjectPropertyProfile, RequirementLevel, ClassRole } from "./dsv-model.ts";
+import { conceptualModelToEntityListContainer } from "./dsv-to-entity-model.ts";
+import { conceptualModelToRdf } from "./dsv-to-rdf.ts";
+import { EntityListContainer } from "./entity-model.ts";
+import { createContext, entityListContainerToDsvModel } from "./entity-model-to-dsv.ts";
+import { rdfToConceptualModel } from "./rdf-to-dsv.ts";
+import { DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL } from "./vocabulary.ts";
 
 test("End to end test I.", async () => {
 
@@ -97,8 +98,10 @@ test("End to end test I.", async () => {
       "usageNote": {},
       "usageNoteFromProfiled": null,
       "id": "hwey2q71bvjm7d1jrlq",
-      "type": ["class-profile"]
-    }, {
+      "type": ["class-profile"],
+      "externalDocumentationUrl": "external-doc-1",
+      "tags": [],
+    } as SemanticModelClassProfile, {
       "id": "94kn5yss8dm7d1jv9z",
       "type": ["class-profile"],
       "description": { "en": "Changed in profile" },
@@ -108,8 +111,10 @@ test("End to end test I.", async () => {
       "iri": "flatBack1",
       "usageNote": { "en": "usage note" },
       "usageNoteFromProfiled": null,
-      "profiling": ["lqo2gocgg4sm7d1ivqx"]
-    }, {
+      "profiling": ["lqo2gocgg4sm7d1ivqx"],
+      "externalDocumentationUrl": "external-doc-2",
+      "tags": [DSV_CLASS_ROLE.supportive],
+    } as SemanticModelClassProfile, {
       "ends": [{
         "name": null,
         "nameFromProfiled": null,
@@ -120,22 +125,25 @@ test("End to end test I.", async () => {
         "usageNote": null,
         "usageNoteFromProfiled": null,
         "profiling": [],
-        "concept": "hwey2q71bvjm7d1jrlq"
+        "concept": "hwey2q71bvjm7d1jrlq",
+        "externalDocumentationUrl": "external-doc-3",
+        "tags": [DSV_MANDATORY_LEVEL.optional],
       }, {
         "name": { "en": "Drab Moment" },
         "nameFromProfiled": "u42wg5rcg2im7d1j3hm",
         "description": {},
         "descriptionFromProfiled": "u42wg5rcg2im7d1j3hm",
         "iri": "SweetState.drabMoment",
-        "cardinality": [0, null
-        ],
+        "cardinality": [0, null],
         "usageNote": {},
         "usageNoteFromProfiled": null,
         "profiling": ["u42wg5rcg2im7d1j3hm"],
-        "concept": "94kn5yss8dm7d1jv9z"
+        "concept": "94kn5yss8dm7d1jv9z",
+        "externalDocumentationUrl": "external-doc-4",
+        "tags": [DSV_MANDATORY_LEVEL.recommended],
       }],
       "id": "fk532ihkfa5m7d1k90e",
-      "type": ["relationship-profile"]
+      "type": ["relationship-profile"],
     } as SemanticModelRelationshipProfile, {
       "id": "f9tj2irq2gm7d1lcrj",
       "type": ["relationship"],
@@ -166,7 +174,9 @@ test("End to end test I.", async () => {
         "usageNote": null,
         "usageNoteFromProfiled": null,
         "profiling": [],
-        "concept": "hwey2q71bvjm7d1jrlq"
+        "concept": "hwey2q71bvjm7d1jrlq",
+        "externalDocumentationUrl": null,
+        "tags": [],
       }, {
         "name": {},
         "nameFromProfiled": "rz94ir172eqm7d1j8i2",
@@ -177,11 +187,13 @@ test("End to end test I.", async () => {
         "usageNote": {},
         "usageNoteFromProfiled": null,
         "profiling": ["rz94ir172eqm7d1j8i2"],
-        "concept": "http://www.w3.org/2000/01/rdf-schema#Literal"
+        "concept": "http://www.w3.org/2000/01/rdf-schema#Literal",
+        "externalDocumentationUrl": "external-doc-4",
+        "tags": [DSV_MANDATORY_LEVEL.recommended],
       }],
       "id": "kss58ru9dom7d1omi4",
       "type": ["relationship-profile"]
-    }]
+    } as SemanticModelRelationshipProfile]
   } as EntityListContainer;
 
   const context = createContext([container]);
@@ -216,6 +228,8 @@ test("End to end test I.", async () => {
         "$type": ["object-property-profile"],
         "rangeClassIri": ["http://dcat/model/flatBack1"],
         "specializationOfIri": [],
+        "externalDocumentationUrl": "external-doc-4",
+        "requirementLevel": RequirementLevel.recommended,
       } as ObjectPropertyProfile, {
         "iri": "http://dcat/model/SweetState.tightArtChanges",
         "cardinality": Cardinality.ZeroToMany,
@@ -234,6 +248,8 @@ test("End to end test I.", async () => {
         "$type": ["datatype-property-profile"],
         "rangeDataTypeIri": ["http://www.w3.org/2000/01/rdf-schema#Literal"],
         "specializationOfIri": [],
+        "externalDocumentationUrl": "external-doc-4",
+        "requirementLevel": RequirementLevel.recommended,
       } as DatatypePropertyProfile],
       "reusesPropertyValue": [{
         "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
@@ -244,6 +260,8 @@ test("End to end test I.", async () => {
       }],
       "profiledClassIri": ["http://localhost/sweetState"],
       "specializationOfIri": [],
+      "externalDocumentationUrl": "external-doc-1",
+      "classRole": ClassRole.undefined,
     }, {
       "iri": "http://dcat/model/flatBack1",
       "prefLabel": { "en": "Flat Back Changed in Profile" },
@@ -255,6 +273,8 @@ test("End to end test I.", async () => {
       "reusesPropertyValue": [],
       "profiledClassIri": ["http://dcat/model/flatBack"],
       "specializationOfIri": [],
+      "externalDocumentationUrl": "external-doc-2",
+      "classRole": ClassRole.supportive,
     }],
   };
 
@@ -300,7 +320,9 @@ test("End to end test I.", async () => {
       "usageNote": {},
       "usageNoteFromProfiled": null,
       "id": "hwey2q71bvjm7d1jrlq",
-      "type": ["class-profile"]
+      "type": ["class-profile"],
+      "externalDocumentationUrl": "external-doc-1",
+      "tags": [],
     }, {
       "ends": [{
         "name": {},
@@ -313,7 +335,9 @@ test("End to end test I.", async () => {
         "usageNote": {},
         "usageNoteFromProfiled": null,
         "profiling": [],
-        "concept": "hwey2q71bvjm7d1jrlq"
+        "concept": "hwey2q71bvjm7d1jrlq",
+        "externalDocumentationUrl": null,
+        "tags": [],
       }, {
         "name": {},
         "nameFromProfiled": "u42wg5rcg2im7d1j3hm",
@@ -324,7 +348,9 @@ test("End to end test I.", async () => {
         "usageNote": {},
         "usageNoteFromProfiled": null,
         "profiling": ["u42wg5rcg2im7d1j3hm"],
-        "concept": "94kn5yss8dm7d1jv9z"
+        "concept": "94kn5yss8dm7d1jv9z",
+        "externalDocumentationUrl": "external-doc-4",
+        "tags": [DSV_MANDATORY_LEVEL.recommended],
       }],
       "id": "fk532ihkfa5m7d1k90e",
       "type": ["relationship-profile"]
@@ -340,7 +366,9 @@ test("End to end test I.", async () => {
         "usageNote": {},
         "usageNoteFromProfiled": null,
         "profiling": [],
-        "concept": "hwey2q71bvjm7d1jrlq"
+        "concept": "hwey2q71bvjm7d1jrlq",
+        "externalDocumentationUrl": null,
+        "tags": [],
       }, {
         "name": {},
         "nameFromProfiled": "rz94ir172eqm7d1j8i2",
@@ -351,7 +379,9 @@ test("End to end test I.", async () => {
         "usageNote": {},
         "usageNoteFromProfiled": null,
         "profiling": ["rz94ir172eqm7d1j8i2"],
-        "concept": "http://www.w3.org/2000/01/rdf-schema#Literal"
+        "concept": "http://www.w3.org/2000/01/rdf-schema#Literal",
+        "externalDocumentationUrl": "external-doc-4",
+        "tags": [DSV_MANDATORY_LEVEL.recommended],
       }],
       "id": "kss58ru9dom7d1omi4",
       "type": ["relationship-profile"]
@@ -365,7 +395,9 @@ test("End to end test I.", async () => {
       "iri": "flatBack1",
       "usageNote": { "en": "usage note" },
       "usageNoteFromProfiled": null,
-      "profiling": ["lqo2gocgg4sm7d1ivqx"]
+      "profiling": ["lqo2gocgg4sm7d1ivqx"],
+      "externalDocumentationUrl": "external-doc-2",
+      "tags": [DSV_CLASS_ROLE.supportive],
     }],
   } as EntityListContainer;
 
@@ -400,6 +432,8 @@ test("Issue #1005", async () => {
       "usageNote": {},
       "usageNoteFromProfiled": null,
       "profiling": ["dme1xc0ubemm8lqekg1"],
+      "externalDocumentationUrl": null,
+      "tags": [],
     }, { // 3
       "id": "8ut1fqfcd2dm8mvnh2y",
       "type": ["class-profile"],
@@ -411,6 +445,8 @@ test("Issue #1005", async () => {
       "usageNote": {},
       "usageNoteFromProfiled": null,
       "profiling": ["jv7zjcl0xnfm8lqej9v"],
+      "externalDocumentationUrl": null,
+      "tags": [],
     }, {
       "id": "flybrmenrykm8mwsi0o",
       "type": ["relationship"],
@@ -439,7 +475,9 @@ test("Issue #1005", async () => {
         "usageNote": {},
         "usageNoteFromProfiled": null,
         "profiling": [],
-        "concept": "8ut1fqfcd2dm8mvnh2y"
+        "concept": "8ut1fqfcd2dm8mvnh2y",
+        "externalDocumentationUrl": null,
+        "tags": [],
       }, {
         "name": { "en": "Juicy Work" },
         "nameFromProfiled": null,
@@ -451,6 +489,8 @@ test("Issue #1005", async () => {
         "usageNoteFromProfiled": null,
         "profiling": ["flybrmenrykm8mwsi0o"],
         "concept": "v5d9yd13by9m8mvndtv",
+        "externalDocumentationUrl": null,
+        "tags": [],
       }],
       "id": "vaz6nlwa9am8mwszz2",
       "type": ["relationship-profile"],
@@ -474,6 +514,8 @@ test("Issue #1005", async () => {
         "usageNoteFromProfiled": null,
         "profiling": [],
         "concept": "8ut1fqfcd2dm8mvnh2y",
+        "externalDocumentationUrl": null,
+        "tags": [],
       }, {
         "name": { "en": "Juicy Work" },
         "nameFromProfiled": null,
@@ -485,6 +527,8 @@ test("Issue #1005", async () => {
         "usageNoteFromProfiled": null,
         "profiling": ["flybrmenrykm8mwsi0o"],
         "concept": "v5d9yd13by9m8mvndtv",
+        "externalDocumentationUrl": null,
+        "tags": [],
       }],
     }, { // 8
       "id": "yjtb5fasdt5lm9mwtbcb",
@@ -509,6 +553,10 @@ test("Issue #1005", async () => {
 @prefix dsv: <https://w3id.org/dsv#>.
 @prefix owl: <http://www.w3.org/2002/07/owl#>.
 @prefix skos: <http://www.w3.org/2004/02/skos/core#>.
+@prefix vann: <http://purl.org/vocab/vann/>.
+@prefix cardinality: <https://w3id.org/dsv/cardinality#>.
+@prefix requirement: <https://w3id.org/dsv/requirement-level#>.
+@prefix role: <https://w3id.org/dsv/class-role#>.
 
 
 <http://dcat/model/> a dsv:ConceptualModel.

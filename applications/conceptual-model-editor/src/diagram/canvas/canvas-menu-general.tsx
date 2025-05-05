@@ -14,7 +14,7 @@ export type GeneralCanvasMenuComponentProps = {
  * This is general component. The purpose is to show given {@link canvasContent} component on position
  * stored inside {@link value}
  */
-export function CanvasGeneralMenu({canvasMenu}: {canvasMenu: GeneralCanvasMenuComponentProps | null}) {
+export function CanvasGeneralMenu({ canvasMenu }: {canvasMenu: GeneralCanvasMenuComponentProps | null}) {
   const { x, y, zoom } = useStore(viewportStoreSelector, shallow);
 
   if(canvasMenu === null) {
@@ -26,7 +26,7 @@ export function CanvasGeneralMenu({canvasMenu}: {canvasMenu: GeneralCanvasMenuCo
   return <div>
     <ToolbarPortal>
       <div className="canvas-menu" style={{ transform: `translate(${position.x}px, ${position.y}px)` }}>
-        {canvasMenu.menuContent({menuProps: canvasMenu.menuProps})}
+        {canvasMenu.menuContent({ menuProps: canvasMenu.menuProps })}
       </div>
     </ToolbarPortal>
   </div>;

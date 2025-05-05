@@ -1,6 +1,6 @@
-import { CoreResource } from "../../core-resource";
-import { RdfSourceWrap } from "./rdf-source-wrap";
-import { RdfSource } from "./rdf-api";
+import { CoreResource } from "../../core-resource.ts";
+import { RdfSourceWrap } from "./rdf-source-wrap.ts";
+import { RdfSource } from "./rdf-api.ts";
 
 /**
  * This class should be used as a container for RdfResourceAdapter. The idea

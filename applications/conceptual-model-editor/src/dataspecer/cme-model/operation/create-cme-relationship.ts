@@ -18,11 +18,12 @@ export function createCmeRelationship(
       concept: value.domain,
       cardinality: value.domainCardinality ?? undefined,
     }, {
-      name: value.name,
-      description: value.description,
+      name: value.name ?? {},
+      description: value.description ?? {},
       concept: value.range,
       cardinality: value.rangeCardinality ?? undefined,
       iri: value.iri,
+      externalDocumentationUrl: value.externalDocumentationUrl ?? null,
     }]
   });
 

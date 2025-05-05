@@ -2,6 +2,7 @@ import { ConceptualModel } from "@dataspecer/core";
 import { clone } from "@dataspecer/core/core/index";
 import { StructureModel } from "@dataspecer/core/structure-model/model/structure-model";
 import { StructureModelClass } from "@dataspecer/core/structure-model/model/structure-model-class";
+import { JsonStructureModelClass } from "../json-structure-model/structure-model-class.ts";
 
 /**
  * Add regex from {@link ConceptualModel} and examples for classes with iris.
@@ -43,6 +44,7 @@ function visitClass(
   // Process class IRI regexes
 
   if (conceptualClass.regex) {
+    let wasSomethingReplaced = false;
     if (option === "NEVER") {
       cls.regex = conceptualClass.regex;
     } else if (option === "ALWAYS") {
@@ -53,6 +55,7 @@ function visitClass(
         // This is a "hotfix" for users that forgot that you need to escape the dot in the regex
         regex = regex.replaceAll(prefixIri, prefix + ":");
       }
+      wasSomethingReplaced ||= regex !== conceptualClass.regex;
       cls.regex = regex;
     } else if (option === "OPTIONAL") {
       let regex = conceptualClass.regex;
@@ -62,10 +65,13 @@ function visitClass(
         // This is a "hotfix" for users that forgot that you need to escape the dot in the regex
         regex = regex.replaceAll(prefixIri, `(${prefix + ":"}|${prefixIri})`);
       }
+      wasSomethingReplaced ||= regex !== conceptualClass.regex;
       cls.regex = regex;
     } else {
       option satisfies never;
     }
+
+    (cls as JsonStructureModelClass).iriUsesPrefixes = wasSomethingReplaced;
   }
 
   // Process class IRI examples

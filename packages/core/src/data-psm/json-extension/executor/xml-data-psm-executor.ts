@@ -1,6 +1,6 @@
-import { CoreOperation, CoreOperationExecutor } from "../../../core";
-import * as Operations from "../operation";
-import { executeDataPsmSetUseKeyValueForLangString } from "./data-psm-set-use-key-value-for-lang-string";
+import { CoreOperation, CoreOperationExecutor } from "../../../core/index.ts";
+import * as Operations from "../operation/index.ts";
+import { executeDataPsmSetUseKeyValueForLangString } from "./data-psm-set-use-key-value-for-lang-string.ts";
 
 export const jsonDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
   CoreOperationExecutor.create(

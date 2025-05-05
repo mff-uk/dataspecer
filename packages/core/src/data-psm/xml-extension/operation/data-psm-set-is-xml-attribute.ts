@@ -1,5 +1,5 @@
-import {CoreOperation, CoreResource} from "../../../core";
-import {SET_IS_XML_ATTRIBUTE} from "../vocabulary";
+import {CoreOperation, CoreResource} from "../../../core/index.ts";
+import {SET_IS_XML_ATTRIBUTE} from "../vocabulary.ts";
 
 export class DataPsmSetIsXmlAttribute extends CoreOperation {
   static readonly TYPE = SET_IS_XML_ATTRIBUTE;

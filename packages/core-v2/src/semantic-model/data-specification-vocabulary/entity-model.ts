@@ -1,4 +1,4 @@
-import { Entity } from "../../entity-model";
+import { Entity } from "../../entity-model/index.ts";
 
 /**
  * A wrapper for list of entities.

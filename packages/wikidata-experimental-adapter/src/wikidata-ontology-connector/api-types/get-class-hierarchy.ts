@@ -1,6 +1,6 @@
-import { WdClassHierarchyDescOnly } from "../../wikidata-entities/wd-class";
-import { WdEntityId, WdEntityIdsList } from "../../wikidata-entities/wd-entity";
-import { buildEntityMap } from "./utils/build-entity-map";
+import { WdClassHierarchyDescOnly } from "../../wikidata-entities/wd-class.ts";
+import { WdEntityId, WdEntityIdsList } from "../../wikidata-entities/wd-entity.ts";
+import { buildEntityMap } from "./utils/build-entity-map.ts";
 
 export type WdHierarchyPart = "full" | "parents" | "children";
 

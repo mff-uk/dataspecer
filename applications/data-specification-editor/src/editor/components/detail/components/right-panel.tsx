@@ -1,5 +1,5 @@
 import { ExtendedSemanticModelClass, ExtendedSemanticModelRelationship, ExtendedSemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
-import { DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmContainer } from "@dataspecer/core/data-psm/model";
+import { DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmContainer, DataPsmOr } from "@dataspecer/core/data-psm/model";
 import { useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
 import {
     Alert,
@@ -62,6 +62,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
     const isClass = DataPsmClass.is(resource);
     const isContainer = DataPsmContainer.is(resource);
     const isInterpreted = resource.dataPsmInterpretation !== null;
+    const isOr = DataPsmOr.is(resource);
     //const isCodelist = (isClass && (pimResource as PimClass)?.pimIsCodelist) ?? false;
 
     const readOnly = false;
@@ -93,7 +94,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
         semanticRelationshipEndIndex = 1;
         semanticRelationshipEnd = (pimResource as ExtendedSemanticModelRelationship)?.ends[semanticRelationshipEndIndex] ?? null;
     } else if (isAssociationEnd) {
-        semanticRelationshipEndIndex = 1;// todo
+        semanticRelationshipEndIndex = resource.dataPsmIsReverse === true ? 0 : 1;
         semanticRelationshipEnd = (pimResource as ExtendedSemanticModelRelationship)?.ends[semanticRelationshipEndIndex] ?? null;
     }
 
@@ -340,7 +341,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
     // endregion empty as complex
 
     return <>
-        {(isClass || isAttribute || isAssociationEnd) &&
+        {(isClass || isAttribute || isAssociationEnd || isOr) &&
             <Box sx={{mb: 3}}>
                 <Typography variant="subtitle1" component="h2">
                     {t('label technical label')}

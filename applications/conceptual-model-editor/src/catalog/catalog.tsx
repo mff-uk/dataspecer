@@ -4,8 +4,6 @@ import { ModelCatalog } from "./model-catalog";
 import { AttributeCatalog } from "./attribute-catalog";
 import { RelationshipCatalog } from "./relationship-catalog";
 import { ProfileCatalog } from "./profile-catalog";
-import { WarningCatalog } from "./warning-catalog";
-import { useWarningsContext } from "../context/warnings-context";
 import { t } from "../application";
 
 enum CatalogTabs {
@@ -14,12 +12,9 @@ enum CatalogTabs {
     Associations,
     Attributes,
     Profiles,
-    Warnings,
 }
 
 export const Catalog = () => {
-  const { warnings } = useWarningsContext();
-
   const [activeTab, setActiveTab] = useState(CatalogTabs.Models);
 
   const Content = selectTabConcent(activeTab);
@@ -51,12 +46,6 @@ export const Catalog = () => {
           active={activeTab === CatalogTabs.Profiles}
           onClick={() => setActiveTab(CatalogTabs.Profiles)}
           label={t("model.profiles")}
-        />
-        <CatalogTabButton
-          active={activeTab === CatalogTabs.Warnings}
-          onClick={() => setActiveTab(CatalogTabs.Warnings)}
-          label={t("model.warnings")}
-          hidden={warnings.length === 0}
         />
       </div>
       <div className="m-1 overflow-y-scroll pb-2 h-full">
@@ -98,7 +87,5 @@ const selectTabConcent = (active: CatalogTabs) => {
     return ClassCatalog;
   case CatalogTabs.Profiles:
     return ProfileCatalog;
-  case CatalogTabs.Warnings:
-    return WarningCatalog;
   }
 };

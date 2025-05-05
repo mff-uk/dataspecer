@@ -19,30 +19,6 @@ export default defineConfig(({ command, mode }) => {
         namespaceResolution: 'basename'
       })
     ],
-    optimizeDeps: {
-      // grep -roh @dataspecer/[^\"\']* | sort | uniq | xargs -I- echo "        \"-\","
-      include: [
-        "@dataspecer/backend-utils/**",
-        "@dataspecer/core-v2/**",
-        "@dataspecer/core/**",
-        "@dataspecer/csv/**",
-        "@dataspecer/federated-observable-store-react/**",
-        "@dataspecer/federated-observable-store/**",
-        "@dataspecer/json-example",
-        "@dataspecer/json/**",
-        "@dataspecer/openapi",
-        "@dataspecer/plant-uml",
-        "@dataspecer/rdfs-adapter",
-        "@dataspecer/sgov-adapter",
-        "@dataspecer/shacl",
-        "@dataspecer/shex",
-        "@dataspecer/sparql-query",
-        "@dataspecer/documentation/**",
-        "@dataspecer/wikidata-experimental-adapter/**",
-        "@dataspecer/xml/**",
-        "@dataspecer/specification/**",
-      ]
-    },
     build: {
       commonjsOptions: {
         include: [/packages\//, /node_modules/],

@@ -1,7 +1,7 @@
-import * as Operations from "../operation";
-import { MemoryStore } from "../../core";
-import { pimExecutors } from "../executor";
-import * as PIM from "../pim-vocabulary";
+import * as Operations from "../operation/index.ts";
+import { MemoryStore } from "../../core/index.ts";
+import { pimExecutors } from "../executor/index.ts";
+import * as PIM from "../pim-vocabulary.ts";
 
 test("Create PIM schema with class and attribute.", async () => {
   let counter = 0;

@@ -33,7 +33,7 @@ export function openEditClassProfileDialogAction(
     });
     cmeExecutor.updateSpecialization(
       { identifier: entity.id, model: model.getId() },
-      state.model.dsIdentifier,
+      state.model.identifier,
       initialState.specializations, state.specializations);
 
     // We need to update visual model: profiles
@@ -45,11 +45,11 @@ export function openEditClassProfileDialogAction(
         },
         state.profiles.map(item => ({
           identifier: item.identifier,
-          model: item.vocabularyDsIdentifier
+          model: item.model
         })),
         state.profiles.map(item => ({
           identifier: item.identifier,
-          model: item.vocabularyDsIdentifier
+          model: item.model
         })));
     }
   };

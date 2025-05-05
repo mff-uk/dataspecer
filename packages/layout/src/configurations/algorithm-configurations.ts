@@ -1,6 +1,6 @@
-import { AlgorithmName } from "../layout-algorithms/list-of-layout-algorithms";
-import { AffectedNodesGroupingsType, MemoryAllocationControl } from "./graph-conversion-action";
-import { UserGivenAlgorithmConfigurationAutomatic, UserGivenAlgorithmConfigurationBase, UserGivenAlgorithmConfigurationLayered, UserGivenAlgorithmConfigurationRadial, UserGivenAlgorithmConfigurationRandom, UserGivenAlgorithmConfigurationStressBase } from "./user-algorithm-configurations";
+import { AlgorithmName } from "../layout-algorithms/list-of-layout-algorithms.ts";
+import { AffectedNodesGroupingsType, MemoryAllocationControl } from "./graph-conversion-action.ts";
+import { UserGivenAlgorithmConfigurationAutomatic, UserGivenAlgorithmConfigurationBase, UserGivenAlgorithmConfigurationLayered, UserGivenAlgorithmConfigurationRadial, UserGivenAlgorithmConfigurationRandom, UserGivenAlgorithmConfigurationStressBase } from "./user-algorithm-configurations.ts";
 
 export type AlgorithmPhases = "ONLY-PREPARE" | "ONLY-RUN" | "PREPARE-AND-RUN";
 

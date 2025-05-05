@@ -1,5 +1,5 @@
-import * as Support from "./support/testSupport";
-import ComplexModelCreator from "./support/ComplexModelCreator";
+import * as Support from "./support/testSupport.ts";
+import ComplexModelCreator from "./support/ComplexModelCreator.ts";
 
 const testType = "complex";
 const modelCreator = new ComplexModelCreator();

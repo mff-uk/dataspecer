@@ -14,6 +14,7 @@ import { createNewAssociationDialogState } from "../dialog/association/edit-asso
 import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 import { associationDialogStateToNewCmeRelationship } from "../dialog/association/edit-association-dialog-state-adapter";
 import { CmeReference } from "../dataspecer/cme-model/model";
+import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 
 // TODO RadStr: 2 Actions - split into 2 files later
 
@@ -72,7 +73,7 @@ function createAssociationToCreatedClass(
   const createdClassEntityRepresentative: EntityRepresentative = {
     identifier: createdClassData.identifier,
     iri: editClassDialogState.iri,
-    vocabularyDsIdentifier: vocabularyForCreatedClass?.dsIdentifier ?? "",
+    model: vocabularyForCreatedClass?.identifier ?? "",
     name: editClassDialogState.name,
     label: editClassDialogState.name,
     description: editClassDialogState.description,
@@ -104,8 +105,11 @@ function createAssociationToCreatedClass(
 
   const result = cmeExecutor.createRelationship(
     associationDialogStateToNewCmeRelationship(state));
-  cmeExecutor.updateSpecialization(result, state.model.dsIdentifier,
+  cmeExecutor.updateSpecialization(result, state.model.identifier,
     [], state.specializations);
+
+  addSemanticRelationshipToVisualModelAction(
+    notifications, graph, visualModel, result.identifier, result.model);
 }
 
 export function openCreateClassDialogAndCreateGeneralizationAction(

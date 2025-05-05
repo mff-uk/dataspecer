@@ -21,6 +21,7 @@ import { ClassesContextType } from "../context/classes-context";
 import { ActionsTestSuite } from "./test/actions-test-suite";
 import { removeFromVisualModelByVisualAction } from "./remove-from-visual-model-by-visual";
 import { CmeSpecialization } from "../dataspecer/cme-model/model";
+import { fail } from "@/utilities/fail-test";
 
 test("removeFromVisualModelAction - relationship", () => {
   const {
@@ -161,7 +162,7 @@ const prepareModelWithFourNodes = () => {
   aggregator.addModel(model);
   aggregator.addModel(visualModel);
   const aggregatorView = aggregator.getView();
-  const visualModelsAsObjectEntries = Object.entries({[visualModel.getIdentifier()]: visualModel});
+  const visualModelsAsObjectEntries = Object.entries({ [visualModel.getIdentifier()]: visualModel });
   const visualModels: Map<string, WritableVisualModel> = new Map(visualModelsAsObjectEntries);
 
   const graph: ModelGraphContextType = {
@@ -271,7 +272,7 @@ function _createSemanticRelationshipTestVariant(
   identifier: string,
   model: InMemorySemanticModel
 } {
-  const name = {"en": relationshipName};
+  const name = { "en": relationshipName };
 
   const operation = createRelationship({
     ends: [{

@@ -1,5 +1,5 @@
-export { structureModelToXslt } from "./xslt-model-adapter";
-export { writeXsltLifting } from "./xslt-lifting-writer";
-export { writeXsltLowering } from "./xslt-lowering-writer";
-export { XsltLiftingGenerator, XsltLoweringGenerator } from "./xslt-generator";
-export * from "./xslt-vocabulary";
+export { structureModelToXslt } from "./xslt-model-adapter.ts";
+export { writeXsltLifting } from "./xslt-lifting-writer.ts";
+export { writeXsltLowering } from "./xslt-lowering-writer.ts";
+export { XsltLiftingGenerator, XsltLoweringGenerator } from "./xslt-generator.ts";
+export * from "./xslt-vocabulary.ts";

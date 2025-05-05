@@ -4,7 +4,7 @@ import { AssociationDialogState } from "./edit-association-dialog-state";
 export function associationDialogStateToNewCmeRelationship(
   state: AssociationDialogState): NewCmeRelationship {
   return {
-    model: state.model.dsIdentifier,
+    model: state.model.identifier,
     name: state.name,
     description: state.description,
     iri: state.iri,
@@ -12,5 +12,6 @@ export function associationDialogStateToNewCmeRelationship(
     domainCardinality: state.domainCardinality.cardinality,
     range: state.range.identifier,
     rangeCardinality: state.rangeCardinality.cardinality,
+    externalDocumentationUrl: state.externalDocumentationUrl,
   }
 }

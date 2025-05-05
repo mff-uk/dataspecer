@@ -78,7 +78,7 @@ const createSelectorPanel = (
 
       <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-0 px-4 border border-blue-700 rounded ml-12"
         onClick={controller.performExtensionBasedOnExtensionState}>
-          Extend
+        Extend
       </button>
     </div>
   </div>;
@@ -100,7 +100,7 @@ const createExtensionCheckbox = (
         <input type="checkbox"
           checked={checkboxData.checked}
           onChange={(event) => {
-            controller.setExtensionCheckboxActivness({index, isActive: event.target.checked})
+            controller.setExtensionCheckboxActivness({ index, isActive: event.target.checked })
           }}>
         </input>
       </label>

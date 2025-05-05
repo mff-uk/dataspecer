@@ -1,9 +1,9 @@
-import {CoreExecutorResult, CoreResourceReader, CreateNewIdentifier,} from "../../../core";
-import {DataPsmSchema} from "../../model";
-import {DataPsmExecutorResultFactory} from "../../executor/data-psm-executor-utils";
-import {DataPsmSetXmlSkipRootElement} from "../operation";
-import {DataPsmSchemaXmlExtension} from "../model";
-import {XML_EXTENSION} from "../vocabulary";
+import {CoreExecutorResult, CoreResourceReader, CreateNewIdentifier,} from "../../../core/index.ts";
+import {DataPsmSchema} from "../../model/index.ts";
+import {DataPsmExecutorResultFactory} from "../../executor/data-psm-executor-utils.ts";
+import {DataPsmSetXmlSkipRootElement} from "../operation/index.ts";
+import {DataPsmSchemaXmlExtension} from "../model/index.ts";
+import {XML_EXTENSION} from "../vocabulary.ts";
 
 export async function executeDataPsmSetXmlSkipRootElement(
   reader: CoreResourceReader,

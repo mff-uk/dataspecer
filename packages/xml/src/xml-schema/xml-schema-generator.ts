@@ -7,12 +7,12 @@ import {
 import { ArtefactGenerator, ArtefactGeneratorContext } from "@dataspecer/core/generator";
 import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
 import { defaultStructureTransformations, structureModelTransformCodelists, transformStructureModel } from "@dataspecer/core/structure-model/transformation";
-import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties";
-import { generateDocumentation } from "./xml-schema-documentation";
-import { structureModelToXmlSchema } from "./xml-schema-model-adapter";
-import { XML_SCHEMA } from "./xml-schema-vocabulary";
-import { writeXmlSchema } from "./xml-schema-writer";
-import { HandlebarsAdapter } from "../../../handlebars-adapter/lib/interface";
+import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties.ts";
+import { generateDocumentation } from "./xml-schema-documentation.ts";
+import { structureModelToXmlSchema } from "./xml-schema-model-adapter.ts";
+import { XML_SCHEMA } from "./xml-schema-vocabulary.ts";
+import { writeXmlSchema } from "./xml-schema-writer.ts";
+import { HandlebarsAdapter } from "../../../handlebars-adapter/lib/interface.js";
 
 export const NEW_DOC_GENERATOR = "https://schemas.dataspecer.com/generator/template-artifact";
 

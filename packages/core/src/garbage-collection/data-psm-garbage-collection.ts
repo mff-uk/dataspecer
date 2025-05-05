@@ -1,18 +1,18 @@
-import {CoreResourceReader, CoreResourceWriter} from "../core";
-import * as PSM from "../data-psm/data-psm-vocabulary";
+import {CoreResourceReader, CoreResourceWriter} from "../core/index.ts";
+import * as PSM from "../data-psm/data-psm-vocabulary.ts";
 import {
     DataPsmAssociationEnd,
     DataPsmAttribute,
     DataPsmClass,
     DataPsmClassReference, DataPsmExternalRoot, DataPsmInclude, DataPsmOr,
     DataPsmSchema
-} from "../data-psm/model";
+} from "../data-psm/model/index.ts";
 import {
     DataPsmDeleteAssociationEnd,
     DataPsmDeleteAttribute,
     DataPsmDeleteClass, DataPsmDeleteClassReference,
     DataPsmDeleteInclude, DataPsmDeleteOr
-} from "../data-psm/operation";
+} from "../data-psm/operation/index.ts";
 
 interface DataPsmGarbageCollectionReport {
     deletedEntities: number;

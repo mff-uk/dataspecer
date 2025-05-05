@@ -1,5 +1,5 @@
-import {LanguageString} from "../../core";
-import {ExtendableCoreResource} from "./extendable-core-resource";
+import {LanguageString} from "../../core/index.ts";
+import {ExtendableCoreResource} from "./extendable-core-resource.ts";
 
 export class DataPsmResource extends ExtendableCoreResource {
   /**

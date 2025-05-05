@@ -1,7 +1,7 @@
-import { LayerArtifact } from "./layer-artifact";
-import { AggregateMetadata } from "../application-config";
-import { ApplicationGraph, ApplicationGraphNode, NodeConfiguration } from "../engine/graph";
-import { ArtifactSaver } from "../utils/artifact-saver";
+import { LayerArtifact } from "./layer-artifact.ts";
+import { AggregateMetadata } from "../application-config.ts";
+import { ApplicationGraph, ApplicationGraphNode, NodeConfiguration } from "../engine/graph/index.ts";
+import { ArtifactSaver } from "../utils/artifact-saver.ts";
 
 export type GenerationContext = {
     aggregate: AggregateMetadata,

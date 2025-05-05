@@ -1,9 +1,9 @@
-import { CoreExecutorResult, CoreResourceReader, CreateNewIdentifier, } from "../../../core";
-import { DataPsmExecutorResultFactory } from "../../executor/data-psm-executor-utils";
-import { DataPsmAttribute } from "../../model";
-import { DataPsmJsonPropertyExtension } from "../model";
-import { DataPsmSetUseKeyValueForLangString } from "../operation";
-import { JSON_EXTENSION } from "../vocabulary";
+import { CoreExecutorResult, CoreResourceReader, CreateNewIdentifier, } from "../../../core/index.ts";
+import { DataPsmExecutorResultFactory } from "../../executor/data-psm-executor-utils.ts";
+import { DataPsmAttribute } from "../../model/index.ts";
+import { DataPsmJsonPropertyExtension } from "../model/index.ts";
+import { DataPsmSetUseKeyValueForLangString } from "../operation/index.ts";
+import { JSON_EXTENSION } from "../vocabulary.ts";
 
 export async function executeDataPsmSetUseKeyValueForLangString(
   reader: CoreResourceReader,

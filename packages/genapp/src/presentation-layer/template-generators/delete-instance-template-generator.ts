@@ -1,9 +1,9 @@
-import { LayerArtifact } from "../../engine/layer-artifact";
-import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "./presentation-layer-template-generator";
-import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
-import { AllowedTransition } from "../../engine/transitions/transitions-generator";
-import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
-import { ApplicationGraphEdgeType } from "../../engine/graph";
+import { LayerArtifact } from "../../engine/layer-artifact.ts";
+import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "./presentation-layer-template-generator.ts";
+import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces.ts";
+import { AllowedTransition } from "../../engine/transitions/transitions-generator.ts";
+import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator.ts";
+import { ApplicationGraphEdgeType } from "../../engine/graph/index.ts";
 
 interface DeleteInstanceReactComponentTemplate extends TemplateModel {
     placeholders: {

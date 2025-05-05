@@ -1,5 +1,5 @@
-import { ConceptualModelProperty } from "./conceptual-model-property";
-import { LanguageString } from "../../core";
+import { ConceptualModelProperty } from "./conceptual-model-property.ts";
+import { LanguageString } from "../../core/index.ts";
 
 export class ConceptualModelClass {
   pimIri: string | null = null;

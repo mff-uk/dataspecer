@@ -7,7 +7,7 @@ import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary.js"
 import {ArtefactGenerator, ArtefactGeneratorContext} from "@dataspecer/core/generator";
 import {assertFailed, assertNot} from "@dataspecer/core/core";
 import {transformStructureModel, structureModelAddDefaultValues} from "@dataspecer/core/structure-model/transformation";
-import {JsonExampleAdapter} from "./json-example-adapter.js";
+import {JsonExampleAdapter} from "./json-example-adapter.ts";
 import {JSON_LD_GENERATOR, JsonLdGenerator} from "@dataspecer/json/json-ld";
 import {DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator} from "@dataspecer/json/configuration";
 import {JSON_SCHEMA, JsonSchemaGenerator} from "@dataspecer/json/json-schema";

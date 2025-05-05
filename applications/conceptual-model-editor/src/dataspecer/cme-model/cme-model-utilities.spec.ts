@@ -6,14 +6,14 @@ describe("filterWritableModels", () => {
 
   test("Filter.", () => {
     const actual = filterWritableModels([{
-      dsModelType: CmeSemanticModelType.Default,
+      modelType: CmeSemanticModelType.DefaultSemanticModel,
     } as CmeSemanticModel, {
-      dsModelType: CmeSemanticModelType.InMemorySemanticModel,
+      modelType: CmeSemanticModelType.InMemorySemanticModel,
     } as CmeSemanticModel, {
-      dsModelType: CmeSemanticModelType.ExternalSemanticModel,
+      modelType: CmeSemanticModelType.ExternalSemanticModel,
     } as CmeSemanticModel]);
     expect(actual).toEqual([{
-      dsModelType: CmeSemanticModelType.InMemorySemanticModel,
+      modelType: CmeSemanticModelType.InMemorySemanticModel,
     }]);
   });
 

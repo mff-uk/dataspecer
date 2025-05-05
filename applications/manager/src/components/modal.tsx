@@ -77,7 +77,7 @@ const ModalClose = ({ className, children, ...props }: ModalProps) => {
     )
 }
 
-const ModalContent = ({ className, children, ...props }: ModalProps) => {
+const ModalContent = ({ className, children, ...props }: ModalProps & {disableClose?: boolean}) => {
     const isDesktop = !useIsMobile();
     const ModalContent = isDesktop ? DialogContent : DrawerContent
 

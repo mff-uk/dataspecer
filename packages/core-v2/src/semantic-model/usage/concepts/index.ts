@@ -1,2 +1,2 @@
-export * from "./concepts";
-export * from "./concepts-utils";
+export * from "./concepts.ts";
+export * from "./concepts-utils.ts";

@@ -55,7 +55,7 @@ export const DialogColoredModelHeaderWithLanguageSelector = (props: {
       <div className="flex">
         <div>{getModelLabel(activeModel)}</div>
         <div className="ml-auto mr-8">
-                    Language:&nbsp;
+          Language:&nbsp;
           <select
             name="langs"
             id="langs"

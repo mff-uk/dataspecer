@@ -3,13 +3,13 @@ import {
   CoreExecutorResult,
   CreateNewIdentifier,
   CoreResource,
-} from "../../core";
-import { DataPsmSetOrder } from "../operation";
+} from "../../core/index.ts";
+import { DataPsmSetOrder } from "../operation/index.ts";
 import {
   DataPsmExecutorResultFactory,
   loadDataPsmClass,
-} from "./data-psm-executor-utils";
-import { DataPsmClass, DataPsmContainer } from "../model";
+} from "./data-psm-executor-utils.ts";
+import { DataPsmClass, DataPsmContainer } from "../model/index.ts";
 
 export async function executeDataPsmSetOrder(
   reader: CoreResourceReader,

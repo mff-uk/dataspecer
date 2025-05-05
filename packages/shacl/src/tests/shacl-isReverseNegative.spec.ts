@@ -1,5 +1,5 @@
-import * as Support from "./support/testSupport";
-import  IsReverseModelCreator from "./support/IsReverseModelCreator";
+import * as Support from "./support/testSupport.ts";
+import  IsReverseModelCreator from "./support/IsReverseModelCreator.ts";
 
 const testType = "isReverseNegative";
 const modelCreator = new IsReverseModelCreator();

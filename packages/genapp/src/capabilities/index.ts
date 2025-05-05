@@ -1,9 +1,9 @@
-import { ListCapability, ListCapabilityMetadata } from "./list";
-import { DetailCapability, DetailCapabilityMetadata } from "./detail";
-import { DeleteInstanceCapability, DeleteInstanceCapabilityMetadata } from "./delete-instance";
-import { CreateInstanceCapability, CreateInstanceCapabilityMetadata } from "./create-instance";
-import { CapabilityGenerator } from "./capability-generator-interface";
-import { EditInstanceCapabilityMetadata } from "./edit-instance";
+import { ListCapability, ListCapabilityMetadata } from "./list.ts";
+import { DetailCapability, DetailCapabilityMetadata } from "./detail.ts";
+import { DeleteInstanceCapability, DeleteInstanceCapabilityMetadata } from "./delete-instance.ts";
+import { CreateInstanceCapability, CreateInstanceCapabilityMetadata } from "./create-instance.ts";
+import { CapabilityGenerator } from "./capability-generator-interface.ts";
+import { EditInstanceCapabilityMetadata } from "./edit-instance.ts";
 
 const CAPABILITY_BASE_IRI = "https://dataspecer.com/application_graph/capability/" as const;
 const LIST_CAPABILITY_ID = `${CAPABILITY_BASE_IRI}list` as const;

@@ -1,9 +1,9 @@
-import { Direction } from "../util/utils";
+import { Direction } from "../util/utils.ts";
 import _ from "lodash";
-import { ElkForceAlgType, ElkForceConfiguration, ElkLayeredConfiguration, ElkRadialConfiguration, ElkSporeOverlapConfiguration, ElkStressAdvancedUsingClustersConfiguration, ElkStressConfiguration, ElkStressProfileLayoutConfiguration } from "./elk/elk-configurations";
-import { Edge } from "../graph/representation/edge";
-import { AlgorithmName } from "../layout-algorithms/list-of-layout-algorithms";
-import { isUserGivenAlgorithmConfigurationStressWithClusters, UserGivenAlgorithmConfigurationBase } from "./user-algorithm-configurations";
+import { ElkForceAlgType, ElkForceConfiguration, ElkLayeredConfiguration, ElkRadialConfiguration, ElkSporeOverlapConfiguration, ElkStressAdvancedUsingClustersConfiguration, ElkStressConfiguration, ElkStressProfileLayoutConfiguration } from "./elk/elk-configurations.ts";
+import { Edge } from "../graph/representation/edge.ts";
+import { AlgorithmName } from "../layout-algorithms/list-of-layout-algorithms.ts";
+import { isUserGivenAlgorithmConfigurationStressWithClusters, UserGivenAlgorithmConfigurationBase } from "./user-algorithm-configurations.ts";
 
 export type AffectedNodesGroupingsType = "ALL" | "GENERALIZATION";
 

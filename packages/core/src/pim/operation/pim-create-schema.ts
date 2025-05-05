@@ -4,8 +4,8 @@ import {
   CoreResource,
   CoreTyped,
   LanguageString,
-} from "../../core";
-import * as PIM from "../pim-vocabulary";
+} from "../../core/index.ts";
+import * as PIM from "../pim-vocabulary.ts";
 
 export class PimCreateSchema extends CoreOperation {
   static readonly TYPE = PIM.CREATE_SCHEMA;

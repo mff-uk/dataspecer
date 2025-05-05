@@ -1,4 +1,4 @@
-import { DocumentationConfiguration } from "./configuration";
+import { DocumentationConfiguration } from "./configuration.ts";
 
 export const defaultConfiguration: DocumentationConfiguration = {
   partials: {
@@ -21,15 +21,41 @@ export const defaultConfiguration: DocumentationConfiguration = {
         <h2>{{#iflng "cs"}}Přehled{{lng}}Overview{{/iflng}}</h2>
 
         {{#each externalArtifacts.svg}}
-          <figure>
-            <img src="{{{URL}}}" alt="{{translate ./label}}" />
-            <figcaption>{{translate ./label}}</figcaption>
-          </figure>
+          <a href="{{{URL}}}">
+            <figure>
+              <img src="{{{URL}}}" alt="{{translate ./label}}" />
+              <figcaption>{{translate ./label}}</figcaption>
+            </figure>
+          </a>
         {{/each}}
       </section>
 
       <section>
         <h2>{{#iflng "cs"}}Třídy{{lng}}Classes{{/iflng}}</h2>
+
+        {{#if locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#main]}}
+          <section>
+            <h3>{{#iflng "cs"}}Hlavní třídy{{lng}}Main classes{{/iflng}}</h3>
+
+            {{#each locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#main]}}
+              {{#ifEquals type.[0] "class-profile"}}
+                {{> class-profile}}
+              {{/ifEquals}}
+            {{/each}}
+          </section>
+        {{/if}}
+
+        {{#if locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#supportive]}}
+          <section>
+            <h3>{{#iflng "cs"}}Podpůrné třídy{{lng}}Supportive classes{{/iflng}}</h3>
+
+            {{#each locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#supportive]}}
+              {{#ifEquals type.[0] "class-profile"}}
+                {{> class-profile}}
+              {{/ifEquals}}
+            {{/each}}
+          </section>
+        {{/if}}
 
         {{#each locallyDefinedSemanticEntity}}
           {{#ifEquals type.[0] "class"}}
@@ -37,7 +63,7 @@ export const defaultConfiguration: DocumentationConfiguration = {
           {{/ifEquals}}
         {{/each}}
 
-        {{#each locallyDefinedSemanticEntity}}
+        {{#each locallyDefinedSemanticEntityByTags.default}}
           {{#ifEquals type.[0] "class-profile"}}
             {{> class-profile}}
           {{/ifEquals}}
@@ -316,7 +342,7 @@ export const defaultConfiguration: DocumentationConfiguration = {
       </tr>
     {{/if}}
 
-    {{#translate usageNote}}
+    {{#translate aggregation.ends.1.usageNote}}
     <tr>
       <td>{{#iflng "cs"}}Popis použití v profilu{{lng}}Usage note{{/iflng}}</td>
       <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>

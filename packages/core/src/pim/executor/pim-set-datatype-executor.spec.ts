@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { PimSetDatatype } from "../operation";
-import { executePimSetDataType } from "./pim-set-datatype-executor";
-import * as PIM from "../pim-vocabulary";
+} from "../../core/index.ts";
+import { PimSetDatatype } from "../operation/index.ts";
+import { executePimSetDataType } from "./pim-set-datatype-executor.ts";
+import * as PIM from "../pim-vocabulary.ts";
 
 test("Update attribute datatype.", async () => {
   const operation = new PimSetDatatype();

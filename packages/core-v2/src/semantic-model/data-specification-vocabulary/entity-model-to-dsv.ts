@@ -1,22 +1,14 @@
-import { Entity } from "../../entity-model";
+import { Entity } from "../../entity-model/index.ts";
 
 import {
   isSemanticModelClass,
   isSemanticModelGeneralization,
   isSemanticModelRelationship,
-} from "../concepts";
-
-import {
-  SemanticModelClassUsage,
-  SemanticModelRelationshipUsage,
-  isSemanticModelClassUsage,
-  isSemanticModelRelationshipUsage,
-  SemanticModelRelationshipEndUsage,
-} from "../usage/concepts";
+} from "../concepts/index.ts";
 
 import {
   EntityListContainer,
-} from "./entity-model";
+} from "./entity-model.ts";
 
 import {
   LanguageString,
@@ -30,16 +22,18 @@ import {
   DatatypePropertyProfile,
   DatatypePropertyProfileType,
   Profile,
-} from "./dsv-model";
+  ClassRole,
+  RequirementLevel,
+} from "./dsv-model.ts";
 import {
   isSemanticModelClassProfile,
   isSemanticModelRelationshipProfile,
   SemanticModelClassProfile,
   SemanticModelRelationshipEndProfile,
   SemanticModelRelationshipProfile,
-} from "../profile/concepts";
-import { SKOS, VANN } from "./vocabulary";
-import { isDataType } from "../datatypes";
+} from "../profile/concepts/index.ts";
+import { DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL, SKOS, VANN } from "./vocabulary.ts";
+import { isPrimitiveType } from "../datatypes/index.ts";
 
 interface EntityListContainerToConceptualModelContext {
 
@@ -93,7 +87,6 @@ export function createContext(
     // Relations store IRI in the range.
     let iri: string | null = null;
     if (isSemanticModelRelationship(entity)
-      || isSemanticModelRelationshipUsage(entity)
       || isSemanticModelRelationshipProfile(entity)) {
       const [_, range] = entity.ends;
       iri = range?.iri ?? iri;
@@ -185,17 +178,16 @@ class EntityListContainerToConceptualModel {
   private loadClassProfiles(modelContainer: EntityListContainer)
     : Record<string, ClassProfile> {
     const result: Record<string, ClassProfile> = {};
-    modelContainer.entities.filter(
-      item => isSemanticModelClassUsage(item) || isSemanticModelClassProfile(item)
-    ).forEach((item) => {
-      const classProfile = this.semanticClassUsageToClassProfile(item);
-      result[item.id] = classProfile;
-    });
+    modelContainer.entities.filter(item => isSemanticModelClassProfile(item))
+      .forEach((item) => {
+        const classProfile = this.semanticClassUsageToClassProfile(item);
+        result[item.id] = classProfile;
+      });
     return result;
   }
 
   private semanticClassUsageToClassProfile(
-    item: SemanticModelClassUsage | SemanticModelClassProfile,
+    item: SemanticModelClassProfile,
   ): ClassProfile {
 
     const classProfile: ClassProfile = {
@@ -205,23 +197,31 @@ class EntityListContainerToConceptualModel {
       definition: {},
       usageNote: {},
       profileOfIri: [],
+      externalDocumentationUrl: item.externalDocumentationUrl ?? null,
       // ClassProfile
       $type: [ClassProfileType],
       properties: [],
       reusesPropertyValue: [],
       profiledClassIri: [],
       specializationOfIri: this.generalizations[item.id] ?? [],
+      classRole: ClassRole.undefined,
     };
+
+    for (const tag of (item.tags ?? [])) {
+      switch (tag) {
+        case DSV_CLASS_ROLE.main:
+          classProfile.classRole = ClassRole.main;
+          break;
+        case DSV_CLASS_ROLE.supportive:
+          classProfile.classRole = ClassRole.supportive;
+          break;
+      }
+    }
 
     const profiling: (Entity | null)[] = [];
     // Type specific.
-    if (isSemanticModelClassUsage(item)) {
-      profiling.push(this.identifierToEntity(item.usageOf));
-      this.setProfileFromUsage(item, classProfile);
-    } else {
-      item.profiling.forEach(item => profiling.push(this.identifierToEntity(item)));
-      this.setProfileFromProfile(item, classProfile);
-    }
+    item.profiling.forEach(item => profiling.push(this.identifierToEntity(item)));
+    this.setProfileFromProfile(item, classProfile);
 
     // We need to know what we profile to add it to the right place.
     for (const profileOf of profiling) {
@@ -231,8 +231,7 @@ class EntityListContainerToConceptualModel {
       }
       if (isSemanticModelClass(profileOf)) {
         classProfile.profiledClassIri.push(this.entityToIri(profileOf));
-      } else if (isSemanticModelClassUsage(profileOf)
-        || isSemanticModelClassProfile(profileOf)) {
+      } else if (isSemanticModelClassProfile(profileOf)) {
         classProfile.profileOfIri.push(this.entityToIri(profileOf))
       } else {
         console.warn(`Invalid profileOf '${profileOf.id}' of type '${profileOf.type}' for '${item.id}'.`)
@@ -255,45 +254,6 @@ class EntityListContainerToConceptualModel {
 
   private entityToIri(entity: Entity) {
     return this.context.entityToIri(entity);
-  }
-
-  /**
-   * Adds reusesPropertyValue values for usage.
-   */
-  private setProfileFromUsage(
-    item: {
-      usageOf: string,
-      name: LanguageString | null,
-      description: LanguageString | null,
-      usageNote: LanguageString | null,
-    },
-    profile: Profile,
-  ) {
-    const iri = this.identifierToIri(item.usageOf);
-    if (item.name === null) {
-      profile.reusesPropertyValue.push({
-        reusedPropertyIri: SKOS.prefLabel.id,
-        propertyReusedFromResourceIri: iri,
-      });
-    } else {
-      profile.prefLabel = this.prepareString(item.name);
-    }
-    if (item.description === null) {
-      profile.reusesPropertyValue.push({
-        reusedPropertyIri: SKOS.definition.id,
-        propertyReusedFromResourceIri: iri,
-      });
-    } else {
-      profile.definition = this.prepareString(item.description);
-    }
-    if (item.usageNote === null) {
-      profile.reusesPropertyValue.push({
-        reusedPropertyIri: VANN.usageNote.id,
-        propertyReusedFromResourceIri: iri,
-      });
-    } else {
-      profile.usageNote = this.prepareString(item.usageNote);
-    }
   }
 
   private identifierToIri(identifier: string): string {
@@ -351,7 +311,7 @@ class EntityListContainerToConceptualModel {
       profile.usageNote = this.prepareString(item.usageNote);
     } else {
       profile.reusesPropertyValue.push({
-        reusedPropertyIri: VANN.usageNote.id,
+        reusedPropertyIri: SKOS.scopeNote.id,
         propertyReusedFromResourceIri: this.identifierToIri(item.usageNoteFromProfiled),
       });
     }
@@ -361,19 +321,6 @@ class EntityListContainerToConceptualModel {
     modelContainer: EntityListContainer,
     identifierToClassProfile: Record<string, ClassProfile>,
   ): void {
-    modelContainer.entities.filter(isSemanticModelRelationshipUsage).forEach(item => {
-      const propertyProfile = this.semanticRelationshipUsageToPropertyProfile(item);
-      if (propertyProfile == null) {
-        return;
-      }
-      const owner = identifierToClassProfile[propertyProfile.ownerIdentifier];
-      if (owner === undefined) {
-        console.warn(`Missing owner for '${item.id}' of type '${item.type}'. Relationship is ignored.`);
-        return;
-      }
-      owner?.properties.push(propertyProfile.profile);
-    });
-    // And once more for profiles.
     modelContainer.entities.filter(isSemanticModelRelationshipProfile).forEach(item => {
       const propertyProfile = this.semanticRelationshipProfileToPropertyProfile(item);
       if (propertyProfile == null) {
@@ -391,61 +338,9 @@ class EntityListContainerToConceptualModel {
   /**
    * As decided, spring 2024, property IRI, name, usageNote, etc .. are stored in the range.
    */
-  private semanticRelationshipUsageToPropertyProfile(
-    item: SemanticModelRelationshipUsage,
-  ): { ownerIdentifier: string, profile: PropertyProfile } | null {
-    const [domain, range] = item.ends;
-    if (domain === undefined || range === undefined) {
-      console.error(`Expected two ends for '${item.id}'.`);
-      return null;
-    }
-    if (domain.concept === null) {
-      console.error(`Missing 'ends[0].concept' (owner) for '${item.id}'.`);
-      return null;
-    }
-
-    const propertyProfile: PropertyProfile = {
-      // Profile
-      iri: this.entityToIri(item),
-      cardinality: cardinalityToCardinalityEnum(range.cardinality),
-      prefLabel: {},
-      definition: {},
-      usageNote: {},
-      profileOfIri: [],
-      specializationOfIri: this.generalizations[item.id] ?? [],
-      // PropertyProfile
-      profiledPropertyIri: [],
-      reusesPropertyValue: [],
-    };
-
-    // For profileOfIri of we need to check what we are profiling.
-    const profileOf = this.context.identifierToEntity(item.usageOf);
-    if (profileOf === null) {
-      console.error(`Missing profileOf '${item.usageOf}' for '${item.id}'.`);
-    } else {
-      this.addProfileToPropertyProfile(profileOf, propertyProfile);
-    }
-
-    this.setProfileFromUsage({
-      // Part of the state is at the range and part at the property.
-      ...range,
-      usageOf: item.usageOf,
-      usageNote: item.usageNote,
-    }, propertyProfile);
-    this.addRangeConceptToPropertyProfile(item, range, propertyProfile);
-
-    return {
-      ownerIdentifier: domain.concept,
-      profile: propertyProfile,
-    };
-  }
-
-  /**
-   * As decided, spring 2024, property IRI, name, usageNote, etc .. are stored in the range.
-   */
   private addRangeConceptToPropertyProfile(
-    item: SemanticModelRelationshipUsage | SemanticModelRelationshipProfile,
-    range: SemanticModelRelationshipEndUsage | SemanticModelRelationshipEndProfile,
+    item: SemanticModelRelationshipProfile,
+    range: SemanticModelRelationshipEndProfile,
     propertyProfile: PropertyProfile
   ) {
     // Now we need to store the range, we store it base on the
@@ -453,7 +348,7 @@ class EntityListContainerToConceptualModel {
     const rangeConcept = range.concept;
     if (rangeConcept === null) {
       console.warn("Range concept is null.", item);
-    } else if (isDataType(rangeConcept)) {
+    } else if (isPrimitiveType(rangeConcept)) {
       // It is an attribute, we also use the IRI as is.
       const attribute = extentToDatatypePropertyProfile(propertyProfile);
       attribute.rangeDataTypeIri.push(rangeConcept);
@@ -474,8 +369,6 @@ class EntityListContainerToConceptualModel {
   ) {
     if (isSemanticModelRelationship(profileOf)) {
       profile.profiledPropertyIri.push(this.entityToIri(profileOf));
-    } else if (isSemanticModelRelationshipUsage(profileOf)) {
-      profile.profileOfIri.push(this.entityToIri(profileOf));
     } else if (isSemanticModelRelationshipProfile(profileOf)) {
       profile.profileOfIri.push(this.entityToIri(profileOf));
     } else {
@@ -506,10 +399,26 @@ class EntityListContainerToConceptualModel {
       usageNote: {},
       profileOfIri: [],
       specializationOfIri: this.generalizations[item.id] ?? [],
+      externalDocumentationUrl: range.externalDocumentationUrl ?? null,
       // PropertyProfile
       profiledPropertyIri: [],
       reusesPropertyValue: [],
+      requirementLevel: RequirementLevel.undefined,
     };
+
+    for (const tag of (range.tags ?? [])) {
+      switch (tag) {
+        case DSV_MANDATORY_LEVEL.mandatory:
+          propertyProfile.requirementLevel = RequirementLevel.mandatory;
+          break;
+        case DSV_MANDATORY_LEVEL.optional:
+          propertyProfile.requirementLevel = RequirementLevel.optional;
+          break;
+        case DSV_MANDATORY_LEVEL.recommended:
+          propertyProfile.requirementLevel = RequirementLevel.recommended;
+          break;
+      }
+    }
 
     for (const iri of range.profiling) {
       const profileOf = this.context.identifierToEntity(iri);

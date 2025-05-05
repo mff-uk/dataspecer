@@ -1,6 +1,6 @@
 import { DialogWrapper, type DialogProps } from "../dialog-api";
 import { t } from "../../application";
-import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
+import { InputLanguageString } from "../components/input-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
 import { SelectModel } from "../components/select-model";
 import { SpecializationSelect } from "../components/select-specialization";
@@ -9,6 +9,7 @@ import { useClassDialogController } from "./edit-class-dialog-controller";
 import { ValidationMessage } from "../components/validation-message";
 import { ClassDialogState } from "./edit-class-dialog-state";
 import { isValid } from "../utilities/validation-utilities";
+import { InputText } from "../components/input-text";
 
 const ClassDialog = (props: DialogProps<ClassDialogState>) => {
   const controller = useClassDialogController(props);
@@ -17,7 +18,7 @@ const ClassDialog = (props: DialogProps<ClassDialogState>) => {
     <>
       <div
         className="grid gap-y-2 md:grid-cols-[25%_75%] md:gap-y-3 bg-slate-100 md:pb-4 md:pl-8 md:pr-16 md:pt-2"
-        style={{ backgroundColor: state.model.displayColor }}
+        style={{ backgroundColor: state.model.color }}
       >
         <DialogDetailRow detailKey={t("model")}>
           <SelectModel
@@ -29,12 +30,12 @@ const ClassDialog = (props: DialogProps<ClassDialogState>) => {
           />
         </DialogDetailRow>
       </div>
-      <div className="grid bg-slate-100 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
+      <div className="grid bg-slate-100 pb-2 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
         <DialogDetailRow detailKey={t("create-class-dialog.name")} className="text-xl">
-          <MultiLanguageInputForLanguageString
-            ls={state.name}
-            setLs={controller.setName}
-            defaultLang={state.language}
+          <InputLanguageString
+            value={state.name}
+            onChange={controller.setName}
+            defaultLanguage={state.language}
             inputType="text"
           />
         </DialogDetailRow>
@@ -58,11 +59,17 @@ const ClassDialog = (props: DialogProps<ClassDialogState>) => {
           />
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("create-class-dialog.description")}>
-          <MultiLanguageInputForLanguageString
-            ls={state.description}
-            setLs={controller.setDescription}
-            defaultLang={state.language}
+          <InputLanguageString
+            value={state.description}
+            onChange={controller.setDescription}
+            defaultLanguage={state.language}
             inputType="textarea"
+          />
+        </DialogDetailRow>
+        <DialogDetailRow detailKey={t("create-class-dialog.external-documentation-url")}>
+          <InputText
+            value={state.externalDocumentationUrl}
+            onChange={controller.setExternalDocumentationUrl}
           />
         </DialogDetailRow>
       </div>

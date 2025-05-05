@@ -1,10 +1,14 @@
-import { HexColor, VisualModel } from "@dataspecer/core-v2/visual-model";
-import { SemanticModel } from "../../semantic-model";
-import { CmeSemanticModel, CmeSemanticModelType } from "../model";
-import { LanguageString } from "../../entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
+import { HexColor, VisualModel } from "@dataspecer/core-v2/visual-model";
 
+import { SemanticModel } from "../../semantic-model";
+import { CmeSemanticModel, CmeSemanticModelNameLanguage, CmeSemanticModelType } from "../model";
+import { LanguageString } from "../../entity-model";
+
+/**
+ * This function shall be removed once we do not need to work with Map os models.
+ */
 export function semanticModelMapToCmeSemanticModel(
   models: Map<string, SemanticModel>,
   visualModel: VisualModel | null,
@@ -26,15 +30,13 @@ export function semanticModelToCmeSemanticModel(
   defaultLabel: (identifier: string) => string,
 ): CmeSemanticModel {
   return {
-    dsIdentifier: model.getId(),
-    displayLabel: getModelLabel(model, defaultLabel),
-    dsModelType: getModelType(model),
-    displayColor: visualModel?.getModelColor(model.getId()) ?? defaultColor,
+    identifier: model.getId(),
+    name: getModelLabel(model, defaultLabel),
+    modelType: getModelType(model),
+    color: visualModel?.getModelColor(model.getId()) ?? defaultColor,
     baseIri: getModelBaseIri(model),
   }
 }
-
-const DEFAULT_MODEL_LABEL_LANGUAGE = "";
 
 function getModelLabel(
   model: SemanticModel,
@@ -42,10 +44,10 @@ function getModelLabel(
 ): LanguageString {
   const alias = model.getAlias();
   if (alias !== null) {
-    return { [DEFAULT_MODEL_LABEL_LANGUAGE]: alias };
+    return { [CmeSemanticModelNameLanguage]: alias };
   }
   return {
-    [DEFAULT_MODEL_LABEL_LANGUAGE]: defaultLabel(model.getId()),
+    [CmeSemanticModelNameLanguage]: defaultLabel(model.getId()),
   };
 }
 
@@ -55,7 +57,7 @@ function getModelType(model: SemanticModel): CmeSemanticModelType {
   } else if (model instanceof ExternalSemanticModel) {
     return CmeSemanticModelType.ExternalSemanticModel;
   } else {
-    return CmeSemanticModelType.Default;
+    return CmeSemanticModelType.DefaultSemanticModel;
   }
 }
 

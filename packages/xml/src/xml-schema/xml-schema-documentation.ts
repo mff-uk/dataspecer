@@ -13,14 +13,14 @@ import {
   XmlSchemaElement,
   XmlSchemaType,
   xmlSchemaTypeIsComplex,
-} from "./xml-schema-model";
+} from "./xml-schema-model.ts";
 import { ArtefactGeneratorContext } from "@dataspecer/core/generator/artefact-generator-context";
 import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
-import { QName } from "../conventions";
-import { NEW_DOC_GENERATOR } from "./xml-schema-generator";
+import { QName } from "../conventions.ts";
+import { NEW_DOC_GENERATOR } from "./xml-schema-generator.ts";
 import { getMustacheView } from "@dataspecer/documentation";
-import { HandlebarsAdapter } from "../../../handlebars-adapter/lib/interface";
-import { MAIN_XML_PARTIAL } from "../documentation";
+import { HandlebarsAdapter } from "../../../handlebars-adapter/lib/interface.js";
+import { MAIN_XML_PARTIAL } from "../documentation/index.ts";
 
 /**
  * Recursively traverses the complex content container and returns all elements.
@@ -200,10 +200,9 @@ class XmlSchemaDocumentationGenerator {
     const result: Record<string, unknown> = await this.prepareData();
 
     const prefixToNamespace = {} as Record<string, string>;
-    for (const imp of this.xmlSchema.imports) {
-      prefixToNamespace[imp.prefix] = imp.namespace + "#";
+    for (const {prefix, namespace} of this.xmlSchema.namespaces) {
+      prefixToNamespace[prefix] = namespace;
     }
-    prefixToNamespace["xs"] = "https://www.w3.org/TR/xmlschema-2/#";
 
     result["xml-id-anchor"] = (element: XmlSchemaElement | XmlSchemaType | QName | string, options: any) => {
       const name = (element as XmlSchemaElement).name ?? (element as XmlSchemaType).name ?? element as QName ?? [null, element as string];
@@ -214,6 +213,9 @@ class XmlSchemaDocumentationGenerator {
       return this.getElementUniqueId(element, options.hash.type);
     };
     result["xml-href"] = (element: XmlSchemaElement | XmlSchemaType | QName | string, options: any) => {
+      if (!element) {
+        return "";
+      }
       // Use structure to link to other documentation of structure model
       if (options.hash.structure) {
         const specification = Object.values(this.context.specifications).find(specification => specification.psms.includes(options.hash.structure));
@@ -324,7 +326,7 @@ class XmlSchemaDocumentationGenerator {
       const model = imp.model;
       const schema = model?.roots[0].classes[0].structureSchema;
       imports.push({
-        prefix: imp.prefix,
+        prefix: this.xmlSchema.namespaces[imp.namespace],
         namespace: imp.namespace,
         schemaLocation: imp.schemaLocation,
         documentation: schema ? classSpecificationArtifact(schema) : null,

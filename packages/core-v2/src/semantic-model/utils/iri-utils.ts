@@ -1,5 +1,5 @@
-import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship, SemanticModelEntity } from "../concepts";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "../profile/concepts";
+import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship, SemanticModelEntity } from "../concepts/index.ts";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "../profile/concepts/index.ts";
 
 export const isIriAbsolute = (iri: string | null) => {
   if (!iri) {

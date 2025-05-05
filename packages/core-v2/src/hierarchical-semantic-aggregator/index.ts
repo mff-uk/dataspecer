@@ -1,5 +1,6 @@
-export { ApplicationProfileAggregator } from "./application-profile-aggregator";
-export { ExternalModelWithCacheAggregator, type SourceSemanticModelInterface } from "./external-model-with-cache-aggregator";
-export * from "./interfaces";
-export { MergeAggregator } from "./merge-aggregator";
-export { VocabularyAggregator } from "./vocabulary-aggregator";
+export { ApplicationProfileAggregator, type AggregatedEntityInApplicationProfileAggregator, isAggregatedEntityInApplicationProfileAggregator } from "./application-profile-aggregator.ts";
+export { ExternalModelWithCacheAggregator, type SourceSemanticModelInterface } from "./external-model-with-cache-aggregator.ts";
+export * from "./interfaces.ts";
+export { MergeAggregator } from "./merge-aggregator.ts";
+export * from "./utils.ts";
+export { VocabularyAggregator } from "./vocabulary-aggregator.ts";

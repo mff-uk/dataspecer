@@ -30,7 +30,7 @@ export function toggleAnchorAction(
       ...visualEntity.position,
       anchored: newAnchor,
     };
-    visualModel.updateVisualEntity(visualEntity.identifier, {position: newPosition});
+    visualModel.updateVisualEntity(visualEntity.identifier, { position: newPosition });
   }
   else if(isVisualGroup(visualEntity)) {
     let newAnchor: true | null;
@@ -40,7 +40,7 @@ export function toggleAnchorAction(
     else {
       newAnchor = visualEntity.anchored === true ? null : true;
     }
-    visualModel.updateVisualEntity(visualEntity.identifier, {anchored: newAnchor});
+    visualModel.updateVisualEntity(visualEntity.identifier, { anchored: newAnchor });
     for(const elementInGroup of visualEntity.content) {
       toggleAnchorAction(notifications, visualModel, elementInGroup, newAnchor);
     }

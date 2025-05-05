@@ -2,10 +2,10 @@ import {
   CoreResource,
   CoreResourceReader,
   ReadOnlyMemoryStore,
-} from "../../core";
-import { DataPsmCreateAttribute } from "../operation";
-import { executeDataPsmCreateAttribute } from "./data-psm-create-attribute-executor";
-import * as PSM from "../data-psm-vocabulary";
+} from "../../core/index.ts";
+import { DataPsmCreateAttribute } from "../operation/index.ts";
+import { executeDataPsmCreateAttribute } from "./data-psm-create-attribute-executor.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 test("Create data PSM attribute.", async () => {
   const operation = new DataPsmCreateAttribute();

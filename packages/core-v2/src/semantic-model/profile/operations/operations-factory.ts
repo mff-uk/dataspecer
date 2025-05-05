@@ -1,6 +1,6 @@
-import { EntityIdentifier } from "../../../entity-model/entity";
-import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "../concepts";
-import { CREATE_SEMANTIC_MODEL_CLASS_PROFILE, CREATE_SEMANTIC_MODEL_RELATIONSHIP_PROFILE, CreateSemanticModelClassProfile, CreateSemanticModelRelationshipProfile, MODIFY_SEMANTIC_MODEL_CLASS_PROFILE, MODIFY_SEMANTIC_MODEL_RELATIONSHIP_PROFILE, ModifySemanticModelClassProfile, ModifySemanticModelRelationshipProfile } from "./operations";
+import { EntityIdentifier } from "../../../entity-model/entity.ts";
+import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "../concepts/index.ts";
+import { CREATE_SEMANTIC_MODEL_CLASS_PROFILE, CREATE_SEMANTIC_MODEL_RELATIONSHIP_PROFILE, CreateSemanticModelClassProfile, CreateSemanticModelRelationshipProfile, MODIFY_SEMANTIC_MODEL_CLASS_PROFILE, MODIFY_SEMANTIC_MODEL_RELATIONSHIP_PROFILE, ModifySemanticModelClassProfile, ModifySemanticModelRelationshipProfile } from "./operations.ts";
 
 export interface SemanticModelProfileOperationFactory {
 

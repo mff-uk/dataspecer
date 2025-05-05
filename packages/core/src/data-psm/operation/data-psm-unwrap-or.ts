@@ -1,5 +1,5 @@
-import {CoreOperation, CoreOperationResult, CoreResource, CoreTyped} from "../../core";
-import * as PSM from "../data-psm-vocabulary";
+import {CoreOperation, CoreOperationResult, CoreResource, CoreTyped} from "../../core/index.ts";
+import * as PSM from "../data-psm-vocabulary.ts";
 
 /**
  * Removes {@link DataPsmOr} and places its only child in place of it.

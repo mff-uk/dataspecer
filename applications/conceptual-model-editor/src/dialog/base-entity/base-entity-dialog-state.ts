@@ -83,6 +83,11 @@ export interface BaseEntityDialogState {
    */
   specializations: NewCmeSpecialization[];
 
+  /**
+   * Link to external documentation.
+   */
+  externalDocumentationUrl: string;
+
 }
 
 /**
@@ -127,6 +132,8 @@ export function createNewBaseEntityDialogState(
     // Specialization
     availableSpecializations,
     specializations: [],
+    // Documentation
+    externalDocumentationUrl: "",
   };
 }
 
@@ -142,13 +149,13 @@ function prepareWritableModels(models: CmeSemanticModel[]) {
   return result;
 }
 
-function findByIdentifier<Type extends { dsIdentifier: string }>(
+function findByIdentifier<Type extends { identifier: string }>(
   items: Type[], identifier: string | null,
 ): Type | null {
   if (identifier === null) {
     return null;
   }
-  return items.find(item => item.dsIdentifier === identifier) ?? null;
+  return items.find(item => item.identifier === identifier) ?? null;
 }
 
 /**
@@ -167,6 +174,7 @@ export function createEditBaseEntityDialogState(
   iri: string,
   name: LanguageString,
   description: LanguageString,
+  externalDocumentationUrl: string,
   allSpecializations: EntityRepresentative[],
 ): BaseEntityDialogState {
 
@@ -205,6 +213,8 @@ export function createEditBaseEntityDialogState(
     availableSpecializations,
     specializations: representSpecializations(
       entity.identifier, allSpecializations, semanticModels),
+    // Documentation
+    externalDocumentationUrl,
   };
 }
 
@@ -231,7 +241,7 @@ function representSpecializations(
         iri: entity.iri ?? "",
         specializationOf: {
           identifier: specialized?.identifier ?? entity.parent,
-          model: specialized?.vocabularyDsIdentifier ?? UNDEFINED_MODEL,
+          model: specialized?.model ?? UNDEFINED_MODEL,
         },
         generalization: {
           identifier: entity.id,
