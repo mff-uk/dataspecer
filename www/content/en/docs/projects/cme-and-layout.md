@@ -54,5 +54,19 @@ Currently there are two types of nodes.
 
   {{% small-image "images/projects/cme-and-layout/association-edge.png" %}}
 
-  {{% tutorial-image "images/projects/cme-and-layout/association-edge.png" %}}
-  - Edge representing generalization {{% small-image "images/projects/cme-and-layout/generalization-edge.png" %}}
+  - Edge representing generalization
+
+  {{% small-image "images/projects/cme-and-layout/generalization-edge.png" %}}
+
+  - Visually representing relationship profile - Same visual as association.
+  - And finally edges representing the connection between class and class profile.
+
+    {{% small-image "images/projects/cme-and-layout/profile-to-class-profile-edge.png" %}}
+
+
+
+## Working with views/visual models
+### Creating visual models
+The user can create new visual model as can be seen on the following image.
+
+{{% tutorial-image "images/projects/cme-and-layout/create-new-visual-model-button.png" %}}
