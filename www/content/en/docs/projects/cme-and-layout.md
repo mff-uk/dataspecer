@@ -57,5 +57,3 @@ Currently there are two types of nodes.
 
 {{% small-image "images/projects/cme-and-layout/association-edge.png" %}}
 *Pic 3.1 -- Representation of Data Structure "Tourist Destination"*
-
-![img](/www/assets/images/projects/cme-and-layout/association-edge.png)
