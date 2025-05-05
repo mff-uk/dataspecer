@@ -23,10 +23,11 @@ CME behaves like classic conceptual modelling with the additional option to reus
 the concept of profiling.
 
 **Terms:**
-
-- `Vocabulary` - Stores classes, relationships and attributes. The vocabulary itself contains some properties:
-  - name
+- `Package` - You can think of it as a directory. CME's goal is then to allow view and modify subset of this package. Where the subset are semantic models (also called `Vocabularies`) and the `visual models`, TODO: Obrazek z manageru
+- `Vocabulary` - Stores classes, relationships and attributes and profiles. The vocabulary itself contains some properties:
+  - Name
   - IRI
+  - Color
 - `Class` - Named semantic concept. Class has the following properties
   - Name
   - IRI
@@ -37,7 +38,7 @@ the concept of profiling.
 This is from semantic perspective, but in conceptual modelling when it comes to visuals, we want to sometimes show relationship as attribute,
 that is instead of drawing edge between two nodes, it appears as text on node. The terms about visual entities are explained couple of lines down.
 - `Profile` - We can create profile of the above mentioned concepts, that is classes, relationships, attributes.
-What is profile? Basically we take existing concept, which we want to reuse, but we want to reuse it in our application context.
+What is profile? Basically we take existing concept, which we want to reuse, but we want to reuse it in our application context. The application context is defined by the usage note and the fact that we can override properties of the profiled entity, for example name. Profilling isn't mapping 1:1 but one-to-many, so if we create class profile, it can be profile of many different classes (and class profiles).
 - `Visual model` (Sometimes also called `View`) - This is some kind of visual representation of underlying semantic concepts.
 The representation doesn't necessary have to contain all of the semantic concepts and neither does the mapping have to be 1:1.
 For example we can have one semantic entity represented by more than one visual, or the semantic entities can be "stored" inside
@@ -63,6 +64,13 @@ Currently there are two types of nodes.
 
     {{% small-image "images/projects/cme-and-layout/profile-to-class-profile-edge.png" %}}
 
+## CME general view
+Cme can be split into three main parts:
+- Header - At the time of writing the documentaiton, it is seen on top. It contains general controls for CME. Like setting language, saving or controlling visual models for the package.
+- Catalog - Contains the semantic information about package and visual information relevant to currently active visual model. In the time of writing documentation it is the component seen on the left
+- Canvas - Takes the most part of the screen. Contains the visual representation of the visual model with nodes and edges.
+
+TODO: Obrazek s labely
 
 
 ## Working with views/visual models
@@ -82,6 +90,8 @@ User can also change currently active visual model to some of the existing.
 {{% tutorial-image "images/projects/cme-and-layout/change-visual-model.png" %}}
 
 ## Catalog actions
+
+Catalog is the
 
 ### Actions on vocabularies
 
@@ -699,3 +709,125 @@ This should be all, unless new layouting library was introduced you should creat
 ### Advanced settings
 You may notice that each algorithm contains the `advanced_settings` property, this one is working, but currently unable to be set from user UI.
 Basically the idea behind advanced_settings is that since elk contains ton of parameters, we would like to provide them through this setting, since it is unfeasible to have it all in user UI.
+
+## Implementation
+
+### CME
+
+We will shortly describe here the architecture of the CME in general.
+It makes no sense to describe, in what places each feature is implemented,
+since it isn't that important and if anyone starts to work on the project,
+they should be relatively quickly able to tell, where is roughly what based on the given overview here.
+
+#### Running CME
+
+##### Here is quick quide by me, which is more beginner friendly than the other "official" guides in github repository. But it may get deprecated over time.
+
+- When you just want to test diagram without using packages, then there is nothing extra you need to do.
+  - Run `npm install` from root directory
+  - Run `npm run build` from root directory
+  - Run `npm run dev` from the applications/conceptual-model-editor directory
+
+- Running manager - sometimes you want to access packages and not only run the diagram part:
+  - In the applications/conceptual-model-editor directory create .env file from .env.example
+    - When you want to use the official Dataspecer backend:
+      - VITE_PUBLIC_APP_BACKEND="https://tool.dataspecer.com/api"
+      - When you also want to run the manager and connect it to locally running CME, create .env.local from .env and set the backend to
+        - VITE_BACKEND=https://tool.dataspecer.com/api
+        - And run the manager using `npm run dev` from the applications/manager
+    - When you want to run backend locally set the backend variables mentioned above to http://localhost:3100
+and run the backend as described [here](https://github.com/mff-uk/dataspecer/tree/main/services/backend) (that being said I am no longer able to run the backend, so not sure if it still works, might be related to the https://github.com/mff-uk/dataspecer/issues/1145)
+
+##### The official build guides.
+- The main tutorial is contained here: https://github.com/mff-uk/dataspecer/
+- To build CME you can consult this page: https://github.com/mff-uk/dataspecer/tree/main/applications/conceptual-model-editor#installation
+
+
+#### C4 component diagram
+On very high level the CME component looks like this:
+
+![img_6.png](c4-component-diagram-cme.png)
+
+Where the layout is the layout package, so technically it is not part of CME.
+
+
+#### Directory structure
+
+- `action` - The actions that can user do, so basically business logic.
+- `catalog (newly catalog-v2)` - represents the catalog component in CME. ![img_6.png](cme-catalog-dev-docs.png)
+- `components` - Some exported React components
+- `configuration` - Language options and static configuration for diagram, etc.
+- `context` - Model, Class and query params context.
+- `dataspecer` - Communication with backend containing packages and communication layer for core-v2 models.
+- `diagram` - The diagram component of CME. Should be separated from the rest of CME. So we can swap out the rendering library if necessary.
+  - `diagram-api.tsx` - The API used for communication with the rest of CME.
+  - `diagram-controller.ts` - The controller handling logic for diagram component.
+  - `diagram-hook.ts` - The diagram hook used to provide diagram functionality to rest of CME.
+  - `diagram-model.ts` - The entities used in diagram - Node types and Edge types, etc. in diagram
+  - `diagram.tsx` - The react component, which handles rendering of diagram.
+- `dialog` - Contains all the dialogs available in CME.
+- `features` - Some unrelated features, like autosave or color picker. Probably the features contained in header.
+- `header` - The stuff related to header. ![img_6.png](cme-header.png)
+
+`visualization.tsx` file - Creates the diagram component and handles callbacks caused by changes to entities in semantic model and changes in entities in visual model and the model itself and propagates them to the diagram component.
+
+## Implementation
+
+### CME
+
+We will shortly describe here the architecture of the CME in general.
+It makes no sense to describe, in what places each feature is implemented,
+since it isn't that important and if anyone starts to work on the project,
+they should be relatively quickly able to tell, where is roughly what based on the given overview here.
+
+#### Running CME
+
+##### Here is quick quide by me, which is more beginner friendly than the other "official" guides in github repository. But it may get deprecated over time.
+
+- When you just want to test diagram without using packages, then there is nothing extra you need to do.
+  - Run `npm install` from root directory
+  - Run `npm run build` from root directory
+  - Run `npm run dev` from the applications/conceptual-model-editor directory
+
+- Running manager - sometimes you want to access packages and not only run the diagram part:
+  - In the applications/conceptual-model-editor directory create .env file from .env.example
+    - When you want to use the official Dataspecer backend:
+      - VITE_PUBLIC_APP_BACKEND="https://tool.dataspecer.com/api"
+      - When you also want to run the manager and connect it to locally running CME, create .env.local from .env and set the backend to
+        - VITE_BACKEND=https://tool.dataspecer.com/api
+        - And run the manager using `npm run dev` from the applications/manager
+    - When you want to run backend locally set the backend variables mentioned above to http://localhost:3100
+and run the backend as described [here](https://github.com/mff-uk/dataspecer/tree/main/services/backend) (that being said I am no longer able to run the backend, so not sure if it still works, might be related to the https://github.com/mff-uk/dataspecer/issues/1145)
+
+##### The official build guides.
+- The main tutorial is contained here: https://github.com/mff-uk/dataspecer/
+- To build CME you can consult this page: https://github.com/mff-uk/dataspecer/tree/main/applications/conceptual-model-editor#installation
+
+
+#### C4 component diagram
+On very high level the CME component looks like this:
+
+![img_6.png](c4-component-diagram-cme.png)
+
+Where the layout is the layout package, so technically it is not part of CME.
+
+
+#### Directory structure
+
+- `action` - The actions that can user do, so basically business logic.
+- `catalog (newly catalog-v2)` - represents the catalog component in CME. ![img_6.png](cme-catalog-dev-docs.png)
+- `components` - Some exported React components
+- `configuration` - Language options and static configuration for diagram, etc.
+- `context` - Model, Class and query params context.
+- `dataspecer` - Communication with backend containing packages and communication layer for core-v2 models.
+- `diagram` - The diagram component of CME. Should be separated from the rest of CME. So we can swap out the rendering library if necessary.
+  - `diagram-api.tsx` - The API used for communication with the rest of CME.
+  - `diagram-controller.ts` - The controller handling logic for diagram component.
+  - `diagram-hook.ts` - The diagram hook used to provide diagram functionality to rest of CME.
+  - `diagram-model.ts` - The entities used in diagram - Node types and Edge types, etc. in diagram
+  - `diagram.tsx` - The react component, which handles rendering of diagram.
+- `dialog` - Contains all the dialogs available in CME.
+- `features` - Some unrelated features, like autosave or color picker. Probably the features contained in header.
+- `header` - The stuff related to header. ![img_6.png](cme-header.png)
+
+`visualization.tsx` file - Creates the diagram component and handles callbacks caused by changes to entities in semantic model and changes in entities in visual model and the model itself and propagates them to the diagram component.
