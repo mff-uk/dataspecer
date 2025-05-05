@@ -52,7 +52,7 @@ Currently there are two types of nodes.
 - `Edge` - Connects two nodes. Again multiple types.
   - Edge, which visually represents underlying semantic association (relationship)
 
-  {{% tutorial-image "images/projects/cme-and-layout/association-edge.png" %}}
+{{% tutorial-image "images/projects/cme-and-layout/association-edge.png" %}}
 *Pic 3.1 -- Representation of Data Structure "Tourist Destination"*
 
 {{% small-image "images/projects/cme-and-layout/association-edge.png" %}}
