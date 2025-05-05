@@ -81,6 +81,9 @@ import { openEditSemanticModelDialogAction } from "./open-edit-semantic-model-di
 import { ModelDsIdentifier } from "@/dataspecer/entity-model";
 import { openSearchExternalSemanticModelDialogAction } from "./open-search-external-semantic-model-dialog";
 import { openEditVisualModelDialogAction } from "./open-edit-visual-model-dialog";
+import { LayoutConfigurationContextType, useLayoutConfigurationContext } from "@/context/layout-configuration-context";
+import { openLayoutVisualModelDialogAction } from "./open-layout-visual-model-dialog";
+import { openLayoutSelectionDialogAction } from "./open-layout-selection-dialog";
 
 const LOG = createLogger(import.meta.url);
 
@@ -436,13 +439,14 @@ export const ActionsContextProvider = (props: {
   const graph = useContext(ModelGraphContext);
   const useGraph = useModelGraphContext();
   const diagram = useDiagram();
+  const layoutConfiguration = useLayoutConfigurationContext();
 
   const queryParamsContext = useQueryParamsContext();
 
   const actions = useMemo(
     () => createActionsContext(
-      options, dialogs, classes, useClasses, notifications, graph, useGraph, diagram, queryParamsContext),
-    [options, dialogs, classes, useClasses, notifications, graph, useGraph, diagram, queryParamsContext]
+      options, dialogs, classes, useClasses, notifications, graph, useGraph, diagram, queryParamsContext, layoutConfiguration),
+    [options, dialogs, classes, useClasses, notifications, graph, useGraph, diagram, queryParamsContext, layoutConfiguration]
   );
 
   return (
@@ -461,6 +465,7 @@ let prevGraph: ModelGraphContextType | null = null;
 let prevUseGraph: UseModelGraphContextType | null = null;
 let prevDiagram: UseDiagramType | null = null;
 let prevQueryParamsContext: QueryParamsContextType | null = null;
+let prevLayoutConfiguration: LayoutConfigurationContextType | null = null;
 
 function createActionsContext(
   options: Options | null,
@@ -472,11 +477,12 @@ function createActionsContext(
   useGraph: UseModelGraphContextType | null,
   diagram: UseDiagramType,
   queryParamsContext: QueryParamsContextType | null,
+  layoutConfiguration: LayoutConfigurationContextType,
 ): ActionsContextType {
 
   if (options === null || dialogs === null || classes === null ||
     useClasses === null || notifications === null || graph === null ||
-    !diagram.areActionsReady || queryParamsContext === null || useGraph === null) {
+    !diagram.areActionsReady || queryParamsContext === null || useGraph === null || layoutConfiguration === null) {
     // We need to return the diagram object so it can be consumed by
     // the Diagram component and initialized.
     return {
@@ -496,6 +502,7 @@ function createActionsContext(
   if (prevUseGraph !== useGraph) changed.push("useGraph");
   if (prevDiagram !== diagram) changed.push("diagram");
   if (prevQueryParamsContext !== queryParamsContext) changed.push("queryParamsContext");
+  if (prevLayoutConfiguration !== layoutConfiguration) changed.push("layoutConfiguration");
   console.info("[ACTIONS] Creating new context object. ", { changed });
   prevOptions = options;
   prevDialogs = dialogs;
@@ -506,6 +513,7 @@ function createActionsContext(
   prevUseGraph = useGraph;
   prevDiagram = diagram;
   prevQueryParamsContext = queryParamsContext;
+  prevLayoutConfiguration = layoutConfiguration;
 
   // For now we create derived state here, till is is available
   // as a context.
@@ -962,7 +970,7 @@ function createActionsContext(
 
   const openPerformLayoutVisualModelDialog = () => {
     withVisualModel(notifications, graph, (visualModel) => {
-      openLayoutVisualModelDialogAction(notifications, dialogs, classes, diagram, graph, visualModel);
+      openLayoutVisualModelDialogAction(notifications, dialogs, classes, diagram, graph, layoutConfiguration, visualModel);
     });
   };
 
@@ -1067,10 +1075,6 @@ function createActionsContext(
     onShowSelectionActionsMenu: (source, canvasPosition) => {
       console.log("Application.onShowSelectionActions", { source, canvasPosition });
       diagram.actions().openSelectionActionsMenu(source, canvasPosition);
-    },
-    onOpenAlignmentMenu: (source, canvasPosition) => {
-      console.log("Application.onOpenAlignmentMenu", { source, canvasPosition });
-      diagram.actions().openAlignmentMenu(source, canvasPosition);
     },
     onLayoutSelection: () => {
       const selection = getSelections(diagram, false, true);
@@ -1213,20 +1217,6 @@ function createActionsContext(
 
     onMoveAttributeDown: function (attribute: string, nodeIdentifier: string): void {
       shiftAttributeDown(attribute, nodeIdentifier);
-    },
-    onAlignSelectionHorizontally: function (alignmentHorizontalPosition: AlignmentHorizontalPosition): void {
-      withVisualModel(notifications, graph, (visualModel) => {
-        const nodeSelection = getSelections(diagram, true, true).nodeSelection;
-        alignHorizontallyAction(
-          notifications, diagram, visualModel, nodeSelection, alignmentHorizontalPosition);
-      });
-    },
-    onAlignSelectionVertically: (alignmentVerticalPosition: AlignmentVerticalPosition) => {
-      withVisualModel(notifications, graph, (visualModel) => {
-        const nodeSelection = getSelections(diagram, true, true).nodeSelection;
-        alignVerticallyAction(
-          notifications, diagram, visualModel, nodeSelection, alignmentVerticalPosition);
-      });
     }
   };
 

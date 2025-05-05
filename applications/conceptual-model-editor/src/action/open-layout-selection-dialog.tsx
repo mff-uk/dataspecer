@@ -1,7 +1,6 @@
 import { DialogApiContextType } from "@/dialog/dialog-service";
 import { createPerformLayoutDialog, createPerformLayoutDialogState } from "@/dialog/layout/create-perform-layout-dialog";
 import { PerformLayoutDialogState } from "@/dialog/layout/perform-layout-controller";
-import { layoutGivenVisualEntitiesAdvancedAction } from "./layout-visual-model";
 import { getDefaultUserGivenAlgorithmConfigurationsFull } from "@dataspecer/layout";
 import { ClassesContextType } from "@/context/classes-context";
 import { UseNotificationServiceWriterType } from "@/notification/notification-service-context";
@@ -29,9 +28,9 @@ export function openLayoutSelectionDialogAction(
     const fullConfiguration = getDefaultUserGivenAlgorithmConfigurationsFull();
     fullConfiguration.main = state.configurations;
     fullConfiguration.chosenMainAlgorithm = state.chosenAlgorithm;
-    layoutGivenVisualEntitiesAdvancedAction(
-      notifications, classes, diagram, graph, visualModel,
-      fullConfiguration, visualEntitiesToLayout);
+    // layoutGivenVisualEntitiesAdvancedAction(
+    //   notifications, classes, diagram, graph, visualModel,
+    //   fullConfiguration, visualEntitiesToLayout);
   }
 
   const state = createPerformLayoutDialogState("elk_layered");

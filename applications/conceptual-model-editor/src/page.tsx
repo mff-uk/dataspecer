@@ -41,6 +41,8 @@ import { createDefaultWritableVisualModel } from "./dataspecer/visual-model/visu
 import { VerticalSplitter } from "./components/vertical-splitter";
 import { preferences, updatePreferences } from "./configuration";
 import { sanitizeVisualModel } from "./dataspecer/visual-model/visual-model-sanitizer";
+import { LayoutConfigurationContext } from "./context/layout-configuration-context";
+import { getDefaultUserGivenAlgorithmConfigurationsFull, UserGivenAlgorithmConfigurations } from "@dataspecer/layout";
 
 const _semanticModelAggregator = new SemanticModelAggregator();
 type SemanticModelAggregatorType = typeof _semanticModelAggregator;
@@ -66,7 +68,7 @@ const Page = () => {
   // Dataspecer API
   const [aggregator, setAggregator] = useState(new SemanticModelAggregator());
   const [aggregatorView, setAggregatorView] = useState(aggregator.getView());
-  const { getModelsFromBackend } = useBackendConnection();
+  const { getModelsFromBackend, getConfigurationModelFromBackend } = useBackendConnection();
   // Local state
   const [models, setModels] = useState(new Map<string, EntityModel>());
   const [classes, setClasses] = useState<SemanticModelClass[]>([]);
@@ -80,6 +82,10 @@ const Page = () => {
   const [defaultModelAlreadyCreated, setDefaultModelAlreadyCreated] = useState(false);
   const [classProfiles, setClassProfiles] = useState<SemanticModelClassProfile[]>([]);
   const [relationshipProfiles, setRelationshipProfiles] = useState<SemanticModelRelationshipProfile[]>([]);
+  const [
+    layoutConfiguration,
+    setLayoutConfiguration
+  ] = useState<UserGivenAlgorithmConfigurations>(getDefaultUserGivenAlgorithmConfigurationsFull());
 
   // Runs on initial load.
   // If the app was launched without package-id query parameter
@@ -110,6 +116,8 @@ const Page = () => {
       return initializeWithPackage(
         packageId, viewId, aggregator,
         getModelsFromBackend,
+        getConfigurationModelFromBackend,
+        setLayoutConfiguration,
         setVisualModels,
         setModels,
         setAggregatorView,
@@ -168,6 +176,7 @@ const Page = () => {
               relationshipProfiles,
             }}
           >
+            <LayoutConfigurationContext.Provider value={{ layoutConfiguration, setLayoutConfiguration }}>
             <DialogContextProvider>
               <ActionsContextProvider>
                 <Header />
@@ -185,6 +194,7 @@ const Page = () => {
                 <DialogRenderer />
               </ActionsContextProvider>
             </DialogContextProvider>
+            </LayoutConfigurationContext.Provider>
           </ClassesContext.Provider>
         </ModelGraphContext.Provider>
       </OptionsContextProvider>
@@ -244,12 +254,24 @@ function initializeWithPackage(
   viewId: string | null,
   aggregator: SemanticModelAggregatorType,
   getModelsFromBackend: (packageId: string) => Promise<readonly [EntityModel[], VisualModel[]]>,
+  getConfigurationModelFromBackend: (packageIdentifier: string) => Promise<UserGivenAlgorithmConfigurations>,
+  setLayoutConfiguration: Dispatch<SetStateAction<UserGivenAlgorithmConfigurations>>,
   setVisualModels: Dispatch<SetStateAction<Map<string, WritableVisualModel>>>,
   setModels: Dispatch<SetStateAction<Map<string, EntityModel>>>,
   setAggregatorView: Dispatch<SetStateAction<SemanticModelAggregatorView>>,
   updatePackageId: (packageId: string | null) => void,
 ) {
   const getModels = () => getModelsFromBackend(packageId);
+
+  const getLayoutConfiguration = () => getConfigurationModelFromBackend(packageId);
+
+  // I think that no clean up is needed, since we are always setting with concrete value
+  getLayoutConfiguration().then((layoutConfiguration) => {
+    setLayoutConfiguration(layoutConfiguration);
+  }).catch((error) => {
+    console.error("Can not load configuration for layouting. Using the default", error);
+    setLayoutConfiguration(getDefaultUserGivenAlgorithmConfigurationsFull());
+  });
 
   const cleanup = getModels().then((models) => {
     const [entityModels, visualModels] = models;
@@ -337,6 +359,7 @@ function initializeWithPackage(
 
   return async () => {
     (await cleanup)?.();
+    // (await layoutConfigurationCleanup)?.();
   };
 }
 

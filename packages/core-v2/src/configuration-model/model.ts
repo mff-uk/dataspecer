@@ -56,3 +56,5 @@ export function createDefaultConfigurationModelFromJsonObject(data: object): Def
   model.setRawData((data as any)?.["configuration"] ?? {});
   return model;
 }
+
+export const LAYOUT_ALGORITHM_CONFIGURATION_IRI = "http://dataspecer.com/resources/local/layout-configuration";

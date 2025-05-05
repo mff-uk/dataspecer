@@ -3,13 +3,14 @@ import { Modal, ModalBody, ModalContent, ModalDescription, ModalFooter, ModalHea
 import { Button } from "@/components/ui/button";
 import { modelTypeToName } from "@/known-models";
 import { BetterModalProps } from "@/lib/better-modal";
-import { ResourcesContext, requestLoadPackage } from "@/package";
+import { ResourcesContext, packageService, requestLoadPackage } from "@/package";
 import { LOCAL_VISUAL_MODEL } from "@dataspecer/core-v2/model/known-models";
-import { performLayoutOfSemanticModel, type VisualEntitiesWithModelVisualInformation } from "@dataspecer/layout";
+import { getDefaultUserGivenAlgorithmConfigurationsFull, performLayoutOfSemanticModel, UserGivenAlgorithmConfigurations, type VisualEntitiesWithModelVisualInformation } from "@dataspecer/layout";
 import { Loader } from "lucide-react";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useConfigDialog } from "./layout-dialog";
 import { MODEL_VISUAL_TYPE } from "@dataspecer/core-v2/visual-model";
+import { createDefaultConfigurationModelFromJsonObject, LAYOUT_ALGORITHM_CONFIGURATION_IRI } from "@dataspecer/core-v2/configuration-model";
 
 
 export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, parentIri: string } & BetterModalProps<boolean>) => {
@@ -49,6 +50,24 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
     const data = await response.json();
     const entities = data.entities;
     const semanticModelId = data.modelId;
+
+
+    let configData = (await packageService.getResourceJsonData(parentIri));
+    const defaultLayoutConfig = getDefaultUserGivenAlgorithmConfigurationsFull();
+    if (configData === null || configData === undefined || Object.keys(configData).length === 0) {
+      configData = { "configuration": {[LAYOUT_ALGORITHM_CONFIGURATION_IRI]: defaultLayoutConfig} };
+    }
+    console.info("config data in layout dialog when saving", configData);
+
+    const configuration = createDefaultConfigurationModelFromJsonObject(configData);
+
+    (configData as any)["configuration"][LAYOUT_ALGORITHM_CONFIGURATION_IRI] = getConfig();
+
+    setConfigurationToUse(configData as UserGivenAlgorithmConfigurations);
+
+    const result = configuration.serializeModelToApiJsonObject(configData);
+    await packageService.setResourceJsonData(parentIri, result);
+
 
     console.log(entities);
     console.log(semanticModelId);
@@ -121,7 +140,28 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
   const type = modelTypeToName[resource.types?.[0]];
 
 
-  const { getConfig, ConfigDialog } = useConfigDialog();
+  const [configurationToUse, setConfigurationToUse] = useState<UserGivenAlgorithmConfigurations>(getDefaultUserGivenAlgorithmConfigurationsFull());
+  useEffect(() => {
+    (async () => {
+      let configData = (await packageService.getResourceJsonData(parentIri));
+      const defaultLayoutConfig = getDefaultUserGivenAlgorithmConfigurationsFull();
+      if (configData === null || configData === undefined || Object.keys(configData).length === 0) {
+        configData = { "configuration": {[LAYOUT_ALGORITHM_CONFIGURATION_IRI]: defaultLayoutConfig} };
+      }
+      console.info("config data in layout dialog", configData);
+
+      // TODO RadStr: Well make it better, this is jsut copy pasting stuff
+      // const configuration = createDefaultConfigurationModelFromJsonObject(configData);
+
+
+      setConfigurationToUse((configData as any)["configuration"][LAYOUT_ALGORITHM_CONFIGURATION_IRI]);
+      setConfig((configData as any)["configuration"][LAYOUT_ALGORITHM_CONFIGURATION_IRI]);
+    })();
+  }, []);
+
+
+  console.info("Config before calling useConfigDialog", configurationToUse);
+  const { getConfig, ConfigDialog, setConfig } = useConfigDialog();
 
   return (
     <Modal open={isOpen} onClose={() => isLoading ? null : resolve(false)}>

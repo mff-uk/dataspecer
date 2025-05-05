@@ -6,6 +6,10 @@ import { usePackageService } from "../service/package-service-context";
 import { getLocalizedStringFromLanguageString } from "../util/language-utils";
 import { type Package } from "@dataspecer/core-v2/project";
 import { useActions } from "../action/actions-react-binding";
+import { getDefaultUserGivenAlgorithmConfigurationsFull } from "@dataspecer/layout";
+import { packageService } from "@/service/package-service";
+import { createDefaultConfigurationModelFromJsonObject, LAYOUT_ALGORITHM_CONFIGURATION_IRI } from "@dataspecer/core-v2/configuration-model";
+import { useLayoutConfigurationContext } from "@/context/layout-configuration-context";
 
 const MGR_REDIRECT_PATH = import.meta.env.VITE_PUBLIC_MANAGER_PATH;
 
@@ -20,10 +24,26 @@ export const usePackageSectionService = (): PackageSectionServiceType => {
   const actions = useActions();
   const { updateSemanticModelPackageModels } = useBackendConnection();
   const { models, visualModels, aggregatorView } = useModelGraphContext();
+  const { layoutConfiguration } = useLayoutConfigurationContext();
 
   const { currentPackage, currentPackageIdentifier } = usePackageService();
   const options = useOptions();
   const notifications = useNotificationServiceWriter();
+
+  const saveLayoutConfiguration = async (packageIri: string) => {
+    let configData = (await packageService.getPackageConfiguration(packageIri));
+    if (configData === null || configData === undefined || Object.keys(configData).length === 0) {
+      configData = { "configuration": {[LAYOUT_ALGORITHM_CONFIGURATION_IRI] : {}}};
+    }
+    console.info("config data in layout dialog when saving", configData);
+    (configData as any)["configuration"][LAYOUT_ALGORITHM_CONFIGURATION_IRI] = layoutConfiguration;
+
+    const configuration = createDefaultConfigurationModelFromJsonObject(configData);
+
+    const result = configuration.serializeModelToApiJsonObject(configData);
+    packageService.savePackageConfiguration(packageIri, result);
+  };
+
 
   const save = async () => {
     if (currentPackageIdentifier === null) {
@@ -32,6 +52,8 @@ export const usePackageSectionService = (): PackageSectionServiceType => {
     const result = await updateSemanticModelPackageModels(currentPackageIdentifier, [...models.values()], [...visualModels.values()]);
     const svg = await actions.diagram?.actions().renderToSvgString();
     const activeVisualModel = aggregatorView.getActiveVisualModel();
+
+    saveLayoutConfiguration(currentPackageIdentifier);
 
     if (activeVisualModel !== null && svg !== undefined && svg !== null) {
       // Remove header "data:image/svg+xml;charset=utf-8,"

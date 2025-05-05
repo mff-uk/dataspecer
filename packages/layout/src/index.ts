@@ -50,10 +50,18 @@ export type {
 	UserGivenAlgorithmConfigurationLayered,
 	UserGivenAlgorithmConfigurationStress,
 	UserGivenAlgorithmConfigurations,
+	UserGivenAlgorithmConfigurationBase,
+  UserGivenAlgorithmConfigurationOverlapRemoval,
+  UserGivenAlgorithmConfigurationRadial,
+  UserGivenAlgorithmConfigurationRandom,
+  UserGivenAlgorithmConfigurationStressProfile,
+  UserGivenAlgorithmConfigurationStressWithClusters,
+	UserGivenAlgorithmConfigurationsMap,
 } from "./configurations/user-algorithm-configurations.ts";
 
 export  {
-	getDefaultUserGivenAlgorithmConfigurationsFull
+	getDefaultUserGivenAlgorithmConfigurationsFull,
+	isUserGivenAlgorithmConfigurationStressProfile,
 } from "./configurations/user-algorithm-configurations.ts";
 
 export { type ElkForceAlgType } from "./configurations/elk/elk-configurations.ts";
