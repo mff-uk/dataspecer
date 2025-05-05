@@ -359,7 +359,6 @@ function initializeWithPackage(
 
   return async () => {
     (await cleanup)?.();
-    // (await layoutConfigurationCleanup)?.();
   };
 }
 
