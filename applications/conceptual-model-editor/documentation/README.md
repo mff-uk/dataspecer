@@ -19,6 +19,33 @@ The main components are:
   The ideas is to have all actions at one place.
   For example, 'show/hide' action can be executed from dialog, toolbar or in reaction to user prompt.
 
+### C4 component diagram
+On very high level the CME component looks like this:
+
+![img_6.png](images/c4-component-diagram-cme.png)
+
+Where the layout is the layout package, so technically it is not part of CME.
+
+### Directory structure
+
+- `action` - The actions that can user do, so basically business logic.
+- `catalog (newly catalog-v2)` - represents the catalog component in CME. ![img_6.png](cme-catalog-dev-docs.png)
+- `components` - Some exported React components
+- `configuration` - Language options and static configuration for diagram, etc.
+- `context` - Model, Class, Layout configuration and query params context.
+- `dataspecer` - Communication with backend containing packages and communication layer for core-v2 models.
+- `diagram` - The diagram component of CME. Should be separated from the rest of CME. So we can swap out the rendering library if necessary.
+  - `diagram-api.tsx` - The API used for communication with the rest of CME.
+  - `diagram-controller.ts` - The controller handling logic for diagram component.
+  - `diagram-hook.ts` - The diagram hook used to provide diagram functionality to rest of CME.
+  - `diagram-model.ts` - The entities used in diagram - Node types and Edge types, etc. in diagram
+  - `diagram.tsx` - The react component, which handles rendering of diagram.
+- `dialog` - Contains all the dialogs available in CME.
+- `features` - Some unrelated features, like autosave or color picker. Probably the features contained in header.
+- `header` - The stuff related to header. ![img_6.png](cme-header.png)
+
+`visualization.tsx` file - Creates the diagram component and handles callbacks caused by changes to entities in semantic model and changes in entities in visual model and the model itself and propagates them to the diagram component.
+
 ### Directories / Packages
 This section contains comments relevant for developing code in certain packages.
 
