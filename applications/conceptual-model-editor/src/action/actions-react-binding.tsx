@@ -4,6 +4,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import {
   Waypoint,
   WritableVisualModel,
+  isVisualNode,
   isVisualProfileRelationship,
   isVisualRelationship,
   isWritableVisualModel
@@ -544,7 +545,12 @@ function createActionsContext(
   const changeNodesPositions = (changes: { [identifier: string]: Position }) => {
     withVisualModel(notifications, graph, (visualModel) => {
       for (const [identifier, position] of Object.entries(changes)) {
-        visualModel.updateVisualEntity(identifier, { position });
+        const node = visualModel.getVisualEntity(identifier);
+        if (node === null || !isVisualNode(node)) {
+          notifications.error("Node which changed position can not be found in visual model.");
+          return;
+        }
+        visualModel.updateVisualEntity(identifier, { position: { ...position, anchored: node.position.anchored} });
       }
     });
   };
