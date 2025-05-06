@@ -84,6 +84,7 @@ Note that entities to layout can be both present and not present (so called outs
 Those entities are then transformed into graph representation, which is later further transformed into to the graph representation
 for the layouting library (in our case ElkJS). Same transformation then takes place in the opposite direction.
 
+TODO: Missing img
 ![layout-representations-conversion](images/layout-representations-conversion.png)
 
 When it comes to the user given algorithm configurations. Those are transformed into `ConfigurationContainer` which contains

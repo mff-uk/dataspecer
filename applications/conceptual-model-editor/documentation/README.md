@@ -29,7 +29,10 @@ Where the layout is the layout package, so technically it is not part of CME.
 ### Directory structure
 
 - `action` - The actions that can user do, so basically business logic.
-- `catalog (newly catalog-v2)` - represents the catalog component in CME. ![img_6.png](cme-catalog-dev-docs.png)
+
+TODO: Missing img
+
+- `catalog (newly catalog-v2)` - Represents the catalog component in CME. ![img_6.png](cme-catalog-dev-docs.png)
 - `components` - Some of the exported React components used on multiple places.
 - `configuration` - Language options and static configuration for diagram, etc.
 - `context` - Model, Class, Layout configuration and query params context.
@@ -42,6 +45,9 @@ Where the layout is the layout package, so technically it is not part of CME.
   - `diagram.tsx` - The react component, which handles rendering of diagram.
 - `dialog` - Contains all the dialogs available in CME.
 - `features` - Mostly Features from header component, like autosave.
+
+TODO: Missing img
+
 - `header` - The stuff related to header. ![img_6.png](cme-header.png)
 
 `visualization.tsx` file - Creates the diagram component and handles callbacks caused by changes to entities in semantic model and changes in entities in visual model and the model itself and propagates them to the diagram component.
