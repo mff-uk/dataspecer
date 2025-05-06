@@ -1,3 +1,13 @@
+---
+title: "Layouting from user perspective"
+author: Radek Strýček
+menu:
+  docs:
+    parent: "projects"
+weight: 40
+toc: true
+---
+
 # Layouting
 
 ## Anchoring
