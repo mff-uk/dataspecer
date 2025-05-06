@@ -59,3 +59,55 @@ Layout solution is based on the ElkJS layouting library.
 - Only force-directed algorithm (Elk Stress) takes into consideration anchors
 - All algorithms remove existing edge layout on the layouted part
 - The layouting of groups is not optimal, for reason why you can check the [technical documentation for layout package](https://github.com/mff-uk/dataspecer/tree/main/packages/layout).
+
+#### Force-directed algorithms
+Layouted DCAT-AP using force-directed algorithm:
+
+- Should be the first class of algorithms to try if you don't know, what layout to choose or how the data looks like.
+
+- These types of algorithms are based on physical simulation.
+The resulting layout tends to be symmetric, edges being of similar length and with low amount of edge crossings.
+
+- They are run multiple times, which is controlled by the number of runs parameter. After the runs, best layout is chosen, where the best layout is the one with best metric values. `Metric` is value, which describes how good certain layout is. There are many metrics, we have implemented the most important ones based on articles. The edge-edge crossings and edge-node crossings. But there are more like area, orthogonality, edge crossing angle, etc.
+
+##### [Force-directed](https://eclipse.dev/Elk/reference/algorithms/org-eclipse-Elk-stress.html)
+
+{{% tutorial-image "images/projects/cme-and-layout/Elk-stress-dcat-ap.png" %}}
+
+- Very simple to use
+  - It has single parameter - ideal edge length. The algorithm then tries to layout nodes in such a way that all edges have this length.
+
+##### Force-directed with class profiles
+Same as previous, but the algorithm is manually modified, so user can set ideal edge length between class profiles
+
+##### Force-directed with clusters
+Layouted DCAT-AP using cluster based algorithm without edge layout of clusters:
+
+{{% tutorial-image "images/projects/cme-and-layout/cluster-alg-dcat-ap-without-edge-layout.png" %}}
+
+Layouted DCAT-AP using cluster based algorithm with edge layout of clusters:
+
+
+{{% tutorial-image "images/projects/cme-and-layout/cluster-alg-dcat-ap-with-edge-layout.png" %}}
+
+This algorithm isn't in Elk layout library, it was designed and implemented specially for this project.
+
+This algorithm seems to provide very good initial results for most of the semantic vocabularies. Sometimes even on-par with the manually made layouts.
+
+The idea came by looking at DCAT-AP, layouting it with Elk stress algorithm and playing with the layout a bit.
+
+Idea on high-level:
+1. We want to find clusters,
+2. layout them and
+3. then layout the graph with clusters.
+
+Implementation:
+1. Find clusters
+   - Find nodes, which are directly connected to at least one leaf. Those are initial clusters.
+   - Recursively connect clusters, so they are maximal (that is going from leafs, if cluster is connected to exactly one more cluster, merge them)
+   - Possible improvement: I also thought about the idea that cluster = graph articulation (nodes, which after removal split the graph into more components).
+   But the results seemed to be worse, so I abandoned this idea. But maybe when somebody would spend couple of weeks with it, it could be improved.
+2. Layout graph using Elk stress
+3. For each cluster find least populated sector, that is with least nodes and edges.
+   - Layout the cluster using Elk layered with the direction being Up, Right, Down, Left - based on the least populated sector.
+4. Layout graph using Elk stress again. Only the nodes not being part of clusters = that is neither the cluster roots and neither the nodes inside cluster.
