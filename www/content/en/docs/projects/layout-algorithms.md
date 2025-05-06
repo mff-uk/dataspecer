@@ -72,7 +72,4 @@ The resulting layout tends to be symmetric, edges being of similar length and wi
 
 ##### [Force-directed](https://eclipse.dev/Elk/reference/algorithms/org-eclipse-Elk-stress.html)
 
-{{% tutorial-image "images/projects/cme-and-layout/Elk-stress-dcat-ap.png" %}}
-
-- Very simple to use
-  - It has single parameter - ideal edge length. The algorithm then tries to layout nodes in such a way that all edges have this length.
+Tset
