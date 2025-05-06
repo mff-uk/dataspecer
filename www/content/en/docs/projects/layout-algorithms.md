@@ -70,6 +70,99 @@ The resulting layout tends to be symmetric, edges being of similar length and wi
 
 - They are run multiple times, which is controlled by the number of runs parameter. After the runs, best layout is chosen, where the best layout is the one with best metric values. `Metric` is value, which describes how good certain layout is. There are many metrics, we have implemented the most important ones based on articles. The edge-edge crossings and edge-node crossings. But there are more like area, orthogonality, edge crossing angle, etc.
 
-##### [Force-directed](https://eclipse.dev/Elk/reference/algorithms/org-eclipse-Elk-stress.html)
+##### [Force-directed](https://eclipse.dev/elk/reference/algorithms/org-eclipse-elk-stress.html)
 
-Tset
+{{% tutorial-image "images/projects/cme-and-layout/elk-stress-dcat-ap.png" %}}
+
+- Very simple to use
+  - It has single parameter - ideal edge length. The algorithm then tries to layout nodes in such a way that all edges have this length.
+
+##### Force-directed with class profiles
+Same as previous, but the algorithm is manually modified, so user can set ideal edge length between class profiles
+
+##### Force-directed with clusters
+Layouted DCAT-AP using cluster based algorithm without edge layout of clusters:
+
+{{% tutorial-image "images/projects/cme-and-layout/cluster-alg-dcat-ap-without-edge-layout.png" %}}
+
+Layouted DCAT-AP using cluster based algorithm with edge layout of clusters:
+
+
+{{% tutorial-image "images/projects/cme-and-layout/cluster-alg-dcat-ap-with-edge-layout.png" %}}
+
+This algorithm isn't in Elk layout library, it was designed and implemented specially for this project.
+
+This algorithm seems to provide very good initial results for most of the semantic vocabularies. Sometimes even on-par with the manually made layouts.
+
+The idea came by looking at DCAT-AP, layouting it with Elk stress algorithm and playing with the layout a bit.
+
+Idea on high-level:
+1. We want to find clusters,
+2. layout them and
+3. then layout the graph with clusters.
+
+Implementation:
+1. Find clusters
+   - Find nodes, which are directly connected to at least one leaf. Those are initial clusters.
+   - Recursively connect clusters, so they are maximal (that is going from leafs, if cluster is connected to exactly one more cluster, merge them)
+   - Possible improvement: I also thought about the idea that cluster = graph articulation (nodes, which after removal split the graph into more components).
+   But the results seemed to be worse, so I abandoned this idea. But maybe when somebody would spend couple of weeks with it, it could be improved.
+2. Layout graph using Elk stress
+3. For each cluster find least populated sector, that is with least nodes and edges.
+   - Layout the cluster using Elk layered with the direction being Up, Right, Down, Left - based on the least populated sector.
+4. Layout graph using Elk stress again. Only the nodes not being part of clusters = that is neither the cluster roots and neither the nodes inside cluster.
+
+##### Random
+
+Layouted DCAT-AP using random algorithm without node overlap removal:
+
+{{% tutorial-image "images/projects/cme-and-layout/random-dcat-ap-without-node-overlap.png" %}}
+
+
+Layouted DCAT-AP using random algorithm with node overlap removal:
+
+{{% tutorial-image "images/projects/cme-and-layout/random-dcat-ap-with-node-overlap.png" %}}
+
+
+Randomly places nodes on canvas. Very basic, not really recommended to use. Basically fallback if all the other fail due to programmer error/faulty data.
+
+##### [Node overlap removal](https://eclipse.dev/elk/reference/algorithms/org-eclipse-elk-sporeOverlap.html)
+
+
+Has single parameter:
+- Minimal distance between nodes
+
+Very nice and useful algorithm. The closest node can not be closer than the provided parameter.
+
+Most of the algorithms provide checkbox to run this algorithm after running the main algorithm.
+In such cases this algorithm is run with small value (around 50).
+
+For example the Elk stress algorithm considers the edge length, but not the node sizes, because of that node overlaps may occur even
+when you would not expect it. So this algorithm removes such overlaps. It is also useful, if we want to layout only part of graph, because the nodes in the specific part are too close together.
+
+##### Hierarchical algorithm - [Elk layered](https://eclipse.dev/elk/reference/algorithms/org-eclipse-elk-layered.html)
+
+{{% tutorial-image "images/projects/cme-and-layout/layered-algorithm-dcat-ap.png" %}}
+
+**Description taken from the Elk library reference:**
+
+This algorithm is based on the algorithm proposed by Sugiyama, Tagawa and Toda in 1981.
+
+It emphasizes the direction of edges by pointing as many edges as possible into the same direction. The nodes are arranged in layers, which are sometimes called “hierarchies”, and then reordered such that the number of edge crossings is minimized. Afterwards, concrete coordinates are computed for the nodes and edge bend points.
+
+Parameters:
+- Distance between nodes within layer
+- Distance between layers
+- The emphasized direction
+- Edge routing type
+  - Orthogonal
+
+  {{% tutorial-image "images/projects/cme-and-layout/orthogonal-edge-routing.png" %}}
+
+  - Splines
+
+  {{% tutorial-image "images/projects/cme-and-layout/splines-edge-routing.png" %}}
+
+  - Polylines
+
+  {{% tutorial-image "images/projects/cme-and-layout/polylines-edge-routing.png" %}}
