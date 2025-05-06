@@ -17,7 +17,7 @@ User can (un)anchor chosen node using the ⚓ button.
 
 Anchoring node means that once we run force-directed algorithm, the anchored nodes are not moved when layouting is finished.
 
-Other algorithms unfortunately move the node, the Elk layouting library doesn't support anchoring for others.
+Other algorithms unfortunately move the node. The Elk layouting library doesn't support anchoring for others.
 Sure we could just run the algorithm and then not update the anchored visual nodes in the visual model, but that's simply not
 really useful, since the layouting algorithm moved it, so by having it stay on old place, the layout may be significantly worse.
 
@@ -34,7 +34,7 @@ The user can layout:
 
 ## Layouting algorithms
 
-We split the talk about into 2 sections, quick guide and detailed explanation.
+We split the talk into two sections, quick guide (the following section) and detailed explanation.
 
 ### I don't have time, just tell me what's good
 
@@ -53,7 +53,7 @@ Meaning if you run the algorithm 1 time, 10 times and 100 times, then the layout
 When it comes to layout of selection, I personally think that the most useful ones are:
 
 - Layered (hierarchical). For example when we combine it together with the extend selection feature, we
-can find all generalization children, and layout them, so we can have tree of depth 1
+can find all generalization children, and layout them as hierarchy, therefore we have generalization tree of depth 1 layouted in layers.
 - Node overlap algorithm, this can be also useful, for example when we run force-directed algorithm for the whole diagram
 and some small part of the layouted model is overlapping, or too close to each other
 - Sometimes It may be also useful to use force-directed algorithm, for example if we want node and its neighborhood to layout like star:
@@ -68,10 +68,9 @@ Layout solution is based on the ElkJS layouting library.
 ### Warnings
 - Only force-directed algorithm (Elk Stress) takes into consideration anchors
 - All algorithms remove existing edge layout on the layouted part
-- The layouting of groups is not optimal, for reason why you can check the [technical documentation for layout package](https://github.com/mff-uk/dataspecer/tree/main/packages/layout).
+- The layouting of groups is not optimal, for reason why you can check the [technical documentation for layout package](https://github.com/mff-uk/dataspecer/tree/main/packages/layout). Therefore you should create groups only after you are kinda happy with the overall layout.
 
 #### Force-directed algorithms
-Layouted DCAT-AP using force-directed algorithm:
 
 - Should be the first class of algorithms to try if you don't know, what layout to choose or how the data looks like.
 
@@ -81,6 +80,8 @@ The resulting layout tends to be symmetric, edges being of similar length and wi
 - They are run multiple times, which is controlled by the number of runs parameter. After the runs, best layout is chosen, where the best layout is the one with best metric values. `Metric` is value, which describes how good certain layout is. There are many metrics, we have implemented the most important ones based on articles. The edge-edge crossings and edge-node crossings. But there are more like area, orthogonality, edge crossing angle, etc.
 
 ##### [Force-directed](https://eclipse.dev/elk/reference/algorithms/org-eclipse-elk-stress.html)
+
+Layouted DCAT-AP using force-directed algorithm:
 
 {{% tutorial-image "images/projects/cme-and-layout/elk-stress-dcat-ap.png" %}}
 
@@ -100,7 +101,7 @@ Layouted DCAT-AP using cluster based algorithm with edge layout of clusters:
 
 {{% tutorial-image "images/projects/cme-and-layout/cluster-alg-dcat-ap-with-edge-layout.png" %}}
 
-This algorithm isn't in Elk layout library, it was designed and implemented specially for this project.
+This algorithm isn't in Elk layout library, it was designed and implemented specifically for this project.
 
 This algorithm seems to provide very good initial results for most of the semantic vocabularies. Sometimes even on-par with the manually made layouts.
 
@@ -144,7 +145,7 @@ Has single parameter:
 
 Very nice and useful algorithm. The closest node can not be closer than the provided parameter.
 
-Most of the algorithms provide checkbox to run this algorithm after running the main algorithm.
+Most of the algorithms provide checkbox to run this algorithm to run after.
 In such cases this algorithm is run with small value (around 50).
 
 For example the Elk stress algorithm considers the edge length, but not the node sizes, because of that node overlaps may occur even

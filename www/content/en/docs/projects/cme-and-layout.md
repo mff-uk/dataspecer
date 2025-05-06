@@ -10,8 +10,14 @@ toc: true
 
 # Conceptual-Model-Editor (CME) - user documentation
 
-This document explains what features are available in CME and how, why and when to use them.
-We almost exclusively focus on the functionalities developed in project. For completeness some necessary functionalities are also described.
+This document explains most of the available non-basic features of CME, which were developed as part of research project.
+
+If you want to look at how the basic functionality works, like editation of semantic entities, etc.. You have 3 options:
+1) Read through this document. Even though the basics are not covered directly, some of it may become clear as you go.
+2) Learn them by playing a bit in the editor.
+3) You can consult the [original CME docs](https://github.com/mff-uk/dataspecer/blob/main/applications/conceptual-model-editor/docs/intro-document.md), but note that they are quite old and therefore deprecated at places, so even though it may help, you may be better just figuring out yourself.
+
+Personally I would do it exactly in the order described here, that is 1, 2, 3
 
 In short the conceptual model editor allows user to create new concepts and modify or profile existing concepts.
 
@@ -23,7 +29,7 @@ CME behaves like classic conceptual modelling with the additional option to reus
 the concept of profiling.
 
 **Terms:**
-- `Package` - You can think of it as a directory. CME's goal is then to allow view and modify subset of this package. Where the subset are semantic models (also called `Vocabularies`) and the `visual models`,
+- `Package` - You can think of it as a directory. CME's goal is then to allow view and modify subset of this package. Where the subset are semantic models (also called `Vocabularies`) and the `visual models`, you can find the existing packages [here](https://tool.dataspecer.com/)
 
 {{% tutorial-image "images/projects/cme-and-layout/package-manager.png" %}}
 
@@ -70,8 +76,8 @@ Currently there are two types of nodes.
 ## CME general view
 Cme can be split into three main parts:
 - Header - At the time of writing the documentaiton, it is seen on top. It contains general controls for CME. Like setting language, saving or controlling visual models for the package.
-- Catalog - Contains the semantic information about package and visual information relevant to currently active visual model. In the time of writing documentation it is the component seen on the left
-- Canvas - Takes the most part of the screen. Contains the visual representation of the visual model with nodes and edges.
+- Catalog - Contains the semantic information about package and visual information relevant to currently active visual model. In the time of writing documentation it is the component seen on the left. Note that size ratio between catalog and canvas can be changed by dragging the splitbar.
+- Canvas - Takes the most part of the screen. It contains the visual representation of the visual model with nodes and edges.
 
 {{% tutorial-image "images/projects/cme-and-layout/catalog-canvas-header.png" %}}
 
@@ -94,8 +100,6 @@ User can also change currently active visual model to some of the existing.
 
 ## Catalog actions
 
-Catalog is the
-
 ### Actions on vocabularies
 
 #### Showing/hiding all elements in semantic vocabulary
@@ -106,7 +110,7 @@ Catalog is the
   which has at least one end from different semantic model and the end is NOT present on the canvas, then it is not added.
   To explain it exactly:
   - Both ends of the relationship lie in the chosen semantic model. The relationship is always added.
-  - At least one end does not lie in the chosen semantic model. The relationship is added only when the end from the other models are present in visual model (that is on canvas).
+  - At least one end does not lie in the chosen semantic model. The relationship is added only when the end from the other model is present in visual model (that is on canvas).
 - Hide works as expected
 
 ### Catalog actions on entities
@@ -117,7 +121,9 @@ Catalog is the
 
 {{% tutorial-image "images/projects/cme-and-layout/target_button2.png" %}}
 
-When this button is clicked the viewport is moved to the relevant entity. Which is
+This functionality helps us navigate in the visual model and serves as direct connection between the catalog and canvas.
+
+When this button is clicked the viewport is moved to the relevant entity.
 
 - For attributes:
   - The visual nodes representing the class on which can be the attribute found (in other words domain class)
@@ -151,7 +157,7 @@ Explicitly it means:
 - For relationship add
   - The ends
   - The relationship
-    - Again if the end is present don't add it and just the end the relationship between the relevant ends.
+    - Again if the end is present don't add it and only create the relationship between the relevant ends.
 
 ## Canvas actions
 
@@ -179,7 +185,7 @@ created class is the source of the relationship
 {{% tutorial-image "images/projects/cme-and-layout/node-actions-duplication.png" %}}
 
 User can create duplicate of node by clicking the `⿻` button.
-Creation node duplicate = New visual node representing the same underlying concept is created.
+Node duplicate = New visual node, which represents the same underlying semantic concept.
 
 Note: This feature is still not fully developed. So even though it works,
 some operations may be difficult to perform,
@@ -220,8 +226,7 @@ User is presented with the following dialog.
 The dialog contains two columns. The first column contains the attributes currently visible on the node.
 The second column contains the present semantic attributes on the underlying class, which are not currently visible on the node.
 
-Newly it can also contain relationships, but that was not developed in the project.
-
+Newly the dialog contains also the relationships, which means that we can show relationship as attribute on node instead of it being edge between two nodes.
 
 #### Layouting
 
@@ -241,7 +246,7 @@ User can automatically align selected nodes using the button highlighted with re
 
 After clicking the button user is faced with possible alignment options:
 
-{{% tutorial-image "images/projects/cme-and-layout/alignment-manual.png" %}}
+{{% mid-size-image "images/projects/cme-and-layout/alignment-manual.png" %}}
 
 #### Changing elements present in selection
 ##### Extending selection
@@ -310,7 +315,7 @@ current selection in the diagram, that is all the changes which happened through
 
 By clicking the 📉, to user is shown the following dialog, which allows him to filter/restrict current selection.
 
-{{% tutorial-image "images/projects/cme-and-layout/filter-selection.png" %}}
+{{% mid-size-image "images/projects/cme-and-layout/filter-selection.png" %}}
 
 The selection is restricted to the chosen options, which can be any combination of the following:
 - Classes
@@ -329,7 +334,7 @@ Possible use-case is for example: Put everything on canvas, choose everything ex
 
 When clicked, then user can perform the following operations the selected concepts:
 
-{{% tutorial-image "images/projects/cme-and-layout/action-buttons-list-overview.png" %}}
+{{% mid-size-image "images/projects/cme-and-layout/action-buttons-list-overview.png" %}}
 
 From left to right:
 
@@ -351,7 +356,7 @@ Complex use-cases:
 
 {{% tutorial-image "images/projects/cme-and-layout/profile-selection-start-state.png" %}}
 
-Note: The class profile and profiled class share position. On the left and on the right
+Note: In the following two pictures the class profile and profiled class share position. On the left and on the right
 
 #### Case 1:
 
@@ -371,7 +376,7 @@ Group is entity in visual model, which contains nodes and/or other groups.
 
 User can create group from selection clicking the ⛓️ button. Group from user perspective means that
 when user moves node, he also moves all nodes in the group. It also behaves as one node in context of layouting.
-In other words the relative positions between nodes in group are always kept
+In other words the relative positions between nodes in group are always kept.
 
 Note that when user performs action on selection, all the nodes in group behave as selected.
 
@@ -380,7 +385,8 @@ Click on any node in the group, which you want to dissolve and click on the ⛓�
 The group will no longer exist. The positions of nodes inside group won't be affected.
 
 #### Visual nodes representing visual models
-We can create special type of visual node which represents visual model from the list of available visual models in the current package using the 📦 button.
+
+We can create special type of visual node which represents visual model from the list of available visual models in the current package using the 📦 button. The Main purpose of this functionality is the simplification of visual model.
 
 {{% tutorial-image "images/projects/cme-and-layout/creating-visual-diagram-node-from-existing.png" %}}
 
@@ -414,3 +420,21 @@ to change the name of the visual model.
 
 Similarly to the duplicates, the functionality isn't yet fully fleshed out in a sense that it is not the most user-friendly as it can be.
 However it should still support all the possible use-cases.
+
+
+## How to run CME (and the rest) locally, but may get deprecated over time
+
+- When you just want to test diagram without using packages, then there is nothing extra you need to do.
+  - Run `npm install` from root directory
+  - Run `npm run build` from root directory
+  - Run `npm run dev` from the applications/conceptual-model-editor directory
+
+- Running manager - sometimes you want to access packages and not only run the diagram part:
+  - In the applications/conceptual-model-editor directory create .env file from .env.example
+    - When you want to use the official Dataspecer backend:
+      - VITE_PUBLIC_APP_BACKEND="https://tool.dataspecer.com/api"
+      - When you also want to run the manager and connect it to locally running CME, create .env.local from .env and set the backend to
+        - VITE_BACKEND=https://tool.dataspecer.com/api
+        - And run the manager using `npm run dev` from the applications/manager
+    - When you want to run backend locally set the backend variables mentioned above to http://localhost:3100
+and run the backend as described [here](https://github.com/mff-uk/dataspecer/tree/main/services/backend) (that being said I am no longer able to run the backend, so not sure if it still works, might be related to the https://github.com/mff-uk/dataspecer/issues/1145)
