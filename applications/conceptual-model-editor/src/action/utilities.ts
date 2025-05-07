@@ -230,8 +230,6 @@ const computeBarycenter = (positions: Position[], diagram: UseDiagramType): Comp
   };
 };
 
-// TODO RadStr: Put in ExtensionType.ClassProfile, but not now since it does not work
-//              See https://github.com/mff-uk/dataspecer/issues/966
 const findAssociatedClassesAndClassProfiles = async (
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
@@ -241,12 +239,11 @@ const findAssociatedClassesAndClassProfiles = async (
   // Is synchronous for this case
   const selection = await extendSelectionAction(notifications, graph, classesContext,
     { areIdentifiersFromVisualModel: false, identifiers: [classToFindAssociationsFor] },
-    [ExtensionType.Association, ExtensionType.Generalization],
+    [ExtensionType.Association, ExtensionType.Generalization,
+     ExtensionType.ClassProfile, ExtensionType.ProfileEdge],
     VisibilityFilter.OnlyVisibleNodes, false, null);
   return selection;
 }
-
-// TODO RadStr: Add tests for stuff in this file! (just to the exported stuff)
 
 /**
  * @returns The top level group, or null if the node is not part of any group.
