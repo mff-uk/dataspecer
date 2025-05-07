@@ -206,7 +206,7 @@ function updateVisualRelationship(
     return;
   }
 
-  // If there was no relevant change, since the semantic ends are the same
+  // If there was no relevant change, since the semantic ends are the same, then return from method
   const givenVisualSource = visualModel.getVisualEntity(visual.visualSource);
   const isSourceSame = givenVisualSource !== null && visualSources.includes(givenVisualSource);
   const givenVisualTarget = visualModel.getVisualEntity(visual.visualTarget);
