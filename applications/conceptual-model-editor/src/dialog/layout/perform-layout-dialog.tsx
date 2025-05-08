@@ -12,14 +12,16 @@ import {
   EdgeRouting
 } from "@dataspecer/layout";
 import { DialogProps } from "../dialog-api";
-import { PerformLayoutDialogController, PerformLayoutDialogState, usePerformLayoutDialogController, UserGivenAlgorithmConfigurationsMapSetter } from "./perform-layout-controller";
+import {
+  PerformLayoutDialogController,
+  PerformLayoutDialogState,
+  usePerformLayoutDialogController
+} from "./perform-layout-controller";
 import { JSX } from "react";
 import { t } from "@/application";
 import LayeredAlgorithmDirectionDropdown from "./direction-combobox-react-component/direction-combobox";
 
 export const PerformLayoutDialog = (props: DialogProps<PerformLayoutDialogState>) => {
-  const controller = usePerformLayoutDialogController(props);
-  const state = props.state;
   return <div className="flex flex-row">
     <ConfigDialogAlgorithmNameCombobox {...props}></ConfigDialogAlgorithmNameCombobox>
     <VerticalSeparator/>
@@ -40,33 +42,50 @@ const ConfigDialogAlgorithmNameCombobox = (props: DialogProps<PerformLayoutDialo
           className="px-2 py-1 text-base text-gray-900 bg-gray-100 border border-gray-300 shadow-[inset_1px_1px_0_#fff] focus:outline-none focus:ring-0 "
           value={state.chosenAlgorithm}
           onChange={(event) => controller.setChosenAlgorithm(event.target.value as AlgorithmName)}>
-          <option value="elk_layered">{t("layout-dialog-algorithm-elk-layered")}</option>
-          <option value="elk_stress">{t("layout-dialog-algorithm-elk-stress")}</option>
-          <option value="elk_stress_profile">{t("layout-dialog-algorithm-elk-stress-class-profile")}</option>
-          <option value="elk_stress_advanced_using_clusters">{t("layout-dialog-algorithm-elk-stress-using-clusters")}</option>
-          <option value="elk_overlapRemoval">{t("layout-dialog-algorithm-elk-overlap-removal")}</option>
-          <option value="random">{t("layout-dialog-algorithm-random")}</option>
-          <option value="elk_radial">{t("layout-dialog-algorithm-elk-radial")}</option>
+          <option value="elk_layered">
+            {t("layout-dialog-algorithm-elk-layered")}
+          </option>
+          <option value="elk_stress">
+            {t("layout-dialog-algorithm-elk-stress")}
+          </option>
+          <option value="elk_stress_profile">
+            {t("layout-dialog-algorithm-elk-stress-class-profile")}
+          </option>
+          <option value="elk_stress_advanced_using_clusters">
+            {t("layout-dialog-algorithm-elk-stress-using-clusters")}
+          </option>
+          <option value="elk_overlapRemoval">
+            {t("layout-dialog-algorithm-elk-overlap-removal")}
+          </option>
+          <option value="random">
+            {t("layout-dialog-algorithm-random")}
+          </option>
+          <option value="elk_radial">
+            {t("layout-dialog-algorithm-elk-radial")}
+          </option>
         </select>
       </div>
     </div>)
 };
 
+type AlgorithmToConfigurationMapType = Record<AlgorithmName,
+                                              (props: DialogProps<PerformLayoutDialogState>) => JSX.Element | null>;
+
 const ConfigDialogAlgorithmConfiguration = (props: DialogProps<PerformLayoutDialogState>) => {
   const controller = usePerformLayoutDialogController(props);
   const state = props.state;
 
-  const algorithmConfigurationToDialogMap: Record<AlgorithmName, (props: DialogProps<PerformLayoutDialogState>) => JSX.Element | null> = {
-    none: function (props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
+  const algorithmConfigurationToDialogMap: AlgorithmToConfigurationMapType = {
+    none: function (_props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
       return null;
     },
-    elk_stress: function (props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
+    elk_stress: function (_props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
       return <ElkStressConfig controller={controller} configuration={state.configurations.elk_stress}/>
     },
-    elk_layered: function (props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
+    elk_layered: function (_props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
       return <ElkLayeredConfig controller={controller} configuration={state.configurations.elk_layered} />;
     },
-    elk_force: function (props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
+    elk_force: function (_props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
       return null;
     },
     random: function (props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
@@ -76,10 +95,11 @@ const ConfigDialogAlgorithmConfiguration = (props: DialogProps<PerformLayoutDial
       return <RadialConfig controller={controller} configuration={state.configurations.elk_radial}></RadialConfig>
     },
     elk_overlapRemoval: function (props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
-      return <OverlapRemovalConfig controller={controller} configuration={state.configurations.elk_overlapRemoval}></OverlapRemovalConfig>;
+      return <OverlapRemovalConfig controller={controller} configuration={state.configurations.elk_overlapRemoval} />;
     },
     elk_stress_advanced_using_clusters: function (props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
-      return <ElkStressConfig controller={controller} configuration={state.configurations.elk_stress_advanced_using_clusters}/>
+      return <ElkStressWithClustersConfig controller={controller}
+        configuration={state.configurations.elk_stress_advanced_using_clusters}/>
     },
     elk_stress_profile: function (props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
       return <ElkStressConfig controller={controller} configuration={state.configurations.elk_stress_profile}/>
@@ -95,11 +115,19 @@ const ConfigDialogAlgorithmConfiguration = (props: DialogProps<PerformLayoutDial
   </div>
 };
 
-const RandomConfig = (props: {controller: PerformLayoutDialogController, configuration: UserGivenAlgorithmConfigurationRandom}) => {
+const RandomConfig = (
+  props: {
+    controller: PerformLayoutDialogController,
+    configuration: UserGivenAlgorithmConfigurationRandom
+  }) => {
   return <RunOverlapRemovalAfterCheckbox configuration={props.configuration} controller={props.controller} />
 };
 
-const RadialConfig = (props: {controller: PerformLayoutDialogController, configuration: UserGivenAlgorithmConfigurationRadial}) => {
+const RadialConfig = (
+  props: {
+    controller: PerformLayoutDialogController,
+    configuration: UserGivenAlgorithmConfigurationRadial
+  }) => {
   return <LayoutSliderGeneral
     controller={props.controller}
     configuration={props.configuration}
@@ -111,7 +139,11 @@ const RadialConfig = (props: {controller: PerformLayoutDialogController, configu
     fieldToSet="min_distance_between_nodes" />
 };
 
-const ElkLayeredConfig = (props: {controller: PerformLayoutDialogController, configuration: UserGivenAlgorithmConfigurationLayered}) => {
+const ElkLayeredConfig = (
+  props: {
+    controller: PerformLayoutDialogController,
+    configuration: UserGivenAlgorithmConfigurationLayered
+  }) => {
   return <div>
     <LayoutSliderGeneral
       controller={props.controller}
@@ -135,9 +167,12 @@ const ElkLayeredConfig = (props: {controller: PerformLayoutDialogController, con
     <HorizontalSeparator/>
     <div className="flex flex-row ml-4 mt-2 mb-4">
       <div className="mr-8">
-        <LayoutEdgeRoutingCombobox configuration={props.configuration} controller={props.controller} reactComponentId="layered" />
+        <LayoutEdgeRoutingCombobox configuration={props.configuration}
+          controller={props.controller}
+          reactComponentId="layered" />
       </div>
-      <LayeredAlgorithmDirectionDropdown direction={props.configuration.alg_direction} setDirection={(direction) => props.controller.setAlgorithmConfigurationValue("alg_direction", direction)} />
+      <LayeredAlgorithmDirectionDropdown direction={props.configuration.alg_direction}
+        setDirection={(direction) => props.controller.setAlgorithmConfigurationValue("alg_direction", direction)} />
     </div>
     <HorizontalSeparator/>
     <InteractiveCheckbox configuration={props.configuration} controller={props.controller} />
@@ -148,7 +183,9 @@ const ElkStressConfig = (
   props:
     {
       controller: PerformLayoutDialogController,
-      configuration: UserGivenAlgorithmConfigurationStress | UserGivenAlgorithmConfigurationStressProfile | UserGivenAlgorithmConfigurationStressWithClusters
+      configuration: UserGivenAlgorithmConfigurationStress |
+                      UserGivenAlgorithmConfigurationStressProfile |
+                      UserGivenAlgorithmConfigurationStressWithClusters
     }
 ) => {
   return <div>
@@ -181,15 +218,61 @@ const ElkStressConfig = (
   </div>;
 };
 
+const ElkStressWithClustersConfig = (
+  props:
+    {
+      controller: PerformLayoutDialogController,
+      configuration: UserGivenAlgorithmConfigurationStress |
+                      UserGivenAlgorithmConfigurationStressProfile |
+                      UserGivenAlgorithmConfigurationStressWithClusters
+    }
+) => {
+  return <div>
+    <LayoutSliderGeneral
+      controller={props.controller}
+      configuration={props.configuration}
+      reactComponentId="range-stress-edge-len"
+      translateLabel="layout-stress-edge-length"
+      min={0}
+      max={1000}
+      step={10}
+      fieldToSet="stress_edge_len" />
+    {
+      !isUserGivenAlgorithmConfigurationStressProfile(props.configuration) ? null :
+        <LayoutSliderGeneral
+          controller={props.controller}
+          configuration={props.configuration}
+          reactComponentId="range-stress-edge-len-class-profiles"
+          translateLabel="layout-stress-class-profile-edge-length"
+          min={0}
+          max={1000}
+          step={10}
+          fieldToSet="profileEdgeLength" />
+    }
+    <NumberOfRunsReactComponent controller={props.controller} configuration={props.configuration}/>
+    <RunOverlapRemovalAfterCheckbox text={t("layout-clusters-edge-layout")}
+      controller={props.controller}
+      configuration={props.configuration}/>
+  </div>;
+};
+
 const HorizontalSeparator = () => <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
 
 const VerticalSeparator = () => <hr className="w-px mx-8 h-84 bg-gray-200 border-0 mx-4" />
 
-const OverlapRemovalConfig = (props: {controller: PerformLayoutDialogController, configuration: UserGivenAlgorithmConfigurationOverlapRemoval}) => {
-  return <SliderMinDistanceConfig controller={props.controller} configuration={props.configuration}></SliderMinDistanceConfig>
+const OverlapRemovalConfig = (
+  props: {
+    controller: PerformLayoutDialogController,
+    configuration: UserGivenAlgorithmConfigurationOverlapRemoval
+  }) => {
+  return <SliderMinDistanceConfig controller={props.controller} configuration={props.configuration} />
 };
 
-const NumberOfRunsReactComponent = (props: {controller: PerformLayoutDialogController, configuration: UserGivenAlgorithmConfigurationBase}) => {
+const NumberOfRunsReactComponent = (
+  props: {
+    controller: PerformLayoutDialogController,
+    configuration: UserGivenAlgorithmConfigurationBase
+  }) => {
   return <LayoutSliderGeneral
     controller={props.controller}
     configuration={props.configuration}
@@ -201,7 +284,11 @@ const NumberOfRunsReactComponent = (props: {controller: PerformLayoutDialogContr
     fieldToSet="number_of_new_algorithm_runs" />
 };
 
-const SliderMinDistanceConfig = (props: {controller: PerformLayoutDialogController, configuration: {"min_distance_between_nodes": number}}) => {
+const SliderMinDistanceConfig = (
+  props: {
+    controller: PerformLayoutDialogController,
+    configuration: { "min_distance_between_nodes": number }
+  }) => {
   return <LayoutSliderGeneral
     controller={props.controller}
     configuration={props.configuration}
@@ -230,12 +317,23 @@ const LayoutSliderGeneral = (
       <label htmlFor={props.reactComponentId}>{t(props.translateLabel)}</label>
     </div>
     <div className="flex flex-row">
-      <input type="range" min={String(props.min)} max={String(props.max)} step={String(props.step)} className="slider" id={props.reactComponentId} draggable="false"
+      <input type="range"
+        min={String(props.min)}
+        max={String(props.max)}
+        step={String(props.step)}
+        className="slider"
+        id={props.reactComponentId}
+        draggable="false"
         defaultValue={props.configuration[props.fieldToSet]}
         onMouseUp={(e) => {
-          {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
-              (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
-          props.controller.setAlgorithmConfigurationValue(props.fieldToSet, parseInt((e.target as HTMLInputElement).value));
+          {
+            /* Have to recast, like in
+    https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
+    (Not sure if the type is correct, but it contains value so it shouldn't really matter)
+  */
+          }
+          props.controller.setAlgorithmConfigurationValue(
+            props.fieldToSet, parseInt((e.target as HTMLInputElement).value));
         }}>
       </input>
       {props.configuration[props.fieldToSet]}
@@ -319,7 +417,8 @@ const LayoutEdgeRoutingCombobox = (
       <select id="edge-routing"
         value={props.configuration.edge_routing}
         className="border p-3 border-gray-300"
-        onChange={(event) => props.controller.setAlgorithmConfigurationValue("edge_routing", event.target.value as EdgeRouting)}>
+        onChange={(event) =>
+          props.controller.setAlgorithmConfigurationValue("edge_routing", event.target.value as EdgeRouting)}>
         <option value="ORTHOGONAL">{t("layout-layered-edge-routing-orthogonal-option")}</option>
         <option value="POLYLINE">{t("layout-layered-edge-routing-polyline-option")}</option>
         <option value="SPLINES">{t("layout-layered-edge-routing-splines-option")}</option>

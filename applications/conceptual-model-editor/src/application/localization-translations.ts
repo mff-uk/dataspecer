@@ -482,4 +482,5 @@ export const translations: Record<string, string | Function> = {
   "layout-dialog-algorithm-elk-overlap-removal": "Node overlap removal",
   "layout-dialog-algorithm-random": "Random",
   "layout-dialog-algorithm-elk-radial": "Elk radial algorithm",
+  "layout-clusters-edge-layout": "Should layout edges in cluster",
 };
