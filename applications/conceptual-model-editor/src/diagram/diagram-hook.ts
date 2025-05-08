@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 
 import type { DiagramCallbacks, DiagramActions } from "./diagram-api";
-import { AlignmentHorizontalPosition, AlignmentVerticalPosition } from "../action/align-nodes";
 
 export interface UseDiagramType {
 

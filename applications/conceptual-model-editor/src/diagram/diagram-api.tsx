@@ -456,7 +456,6 @@ interface DiagramSelection {
    */
   onAlignSelectionHorizontally: (alignmentHorizontalPosition: AlignmentHorizontalPosition) => void;
 
-
   /**
    * Aligns selected nodes vertically, the actual alignment type is given by {@link alignmentVerticalPosition}.
    */

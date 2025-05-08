@@ -149,7 +149,7 @@ export class ActionsTestSuite {
           ): void {
             throw new Error("Function not implemented.");
           },
-          openAlignmentMenu: function (sourceNode: Node, canvasPosition: Position): void {
+          openAlignmentMenu: function (_sourceNode: Node, _canvasPosition: Position): void {
             throw new Error("Function not implemented.");
           }
         }

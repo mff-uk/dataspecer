@@ -1882,7 +1882,7 @@ const createActions = (
       context?.onOpenCanvasContextMenu(sourceNode.identifier, canvasPosition, SelectionActionsMenu);
     },
     openAlignmentMenu(sourceNode, canvasPosition) {
-      console.log("openAlignmentMenu", {sourceNode, canvasPosition});
+      console.log("openAlignmentMenu", { sourceNode, canvasPosition });
       context?.onOpenCanvasContextMenu(sourceNode.identifier, canvasPosition, AlignmentMenu);
     },
     openGroupMenu(groupIdentifier, canvasPosition) {

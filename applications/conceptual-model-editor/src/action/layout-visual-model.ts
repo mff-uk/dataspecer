@@ -1,5 +1,5 @@
-import { VisualNode, WritableVisualModel, isVisualNode, isVisualProfileRelationship, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { AnchorOverrideSetting, ExplicitAnchors, LayoutedVisualEntities, Node, NodeDimensionQueryHandler, ReactflowDimensionsEstimator, UserGivenAlgorithmConfigurationStress, UserGivenAlgorithmConfigurations, VisualModelWithOutsiders, getDefaultUserGivenAlgorithmConfigurationsFull, performLayout, performLayoutOfVisualModel } from "@dataspecer/layout";
+import { VisualNode, WritableVisualModel, isVisualNode } from "@dataspecer/core-v2/visual-model";
+import { AnchorOverrideSetting, ExplicitAnchors, LayoutedVisualEntities, Node, NodeDimensionQueryHandler, ReactflowDimensionsEstimator, UserGivenAlgorithmConfigurations, VisualModelWithOutsiders, getDefaultUserGivenAlgorithmConfigurationsFull, performLayoutOfVisualModel } from "@dataspecer/layout";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { UseDiagramType } from "../diagram/diagram-hook";

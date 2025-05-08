@@ -330,25 +330,23 @@ export function getRemovedAndAdded<T>(previousValues: T[], nextValues: T[]) {
   };
 }
 
-
 /**
  * @returns Returns top left position of bounding box created by given {@link nodes}.
  * If the given array is empty, returns large number.
  */
 export const getTopLeftPosition = (nodes: VisualNode[]) => {
-  const topLeft = {x: 10000000, y: 10000000};
+  const topLeft = { x: 10000000, y: 10000000 };
   nodes.forEach(node => {
-      if(node.position.x < topLeft.x) {
-          topLeft.x = node.position.x;
-      }
-      if(node.position.y < topLeft.y) {
-          topLeft.y = node.position.y;
-      }
+    if(node.position.x < topLeft.x) {
+      topLeft.x = node.position.x;
+    }
+    if(node.position.y < topLeft.y) {
+      topLeft.y = node.position.y;
+    }
   });
 
   return topLeft;
 };
-
 
 /**
 * @returns Returns bot right position of bounding box created by given {@link nodes}.
@@ -359,19 +357,19 @@ export const getBotRightPosition = (
   diagram: UseDiagramType,
   nodes: VisualNode[]
 ) => {
-  const botRight = {x: -10000000, y: -10000000};
+  const botRight = { x: -10000000, y: -10000000 };
   nodes.forEach(node => {
-      const width = getDimensionValue(diagram, DimensionType.Width, node.identifier);
-      const x = node.position.x + width;
-      if(x > botRight.x) {
-          botRight.x = x;
-      }
+    const width = getDimensionValue(diagram, DimensionType.Width, node.identifier);
+    const x = node.position.x + width;
+    if(x > botRight.x) {
+      botRight.x = x;
+    }
 
-      const height = getDimensionValue(diagram, DimensionType.Height, node.identifier);
-      const y = node.position.y + height;
-      if(y > botRight.y) {
-          botRight.y = y;
-      }
+    const height = getDimensionValue(diagram, DimensionType.Height, node.identifier);
+    const y = node.position.y + height;
+    if(y > botRight.y) {
+      botRight.y = y;
+    }
   });
 
   return botRight;
@@ -396,13 +394,13 @@ export const getBoundingBoxInfo = (
   const topLeft = getTopLeftPosition(nodes);
   const botRight = getBotRightPosition(diagram, nodes);
   const mid = {
-      x: (topLeft.x + botRight.x) / 2,
-      y: (topLeft.y + botRight.y) / 2,
+    x: (topLeft.x + botRight.x) / 2,
+    y: (topLeft.y + botRight.y) / 2,
   };
   return {
-      topLeft,
-      mid,
-      botRight
+    topLeft,
+    mid,
+    botRight
   };
 };
 
@@ -427,8 +425,8 @@ export function getDimensionValue(
   nodeIdentifier: string,
 ): number {
   const dimensionGetter = dimension === DimensionType.Width ?
-      diagram.actions().getNodeWidth :
-      diagram.actions().getNodeHeight;
+    diagram.actions().getNodeWidth :
+    diagram.actions().getNodeHeight;
   return dimensionGetter(nodeIdentifier) ?? 0;
 }
 

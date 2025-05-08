@@ -291,7 +291,7 @@ function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
   const onShowFilterSelection = () => context?.callbacks().onShowFilterSelection();
 
   const onOpenAlignmentMenu = (event: React.MouseEvent) => {
-    const absoluteFlowPosition = reactFlow.screenToFlowPosition({x: event.clientX, y: event.clientY});
+    const absoluteFlowPosition = reactFlow.screenToFlowPosition({ x: event.clientX, y: event.clientY });
     context?.callbacks().onOpenAlignmentMenu(props.data, absoluteFlowPosition);
   }
   return (<>
