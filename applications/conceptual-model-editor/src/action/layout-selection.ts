@@ -7,7 +7,6 @@ import { ExplicitAnchors, performLayout, UserGivenAlgorithmConfigurations, XY } 
 import { getBoundingBoxInfo } from "./utilities";
 import { createExactNodeDimensionsQueryHandler, processLayoutResult } from "./layout-visual-model";
 
-
 /**
  * Performs layout of given visual entities. The result is shifted in such a way that the middle of bounding boxes is the same.
  * @param configuration The configuration for layouting algorithm.

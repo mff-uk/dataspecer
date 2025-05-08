@@ -11,7 +11,6 @@ import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-
 import { computeRelatedAssociationsBarycenterAction } from "./utilities";
 import { isSemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
-
 /**
  * @param configuration The configuration for layouting algorithm.
  * @param explicitAnchors For more context check the type {@link ExplicitAnchors}. But in short it is used to override the anchors stored in visual model.
@@ -71,7 +70,6 @@ export async function layoutActiveVisualModelAction(
     notifications, classes, diagram, graph, visualModel, configuration,
     explicitAnchors, true, {}, false);
 }
-
 
 /**
  * @returns The position for semantic class and class profil given in {@link identifier} found through layouting.

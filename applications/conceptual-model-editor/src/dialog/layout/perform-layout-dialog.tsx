@@ -21,13 +21,11 @@ export const PerformLayoutDialog = (props: DialogProps<PerformLayoutDialogState>
   const controller = usePerformLayoutDialogController(props);
   const state = props.state;
   return <div className="flex flex-row">
-      <ConfigDialogAlgorithmNameCombobox {...props}></ConfigDialogAlgorithmNameCombobox>
-      <VerticalSeparator/>
-      <ConfigDialogAlgorithmConfiguration {...props}></ConfigDialogAlgorithmConfiguration>
-    </div>;
+    <ConfigDialogAlgorithmNameCombobox {...props}></ConfigDialogAlgorithmNameCombobox>
+    <VerticalSeparator/>
+    <ConfigDialogAlgorithmConfiguration {...props}></ConfigDialogAlgorithmConfiguration>
+  </div>;
 };
-
-
 
 const ConfigDialogAlgorithmNameCombobox = (props: DialogProps<PerformLayoutDialogState>) => {
   const controller = usePerformLayoutDialogController(props);
@@ -39,8 +37,8 @@ const ConfigDialogAlgorithmNameCombobox = (props: DialogProps<PerformLayoutDialo
       </div>
       <div className="flex flex-row">
         <select id="main-layout-alg"
-                className="px-2 py-1 text-base text-gray-900 bg-gray-100 border border-gray-300 shadow-[inset_1px_1px_0_#fff] focus:outline-none focus:ring-0 "
-                value={state.chosenAlgorithm}
+          className="px-2 py-1 text-base text-gray-900 bg-gray-100 border border-gray-300 shadow-[inset_1px_1px_0_#fff] focus:outline-none focus:ring-0 "
+          value={state.chosenAlgorithm}
           onChange={(event) => controller.setChosenAlgorithm(event.target.value as AlgorithmName)}>
           <option value="elk_layered">{t("layout-dialog-algorithm-elk-layered")}</option>
           <option value="elk_stress">{t("layout-dialog-algorithm-elk-stress")}</option>
@@ -93,48 +91,46 @@ const ConfigDialogAlgorithmConfiguration = (props: DialogProps<PerformLayoutDial
 
   return <div className="flex flex-col">
     <div className="font-black text-base">{t("layout-dialog-algorithm-configuration-label")}:</div>
-      {algorithmConfigurationToDialogMap[props.state.chosenAlgorithm](props) ?? null}
+    {algorithmConfigurationToDialogMap[props.state.chosenAlgorithm](props) ?? null}
   </div>
 };
-
 
 const RandomConfig = (props: {controller: PerformLayoutDialogController, configuration: UserGivenAlgorithmConfigurationRandom}) => {
   return <RunOverlapRemovalAfterCheckbox configuration={props.configuration} controller={props.controller} />
 };
 
-
 const RadialConfig = (props: {controller: PerformLayoutDialogController, configuration: UserGivenAlgorithmConfigurationRadial}) => {
   return <LayoutSliderGeneral
-            controller={props.controller}
-            configuration={props.configuration}
-            reactComponentId="range-min-distance-between-nodes-radial"
-            translateLabel="layout-minimal-distance-between-nodes"
-            min={0}
-            max={1000}
-            step={10}
-            fieldToSet="min_distance_between_nodes" />
+    controller={props.controller}
+    configuration={props.configuration}
+    reactComponentId="range-min-distance-between-nodes-radial"
+    translateLabel="layout-minimal-distance-between-nodes"
+    min={0}
+    max={1000}
+    step={10}
+    fieldToSet="min_distance_between_nodes" />
 };
 
 const ElkLayeredConfig = (props: {controller: PerformLayoutDialogController, configuration: UserGivenAlgorithmConfigurationLayered}) => {
   return <div>
     <LayoutSliderGeneral
-            controller={props.controller}
-            configuration={props.configuration}
-            reactComponentId="range-between-layers-layer-gap"
-            translateLabel="layout-layered-between-layers-length"
-            min={0}
-            max={1000}
-            step={10}
-            fieldToSet="layer_gap" />
+      controller={props.controller}
+      configuration={props.configuration}
+      reactComponentId="range-between-layers-layer-gap"
+      translateLabel="layout-layered-between-layers-length"
+      min={0}
+      max={1000}
+      step={10}
+      fieldToSet="layer_gap" />
     <LayoutSliderGeneral
-            controller={props.controller}
-            configuration={props.configuration}
-            reactComponentId="range-in-layer-gap"
-            translateLabel="layout-layered-in-layer-length"
-            min={0}
-            max={1000}
-            step={10}
-            fieldToSet="in_layer_gap" />
+      controller={props.controller}
+      configuration={props.configuration}
+      reactComponentId="range-in-layer-gap"
+      translateLabel="layout-layered-in-layer-length"
+      min={0}
+      max={1000}
+      step={10}
+      fieldToSet="in_layer_gap" />
 
     <HorizontalSeparator/>
     <div className="flex flex-row ml-4 mt-2 mb-4">
@@ -154,28 +150,28 @@ const ElkStressConfig = (
       controller: PerformLayoutDialogController,
       configuration: UserGivenAlgorithmConfigurationStress | UserGivenAlgorithmConfigurationStressProfile | UserGivenAlgorithmConfigurationStressWithClusters
     }
-  ) => {
+) => {
   return <div>
     <LayoutSliderGeneral
-            controller={props.controller}
-            configuration={props.configuration}
-            reactComponentId="range-stress-edge-len"
-            translateLabel="layout-stress-edge-length"
-            min={0}
-            max={1000}
-            step={10}
-            fieldToSet="stress_edge_len" />
+      controller={props.controller}
+      configuration={props.configuration}
+      reactComponentId="range-stress-edge-len"
+      translateLabel="layout-stress-edge-length"
+      min={0}
+      max={1000}
+      step={10}
+      fieldToSet="stress_edge_len" />
     {
       !isUserGivenAlgorithmConfigurationStressProfile(props.configuration) ? null :
         <LayoutSliderGeneral
-            controller={props.controller}
-            configuration={props.configuration}
-            reactComponentId="range-stress-edge-len-class-profiles"
-            translateLabel="layout-stress-class-profile-edge-length"
-            min={0}
-            max={1000}
-            step={10}
-            fieldToSet="profileEdgeLength" />
+          controller={props.controller}
+          configuration={props.configuration}
+          reactComponentId="range-stress-edge-len-class-profiles"
+          translateLabel="layout-stress-class-profile-edge-length"
+          min={0}
+          max={1000}
+          step={10}
+          fieldToSet="profileEdgeLength" />
     }
     <NumberOfRunsReactComponent controller={props.controller} configuration={props.configuration}/>
     <HorizontalSeparator/>
@@ -189,37 +185,33 @@ const HorizontalSeparator = () => <hr className="w-48 h-1 mx-auto my-2 bg-gray-1
 
 const VerticalSeparator = () => <hr className="w-px mx-8 h-84 bg-gray-200 border-0 mx-4" />
 
-
-
 const OverlapRemovalConfig = (props: {controller: PerformLayoutDialogController, configuration: UserGivenAlgorithmConfigurationOverlapRemoval}) => {
   return <SliderMinDistanceConfig controller={props.controller} configuration={props.configuration}></SliderMinDistanceConfig>
 };
 
 const NumberOfRunsReactComponent = (props: {controller: PerformLayoutDialogController, configuration: UserGivenAlgorithmConfigurationBase}) => {
   return <LayoutSliderGeneral
-            controller={props.controller}
-            configuration={props.configuration}
-            reactComponentId="range-iteration-count"
-            translateLabel="layout-number-of-runs-text"
-            min={1}
-            max={100}
-            step={1}
-            fieldToSet="number_of_new_algorithm_runs" />
+    controller={props.controller}
+    configuration={props.configuration}
+    reactComponentId="range-iteration-count"
+    translateLabel="layout-number-of-runs-text"
+    min={1}
+    max={100}
+    step={1}
+    fieldToSet="number_of_new_algorithm_runs" />
 };
-
 
 const SliderMinDistanceConfig = (props: {controller: PerformLayoutDialogController, configuration: {"min_distance_between_nodes": number}}) => {
-    return <LayoutSliderGeneral
-              controller={props.controller}
-              configuration={props.configuration}
-              reactComponentId="range-min-distance-between-nodes"
-              translateLabel="layout-minimal-distance-between-nodes"
-              min={0}
-              max={1000}
-              step={10}
-              fieldToSet="min_distance_between_nodes" />
+  return <LayoutSliderGeneral
+    controller={props.controller}
+    configuration={props.configuration}
+    reactComponentId="range-min-distance-between-nodes"
+    translateLabel="layout-minimal-distance-between-nodes"
+    min={0}
+    max={1000}
+    step={10}
+    fieldToSet="min_distance_between_nodes" />
 };
-
 
 const LayoutSliderGeneral = (
   props: {
@@ -258,13 +250,12 @@ const RunOverlapRemovalAfterCheckbox = (
     configuration: {run_node_overlap_removal_after: boolean}
 }) => {
   return <LayoutCheckboxGeneral
-            controller={props.controller}
-            reactComponentId="checkbox-run-overlap-removal-after"
-            fieldToSet="run_node_overlap_removal_after"
-            configuration={props.configuration}
-            translateLabel="layout-node-overlap-removal-after-checkbox" />;
+    controller={props.controller}
+    reactComponentId="checkbox-run-overlap-removal-after"
+    fieldToSet="run_node_overlap_removal_after"
+    configuration={props.configuration}
+    translateLabel="layout-node-overlap-removal-after-checkbox" />;
 };
-
 
 const InteractiveCheckbox = (
   props: {
@@ -272,12 +263,12 @@ const InteractiveCheckbox = (
     controller: PerformLayoutDialogController,
     configuration: {interactive: boolean}
 }) => {
-    return <LayoutCheckboxGeneral
-            controller={props.controller}
-            reactComponentId="checkbox-interactive"
-            fieldToSet="interactive"
-            configuration={props.configuration}
-            translateLabel="layout-interactive-checkbox" />;
+  return <LayoutCheckboxGeneral
+    controller={props.controller}
+    reactComponentId="checkbox-interactive"
+    fieldToSet="interactive"
+    configuration={props.configuration}
+    translateLabel="layout-interactive-checkbox" />;
 };
 
 const RunLayeredAfterCombobox = (
@@ -286,14 +277,13 @@ const RunLayeredAfterCombobox = (
     controller: PerformLayoutDialogController,
     configuration: {run_layered_after: boolean}
 }) => {
-      return <LayoutCheckboxGeneral
-            controller={props.controller}
-            reactComponentId="checkbox-run-layered-after"
-            fieldToSet="run_layered_after"
-            configuration={props.configuration}
-            translateLabel="layout-layered-after-checkbox" />;
+  return <LayoutCheckboxGeneral
+    controller={props.controller}
+    reactComponentId="checkbox-run-layered-after"
+    fieldToSet="run_layered_after"
+    configuration={props.configuration}
+    translateLabel="layout-layered-after-checkbox" />;
 };
-
 
 const LayoutCheckboxGeneral = (
   props: {
@@ -305,12 +295,12 @@ const LayoutCheckboxGeneral = (
 }) => {
   return <div>
     <input type="checkbox"
-            id={props.reactComponentId}
-            name={props.reactComponentId}
-            checked={props.configuration[props.fieldToSet]}
-            onChange={e => {
-              props.controller.setAlgorithmConfigurationValue(props.fieldToSet, e.target.checked);
-            }} />
+      id={props.reactComponentId}
+      name={props.reactComponentId}
+      checked={props.configuration[props.fieldToSet]}
+      onChange={e => {
+        props.controller.setAlgorithmConfigurationValue(props.fieldToSet, e.target.checked);
+      }} />
     <label htmlFor={props.reactComponentId}>{ t(props.translateLabel) }</label>
   </div>;
 };
@@ -327,9 +317,9 @@ const LayoutEdgeRoutingCombobox = (
     </div>
     <div className="flex flex-row">
       <select id="edge-routing"
-              value={props.configuration.edge_routing}
-              className="border p-3 border-gray-300"
-              onChange={(event) => props.controller.setAlgorithmConfigurationValue("edge_routing", event.target.value as EdgeRouting)}>
+        value={props.configuration.edge_routing}
+        className="border p-3 border-gray-300"
+        onChange={(event) => props.controller.setAlgorithmConfigurationValue("edge_routing", event.target.value as EdgeRouting)}>
         <option value="ORTHOGONAL">{t("layout-layered-edge-routing-orthogonal-option")}</option>
         <option value="POLYLINE">{t("layout-layered-edge-routing-polyline-option")}</option>
         <option value="SPLINES">{t("layout-layered-edge-routing-splines-option")}</option>
