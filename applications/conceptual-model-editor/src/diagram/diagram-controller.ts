@@ -1199,8 +1199,6 @@ const createEdgesChangeHandler = (
   return (changes: EdgeChange<EdgeType>[]) => {
     setEdges((prevEdges) => {
       const edgesAfterChanges = applyEdgeChanges(changes, prevEdges);
-      const newlyRemoved: string[] = changes.filter(change => change.type === "remove").map(change => change.id);
-      setSelectedBasedOnNewData(setSelectedEdges, edgesAfterChanges, null, newlyRemoved);
       return edgesAfterChanges;
     });
   };
