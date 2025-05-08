@@ -43,7 +43,7 @@ Well actually for some reason the first sometimes work,
 but try to remove some empty line and you will get error that the algorithm ran for more than 5 seconds,
 which doesn't happen even for large graphs layouted through Elk stress, which is much more resource heavy algorithm.
 
-TODO: Funnily enough the page went offline literally day after writing the doc, while working the whole project.
+Funnily enough the website, where you can test out elk layouts went out-of-service literally day after writing the doc, while working the whole project. Hopefully it comes back, otherwise you just have to trust me.
 
 [Example of radial Elk algorithm running for long time](https://rtsys.informatik.uni-kiel.de/Elklive/Elkgraph.html?compressedContent=IYGw5g9gTglgLgCwLYC4AEVgBMagFB4B2EWApmoQIxoDeeaaIwARqSGgERUd4C+BxMhQBMteoxZtOhYT35ES5QgGYxDJq3ZdlcgYooAWNRM3SDuhUMIBWYxqldrFwUoBsdyVsKvn+wgHYPUy5-XysADiCHQnCwpQBOKK94iwJSLDAlagBaAD4RPHTMihz8lUKMrLQ8wwriqmqy6zwAeha6pVUawgMOw0aKeNb2oqVbbtc+mwGA4bnRikDuobm5oA)
 
@@ -84,7 +84,6 @@ Note that entities to layout can be both present and not present (so called outs
 Those entities are then transformed into graph representation, which is later further transformed into to the graph representation
 for the layouting library (in our case ElkJS). Same transformation then takes place in the opposite direction.
 
-TODO: Missing img
 ![layout-representations-conversion](images/layout-representations-conversion.png)
 
 When it comes to the user given algorithm configurations. Those are transformed into `ConfigurationContainer` which contains
