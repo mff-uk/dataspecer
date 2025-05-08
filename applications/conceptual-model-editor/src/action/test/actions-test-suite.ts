@@ -148,6 +148,9 @@ export class ActionsTestSuite {
             _modelOfClassWhichStartedHighlighting: string
           ): void {
             throw new Error("Function not implemented.");
+          },
+          openAlignmentMenu: function (sourceNode: Node, canvasPosition: Position): void {
+            throw new Error("Function not implemented.");
           }
         }
 
