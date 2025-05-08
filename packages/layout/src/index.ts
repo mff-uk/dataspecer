@@ -45,15 +45,23 @@ export { type ExplicitAnchors } from "./explicit-anchors.ts";
 export { type VisualModelWithOutsiders } from "./graph/representation/graph.ts";
 
 export type {
+	UserGivenAlgorithmConfigurationBase,
 	UserGivenAlgorithmConfigurationElkForce,
-	UserGivenAlgorithmConfigurationExtraAlgorithmsToRunAfter as UserGivenAlgorithmConfigurationExtraData,
+	UserGivenAlgorithmConfigurationExtraAlgorithmsToRunAfter,
 	UserGivenAlgorithmConfigurationLayered,
 	UserGivenAlgorithmConfigurationStress,
 	UserGivenAlgorithmConfigurations,
+	UserGivenAlgorithmConfigurationsMap,
+	UserGivenAlgorithmConfigurationOverlapRemoval,
+	UserGivenAlgorithmConfigurationStressProfile,
+	UserGivenAlgorithmConfigurationStressWithClusters,
+	UserGivenAlgorithmConfigurationRadial,
+	UserGivenAlgorithmConfigurationRandom,
 } from "./configurations/user-algorithm-configurations.ts";
 
 export  {
-	getDefaultUserGivenAlgorithmConfigurationsFull
+	getDefaultUserGivenAlgorithmConfigurationsFull,
+	isUserGivenAlgorithmConfigurationStressProfile,
 } from "./configurations/user-algorithm-configurations.ts";
 
 export { type ElkForceAlgType } from "./configurations/elk/elk-configurations.ts";

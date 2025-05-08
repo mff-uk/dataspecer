@@ -21,6 +21,7 @@ import "./developer-tools.css";
 import { useLayoutDialog } from "../../layout/layout-dialog-full";
 import { useExploration } from "../features/highlighting/exploration/context/highlighting-exploration-mode";
 import { t } from "../../application";
+import { useActions } from "@/action/actions-react-binding";
 
 /**
  * Provides some internal information.
@@ -31,6 +32,7 @@ export function DeveloperTools() {
   const [changeLoggerActive, setChangeLoggerActive] = useState(false);
   const [viewportLoggerActive, setViewportLoggerActive] = useState(true);
   const explorationMode = useExploration();
+  const { openPerformLayoutVisualModelDialog } = useActions();
 
   const layoutDialogUse = useLayoutDialog();
 
@@ -52,7 +54,7 @@ export function DeveloperTools() {
           >
             Viewport
           </DevToolButton>
-          <button onClick={_ => layoutDialogUse.open()}>Layout</button>
+          <button onClick={_ => openPerformLayoutVisualModelDialog()}>{ t("layout-dialog-open-button") }</button>
           <DevToolButton
             setActive={explorationMode.toggleHighlighting}
             active={explorationMode.isHighlightingOn}
