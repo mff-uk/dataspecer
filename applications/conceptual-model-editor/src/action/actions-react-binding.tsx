@@ -81,6 +81,7 @@ import { openEditSemanticModelDialogAction } from "./open-edit-semantic-model-di
 import { ModelDsIdentifier } from "@/dataspecer/entity-model";
 import { openSearchExternalSemanticModelDialogAction } from "./open-search-external-semantic-model-dialog";
 import { openEditVisualModelDialogAction } from "./open-edit-visual-model-dialog";
+import { alignHorizontallyAction, AlignmentHorizontalPosition, AlignmentVerticalPosition, alignVerticallyAction } from "./align-nodes";
 
 const LOG = createLogger(import.meta.url);
 

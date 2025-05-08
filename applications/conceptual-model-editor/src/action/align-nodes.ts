@@ -4,6 +4,7 @@ import { UseDiagramType } from "../diagram/diagram-hook";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { placeCoordinateOnGrid } from "../../../../packages/layout/lib/util/utils";
 import { configuration } from "../application";
+import { Coordinate, getBotRightPosition, getBoundingBoxInfo, getDimensionValue, getOtherCoordinate, getRelevantDimensionForCoordinate, getTopLeftPosition } from "./utilities";
 
 type AlignmentPosition = AlignmentHorizontalPosition | AlignmentVerticalPosition;
 export enum AlignmentHorizontalPosition {
@@ -16,95 +17,6 @@ export enum AlignmentVerticalPosition {
     Mid,
     Bot
 }
-
-const getTopLeftPosition = (nodes: VisualNode[]) => {
-    const topLeft = {x: 10000000, y: 10000000};
-    nodes.forEach(node => {
-        if(node.position.x < topLeft.x) {
-            topLeft.x = node.position.x;
-        }
-        if(node.position.y < topLeft.y) {
-            topLeft.y = node.position.y;
-        }
-    });
-
-    return topLeft;
-};
-
-
-const getBotRightPosition = (
-    diagram: UseDiagramType,
-    nodes: VisualNode[]
-) => {
-    const botRight = {x: -10000000, y: -10000000};
-    nodes.forEach(node => {
-        const width = getDimensionValue(diagram, DimensionType.Width, node.identifier);
-        const x = node.position.x + width;
-        if(x > botRight.x) {
-            botRight.x = x;
-        }
-
-        const height = getDimensionValue(diagram, DimensionType.Height, node.identifier);
-        const y = node.position.y + height;
-        if(y > botRight.y) {
-            botRight.y = y;
-        }
-    });
-
-    return botRight;
-};
-
-type BoundingBoxInfo = {
-    topLeft: XY,
-    mid: XY,
-    botRight: XY,
-}
-const getBoundingBoxInfo = (
-    diagram: UseDiagramType,
-    nodes: VisualNode[]
-): BoundingBoxInfo => {
-    const topLeft = getTopLeftPosition(nodes);
-    const botRight = getBotRightPosition(diagram, nodes);
-    const mid = {
-        x: (topLeft.x + botRight.x) / 2,
-        y: (topLeft.y + botRight.y) / 2,
-    };
-    return {
-        topLeft,
-        mid,
-        botRight
-    };
-};
-
-
-type Coordinate = "x" | "y";
-const getOtherCoordinate = (coordinate: Coordinate): Coordinate => {
-    return coordinate === "x" ? "y" : "x";
-};
-
-enum DimensionType {
-    Width,
-    Height
-};
-const getRelevantDimensionForCoordinate = (coordinate: Coordinate): DimensionType => {
-    return coordinate === "x" ? DimensionType.Width : DimensionType.Height;
-};
-
-/**
- * @returns Returns either width or height of node identified by {@link nodeIdentifier}.
- *  The returned dimension depends on {@link dimension}.
- */
-function getDimensionValue(
-    diagram: UseDiagramType,
-    dimension: DimensionType,
-    nodeIdentifier: string,
-): number {
-    const dimensionGetter = dimension === DimensionType.Width ?
-        diagram.actions().getNodeWidth :
-        diagram.actions().getNodeHeight;
-    return dimensionGetter(nodeIdentifier) ?? 0;
-}
-
 
 /**
  * General method used for vertical and horizontal alignment, since they are almost the same, just with swapped coordinates
