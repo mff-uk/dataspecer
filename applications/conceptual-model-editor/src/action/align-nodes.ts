@@ -1,8 +1,7 @@
-import { isVisualNode, VisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { XY } from "@dataspecer/layout";
+import { isVisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { placeCoordinateOnGrid, XY } from "@dataspecer/layout";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { placeCoordinateOnGrid } from "../../../../packages/layout/lib/util/utils";
 import { configuration } from "../application";
 import { Coordinate, getBotRightPosition, getBoundingBoxInfo, getDimensionValue, getOtherCoordinate, getRelevantDimensionForCoordinate, getTopLeftPosition } from "./utilities";
 
