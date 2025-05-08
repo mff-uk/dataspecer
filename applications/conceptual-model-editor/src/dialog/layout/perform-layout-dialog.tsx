@@ -68,50 +68,49 @@ const ConfigDialogAlgorithmNameCombobox = (props: DialogProps<PerformLayoutDialo
     </div>)
 };
 
-type AlgorithmToConfigurationMapType = Record<AlgorithmName,
-                                              (props: DialogProps<PerformLayoutDialogState>) => JSX.Element | null>;
+type AlgorithmToConfigurationMapType = Record<AlgorithmName, () => JSX.Element | null>;
 
 const ConfigDialogAlgorithmConfiguration = (props: DialogProps<PerformLayoutDialogState>) => {
   const controller = usePerformLayoutDialogController(props);
   const state = props.state;
 
   const algorithmConfigurationToDialogMap: AlgorithmToConfigurationMapType = {
-    none: function (_props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
+    none: function (): JSX.Element | null {
       return null;
     },
-    elk_stress: function (_props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
+    elk_stress: function (): JSX.Element | null {
       return <ElkStressConfig controller={controller} configuration={state.configurations.elk_stress}/>
     },
-    elk_layered: function (_props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
+    elk_layered: function (): JSX.Element | null {
       return <ElkLayeredConfig controller={controller} configuration={state.configurations.elk_layered} />;
     },
-    elk_force: function (_props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
+    elk_force: function (): JSX.Element | null {
       return null;
     },
-    random: function (props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
+    random: function (): JSX.Element | null {
       return <RandomConfig controller={controller} configuration={state.configurations.random}/>;
     },
-    elk_radial: function (props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
+    elk_radial: function (): JSX.Element | null {
       return <RadialConfig controller={controller} configuration={state.configurations.elk_radial}></RadialConfig>
     },
-    elk_overlapRemoval: function (props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
+    elk_overlapRemoval: function (): JSX.Element | null {
       return <OverlapRemovalConfig controller={controller} configuration={state.configurations.elk_overlapRemoval} />;
     },
-    elk_stress_advanced_using_clusters: function (props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
+    elk_stress_advanced_using_clusters: function (): JSX.Element | null {
       return <ElkStressWithClustersConfig controller={controller}
         configuration={state.configurations.elk_stress_advanced_using_clusters}/>
     },
-    elk_stress_profile: function (props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
+    elk_stress_profile: function (): JSX.Element | null {
       return <ElkStressConfig controller={controller} configuration={state.configurations.elk_stress_profile}/>
     },
-    automatic: function (props: DialogProps<PerformLayoutDialogState>): JSX.Element | null {
+    automatic: function (): JSX.Element | null {
       return null;
     }
   };
 
   return <div className="flex flex-col">
     <div className="font-black text-base">{t("layout-dialog-algorithm-configuration-label")}:</div>
-    {algorithmConfigurationToDialogMap[props.state.chosenAlgorithm](props) ?? null}
+    {algorithmConfigurationToDialogMap[props.state.chosenAlgorithm]() ?? null}
   </div>
 };
 
