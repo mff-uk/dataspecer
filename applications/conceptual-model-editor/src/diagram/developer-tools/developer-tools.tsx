@@ -18,7 +18,6 @@ import {
 } from "@xyflow/react";
 
 import "./developer-tools.css";
-import { useLayoutDialog } from "../../layout/layout-dialog-full";
 import { useExploration } from "../features/highlighting/exploration/context/highlighting-exploration-mode";
 import { t } from "../../application";
 import { useActions } from "@/action/actions-react-binding";
@@ -33,8 +32,6 @@ export function DeveloperTools() {
   const [viewportLoggerActive, setViewportLoggerActive] = useState(true);
   const explorationMode = useExploration();
   const { openPerformLayoutVisualModelDialog } = useActions();
-
-  const layoutDialogUse = useLayoutDialog();
 
   return (
     <div>
@@ -66,7 +63,6 @@ export function DeveloperTools() {
         {changeLoggerActive && <ChangeLogger />}
         {viewportLoggerActive && <ViewportLogger />}
       </div>
-      {layoutDialogUse.isLayoutDialogOpen && <layoutDialogUse.DialogComponent></layoutDialogUse.DialogComponent>}
     </div>
   );
 }
