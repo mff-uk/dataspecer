@@ -1,4 +1,16 @@
-import { isVisualDiagramNode, isVisualNode, isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel, VisualDiagramNode, VisualEntity, VisualModel, VisualNode, VisualProfileRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import {
+  isVisualDiagramNode,
+  isVisualNode,
+  isVisualProfileRelationship,
+  isVisualRelationship,
+  isWritableVisualModel,
+  VisualDiagramNode,
+  VisualEntity,
+  VisualModel,
+  VisualNode,
+  VisualProfileRelationship,
+  WritableVisualModel
+} from "@dataspecer/core-v2/visual-model";
 import { SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { EntityModel } from "@dataspecer/core-v2";
 import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
@@ -20,8 +32,12 @@ const LOG = createLogger(import.meta.url);
  * 1) Don't show visual profile relationships going from/to visual diagram nodes. - Honestly this seems ok to me
  * 2) Visual profile relationships between classes are always shown when validating. - Might be issue in future
  *
- * One drawback is that we edit relationship ends, the edge is removed in the other models.
- * That being said it is still better than current solution, where the edge stays without change, therefore it is incorrect.
+ * One drawback is that if we edit relationship ends, the edge is removed in the other models.
+ * That being said it is still better than current solution, where the edge stays without change,
+ * therefore it is incorrect.
+ *
+ * Also when end is changed in current visual model and one of the ends is in visual diagram node after then edit,
+ * then such edge is also removed from visual model.
  */
 export function validateVisualModel(
   actions: ActionsContextType,
@@ -98,7 +114,8 @@ function validateClassProfilesInsideVisualModel(
       }
     }
     else if (isVisualNode(visualEntity)) {
-      const classProfile = classesContext.classProfiles.find(classProfile => classProfile.id === visualEntity.representedEntity);
+      const classProfile = classesContext.classProfiles
+        .find(classProfile => classProfile.id === visualEntity.representedEntity);
       if (classProfile === undefined) {
         continue;
       }
@@ -161,7 +178,7 @@ function validateVisualModelAgainstDiagramNodes(
   // For actual visual relationships this is simple.
   // For visual Profile relationships it is not,
   // so I just removed the attempt and by default we don't show class profile edges between diagram nodes!
-  // ... so this next part of comment is invalid, but it still may contain some relevant info - TODO RadStr: Remove on clean-up
+  // ... so this next part of comment is invalid, but it still may contain some relevant info
   // The reason why it is not that simple is that:
   // The entity property on visual profile edge is no longer enough to identify
   // the original semantic profile source and target, since unlike in usages it is no longer 1:1 mapping.
@@ -277,7 +294,7 @@ function checkEdgeEndValidityAndExtend(
     if (!isDiagramNodeValid) {
       isValid = null;
     }
-    else if (visualModelToContentMappings[visualEdgeEnd.representedVisualModel](supposedSemanticEdgeEnd).length === 0) {
+    else if(visualModelToContentMappings[visualEdgeEnd.representedVisualModel](supposedSemanticEdgeEnd).length === 0) {
       isValid = false;
     }
   }
