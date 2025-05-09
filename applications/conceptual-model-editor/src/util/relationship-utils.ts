@@ -1,5 +1,7 @@
 import {
+  SemanticModelGeneralization,
   type SemanticModelRelationship,
+  isSemanticModelGeneralization,
   isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
@@ -89,6 +91,38 @@ export const getDomainAndRangeConcepts = (
       range: domainAndRange.range?.concept ?? null,
     };
   }
+};
+
+
+
+/**
+ * Extension of {@link getDomainAndRangeConcepts}.
+ *  This method also returns domain and range for {@link SemanticModelGeneralization}.
+ *  To emphasize that generalization doesn't have domain and range in the literal sense
+ *  we return source and target.
+ */
+export const getSemanticConnectionEndConcepts = (
+  relationship: SemanticModelRelationship
+  | SemanticModelRelationshipUsage
+  | SemanticModelRelationshipProfile
+  | SemanticModelGeneralization,
+): { source: string | null, target: string | null } => {
+  let source: string | null;
+  let target: string | null;
+  if(isSemanticModelGeneralization(relationship)) {
+    source = relationship.child;
+    target = relationship.parent;
+  }
+  else {
+    const domainAndRange = getDomainAndRangeConcepts(relationship);
+    source = domainAndRange.domain;
+    target = domainAndRange.range;
+  }
+
+  return {
+    source,
+    target,
+  };
 };
 
 /**
