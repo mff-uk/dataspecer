@@ -93,8 +93,6 @@ export const getDomainAndRangeConcepts = (
   }
 };
 
-
-
 /**
  * Extension of {@link getDomainAndRangeConcepts}.
  *  This method also returns domain and range for {@link SemanticModelGeneralization}.

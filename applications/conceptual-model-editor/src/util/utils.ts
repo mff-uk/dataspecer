@@ -41,7 +41,6 @@ export function createAttributeProfileLabel(
   return label;
 }
 
-
 export type VisualsForRepresentedWrapper = (identifier: string) => VisualEntity[];
 
 /**

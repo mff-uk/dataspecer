@@ -6,7 +6,7 @@ import { UseDiagramType } from "../diagram/diagram-hook";
 import { configuration, createLogger } from "../application";
 import { ReactflowDimensionsConstantEstimator, XY, placePositionOnGrid } from "@dataspecer/layout";
 import { Position, VisualGroup, VisualModel, WritableVisualModel, isVisualNode, isVisualGroup, isVisualRelationship, VisualDiagramNode, VisualNode, isVisualDiagramNode, VisualEntity } from "@dataspecer/core-v2/visual-model";
-import { DiagramNodeTypes, Edge, EdgeType, Node } from "../diagram";
+import { DiagramNodeTypes, Edge, EdgeType } from "../diagram";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { ModelGraphContextType } from "../context/model-context";
 import { ClassesContextType } from "../context/classes-context";
@@ -287,7 +287,6 @@ export function findTopLevelGroupInVisualModel(
   return topLevelGroup;
 }
 
-
 /**
  * Returns all visual diagram node mappings in the given model. We are mapping classes to parent visual diagram nodes.
  * That is for each diagram node all the nodes and diagram nodes contained in it are returned.
@@ -399,9 +398,8 @@ export type VisualEdgeEndPoint = VisualDiagramNode | VisualNode;
  * Currently that is either {@link VisualNode} or node representing diagram ({@link VisualDiagramNode}).
  */
 export function isVisualEdgeEnd(what: VisualEntity): what is VisualEdgeEndPoint {
-    return isVisualNode(what) || isVisualDiagramNode(what);
+  return isVisualNode(what) || isVisualDiagramNode(what);
 }
-
 
 /**
  * @returns The semantic identifiers of the nodes in visual model.

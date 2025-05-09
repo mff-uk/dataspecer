@@ -1062,8 +1062,8 @@ function createActionsContext(
         // Do nothing
       }
       else {
-      openCreateConnectionDialog(
-        source.externalIdentifier, target.externalIdentifier, source.identifier, target.identifier);
+        openCreateConnectionDialog(
+          source.externalIdentifier, target.externalIdentifier, source.identifier, target.identifier);
       }
     },
 

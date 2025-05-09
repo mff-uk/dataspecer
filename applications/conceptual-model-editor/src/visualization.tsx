@@ -878,7 +878,7 @@ function onChangeVisualEntities(
           actions.addNodes([node]);
         } else {
           // Change of existing.
-          visualDiagramNodesChanges.updated.push({previous, next});
+          visualDiagramNodesChanges.updated.push({ previous, next });
           actions.updateNodes([node]);
         }
       } else if (isVisualNode(next)) {
