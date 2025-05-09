@@ -237,7 +237,7 @@ const ElkStressWithClustersConfig = (
       step={10}
       fieldToSet="stress_edge_len" />
     <NumberOfRunsReactComponent controller={props.controller} configuration={props.configuration}/>
-    <RunOverlapRemovalAfterCheckbox text={t("layout-clusters-edge-layout")}
+    <RunOverlapRemovalAfterCheckbox text="layout-clusters-edge-layout"
       controller={props.controller}
       configuration={props.configuration}/>
   </div>;
