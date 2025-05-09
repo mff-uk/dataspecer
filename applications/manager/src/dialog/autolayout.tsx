@@ -55,7 +55,7 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
     const configurationData = (await packageService.getResourceJsonData(parentIri)) ?? {};
     const configuration = createDefaultConfigurationModelFromJsonObject(configurationData);
     applyLayoutConfiguration(configuration, getConfig());
-    const result = configuration.serializeModelToApiJsonObject(data);
+    const result = configuration.serializeModelToApiJsonObject(configurationData);
     await packageService.setResourceJsonData(parentIri, result);
 
     console.log(entities);
