@@ -82,7 +82,7 @@ const Page = () => {
   const [defaultModelAlreadyCreated, setDefaultModelAlreadyCreated] = useState(false);
   const [classProfiles, setClassProfiles] = useState<SemanticModelClassProfile[]>([]);
   const [relationshipProfiles, setRelationshipProfiles] = useState<SemanticModelRelationshipProfile[]>([]);
-    const [
+  const [
     layoutConfiguration,
     setLayoutConfiguration
   ] = useState<UserGivenAlgorithmConfigurations>(getDefaultUserGivenAlgorithmConfigurationsFull());
@@ -269,7 +269,6 @@ function initializeWithPackage(
     console.error("Can not load configuration for layouting. Using the default", error);
     setLayoutConfiguration(getDefaultUserGivenAlgorithmConfigurationsFull());
   });
-
 
   const getModels = () => getModelsFromBackend(packageId);
 
