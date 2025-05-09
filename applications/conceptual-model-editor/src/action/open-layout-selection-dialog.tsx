@@ -37,7 +37,7 @@ export function openLayoutSelectionDialogAction(
       fullConfiguration, visualEntitiesToLayout);
   }
 
-  const state = createPerformLayoutDialogState("elk_layered");
+  const state = createPerformLayoutDialogState("elk_layered", null);
   dialogs?.openDialog(createPerformLayoutDialog(state, onConfirm));
 }
 

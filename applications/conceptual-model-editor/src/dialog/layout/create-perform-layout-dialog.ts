@@ -4,8 +4,8 @@ import { AlgorithmName, getDefaultUserGivenAlgorithmConfigurationsFull, UserGive
 import { PerformLayoutDialog } from "./perform-layout-dialog";
 
 export function createPerformLayoutDialogState(
-  chosenAlgorithm?: AlgorithmName,
-  configurations?: UserGivenAlgorithmConfigurationsMap,
+  chosenAlgorithm: AlgorithmName,
+  configurations: UserGivenAlgorithmConfigurationsMap | null,
 ): PerformLayoutDialogState {
   return {
     chosenAlgorithm: chosenAlgorithm ?? "elk_stress_advanced_using_clusters",
