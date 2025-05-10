@@ -32,6 +32,7 @@ import { addSemanticRelationshipProfileToVisualModelAction } from "../add-relati
 import { createCmeClassProfile } from "@/dataspecer/cme-model/operation/create-cme-class-profile";
 import { createCmeRelationshipProfile } from "@/dataspecer/cme-model/operation/create-cme-relationship-profile";
 import { addVisualRelationshipsWithSpecifiedVisualEnds } from "@/dataspecer/visual-model/operation/add-visual-relationships";
+import { createCmeModelOperationExecutor } from "@/dataspecer/cme-model";
 import { representRdfsLiteral } from "@/dialog/utilities/dialog-utilities";
 
 export enum TestedSemanticConnectionType {
@@ -484,7 +485,7 @@ export class ActionsTestSuite {
       visualModel,
       visualNodeIdentifiers,
       modelAlias,
-      model: firstModel as InMemorySemanticModel,
+      firstModel: firstModel as InMemorySemanticModel,
       models,
       modelsAsArray,
       graph,
@@ -801,6 +802,48 @@ export class ActionsTestSuite {
 
     return {
       identifier: newAttribute.id,
+      model,
+    };
+  }
+
+  static createSemanticAttributeProfileTestVariant(
+    classesContext: ClassesContextType,
+    models: Map<string, EntityModel>,
+    domainAttribute: string,
+    domainConceptIdentifier: string,
+    modelDsIdentifier: string,
+  ) {
+    const range = representRdfsLiteral();
+
+    const model: InMemorySemanticModel = models.get(modelDsIdentifier) as InMemorySemanticModel;
+    const executor = createCmeModelOperationExecutor(models);
+    const result = executor.createRelationshipProfile({
+      model: modelDsIdentifier,
+      profileOf: [domainAttribute],
+      iri: ActionsTestSuite.generateIriForName(domainAttribute),
+      name: null,
+      nameSource: null,
+      description: null,
+      descriptionSource: null,
+      usageNote: null,
+      usageNoteSource: null,
+      //
+      domain: domainConceptIdentifier,
+      domainCardinality: null,
+      range: range.identifier,
+      rangeCardinality: null,
+      externalDocumentationUrl: null,
+      mandatoryLevel: null,
+    });
+
+    const createdAttributeProfile = model.getEntities()[result.identifier];
+    if(!isSemanticModelRelationshipProfile(createdAttributeProfile)) {
+      throw new Error("Failed on set-up when creating semantic attribute profile")
+    }
+    classesContext.relationshipProfiles.push(createdAttributeProfile);
+
+    return {
+      identifier: result.identifier,
       model,
     };
   }

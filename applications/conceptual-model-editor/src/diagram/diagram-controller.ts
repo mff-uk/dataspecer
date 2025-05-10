@@ -397,7 +397,7 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
 
   useEffect(() => {
     if(!canvasHighlighting.isHighlightingOn) {
-      setHighlightingStylesBasedOnSelection(reactFlowInstance, selectedNodes, selectedEdges, setNodes, setEdges);
+      setHighlightingStylesBasedOnSelection(reactFlowInstance.getNode, selectedNodes, selectedEdges, setNodes, setEdges);
     }
   }, [reactFlowInstance, setNodes, setEdges, selectedNodes, selectedEdges, canvasHighlighting.isHighlightingOn]);
 
