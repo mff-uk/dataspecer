@@ -86,6 +86,7 @@ import { openEditVisualModelDialogAction } from "./open-edit-visual-model-dialog
 import { LayoutConfigurationContextType, useLayoutConfigurationContext } from "@/context/layout-configuration-context";
 import { addAllRelationshipsForVisualDiagramNodeToVisualModelAction } from "./add-all-relationships";
 import { addVisualDiagramNodeForExistingModelToVisualModelAction } from "./create-visual-diagram-node-for-existing-model";
+import { putVisualDiagramNodeContentToVisualModelAction } from "./put-visual-diagram-node-content-to-visual-model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -1141,8 +1142,11 @@ function createActionsContext(
       // TODO RadStr: Empty mock-up for now
     },
 
-    onDissolveVisualModelDiagramNode: (_visualModelDiagramNode: VisualModelDiagramNode) => {
-      // TODO RadStr: Empty mock-up for now
+    onDissolveVisualModelDiagramNode: (visualModelDiagramNode: VisualModelDiagramNode) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        putVisualDiagramNodeContentToVisualModelAction(notifications, classes, graph, diagram, visualModel, visualModelDiagramNode);
+        removeFromVisualModelByVisualAction(notifications, visualModel, [visualModelDiagramNode.identifier]);
+      });
     },
 
     onMoveToVisualModelRepresentedByVisualModelDiagramNode: (_visualModelDiagramNodeIdentifier: string) => {
