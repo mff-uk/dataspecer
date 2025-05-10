@@ -32,7 +32,7 @@ import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
-import { EntityToDelete, checkIfIsAttributeOrAttributeProfile, convertToEntitiesToDeleteType, findTopLevelGroupInVisualModel, getSelections, getViewportCenterForClassPlacement, setSelectionsInDiagram } from "./utilities";
+import { EntityToDelete, checkIfIsAttributeOrAttributeProfile, convertToEntitiesToDeleteType, findTopLevelGroupInVisualModel, getSelections, getViewportCenterForClassPlacement, isVisualEdgeEnd, setSelectionsInDiagram } from "./utilities";
 import { removeFromSemanticModelsAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
 import { openCreateAssociationDialogAction } from "./open-create-association-dialog";
@@ -581,7 +581,7 @@ function createActionsContext(
     withVisualModel(notifications, graph, (visualModel) => {
       for (const [identifier, position] of Object.entries(changes)) {
         const node = visualModel.getVisualEntity(identifier);
-        if (node === null || !isVisualNode(node)) {
+        if (node === null || !isVisualEdgeEnd(node)) {
           notifications.error("Node which changed position can not be found in visual model.");
           return;
         }

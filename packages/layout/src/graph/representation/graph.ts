@@ -9,7 +9,6 @@ import {
     ExtractedModels,
     extractModelObjects,
     GeneralizationBundle,
-    getEdgeSourceAndTargetRelationship,
     RelationshipBundle,
     RelationshipProfileBundle
  } from "../../layout-algorithms/entity-bundles.ts";
@@ -17,11 +16,11 @@ import {
 import {
     VisualModel,
     isVisualNode,
-    VisualNode,
     isVisualRelationship,
     isVisualProfileRelationship,
     VISUAL_NODE_TYPE,
-    isVisualGroup
+    isVisualGroup,
+    isVisualDiagramNode
 } from "@dataspecer/core-v2/visual-model";
 import {
     findTopLevelGroup,
@@ -45,7 +44,7 @@ import {
     SemanticModelClassProfile,
 } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
-import { addNodeToGraph, getAllEdges, getAllIncomingEdges, getAllOutgoingEdges, Node, isNodeInVisualModel, VisualNodeComplete, getAllIncomingUniqueEdges, getAllOutgoingUniqueEdges, getAllUniqueEdges } from "./node.ts";
+import { addNodeToGraph, getAllEdges, getAllIncomingEdges, getAllOutgoingEdges, Node, isNodeInVisualModel, VisualNodeComplete, getAllIncomingUniqueEdges, getAllOutgoingUniqueEdges, getAllUniqueEdges, AllowedVisualsForNodes } from "./node.ts";
 import { GraphFactory } from "./graph-factory.ts";
 import { AllowedEdgeBundleWithType, AllowedEdgeTypes, convertOutgoingEdgeTypeToIncoming, DefaultEdge, EdgeEndPoint, getEdgeTypeNameFromEdge, Edge } from "./edge.ts";
 
@@ -286,29 +285,36 @@ export class DefaultGraph implements Graph {
             const nodes = entitiesToLayout.visualEntities
                 .map(entity => visualModel.getVisualEntity(entity))
                 .filter(entity => entity !== null)
-                .filter(isVisualNode);
+                .filter(entity => isVisualNode(entity) || isVisualDiagramNode(entity));
             for(const node of nodes) {
-                const cclass = extractedModels.classes.find(cclass => cclass.semanticClass.id === node.representedEntity);
-                if(cclass !== undefined) {
-                    addNodeToGraph(
-                        this.mainGraph, node, cclass.semanticClass, false, cclass.sourceModelIdentifier,
-                        extractedModels, this, visualModel, entitiesToLayout, null, false, explicitAnchors);
-                }
-                else {
-                    const classProfile = extractedModels.classesProfiles
-                        .find(classProfile => classProfile.semanticClassProfile.id === node.representedEntity);
-                    if(classProfile === undefined) {
+                if(isVisualNode(node)) {
+                    const cclass = extractedModels.classes.find(cclass => cclass.semanticClass.id === node.representedEntity);
+                    if(cclass !== undefined) {
                         addNodeToGraph(
-                            this.mainGraph, node, null, true,
-                            classProfile?.sourceModelIdentifier ?? null, extractedModels, this,
-                            visualModel, entitiesToLayout, null, false, explicitAnchors);
+                            this.mainGraph, node, cclass.semanticClass, false, cclass.sourceModelIdentifier,
+                            extractedModels, this, visualModel, entitiesToLayout, null, false, explicitAnchors);
                     }
                     else {
-                        addNodeToGraph(
-                            this.mainGraph, node, classProfile.semanticClassProfile, true,
-                            classProfile.sourceModelIdentifier, extractedModels, this,
-                            visualModel, entitiesToLayout, null, false, explicitAnchors);
+                        const classProfile = extractedModels.classesProfiles
+                            .find(classProfile => classProfile.semanticClassProfile.id === node.representedEntity);
+                        if(classProfile === undefined) {
+                            addNodeToGraph(
+                                this.mainGraph, node, null, true,
+                                classProfile?.sourceModelIdentifier ?? null, extractedModels, this,
+                                visualModel, entitiesToLayout, null, false, explicitAnchors);
+                        }
+                        else {
+                            addNodeToGraph(
+                                this.mainGraph, node, classProfile.semanticClassProfile, true,
+                                classProfile.sourceModelIdentifier, extractedModels, this,
+                                visualModel, entitiesToLayout, null, false, explicitAnchors);
+                        }
                     }
+                }
+                else {
+                    addNodeToGraph(
+                        this.mainGraph, node, null, true, null, extractedModels, this,
+                        visualModel, entitiesToLayout, null, false, explicitAnchors);
                 }
             }
         }
@@ -803,7 +809,7 @@ export class DefaultGraph implements Graph {
     }
 
 
-    convertToDataspecerRepresentation(): VisualNode | null {
+    convertToDataspecerRepresentation(): AllowedVisualsForNodes | null {
         return this.completeVisualNode?.coreVisualNode ?? null;
     }
 
