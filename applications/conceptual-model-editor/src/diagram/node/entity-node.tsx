@@ -62,6 +62,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
   const hideIri = data.options.labelVisual === LabelVisual.Iri;
   const label = prepareLabel(data.options, data);
   const mainColor = prepareColor(data);
+  const isSingleNodeSelected = context?.getShownNodeMenuType() === NodeMenuType.SingleNodeMenu;
 
   return (
     <>
@@ -92,7 +93,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
                   <RelationshipItem
                     options={data.options}
                     data={item}
-                    showToolbar={props.selected}
+                    showToolbar={props.selected && isSingleNodeSelected}
                     onEdit={editItem}
                     onMoveUp={moveItemUp}
                     onMoveDown={moveItemDown}
@@ -292,11 +293,24 @@ function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
   const onShowExpandSelection = () => context?.callbacks().onShowExpandSelection();
   const onShowFilterSelection = () => context?.callbacks().onShowFilterSelection();
 
+  const onOpenAlignmentMenu = (event: React.MouseEvent) => {
+    const absoluteFlowPosition = reactFlow.screenToFlowPosition({ x: event.clientX, y: event.clientY });
+    context?.callbacks().onOpenAlignmentMenu(props.data, absoluteFlowPosition);
+  }
   return (<>
     <NodeToolbar isVisible={shouldShowMenu} position={Position.Top} className="flex gap-2 entity-node-menu" >
       <button onClick={onOpenSelectionActionsMenu} title={t("selection-action-button")}>🎬</button>
       &nbsp;
-      <button onClick={onLayoutSelection} title={t("selection-layout-button")} disabled>🔀</button>
+      <button onClick={onLayoutSelection} title={t("selection-layout-button")}>🔀</button>
+      &nbsp;
+      <button onClick={(event) => onOpenAlignmentMenu(event)}>
+        { /* https://www.svgrepo.com/svg/535125/align-left */}
+        <svg width="24px" height="24px" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 1H3V15H1V1Z" fill="#000000"/>
+          <path d="M5 13H15V9H5V13Z" fill="#000000"/>
+          <path d="M11 7H5V3H11V7Z" fill="#000000"/>
+        </svg>
+      </button>
       &nbsp;
     </NodeToolbar>
     <NodeToolbar isVisible={shouldShowMenu} position={Position.Right} className="flex gap-2 entity-node-menu" >

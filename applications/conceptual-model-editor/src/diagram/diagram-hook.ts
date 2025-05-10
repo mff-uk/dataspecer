@@ -107,6 +107,7 @@ const noOperationDiagramActions: DiagramActions = {
   renderToSvgString: noOperationNullAsync,
   openDragEdgeToCanvasMenu: noOperation,
   openSelectionActionsMenu: noOperation,
+  openAlignmentMenu: noOperation,
   openGroupMenu: noOperation,
   highlightNodesInExplorationModeFromCatalog: noOperation,
 };
@@ -133,6 +134,7 @@ const noOperationCallbacks: DiagramCallbacks = {
   onCreateConnectionToNothing: noOperation,
   onToggleAnchorForNode: noOperation,
   onShowSelectionActionsMenu: noOperation,
+  onOpenAlignmentMenu: noOperation,
   onLayoutSelection: noOperation,
   onCreateGroup: noOperation,
   onDissolveGroup: noOperation,
@@ -150,4 +152,6 @@ const noOperationCallbacks: DiagramCallbacks = {
   onEditVisualNode: noOperation,
   onMoveAttributeUp: noOperation,
   onMoveAttributeDown: noOperation,
+  onAlignSelectionHorizontally: noOperation,
+  onAlignSelectionVertically: noOperation,
 };
