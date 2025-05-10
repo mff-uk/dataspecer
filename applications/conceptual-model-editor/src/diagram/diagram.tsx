@@ -3,8 +3,6 @@ import {
   BackgroundVariant,
   Controls,
   MiniMap,
-  MiniMapNodeProps,
-  type Node,
   ReactFlow,
   ReactFlowProvider,
 } from "@xyflow/react";
@@ -24,10 +22,12 @@ import type { UseDiagramType } from "./diagram-hook";
 
 import { configuration } from "../configuration/configuration";
 import { AlignmentComponent } from "./features/alignment-viewportal";
-import { type Node as ApiNode, EdgeType } from "./diagram-model";
+import { EdgeType } from "./diagram-model";
 import { ClassProfileEdge, ClassProfileEdgeName } from "./edge/class-profile-edge";
 import { GeneralizationEdge, GeneralizationEdgeName } from "./edge/generalization-edge";
 import { CanvasGeneralMenu } from "./canvas/canvas-menu-general";
+import { useDiagramMinimapHandler } from "./diagram-minimap-handler";
+import { VisualModelNode, VisualModelNodeName } from "./node/visual-model-diagram-node";
 
 export function Diagram(props: { diagram: UseDiagramType }) {
   // We use ReactFlowProvider as otherwise use of ReactFlow hooks,
@@ -40,6 +40,7 @@ export function Diagram(props: { diagram: UseDiagramType }) {
 }
 
 const nodeTypes = {
+  [VisualModelNodeName]: VisualModelNode,
   [EntityNodeName]: EntityNode,
 };
 
@@ -52,6 +53,7 @@ const edgeTypes = {
 function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
   const controller = useDiagramController(props.diagram);
   const { xSnapGrid, ySnapGrid } = configuration();
+  const minimapHandler = useDiagramMinimapHandler();
 
   return (
     <>
@@ -95,7 +97,7 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
           onSelectionStart={controller.onSelectionStart}
         >
           <Controls />
-          <MiniMap nodeColor={miniMapNodeColor} nodeComponent={MiniMapNode} pannable zoomable />
+          <MiniMap nodeColor={minimapHandler.miniMapNodeColor} nodeComponent={minimapHandler.MiniMapNode} pannable zoomable />
           <Background variant={BackgroundVariant.Lines} gap={xSnapGrid} size={1} />
           <DeveloperTools />
         </ReactFlow>
@@ -118,16 +120,6 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
       </DiagramContext.Provider>
     </>
   );
-}
-
-function miniMapNodeColor(node: Node<ApiNode>) {
-  return node.data.color;
-}
-
-function MiniMapNode(props: MiniMapNodeProps) {
-  // TODO RadStr: We will need to check in reactflow's instance the actual node's type
-  //              so we can render it's shape correctly
-  return <rect x={props.x} y={props.y} width={props.width} height={props.height} fill={props.color}/>;
 }
 
 /**
