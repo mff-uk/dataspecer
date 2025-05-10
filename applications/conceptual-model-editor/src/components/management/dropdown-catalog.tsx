@@ -1,5 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
+type ExtraCatalogItemData = {
+  callback: (value: string) => void;
+  content: string
+}
+
+type ExtraCatalogItemDataInternal = {
+  callback: () => void;
+  content: string
+}
+
 export const DropDownCatalog = (props: {
   label: string;
   valueSelected: string | null;
@@ -9,10 +19,11 @@ export const DropDownCatalog = (props: {
   onValueSelected: (value: string) => void;
   onValueEdit?: (value: string) => void;
   onValueDeleted?: (value: string) => void;
+  extraCatalogItems?: ExtraCatalogItemData[];
 }) => {
   const {
     label, valueSelected, availableValues, openCatalogTitle,
-    onValueSelected, onValueEdit, onValueDeleted
+    onValueSelected, onValueEdit, onValueDeleted, extraCatalogItems
   } = props;
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -76,6 +87,15 @@ export const DropDownCatalog = (props: {
                         setDropdownOpen(false);
                         onValueDeleted(getKey(item));
                       }}
+                    extraButtonsForItem={item?.[0] === valueSelected ?
+                      undefined :
+                      extraCatalogItems?.map(itemData => ({
+                        content: itemData.content,
+                        callback: () => {
+                          setDropdownOpen(false);
+                          itemData.callback(getKey(item));
+                        }
+                      }))}
                   />
                 ))}
               </ul>
@@ -108,10 +128,11 @@ const CatalogItem = (props: {
   onClick: () => void,
   onEdit?: () => void,
   onDelete?: () => void,
+  extraButtonsForItem?: ExtraCatalogItemDataInternal[],
 }) => {
-  const { value, onClick, onEdit, onDelete } = props;
+  const { value, onClick, onEdit, onDelete, extraButtonsForItem } = props;
   return (
-    <li key={value} className="flex w-full flex-row justify-between gap-2">
+    <li key={value} className="flex w-full flex-row justify-between gap-y-2">
       <button
         className="cursor-pointer flex-grow"
         data-menu="catalog"
@@ -136,6 +157,15 @@ const CatalogItem = (props: {
           🗑
         </button>
       )}
+      {extraButtonsForItem && extraButtonsForItem.map(({content, callback}, index) =>
+        (<button key={`button-dropdown-catalog-${value}-${index}-special`}
+                  id={`button-dropdown-catalog-${value}-${index}-special`}
+                  className="cursor-pointer"
+                  data-menu="catalog"
+                  onClick={callback}>
+          {content}
+        </button>))
+      }
     </li>
   );
 };
