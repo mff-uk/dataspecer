@@ -3,7 +3,15 @@ import { placeCoordinateOnGrid, XY } from "@dataspecer/layout";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { configuration } from "../application";
-import { Coordinate, getBotRightPosition, getBoundingBoxInfo, getDimensionValue, getOtherCoordinate, getRelevantDimensionForCoordinate, getTopLeftPosition } from "./utilities";
+import {
+  Coordinate,
+  getBotRightPosition,
+  getBoundingBoxInfo,
+  getDimensionValue,
+  getOtherCoordinate,
+  getRelevantDimensionForCoordinate,
+  getTopLeftPosition
+} from "./utilities";
 
 type AlignmentPosition = AlignmentHorizontalPosition | AlignmentVerticalPosition;
 export enum AlignmentHorizontalPosition {
@@ -18,7 +26,8 @@ export enum AlignmentVerticalPosition {
 }
 
 /**
- * General method used for vertical and horizontal alignment, since they are almost the same, just with swapped coordinates
+ * General method used for vertical and horizontal alignment,
+ * since they are almost the same, just with swapped coordinates
  */
 function alignGeneral(
   notifications: UseNotificationServiceWriterType,
