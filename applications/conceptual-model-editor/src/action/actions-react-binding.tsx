@@ -84,6 +84,8 @@ import { ModelDsIdentifier } from "@/dataspecer/entity-model";
 import { openSearchExternalSemanticModelDialogAction } from "./open-search-external-semantic-model-dialog";
 import { openEditVisualModelDialogAction } from "./open-edit-visual-model-dialog";
 import { LayoutConfigurationContextType, useLayoutConfigurationContext } from "@/context/layout-configuration-context";
+import { addAllRelationshipsForVisualDiagramNodeToVisualModelAction } from "./add-all-relationships";
+import { addVisualDiagramNodeForExistingModelToVisualModelAction } from "./create-visual-diagram-node-for-existing-model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -783,14 +785,20 @@ function createActionsContext(
     });
   };
 
-  const addVisualDiagramNodeForExistingModelToVisualModel = (_visualModelToRepresent: string): void => {
-    // TODO RadStr: Empty mock-up for now
+  const addVisualDiagramNodeForExistingModelToVisualModel = (visualModelToRepresent: string): void => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      addVisualDiagramNodeForExistingModelToVisualModelAction(
+        notifications, graph, diagram, visualModel, {}, {}, visualModelToRepresent);
+    });
   };
 
   const addAllRelationshipsForVisualDiagramNodeToVisualModel = (
-    _visualModelDiagramNode: VisualModelDiagramNode
+    visualModelDiagramNode: VisualModelDiagramNode
   ): void => {
-    // TODO RadStr: Empty mock-up for now
+    withVisualModel(notifications, graph, (visualModel) => {
+      addAllRelationshipsForVisualDiagramNodeToVisualModelAction(
+        notifications, classes, graph, visualModel, visualModelDiagramNode);
+    });
   };
 
   const shiftAttributeUp = (attribute: string, domainNode: string | null): void => {

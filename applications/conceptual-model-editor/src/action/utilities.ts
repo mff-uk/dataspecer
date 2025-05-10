@@ -389,7 +389,7 @@ export function getRemovedAndAdded<T>(previousValues: T[], nextValues: T[]) {
  * @returns Returns top left position of bounding box created by given {@link nodes}.
  * If the given array is empty, returns large number.
  */
-export const getTopLeftPosition = (nodes: VisualNode[]) => {
+export const getTopLeftPosition = (nodes: VisualEdgeEndPoint[]) => {
   const topLeft = { x: 10000000, y: 10000000 };
   nodes.forEach(node => {
     if(node.position.x < topLeft.x) {
@@ -410,7 +410,7 @@ export const getTopLeftPosition = (nodes: VisualNode[]) => {
 */
 export const getBotRightPosition = (
   diagram: UseDiagramType,
-  nodes: VisualNode[]
+  nodes: VisualEdgeEndPoint[]
 ) => {
   const botRight = { x: -10000000, y: -10000000 };
   nodes.forEach(node => {
@@ -489,6 +489,20 @@ export type Coordinate = "x" | "y";
 export const getOtherCoordinate = (coordinate: Coordinate): Coordinate => {
   return coordinate === "x" ? "y" : "x";
 };
+
+
+/**
+ * Checks if we can reach the {@link visualModelToAddTo} from {@link addedVisualModel}
+ */
+export function doesAddingVisualModelCauseSelfReference(
+  availableVisualModels: VisualModel[],
+  visualModelToAddTo: VisualModel,
+  addedVisualModel: string,
+) {
+  const classesInVisualModel = getClassesAndDiagramNodesModelsFromVisualModelRecursively(
+    availableVisualModels, addedVisualModel);
+  return classesInVisualModel.includes(visualModelToAddTo.getIdentifier());
+}
 
 
 export type VisualEdgeEndPoint = VisualDiagramNode | VisualNode;
