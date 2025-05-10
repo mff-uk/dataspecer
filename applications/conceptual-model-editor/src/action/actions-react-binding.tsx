@@ -788,7 +788,7 @@ function createActionsContext(
   const addVisualDiagramNodeForExistingModelToVisualModel = (visualModelToRepresent: string): void => {
     withVisualModel(notifications, graph, (visualModel) => {
       addVisualDiagramNodeForExistingModelToVisualModelAction(
-        notifications, graph, diagram, visualModel, {}, {}, visualModelToRepresent);
+        notifications, graph, diagram, visualModel, visualModelToRepresent);
     });
   };
 
