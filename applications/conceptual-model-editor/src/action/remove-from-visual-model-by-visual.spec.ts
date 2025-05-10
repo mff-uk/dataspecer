@@ -14,7 +14,6 @@ import { semanticModelMapToCmeSemanticModel } from "../dataspecer/cme-model/adap
 import { ModelGraphContextType } from "../context/model-context";
 import { ActionsTestSuite } from "./test/actions-test-suite";
 import { removeFromVisualModelByVisualAction } from "./remove-from-visual-model-by-visual";
-import { fail } from "@/utilities/fail-test";
 
 test("removeFromVisualModelAction - relationship", () => {
   const {
@@ -216,7 +215,7 @@ const createNewVisualRelationshipsForTestingFromSemanticEnds = (
      visualTarget === undefined ||
      !isVisualNode(visualSource) ||
      !isVisualNode(visualTarget)) {
-    fail("Failed when creating visual relationship for testing - programmer error");
+    throw new Error("Failed when creating visual relationship for testing - programmer error");
   }
   const visualId = visualModel.addVisualRelationship({
     model: model,
