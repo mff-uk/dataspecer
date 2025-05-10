@@ -33,6 +33,13 @@ import { addSemanticAttributeToVisualNodeAction } from "./add-semantic-attribute
 import { getViewportCenterForClassPlacement } from "./utilities";
 import { EntityModel } from "@dataspecer/core-v2";
 
+
+/**
+ * Adds entity's neighborhood to visual model. That is:
+ * For classes it is classes connected to semantic class or class profile identified by {@link identifier}.
+ * For relationships that is both ends and the relationship.
+ * For attributes it adds the domain class to canvas.
+ */
 export const addEntityNeighborhoodToVisualModelAction = async (
   notifications: UseNotificationServiceWriterType,
   classes: ClassesContextType,
