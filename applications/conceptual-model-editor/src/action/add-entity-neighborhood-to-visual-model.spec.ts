@@ -53,22 +53,22 @@ test("Test class neighborhood - square relationships (4 nodes, 4 edges)", async 
 
     const visualEntities = [...visualModel.getVisualEntities().entries()];
     switch(currentClassIndex) {
-      case 0:
-        expect(visualEntities.map(entry => entry[1]).filter(isVisualNode).length).toBe(3);
-        expect(visualEntities.map(entry => entry[1]).filter(isVisualRelationship).length).toBe(2);
-        expect(visualEntities.length).toBe(5);
-        break;
-      case 1:
-        expect(visualEntities.map(entry => entry[1]).filter(isVisualNode).length).toBe(4);
-        expect(visualEntities.map(entry => entry[1]).filter(isVisualRelationship).length).toBe(3);
-        expect(visualEntities.length).toBe(7);
-        break;
-      case 2:
-        expect(visualEntities.length).toBe(8);
-        break;
-      case 3:
-        expect(visualEntities.length).toBe(8);
-        break;
+    case 0:
+      expect(visualEntities.map(entry => entry[1]).filter(isVisualNode).length).toBe(3);
+      expect(visualEntities.map(entry => entry[1]).filter(isVisualRelationship).length).toBe(2);
+      expect(visualEntities.length).toBe(5);
+      break;
+    case 1:
+      expect(visualEntities.map(entry => entry[1]).filter(isVisualNode).length).toBe(4);
+      expect(visualEntities.map(entry => entry[1]).filter(isVisualRelationship).length).toBe(3);
+      expect(visualEntities.length).toBe(7);
+      break;
+    case 2:
+      expect(visualEntities.length).toBe(8);
+      break;
+    case 3:
+      expect(visualEntities.length).toBe(8);
+      break;
 
     }
     currentClassIndex++;
@@ -100,22 +100,22 @@ test("Test class neighborhood - fully connected graph on 4 nodes", async () => {
 
     const visualEntities = [...visualModel.getVisualEntities().entries()];
     switch(currentClassIndex) {
-      case 0:
-        expect(visualEntities.map(entry => entry[1]).filter(isVisualNode).length).toBe(4);
-        expect(visualEntities.map(entry => entry[1]).filter(isVisualRelationship).length).toBe(3);
-        expect(visualEntities.length).toBe(7);
-        break;
-      case 1:
-        expect(visualEntities.map(entry => entry[1]).filter(isVisualNode).length).toBe(4);
-        expect(visualEntities.map(entry => entry[1]).filter(isVisualRelationship).length).toBe(5);
-        expect(visualEntities.length).toBe(9);
-        break;
-      case 2:
-        expect(visualEntities.length).toBe(10);
-        break;
-      case 3:
-        expect(visualEntities.length).toBe(10);
-        break;
+    case 0:
+      expect(visualEntities.map(entry => entry[1]).filter(isVisualNode).length).toBe(4);
+      expect(visualEntities.map(entry => entry[1]).filter(isVisualRelationship).length).toBe(3);
+      expect(visualEntities.length).toBe(7);
+      break;
+    case 1:
+      expect(visualEntities.map(entry => entry[1]).filter(isVisualNode).length).toBe(4);
+      expect(visualEntities.map(entry => entry[1]).filter(isVisualRelationship).length).toBe(5);
+      expect(visualEntities.length).toBe(9);
+      break;
+    case 2:
+      expect(visualEntities.length).toBe(10);
+      break;
+    case 3:
+      expect(visualEntities.length).toBe(10);
+      break;
     }
     currentClassIndex++;
   }
@@ -149,7 +149,6 @@ test("Test relationship neighborhood - add one relationship multiple times - on 
     expect(visualEntities.length).toBe(3);
   }
 });
-
 
 test("Test relationship neighborhood - add two relationships which are not sharing node - on fully connected graph on 4 nodes", async () => {
   const {

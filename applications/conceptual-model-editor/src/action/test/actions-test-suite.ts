@@ -756,7 +756,7 @@ export class ActionsTestSuite {
     };
   }
 
-    /**
+  /**
    * Creates semantic attribute, adds it to the model and extends the classes context
    */
   static createSemanticAttributeTestVariant(
@@ -768,7 +768,7 @@ export class ActionsTestSuite {
   ) {
 
     const range = representRdfsLiteral();
-    const name = {"en": attributeName};
+    const name = { "en": attributeName };
     const operation = createRelationship({
       ends: [{
         iri: null,

@@ -125,7 +125,6 @@ export const addEntityNeighborhoodToVisualModelAction = async (
         }
       }
 
-
       const allConnections = [
         ...classes.generalizations,
         ...classes.relationships,
@@ -161,7 +160,6 @@ async function addSemanticClassOrClassProfileToVisualModelCommand(
     visualModels: [],
   });
 
-
   const inputForExtension: NodeSelection = {
     identifiers: [entity.id],
     areIdentifiersFromVisualModel: false
@@ -175,7 +173,6 @@ async function addSemanticClassOrClassProfileToVisualModelCommand(
     notifications, graph, classes, inputForExtension,
     [ExtensionType.ClassProfileParent],
     VisibilityFilter.All, false, null);
-
 
   for (const classProfileChild of classProfileChildren.selectionExtension.nodeSelection) {
     const modelForVisualProfileRelationship = findSourceModelOfEntity(classProfileChild, graph.models);
@@ -310,7 +307,6 @@ const addClassNeighborhoodToVisualModelAction = async (
       }
     ];
 
-
     // We have to filter the source class, whose neighborhood we are adding, from the extension.
     // Because we don't want to have duplicate there.
     classesOrClassProfilesToAdd.push(
@@ -328,7 +324,7 @@ const addClassNeighborhoodToVisualModelAction = async (
     ];
 
     const neighborhoodClassesIdentifiers = classesOrClassProfilesToAdd
-    .map(cclass => cclass.identifier);
+      .map(cclass => cclass.identifier);
     const positions = await findPositionForNewNodesUsingLayouting(
       notifications, diagram, graph, visualModel, classes, neighborhoodClassesIdentifiers);
     for (const classOrClassProfileToAdd of classesOrClassProfilesToAdd) {
@@ -348,7 +344,6 @@ const addClassNeighborhoodToVisualModelAction = async (
 
     const allNeighborhoodSemanticEdges = neighborhood.selectionExtension.edgeSelection
       .map(semanticEdge => ({ identifier: semanticEdge, position: null }));
-
 
     const allConnections = [
       ...classes.generalizations,
