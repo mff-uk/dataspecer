@@ -11,6 +11,9 @@ const PREFIXES = {
   "http://purl.org/dc/terms/": "dcterms",
   "http://xmlns.com/foaf/0.1/": "foaf",
   "http://www.w3.org/2002/07/owl#": "owl",
+  "http://www.w3.org/ns/dx/prof/": "prof",
+  "https://w3id.org/dsv-dap#": "dsv-dap",
+  "https://w3id.org/dsv#": "dsv",
 };
 
 /**

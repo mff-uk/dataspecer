@@ -82,6 +82,7 @@ import { openEditSemanticModelDialogAction } from "./open-edit-semantic-model-di
 import { ModelDsIdentifier } from "@/dataspecer/entity-model";
 import { openSearchExternalSemanticModelDialogAction } from "./open-search-external-semantic-model-dialog";
 import { openEditVisualModelDialogAction } from "./open-edit-visual-model-dialog";
+import { LayoutConfigurationContextType, useLayoutConfigurationContext } from "@/context/layout-configuration-context";
 
 const LOG = createLogger(import.meta.url);
 
@@ -445,13 +446,14 @@ export const ActionsContextProvider = (props: {
   const graph = useContext(ModelGraphContext);
   const useGraph = useModelGraphContext();
   const diagram = useDiagram();
+  const layoutConfiguration = useLayoutConfigurationContext();
 
   const queryParamsContext = useQueryParamsContext();
 
   const actions = useMemo(
     () => createActionsContext(
-      options, dialogs, classes, useClasses, notifications, graph, useGraph, diagram, queryParamsContext),
-    [options, dialogs, classes, useClasses, notifications, graph, useGraph, diagram, queryParamsContext]
+      options, dialogs, classes, useClasses, notifications, graph, useGraph, diagram, layoutConfiguration, queryParamsContext),
+    [options, dialogs, classes, useClasses, notifications, graph, useGraph, diagram, layoutConfiguration, queryParamsContext]
   );
 
   return (
@@ -469,6 +471,7 @@ let prevNotifications: UseNotificationServiceWriterType | null = null;
 let prevGraph: ModelGraphContextType | null = null;
 let prevUseGraph: UseModelGraphContextType | null = null;
 let prevDiagram: UseDiagramType | null = null;
+let prevLayoutConfiguration: LayoutConfigurationContextType | null = null;
 let prevQueryParamsContext: QueryParamsContextType | null = null;
 
 function createActionsContext(
@@ -480,12 +483,14 @@ function createActionsContext(
   graph: ModelGraphContextType | null,
   useGraph: UseModelGraphContextType | null,
   diagram: UseDiagramType,
+  layoutConfiguration: LayoutConfigurationContextType,
   queryParamsContext: QueryParamsContextType | null,
 ): ActionsContextType {
 
   if (options === null || dialogs === null || classes === null ||
     useClasses === null || notifications === null || graph === null ||
-    !diagram.areActionsReady || queryParamsContext === null || useGraph === null) {
+    !diagram.areActionsReady || layoutConfiguration === null ||
+    queryParamsContext === null || useGraph === null) {
     // We need to return the diagram object so it can be consumed by
     // the Diagram component and initialized.
     return {
@@ -504,6 +509,7 @@ function createActionsContext(
   if (prevGraph !== graph) changed.push("graph");
   if (prevUseGraph !== useGraph) changed.push("useGraph");
   if (prevDiagram !== diagram) changed.push("diagram");
+  if (prevLayoutConfiguration !== layoutConfiguration) changed.push("layoutConfiguration");
   if (prevQueryParamsContext !== queryParamsContext) changed.push("queryParamsContext");
   console.info("[ACTIONS] Creating new context object. ", { changed });
   prevOptions = options;
@@ -514,6 +520,7 @@ function createActionsContext(
   prevGraph = graph;
   prevUseGraph = useGraph;
   prevDiagram = diagram;
+  prevLayoutConfiguration = layoutConfiguration;
   prevQueryParamsContext = queryParamsContext;
 
   // For now we create derived state here, till is is available
@@ -558,7 +565,12 @@ function createActionsContext(
   const changeNodesPositions = (changes: { [identifier: string]: Position }) => {
     withVisualModel(notifications, graph, (visualModel) => {
       for (const [identifier, position] of Object.entries(changes)) {
-        visualModel.updateVisualEntity(identifier, { position });
+        const node = visualModel.getVisualEntity(identifier);
+        if (node === null || !isVisualNode(node)) {
+          notifications.error("Node which changed position can not be found in visual model.");
+          return;
+        }
+        visualModel.updateVisualEntity(identifier, { position: { ...position, anchored: node.position.anchored} });
       }
     });
   };
