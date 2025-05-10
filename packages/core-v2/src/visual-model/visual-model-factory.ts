@@ -1,3 +1,4 @@
+import { wrapWithColorGenerator } from "./color-generator-wrap.ts";
 import { DefaultVisualModel } from "./default-visual-model.ts";
 import { createDefaultEntityModel } from "./entity-model/default-entity-model.ts";
 import { MODEL_VISUAL_TYPE } from "./visual-entity.ts";
@@ -6,13 +7,28 @@ import { SynchronousUnderlyingVisualModel, WritableVisualModel } from "./visual-
 export interface VisualModelFactory {
 
   /**
-   * Temporary method till the internal entity model is aligned with the external one.
+   * Temporary method till the internal entity model is aligned with
+   * the external one.
    *
    * @deprecated Use other method instead.
    */
   createNewWritableVisualModelSync(): WritableVisualModel;
 
-  createWritableVisualModelSync(model: SynchronousUnderlyingVisualModel): WritableVisualModel;
+  /**
+   * Create default visual model by wrapping other model.
+   */
+  createWritableVisualModelSync(
+    model: SynchronousUnderlyingVisualModel,
+  ): WritableVisualModel;
+
+  /**
+   * Create default visual model with no wraps.
+   * Do not use this method unless you have a good reason,
+   * use {@link createWritableVisualModelSync} instead.
+   */
+  createWritableVisualModelSyncNoWrap(
+    model: SynchronousUnderlyingVisualModel,
+  ): WritableVisualModel;
 
 }
 
@@ -24,7 +40,15 @@ class DefaultVisualModelFactory implements VisualModelFactory {
     return this.createWritableVisualModelSync(internal);
   }
 
-  createWritableVisualModelSync(model: SynchronousUnderlyingVisualModel): WritableVisualModel {
+  createWritableVisualModelSync(
+    model: SynchronousUnderlyingVisualModel,
+  ): WritableVisualModel {
+    return wrapWithColorGenerator(new DefaultVisualModel(model));
+  }
+
+  createWritableVisualModelSyncNoWrap(
+    model: SynchronousUnderlyingVisualModel,
+  ):  WritableVisualModel {
     return new DefaultVisualModel(model);
   }
 

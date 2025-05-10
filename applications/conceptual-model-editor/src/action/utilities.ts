@@ -235,8 +235,6 @@ const computeBarycenter = (positions: Position[], diagram: UseDiagramType): Comp
   };
 };
 
-// TODO RadStr: Put in ExtensionType.ClassProfile, but not now since it does not work
-//              See https://github.com/mff-uk/dataspecer/issues/966
 const findAssociatedClassesAndClassProfiles = async (
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
@@ -246,12 +244,11 @@ const findAssociatedClassesAndClassProfiles = async (
   // Is synchronous for this case
   const selection = await extendSelectionAction(notifications, graph, classesContext,
     { areIdentifiersFromVisualModel: false, identifiers: [classToFindAssociationsFor] },
-    [ExtensionType.Association, ExtensionType.Generalization],
+    [ExtensionType.Association, ExtensionType.Generalization,
+      ExtensionType.ClassProfile, ExtensionType.ProfileEdge],
     VisibilityFilter.OnlyVisibleNodes, false, null);
   return selection;
 }
-
-// TODO RadStr: Add tests for stuff in this file! (just to the exported stuff)
 
 /**
  * @returns The top level group, or null if the node is not part of any group.
@@ -389,10 +386,112 @@ export function getRemovedAndAdded<T>(previousValues: T[], nextValues: T[]) {
 }
 
 /**
- * Type representing visual entities, which can be visual end of visual edge.
+ * @returns Returns top left position of bounding box created by given {@link nodes}.
+ * If the given array is empty, returns large number.
  */
-export type VisualEdgeEndPoint = VisualDiagramNode | VisualNode;
+export const getTopLeftPosition = (nodes: VisualNode[]) => {
+  const topLeft = { x: 10000000, y: 10000000 };
+  nodes.forEach(node => {
+    if(node.position.x < topLeft.x) {
+      topLeft.x = node.position.x;
+    }
+    if(node.position.y < topLeft.y) {
+      topLeft.y = node.position.y;
+    }
+  });
 
+  return topLeft;
+};
+
+/**
+* @returns Returns bot right position of bounding box created by given {@link nodes}.
+* The position together with added width (respectively height) is returned, NOT the position fo the bot right node.
+* If the given array is empty, returns small number.
+*/
+export const getBotRightPosition = (
+  diagram: UseDiagramType,
+  nodes: VisualNode[]
+) => {
+  const botRight = { x: -10000000, y: -10000000 };
+  nodes.forEach(node => {
+    const width = getDimensionValue(diagram, DimensionType.Width, node.identifier);
+    const x = node.position.x + width;
+    if(x > botRight.x) {
+      botRight.x = x;
+    }
+
+    const height = getDimensionValue(diagram, DimensionType.Height, node.identifier);
+    const y = node.position.y + height;
+    if(y > botRight.y) {
+      botRight.y = y;
+    }
+  });
+
+  return botRight;
+};
+
+/**
+* Stores topLeft, middle and botRight
+*/
+type BoundingBoxInfo = {
+  topLeft: XY,
+  mid: XY,
+  botRight: XY,
+}
+
+/**
+* @returns Returns bounding box of given {@link nodes}, where the bottom right considers widths and heights of nodes.
+*/
+export const getBoundingBoxInfo = (
+  diagram: UseDiagramType,
+  nodes: VisualNode[]
+): BoundingBoxInfo => {
+  const topLeft = getTopLeftPosition(nodes);
+  const botRight = getBotRightPosition(diagram, nodes);
+  const mid = {
+    x: (topLeft.x + botRight.x) / 2,
+    y: (topLeft.y + botRight.y) / 2,
+  };
+  return {
+    topLeft,
+    mid,
+    botRight
+  };
+};
+
+/**
+* Enum represetning possible dimension types, that is width and height.
+*/
+export enum DimensionType {
+  Width,
+  Height
+};
+export const getRelevantDimensionForCoordinate = (coordinate: Coordinate): DimensionType => {
+  return coordinate === "x" ? DimensionType.Width : DimensionType.Height;
+};
+
+/**
+* @returns Returns either width or height of node identified by {@link nodeIdentifier}.
+*  The returned dimension depends on {@link dimension}.
+*/
+export function getDimensionValue(
+  diagram: UseDiagramType,
+  dimension: DimensionType,
+  nodeIdentifier: string,
+): number {
+  const dimensionGetter = dimension === DimensionType.Width ?
+    diagram.actions().getNodeWidth :
+    diagram.actions().getNodeHeight;
+  return dimensionGetter(nodeIdentifier) ?? 0;
+}
+
+export type Coordinate = "x" | "y";
+export const getOtherCoordinate = (coordinate: Coordinate): Coordinate => {
+  return coordinate === "x" ? "y" : "x";
+};
+
+
+export type VisualEdgeEndPoint = VisualDiagramNode | VisualNode;
 /**
  * @returns True if the given {@link what} is visual entity, which can be visual end of edge.
  * Currently that is either {@link VisualNode} or node representing diagram ({@link VisualDiagramNode}).
