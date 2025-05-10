@@ -567,7 +567,7 @@ function createActionsContext(
     withVisualModel(notifications, graph, (visualModel) => {
       for (const [identifier, position] of Object.entries(changes)) {
         const node = visualModel.getVisualEntity(identifier);
-        if (node === null || !isVisualNode(node)) {
+        if (node === null || !isVisualEdgeEnd(node)) {
           notifications.error("Node which changed position can not be found in visual model.");
           return;
         }
