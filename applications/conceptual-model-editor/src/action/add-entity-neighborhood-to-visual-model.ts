@@ -32,6 +32,7 @@ import { getVisualNodeContentBasedOnExistingEntities } from "./add-semantic-attr
 import { addSemanticAttributeToVisualNodeAction } from "./add-semantic-attribute-to-visual-node";
 import { getViewportCenterForClassPlacement } from "./utilities";
 import { EntityModel } from "@dataspecer/core-v2";
+import { isSemanticModelAttributeUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 
 /**
@@ -355,9 +356,14 @@ const addClassNeighborhoodToVisualModelAction = async (
     for (const classOrClassProfileToAdd of classesOrClassProfilesToAdd) {
       const position = classOrClassProfileToAdd.position ?? { ...viewportCenter };
 
+      let nodeContent: string[] = [];
+      if (identifier === classOrClassProfileToAdd.identifier) {
+        nodeContent = getAllAttributesForDomainClass(classes, identifier);
+      }
+
       await addClassOrClassProfileToVisualModel(
         notifications, classes, graph, diagram, visualModel,
-        classOrClassProfileToAdd.identifier, position, false, []);
+        classOrClassProfileToAdd.identifier, position, false, nodeContent);
     }
 
     const allNeighborhoodSemanticEdges = neighborhood.selectionExtension.edgeSelection
@@ -375,6 +381,23 @@ const addClassNeighborhoodToVisualModelAction = async (
     }
   });
 };
+
+function getAllAttributesForDomainClass(
+  classesContext: ClassesContextType,
+  domainClass: string
+) {
+  const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
+  const attributeUsages = classesContext.usages.filter(isSemanticModelAttributeUsage);
+  const attributeProfiles = classesContext.relationshipProfiles.filter(isSemanticModelAttributeProfile);
+
+  const allAttributes = ([] as (SemanticModelRelationship |
+    SemanticModelRelationshipProfile |
+    SemanticModelRelationshipUsage)[]).concat(attributes).concat(attributeUsages).concat(attributeProfiles);
+
+  return allAttributes
+    .filter(attribute => getDomainAndRangeConcepts(attribute).domain === domainClass)
+    .map(attribute => attribute.id);
+}
 
 function addSemanticConnectionBetweenAllValidVisualNodes(
   notifications: UseNotificationServiceWriterType,
