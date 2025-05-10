@@ -1,4 +1,5 @@
-import { Node, Edge, Group, GroupWithContent, Position, ViewportDimensions, Waypoint, VisualModelDiagramNode, DiagramNodeTypes } from "./diagram-model";
+import { AlignmentHorizontalPosition, AlignmentVerticalPosition } from "@/action/align-nodes";
+import { Node, Edge, Group, GroupWithContent, Position, ViewportDimensions, Waypoint } from "./diagram-model";
 
 interface GroupActions {
 
@@ -203,6 +204,13 @@ export interface DiagramActions extends
   openSelectionActionsMenu(sourceNode: DiagramNodeTypes, canvasPosition: Position): void;
 
   /**
+   * Opens menu on given {@link canvasPosition}. The menu contains possible alignments.
+   * @param sourceNode is the node on which the user clicked the button.
+   * @param canvasPosition is the canvas position where the menu will appear.
+   */
+  openAlignmentMenu(sourceNode: DiagramNodeTypes, canvasPosition: Position): void
+
+  /**
    * Opens menu on given {@link canvasPosition}.
    * The menu represents control panel for group with given {@link groupIdentifier}.
    * @param groupIdentifier is the identifier of the group.
@@ -394,6 +402,13 @@ interface DiagramSelection {
   onShowSelectionActionsMenu: (source: DiagramNodeTypes, canvasPosition: Position) => void;
 
   /**
+   * This method is called when user wants to see list of possible alignment actions.
+   * @param source is the last selected node
+   * @param canvasPosition is the position on canvas, where should be the list of actions shown.
+   */
+  onOpenAlignmentMenu: (source: DiagramNodeTypes, canvasPosition: Position) => void;
+
+  /**
    * This method is called when user wants to layout selection.
    */
   onLayoutSelection: () => void;
@@ -480,6 +495,16 @@ interface VisualModelDiagramNodes {
    * @param visualModelDiagramNode is the diagram node to be removed from canvas.
    */
   onHideVisualModelDiagramNode: (visualModelDiagramNode: VisualModelDiagramNode) => void;
+
+  /**
+   * Aligns selected nodes horizontally, the actual alignment type is given by {@link alignmentHorizontalPosition}.
+   */
+  onAlignSelectionHorizontally: (alignmentHorizontalPosition: AlignmentHorizontalPosition) => void;
+
+  /**
+   * Aligns selected nodes vertically, the actual alignment type is given by {@link alignmentVerticalPosition}.
+   */
+  onAlignSelectionVertically: (alignmentVerticalPosition: AlignmentVerticalPosition) => void;
 }
 
 /**
