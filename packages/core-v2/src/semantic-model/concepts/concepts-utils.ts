@@ -2,6 +2,7 @@ import { Entity } from "../../entity-model/index.ts";
 import { isDataType } from "../datatypes/index.ts";
 import {
     LanguageString,
+    EntityModelInformation,
     SemanticModelClass,
     SemanticModelGeneralization,
     SemanticModelRelationship,
@@ -65,3 +66,8 @@ const isEmptyLanguageString = (ls: LanguageString | null) => {
     }
     return Object.entries(ls).length == 0;
 };
+
+export const ENTITY_MODEL_INFORMATION = "entity-model-information"; // todo use proper IRI
+export function isEntityModelInformation(resource: Entity | null): resource is EntityModelInformation {
+    return resource?.type?.includes(ENTITY_MODEL_INFORMATION) ?? false;
+}

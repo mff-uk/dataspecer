@@ -1,5 +1,5 @@
 import { Entity } from "../../entity-model/entity.ts";
-import { SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_RELATIONSHIP } from "./concepts-utils.ts";
+import { ENTITY_MODEL_INFORMATION, SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_RELATIONSHIP } from "./concepts-utils.ts";
 
 /**
  * A human text that is translated into multiple languages.
@@ -86,4 +86,10 @@ export interface SemanticModelGeneralization extends SemanticModelEntity {
 
     /** {@link SemanticModelClass} */
     parent: string;
+}
+
+export interface EntityModelInformation extends Entity {
+    type: [typeof ENTITY_MODEL_INFORMATION];
+
+    modelIri: string | null;
 }
