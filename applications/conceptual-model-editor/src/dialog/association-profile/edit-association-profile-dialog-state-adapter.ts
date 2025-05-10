@@ -2,7 +2,17 @@ import { NewCmeRelationshipProfile } from "../../dataspecer/cme-model/model";
 import { AssociationProfileDialogState } from "./edit-association-profile-dialog-state";
 
 export function associationProfileDialogStateToNewCmeRelationshipProfile(
-  state: AssociationProfileDialogState): NewCmeRelationshipProfile {
+  state: AssociationProfileDialogState
+): NewCmeRelationshipProfile {
+  return associationProfileDialogStateToNewCmeRelationshipProfileWithOverridenEnds(
+    state, state.domain.identifier, state.range.identifier);
+}
+
+export function associationProfileDialogStateToNewCmeRelationshipProfileWithOverridenEnds(
+  state: AssociationProfileDialogState,
+  domain: string,
+  range: string,
+): NewCmeRelationshipProfile {
   return {
     model: state.model.identifier,
     profileOf: state.profiles.map(item => item.identifier),
@@ -17,11 +27,11 @@ export function associationProfileDialogStateToNewCmeRelationshipProfile(
     usageNoteSource: state.overrideUsageNote ? null :
       state.usageNoteSource.identifier ?? null,
     //
-    domain: state.domain.identifier,
+    domain: domain,
     domainCardinality:
       state.overrideDomainCardinality ?
         state.domainCardinality.cardinality : null,
-    range: state.range.identifier,
+    range: range,
     rangeCardinality:
       state.overrideRangeCardinality ?
         state.rangeCardinality.cardinality : null,

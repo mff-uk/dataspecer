@@ -21,7 +21,6 @@ import { isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic
 import { createCmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 import { notificationMockup } from "./test/actions-test-suite";
 import { CmeReference, CmeSpecialization } from "../dataspecer/cme-model/model";
-import { fail } from "@/utilities/fail-test";
 
 // TODO RadStr: For now - since layout prints a lot of debug stuff
 //             (based on https://stackoverflow.com/questions/44467657/better-way-to-disable-console-inside-unit-tests)
@@ -321,7 +320,7 @@ const prepareModelsWithSemanticData = () => {
     for(let j = 0; j < 4; j++) {
       const createdClass = createSemanticClassTestVariant(models, `${i}-${j}`, cmeModels[i].identifier, []);
       if(createdClass === null) {
-        fail("Failed on setup");
+        throw new Error("Failed on setup");
       }
       createdClasses[i].push(createdClass);
     }
@@ -347,7 +346,7 @@ const prepareModelsWithSemanticData = () => {
       createdRelationships[i].push(createdDiagonalRelationship);
       break;
     default:
-      fail("Failed on setup");
+      throw new Error("Failed on setup");
     }
   }
 
@@ -592,12 +591,12 @@ function createSemanticAttributeTestVariant(
   const model: InMemorySemanticModel = models.get(ModelDsIdentifier) as InMemorySemanticModel;
   const newAttribute = model.executeOperation(operation) as CreatedEntityOperationResult;
   if (newAttribute.success === false || newAttribute.id === undefined) {
-    fail("Failed in attribute creation");
+    throw new Error("Failed in attribute creation");
   }
 
   const createdAttribute = model.getEntities()[newAttribute.id];
   if(!isSemanticModelRelationship(createdAttribute)) {
-    fail("Failed on set-up when creating semantic attribute")
+    throw new Error("Failed on set-up when creating semantic attribute")
   }
   classesContext.relationships.push(createdAttribute);
   return {
@@ -638,7 +637,7 @@ function createSemanticAttributeProfileTestVariant(
 
   const createdAttributeProfile = model.getEntities()[result.identifier];
   if(!isSemanticModelRelationshipProfile(createdAttributeProfile)) {
-    fail("Failed on set-up when creating semantic attribute profile")
+    throw new Error("Failed on set-up when creating semantic attribute profile")
   }
   classesContext.relationshipProfiles.push(createdAttributeProfile);
 

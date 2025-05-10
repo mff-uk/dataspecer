@@ -1,27 +1,19 @@
 /**
- * Tests {@link removeFromVisualModelByVisualAction} and interaction with {@link createVisualNodeDuplicateAction}.
+ * Tests {@link removeFromVisualModelByVisualAction} and interaction with {@link createVisualEdgeEndpointDuplicateAction}.
  */
 
 import { expect, test } from "vitest";
 import { EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { createDefaultVisualModelFactory, isVisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import {
-  CreatedEntityOperationResult,
-  createGeneralization,
-  createRelationship
-} from "@dataspecer/core-v2/semantic-model/operations";
 import { SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { SetStateAction } from "react";
 import { notificationMockup } from "./test/actions-test-suite";
-import { createVisualNodeDuplicateAction } from "./create-visual-node-duplicate";
 import { semanticModelMapToCmeSemanticModel } from "../dataspecer/cme-model/adapter";
 import { ModelGraphContextType } from "../context/model-context";
-import { ClassesContextType } from "../context/classes-context";
 import { ActionsTestSuite } from "./test/actions-test-suite";
 import { removeFromVisualModelByVisualAction } from "./remove-from-visual-model-by-visual";
-import { CmeSpecialization } from "../dataspecer/cme-model/model";
-import { fail } from "@/utilities/fail-test";
+import { createVisualNodeDuplicateAction } from "./create-visual-node-duplicate";
 
 test("removeFromVisualModelAction - relationship", () => {
   const {
@@ -193,23 +185,6 @@ const prepareModelWithFourNodes = () => {
   };
 }
 
-const _createEmptyClassesContextType = (): ClassesContextType => {
-  const classes: ClassesContextType = {
-    classes: [],
-    allowedClasses: [],
-    setAllowedClasses: function (_) { },
-    relationships: [],
-    generalizations: [],
-    usages: [],
-    sourceModelOfEntityMap: new Map(),
-    rawEntities: [],
-    classProfiles: [],
-    relationshipProfiles: []
-  };
-
-  return classes;
-};
-
 const createNewVisualNodeForTesting = (
   visualModel: WritableVisualModel,
   model: string,
@@ -240,7 +215,7 @@ const createNewVisualRelationshipsForTestingFromSemanticEnds = (
      visualTarget === undefined ||
      !isVisualNode(visualSource) ||
      !isVisualNode(visualTarget)) {
-    fail("Failed when creating visual relationship for testing - programmer error");
+    throw new Error("Failed when creating visual relationship for testing - programmer error");
   }
   const visualId = visualModel.addVisualRelationship({
     model: model,
@@ -254,59 +229,4 @@ const createNewVisualRelationshipsForTestingFromSemanticEnds = (
   });
 
   return visualId;
-}
-
-// TODO RadStr: Remove later probably not used in this file, but will be useful for the rest of tests
-
-// Heavily inspired by createSemanticAssociationInternal
-// We are doing this so:
-// 1) We don't have create the state for the method
-// 2) It is less work
-function _createSemanticRelationshipTestVariant(
-  models: Map<string, EntityModel>,
-  domainConceptIdentifier: string,
-  rangeConceptIdentifier: string,
-  modelDsIdentifier: string,
-  relationshipName: string,
-): {
-  identifier: string,
-  model: InMemorySemanticModel
-} {
-  const name = { "en": relationshipName };
-
-  const operation = createRelationship({
-    ends: [{
-      iri: null,
-      name: {},
-      description: {},
-      concept: domainConceptIdentifier,
-      cardinality: [0, 1],
-    }, {
-      name,
-      description: {},
-      concept: rangeConceptIdentifier,
-      cardinality: [0, 1],
-      iri: generateIriForName(name["en"]),
-    }]
-  });
-
-  const model: InMemorySemanticModel = models.get(modelDsIdentifier) as InMemorySemanticModel;
-  const newAssociation = model.executeOperation(operation) as CreatedEntityOperationResult;
-
-  // Perform additional modifications for which we need to have the class identifier.
-  const operations = [];
-  const specializations : CmeSpecialization[] = [];
-  for (const specialization of specializations) {
-    operations.push(createGeneralization({
-      parent: specialization.specializationOf.identifier,
-      child: newAssociation.id,
-      iri: specialization.iri,
-    }));
-  }
-  model.executeOperations(operations);
-
-  return {
-    identifier: newAssociation.id,
-    model,
-  };
 }
