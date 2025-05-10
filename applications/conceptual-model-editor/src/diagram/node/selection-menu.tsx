@@ -26,6 +26,10 @@ export function SelectionMenu(props: NodeProps<Node<DiagramNodeTypes>>) {
   const onShowExpandSelection = () => context?.callbacks().onShowExpandSelection();
   const onShowFilterSelection = () => context?.callbacks().onShowFilterSelection();
   const onCreateVisualDiagramNode = () => context?.callbacks().onCreateVisualModelDiagramNodeFromSelection();
+  const onOpenAlignmentMenu = (event: React.MouseEvent) => {
+    const absoluteFlowPosition = reactFlow.screenToFlowPosition({ x: event.clientX, y: event.clientY });
+    context?.callbacks().onOpenAlignmentMenu(props.data, absoluteFlowPosition);
+  }
 
   return (<>
     <NodeToolbar isVisible={shouldShowMenu} position={Position.Top} className="flex gap-2 entity-node-menu" >
@@ -33,6 +37,14 @@ export function SelectionMenu(props: NodeProps<Node<DiagramNodeTypes>>) {
       &nbsp;
       <button onClick={onLayoutSelection} title={t("selection-layout-button")} disabled>🔀</button>
       &nbsp;
+      <button onClick={(event) => onOpenAlignmentMenu(event)}>
+        { /* https://www.svgrepo.com/svg/535125/align-left */}
+        <svg width="24px" height="24px" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 1H3V15H1V1Z" fill="#000000"/>
+          <path d="M5 13H15V9H5V13Z" fill="#000000"/>
+          <path d="M11 7H5V3H11V7Z" fill="#000000"/>
+        </svg>
+      </button>
     </NodeToolbar>
     <NodeToolbar isVisible={shouldShowMenu} position={Position.Right} className="flex gap-2 entity-node-menu" >
       <button onClick={onCreateGroup} title={t("selection-group-button")}>⛓️</button>

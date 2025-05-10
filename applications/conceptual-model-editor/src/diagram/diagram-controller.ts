@@ -61,6 +61,7 @@ import { findTopLevelGroup } from "../action/utilities";
 import { GeneralCanvasMenuComponentProps } from "./canvas/canvas-menu-general";
 import { isEqual, omit } from "lodash";
 import { VisualModelNodeName } from "./node/visual-model-diagram-node";
+import { AlignmentMenu } from "./node/alignment-actions-menu";
 
 const UNINITIALIZED_VALUE_GROUP_POSITION = 10000000;
 

@@ -1,5 +1,5 @@
 import { AlignmentHorizontalPosition, AlignmentVerticalPosition } from "@/action/align-nodes";
-import { Node, Edge, Group, GroupWithContent, Position, ViewportDimensions, Waypoint } from "./diagram-model";
+import { Node, Edge, Group, GroupWithContent, Position, ViewportDimensions, Waypoint, DiagramNodeTypes, VisualModelDiagramNode } from "./diagram-model";
 
 interface GroupActions {
 
