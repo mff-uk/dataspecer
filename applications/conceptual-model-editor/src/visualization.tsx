@@ -505,29 +505,31 @@ function prepareIri(
     // We have no IRI so return null.
     return null;
   }
+
   if (isIriAbsolute(iri)) {
-    // For an absolute IRI try to apply a known prefix.
-    const prefixes = configuration().prefixes;
-    for (const [prefix, name] of Object.entries(prefixes)) {
-      if (iri.startsWith(prefix)) {
-        return name + ":" + iri.substring(prefix.length);
-      }
-    }
-    // Default is to use full IRI.
-    return iri;
-  } else {
-    // For a relative IRI use model alias.
-    const model = semanticModel
-      ?? findSourceModelOfEntity(entity.id, semanticModels);
-    if (model === null) {
-      return ":" + iri;
-    }
-    if (isInMemorySemanticModel(model)) {
-      return model.getBaseIri() + iri;
-    }
+    return applyIriPrefix(iri);
+  }
+
+  // For a relative IRI use model alias.
+  const model = semanticModel
+    ?? findSourceModelOfEntity(entity.id, semanticModels);
+  if (model === null || !isInMemorySemanticModel(model)) {
+    // We have no additional IRI information.
     return ":" + iri;
   }
+  return applyIriPrefix(model.getBaseIri() + iri);
 }
+
+function applyIriPrefix(iri:string) : string {
+  const prefixes = configuration().prefixes;
+  for (const [prefix, name] of Object.entries(prefixes)) {
+    if (iri.startsWith(prefix)) {
+      return name + ":" + iri.substring(prefix.length);
+    }
+  }
+  return iri;
+}
+
 
 /**
  * Collect and return direct profiles.
