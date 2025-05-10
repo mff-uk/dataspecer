@@ -296,7 +296,7 @@ function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
     <NodeToolbar isVisible={shouldShowMenu} position={Position.Top} className="flex gap-2 entity-node-menu" >
       <button onClick={onOpenSelectionActionsMenu} title={t("selection-action-button")}>🎬</button>
       &nbsp;
-      <button onClick={onLayoutSelection} title={t("selection-layout-button")} disabled>🔀</button>
+      <button onClick={onLayoutSelection} title={t("selection-layout-button")} >🔀</button>
       &nbsp;
     </NodeToolbar>
     <NodeToolbar isVisible={shouldShowMenu} position={Position.Right} className="flex gap-2 entity-node-menu" >
