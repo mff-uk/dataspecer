@@ -3,13 +3,14 @@ import { Modal, ModalBody, ModalContent, ModalDescription, ModalFooter, ModalHea
 import { Button } from "@/components/ui/button";
 import { modelTypeToName } from "@/known-models";
 import { BetterModalProps } from "@/lib/better-modal";
-import { ResourcesContext, requestLoadPackage } from "@/package";
+import { ResourcesContext, packageService, requestLoadPackage } from "@/package";
 import { LOCAL_VISUAL_MODEL } from "@dataspecer/core-v2/model/known-models";
-import { performLayoutOfSemanticModel, type VisualEntitiesWithModelVisualInformation } from "@dataspecer/layout";
+import { applyLayoutConfiguration, createLayoutConfiguration, performLayoutOfSemanticModel, type VisualEntitiesWithModelVisualInformation } from "@dataspecer/layout";
 import { Loader } from "lucide-react";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useConfigDialog } from "./layout-dialog";
 import { MODEL_VISUAL_TYPE } from "@dataspecer/core-v2/visual-model";
+import { createDefaultConfigurationModelFromJsonObject } from "@dataspecer/core-v2/configuration-model";
 
 
 export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, parentIri: string } & BetterModalProps<boolean>) => {
@@ -49,6 +50,13 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
     const data = await response.json();
     const entities = data.entities;
     const semanticModelId = data.modelId;
+
+
+    const configurationData = (await packageService.getResourceJsonData(parentIri)) ?? {};
+    const configuration = createDefaultConfigurationModelFromJsonObject(configurationData);
+    applyLayoutConfiguration(configuration, getConfig());
+    const result = configuration.serializeModelToApiJsonObject(configurationData);
+    await packageService.setResourceJsonData(parentIri, result);
 
     console.log(entities);
     console.log(semanticModelId);
@@ -121,7 +129,17 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
   const type = modelTypeToName[resource.types?.[0]];
 
 
-  const { getConfig, ConfigDialog } = useConfigDialog();
+  useEffect(() => {
+    (async () => {
+      const configurationData = (await packageService.getResourceJsonData(parentIri)) ?? {};
+      const configuration = createDefaultConfigurationModelFromJsonObject(configurationData);
+      const layoutConfiguration = createLayoutConfiguration(configuration);
+      setConfig(layoutConfiguration);
+    })();
+  }, []);
+
+
+  const { getConfig, ConfigDialog, setConfig } = useConfigDialog();
 
   return (
     <Modal open={isOpen} onClose={() => isLoading ? null : resolve(false)}>

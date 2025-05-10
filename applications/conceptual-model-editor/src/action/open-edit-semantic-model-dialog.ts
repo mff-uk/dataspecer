@@ -44,12 +44,11 @@ export function openEditSemanticModelDialogAction(
     if (isWritableVisualModel(visualModel)) {
       visualModel.setModelColor(state.identifier, state.color);
     }
-    if (state.modelType === CmeSemanticModelType.ExternalSemanticModel) {
-      // We do not allow edit for external models.
-      return;
+    // We can modify only the InMemorySemanticModel.
+    if (state.modelType === CmeSemanticModelType.InMemorySemanticModel) {
+      cmeExecutor.updateSemanticModel(
+        editSemanticModelDialogStateToCmeSemanticModelChange(state));
     }
-    cmeExecutor.updateSemanticModel(
-      editSemanticModelDialogStateToCmeSemanticModelChange(state));
   };
 
   dialogs.openDialog(createEditSemanticModelDialog(initialState, onConfirm));

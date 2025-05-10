@@ -31,6 +31,7 @@ export function GeneralizationEdgeToolbar({ value }: { value: EdgeToolbarProps |
   const position = computeScreenPosition(value.x, value.y, { x, y, zoom });
 
   const onDetail = () => context?.callbacks().onShowEdgeDetail(data);
+  const onHide = () => context?.callbacks().onHideEdge(data);
   const onDelete = () => context?.callbacks().onDeleteEdge(data);
   const addWaypoint = () => onAddWaypoint(
     context, sourceNode, targetNode, data, value);
@@ -44,7 +45,9 @@ export function GeneralizationEdgeToolbar({ value }: { value: EdgeToolbarProps |
             <ul className="edge-toolbar">
               <li></li>
               <li></li>
-              <li></li>
+              <li>
+                <button onClick={onHide}>🕶</button>
+              </li>
               <li>
                 <button onClick={onDelete}>🗑</button>
               </li>
