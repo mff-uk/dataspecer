@@ -54,7 +54,7 @@ export type LineEndPointsForOrthogonal = {
 }
 
 export const useAlignmentController = (props: {
-    reactFlowInstance: ReactFlowInstance<any, any>,
+    reactFlowInstance: ReactFlowInstance<NodeType, any>,
 }): AlignmentController => {
   const { reactFlowInstance } = props;
 
@@ -75,7 +75,7 @@ export const useAlignmentController = (props: {
   };
 
   const alignmentSetUpOnNodeDragStart = (node: Node) => {
-    const nodesOnCanvas = (reactFlowInstance.getNodes() as InternalNode[])
+    const nodesOnCanvas = reactFlowInstance.getNodes()
       .filter(n => n.id !== node.id)
       .filter(n => n.type !== "group")
       .map(n => getInternalNodeFromNode(n, reactFlowInstance));

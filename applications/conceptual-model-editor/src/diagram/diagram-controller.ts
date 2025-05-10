@@ -34,12 +34,13 @@ import {
   type DiagramCallbacks,
 } from "./diagram-api";
 import {
-  type Node as ApiNode,
   type Edge as ApiEdge,
   type ViewportDimensions,
   EdgeType as ApiEdgeType,
   Position,
   GroupWithContent,
+  DiagramNodeTypes,
+  isVisualModelDiagramNode,
 } from "./diagram-model";
 import { type EdgeToolbarProps } from "./edge/edge-toolbar";
 import { EntityNodeName } from "./node/entity-node";
@@ -59,6 +60,7 @@ import { GroupMenu } from "./node/group-menu";
 import { findTopLevelGroup } from "../action/utilities";
 import { GeneralCanvasMenuComponentProps } from "./canvas/canvas-menu-general";
 import { isEqual, omit } from "lodash";
+import { VisualModelNodeName } from "./node/visual-model-diagram-node";
 
 const UNINITIALIZED_VALUE_GROUP_POSITION = 10000000;
 
@@ -157,7 +159,7 @@ const createGroupNode = (groupId: string, content: Node<any>[], hidden: boolean)
   return groupNode
 };
 
-export type NodeType = Node<ApiNode>;
+export type NodeType = Node<DiagramNodeTypes>;
 
 export type EdgeType = Edge<ApiEdge>;
 
@@ -1714,7 +1716,8 @@ const createActions = (
       return reactFlow.getNodes().map(node => node.data);
     },
     addNodes(nodes) {
-      reactFlow.addNodes(nodes.map(nodeToNodeType));
+      // We set it directly. Using reactflow may cause "Encountered two children with the same key" warning
+      setNodes(previousNodes => previousNodes.concat(nodes.map(nodeToNodeType)));
       console.log("Diagram.addNodes", nodes.map(item => item.identifier), nodes);
     },
     updateNodes(nodes) {
@@ -1758,7 +1761,8 @@ const createActions = (
       console.log("Diagram.updateNodesPosition", nodes);
     },
     removeNodes(identifiers) {
-      reactFlow.deleteElements({ nodes: identifiers.map(id => ({ id })) });
+      // Again setting directly instead of using reactFlow.
+      setNodes(previousNodes => previousNodes.filter(previousNode => !identifiers.includes(previousNode.id)));
       console.log("Diagram.removeNodes", identifiers);
     },
     getNodeWidth(identifier) {
@@ -1775,7 +1779,8 @@ const createActions = (
       return [];
     },
     addEdges(edges) {
-      reactFlow.addEdges(edges.map(edgeToEdgeType));
+      // Again directly instead of reactflow.
+      setEdges(previousEdges => previousEdges.concat(edges.map(edgeToEdgeType)));
       console.log("Diagram.addEdges", edges.map(item => item.identifier), edges);
     },
     updateEdges(edges) {
@@ -1793,7 +1798,8 @@ const createActions = (
       console.log("Diagram.setEdgesWaypointPosition", edges);
     },
     removeEdges(identifiers) {
-      reactFlow.deleteElements({ edges: identifiers.map(id => ({ id })) });
+      // Again setting directly instead of using reactFlow.
+      setEdges(previousEdges => previousEdges.filter(previousEdge => !identifiers.includes(previousEdge.id)));
       console.log("Diagram.removeEdges", identifiers);
     },
     //
@@ -1904,10 +1910,10 @@ const convertViewUsingZoom = (view: ViewportDimensions, zoom: number): void => {
   view.height *= zoomReciprocal;
 };
 
-const nodeToNodeType = (node: ApiNode): NodeType => {
+const nodeToNodeType = (node: DiagramNodeTypes): NodeType => {
   return {
     id: node.identifier,
-    type: EntityNodeName,
+    type: isVisualModelDiagramNode(node) ? VisualModelNodeName : EntityNodeName,
     position: {
       x: node.position.x,
       y: node.position.y,
