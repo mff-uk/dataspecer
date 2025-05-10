@@ -33,7 +33,6 @@ export function openEditNodeAttributesDialogAction(
   dialogs.openDialog(createEditVisualNodeDialog(initialState, name, onConfirm));
 }
 
-
 const getNodeName = (
   classesContext: ClassesContextType,
   state: EditVisualNodeDialogState

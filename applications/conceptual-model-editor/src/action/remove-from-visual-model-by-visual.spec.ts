@@ -9,11 +9,11 @@ import { createDefaultVisualModelFactory, isVisualNode, WritableVisualModel } fr
 import { SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { SetStateAction } from "react";
 import { notificationMockup } from "./test/actions-test-suite";
+import { createVisualEdgeEndpointDuplicateAction } from "./create-visual-edge-endpoint-duplicate";
 import { semanticModelMapToCmeSemanticModel } from "../dataspecer/cme-model/adapter";
 import { ModelGraphContextType } from "../context/model-context";
 import { ActionsTestSuite } from "./test/actions-test-suite";
 import { removeFromVisualModelByVisualAction } from "./remove-from-visual-model-by-visual";
-import { createVisualNodeDuplicateAction } from "./create-visual-node-duplicate";
 
 test("removeFromVisualModelAction - relationship", () => {
   const {
@@ -111,7 +111,7 @@ test("Remove node duplicate", () => {
 
   createNewVisualRelationshipsForTestingFromSemanticEnds(visualModel, model.getId(), "0", "1", "relationshipId");
   const nodeToDuplicate = visualModel.getVisualEntitiesForRepresented("0")[0];
-  createVisualNodeDuplicateAction(notificationMockup, diagram, visualModel, nodeToDuplicate.identifier);
+  createVisualEdgeEndpointDuplicateAction(notificationMockup, diagram, visualModel, nodeToDuplicate.identifier);
   expect(visualModel.getVisualEntitiesForRepresented("relationshipId").length).toBe(2);
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(2);
   //

@@ -17,7 +17,7 @@ import { ClassesContext, type ClassesContextType, UseClassesContextType, useClas
 import { useNotificationServiceWriter } from "../notification";
 import { type UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { ModelGraphContext, useModelGraphContext, UseModelGraphContextType, type ModelGraphContextType } from "../context/model-context";
-import { type DiagramCallbacks, type Waypoint as DiagramWaypoint, Edge, Position, useDiagram } from "../diagram/";
+import { type DiagramCallbacks, type Waypoint as DiagramWaypoint, Edge, isVisualModelDiagramNode, Position, useDiagram, VisualModelDiagramNode } from "../diagram/";
 import type { UseDiagramType } from "../diagram/diagram-hook";
 import { type Options, useOptions } from "../configuration/options";
 import { openDetailDialogAction } from "./open-detail-dialog";
@@ -64,7 +64,7 @@ import { isInMemorySemanticModel } from "../utilities/model";
 import { isSemanticModelAttribute, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
 import { createCmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
-import { createVisualNodeDuplicateAction } from "./create-visual-node-duplicate";
+import { createVisualEdgeEndpointDuplicateAction } from "./create-visual-edge-endpoint-duplicate";
 import { removeFromVisualModelByVisualAction } from "./remove-from-visual-model-by-visual";
 import { removeFromVisualModelByRepresentedAction } from "./remove-from-visual-model-by-represented";
 import { centerViewportToVisualEntityByRepresentedAction } from "./center-viewport-to-visual-entity";
@@ -83,6 +83,9 @@ import { ModelDsIdentifier } from "@/dataspecer/entity-model";
 import { openSearchExternalSemanticModelDialogAction } from "./open-search-external-semantic-model-dialog";
 import { openEditVisualModelDialogAction } from "./open-edit-visual-model-dialog";
 import { LayoutConfigurationContextType, useLayoutConfigurationContext } from "@/context/layout-configuration-context";
+import { addAllRelationshipsForVisualDiagramNodeToVisualModelAction } from "./add-all-relationships";
+import { addVisualDiagramNodeForExistingModelToVisualModelAction } from "./create-visual-diagram-node-for-existing-model";
+import { putVisualDiagramNodeContentToVisualModelAction } from "./put-visual-diagram-node-content-to-visual-model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -223,6 +226,17 @@ interface VisualModelActions {
    */
   addRelationProfileToVisualModel: (model: string, identifier: string) => void;
 
+  /**
+   * Adds new visual diagram node, which is refering to provided visual model.
+   */
+  addVisualDiagramNodeForExistingModelToVisualModel: (visualModelToRepresent: string) => void;
+
+  /**
+   * Adds all relationships which are not currently visible on canvas and are going to some of the class inside the
+   * represented visual model, which represents the {@link visualModelDiagramNode}.
+   */
+  addAllRelationshipsForVisualDiagramNodeToVisualModel: (visualModelDiagramNode: VisualModelDiagramNode) => void;
+
   // TODO RadStr: Document
   addAttributeToVisualModel: (attribute: string, domainClass: string | null) => void;
   shiftAttributeUp: (attribute: string, domainNode: string | null) => void;
@@ -257,7 +271,7 @@ interface VisualModelActions {
    * then the newly created A'' will have following edges A'' -> C, but also A'' -> B.
    * @param identifier is the identifier of the visual node
    */
-  createVisualNodeDuplicate: (identifier: string) => void;
+  createVisualEdgeEndpointDuplicate: (identifier: string) => void;
 
   //
 
@@ -380,6 +394,8 @@ const noOperationActionsContext: ActionsContextType = {
   addRelationToVisualModel: noOperation,
   addRelationProfileToVisualModel: noOperation,
   addAttributeToVisualModel: noOperation,
+  addVisualDiagramNodeForExistingModelToVisualModel: noOperation,
+  addAllRelationshipsForVisualDiagramNodeToVisualModel: noOperation,
   shiftAttributeUp: noOperation,
   shiftAttributeDown: noOperation,
   deleteFromSemanticModels: noOperation,
@@ -387,7 +403,7 @@ const noOperationActionsContext: ActionsContextType = {
   removeFromVisualModelByRepresented: noOperation,
   removeFromVisualModelByVisual: noOperation,
   removeAttributesFromVisualModel: noOperation,
-  createVisualNodeDuplicate: noOperation,
+  createVisualEdgeEndpointDuplicate: noOperation,
   centerViewportToVisualEntityByRepresented: noOperation,
   //
   openCreateNewVisualModelFromSelectionDialog: noOperation,
@@ -557,7 +573,7 @@ function createActionsContext(
           notifications.error("Node which changed position can not be found in visual model.");
           return;
         }
-        visualModel.updateVisualEntity(identifier, { position: { ...position, anchored: node.position.anchored} });
+        visualModel.updateVisualEntity(identifier, { position: { ...position, anchored: node.position.anchored } });
       }
     });
   };
@@ -769,6 +785,22 @@ function createActionsContext(
     });
   };
 
+  const addVisualDiagramNodeForExistingModelToVisualModel = (visualModelToRepresent: string): void => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      addVisualDiagramNodeForExistingModelToVisualModelAction(
+        notifications, graph, diagram, visualModel, visualModelToRepresent);
+    });
+  };
+
+  const addAllRelationshipsForVisualDiagramNodeToVisualModel = (
+    visualModelDiagramNode: VisualModelDiagramNode
+  ): void => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      addAllRelationshipsForVisualDiagramNodeToVisualModelAction(
+        notifications, classes, graph, visualModel, visualModelDiagramNode);
+    });
+  };
+
   const shiftAttributeUp = (attribute: string, domainNode: string | null): void => {
     if(domainNode === null) {
       notifications.error("Shifting attribute in domain node which is null");
@@ -813,9 +845,9 @@ function createActionsContext(
     });
   };
 
-  const createVisualNodeDuplicate = (identifier: string): void => {
+  const createVisualEdgeEndpointDuplicate = (identifier: string): void => {
     withVisualModel(notifications, graph, (visualModel) => {
-      createVisualNodeDuplicateAction(notifications, diagram, visualModel, identifier);
+      createVisualEdgeEndpointDuplicateAction(notifications, diagram, visualModel, identifier);
     });
   };
 
@@ -1018,7 +1050,9 @@ function createActionsContext(
 
     onCreateNodeProfile: (node) => openCreateProfileDialog(node.externalIdentifier),
 
-    onDuplicateNode: (node) => createVisualNodeDuplicate(node.identifier),
+    onDuplicateNode: (node) => createVisualEdgeEndpointDuplicate(node.identifier),
+
+    onAddAllRelationships: (visualModelDiagramNode) => addAllRelationshipsForVisualDiagramNodeToVisualModel(visualModelDiagramNode),
 
     onHideNode: (node) => removeFromVisualModelByVisual([node.identifier]),
 
@@ -1045,12 +1079,20 @@ function createActionsContext(
     onCreateAttributeForNode: (node) => openCreateAttributeDialogForClass(node.externalIdentifier, null),
 
     onCreateConnectionToNode: (source, target) => {
-      openCreateConnectionDialog(
-        source.externalIdentifier, target.externalIdentifier, source.identifier, target.identifier);
+      if(isVisualModelDiagramNode(source)) {
+        // Do nothing
+      }
+      else {
+        openCreateConnectionDialog(
+          source.externalIdentifier, target.externalIdentifier, source.identifier, target.identifier);
+      }
     },
 
     onCreateConnectionToNothing: (source, canvasPosition) => {
       console.log("Application.onCreateConnectionToNothing", { source, canvasPosition });
+      if(isVisualModelDiagramNode(source)) {
+        return;
+      }
       diagram.actions().openDragEdgeToCanvasMenu(source, canvasPosition);
     },
 
@@ -1093,6 +1135,33 @@ function createActionsContext(
       withVisualModel(notifications, graph, (visualModel) => {
         removeTopLevelGroupFromVisualModelAction(notifications, visualModel, identifier);
       });
+    },
+
+    onCreateVisualModelDiagramNodeFromSelection: () => {
+      // TODO RadStr: Empty mock-up for now
+    },
+
+    onDissolveVisualModelDiagramNode: (visualModelDiagramNode: VisualModelDiagramNode) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        putVisualDiagramNodeContentToVisualModelAction(notifications, classes, graph, diagram, visualModel, visualModelDiagramNode);
+        removeFromVisualModelByVisualAction(notifications, visualModel, [visualModelDiagramNode.identifier]);
+      });
+    },
+
+    onMoveToVisualModelRepresentedByVisualModelDiagramNode: (_visualModelDiagramNodeIdentifier: string) => {
+      // TODO RadStr: Empty mock-up for now
+    },
+
+    onEditVisualModelDiagramNode: (_visualModelDiagramNode: VisualModelDiagramNode) => {
+      // TODO RadStr: Empty mock-up for now
+    },
+
+    onShowInfoForVisualModelDiagramNode: (_visualModelDiagramNode: VisualModelDiagramNode) => {
+      // TODO RadStr: Empty mock-up for now
+    },
+
+    onHideVisualModelDiagramNode: (_visualModelDiagramNode: VisualModelDiagramNode) => {
+      // TODO RadStr: Empty mock-up for now
     },
 
     onShowExpandSelection: () => {
@@ -1232,6 +1301,8 @@ function createActionsContext(
     addRelationToVisualModel,
     addRelationProfileToVisualModel,
     addAttributeToVisualModel,
+    addVisualDiagramNodeForExistingModelToVisualModel,
+    addAllRelationshipsForVisualDiagramNodeToVisualModel,
     shiftAttributeUp,
     shiftAttributeDown,
     removeFromVisualModelByRepresented,
@@ -1239,7 +1310,7 @@ function createActionsContext(
     removeAttributesFromVisualModel,
     //
     deleteFromSemanticModels,
-    createVisualNodeDuplicate,
+    createVisualEdgeEndpointDuplicate,
     centerViewportToVisualEntityByRepresented,
     openCreateNewVisualModelFromSelectionDialog,
     changeVisualModel,
