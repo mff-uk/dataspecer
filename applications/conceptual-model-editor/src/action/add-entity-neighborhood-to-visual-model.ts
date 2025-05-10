@@ -5,10 +5,24 @@ import { UseDiagramType } from "../diagram/diagram-hook";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { EntityToAddToVisualModel } from "./add-semantic-entities-to-visual-model";
 import { ExtensionType, NodeSelection, VisibilityFilter, extendSelectionAction } from "./extend-selection-action";
-import { isSemanticModelAttribute, isSemanticModelRelationship, SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  isSemanticModelAttribute,
+  isSemanticModelRelationship,
+  SemanticModelClass,
+  SemanticModelGeneralization,
+  SemanticModelRelationship
+} from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+  isSemanticModelRelationshipProfile,
+  SemanticModelClassProfile,
+  SemanticModelRelationshipProfile
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isSemanticModelAttributeProfile } from "@/dataspecer/semantic-model";
-import { getDomainAndRange, getDomainAndRangeConcepts, getSemanticConnectionEndConcepts } from "@/util/relationship-utils";
+import {
+  getDomainAndRange,
+  getDomainAndRangeConcepts,
+  getSemanticConnectionEndConcepts
+} from "@/util/relationship-utils";
 import { addSemanticClassToVisualModelAction } from "./add-class-to-visual-model";
 import { findSourceModelOfEntity } from "@/service/model-service";
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
@@ -332,9 +346,6 @@ const addClassNeighborhoodToVisualModelAction = async (
     }
 
     for (const classOrClassProfileToAdd of classesOrClassProfilesToAdd) {
-      const classOrClassProfileEntityToAdd = allClasses
-        .find(cclass => cclass.id === classOrClassProfileToAdd.identifier);
-
       const position = classOrClassProfileToAdd.position ?? { ...viewportCenter };
 
       await addClassOrClassProfileToVisualModel(
