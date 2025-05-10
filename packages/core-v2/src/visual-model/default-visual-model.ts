@@ -405,7 +405,7 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
   }
 
   protected onEntityDidCreate(entity: Entity) {
-    if(isVisualDiagramNode(entity)) {
+    if (isVisualDiagramNode(entity)) {
       this.entities.set(entity.identifier, entity);
       addToMapArray(entity.representedVisualModel, entity.identifier, this.representedToEntity);
       this.notifyObserversOnEntityChangeOrDelete(null, entity);
@@ -538,14 +538,6 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
 }
 
 function isEntityModelV0(what: object): what is VisualModelJsonSerializationV0 {
-  return (what as any).modelColors !== undefined || (what as any).visualEntities !== undefined;
-}
-
-function addToMultimap<K, V>(key: K, value: V, map: Map<K, V[]>): void {
-  const items = map.get(key);
-  if (items === undefined) {
-    map.set(key, [value]);
-  } else {
-    items.push(value);
-  }
+  return (what as any).modelColors !== undefined
+    || (what as any).visualEntities !== undefined;
 }

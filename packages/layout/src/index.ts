@@ -58,6 +58,8 @@ export  {
 
 export { type ElkForceAlgType } from "./configurations/elk/elk-configurations.ts";
 
+export * from "./layout-configuration-model.ts";
+
 /**
  * The object (class) implementing this interface handles the act of getting width and height of given node. The act has to be separated from the reactflow visualization library,
  * because either the library may be switched for some other (highly unlikely from my point of view), but more importantly the layouting may be performed outside the diagram/editor.

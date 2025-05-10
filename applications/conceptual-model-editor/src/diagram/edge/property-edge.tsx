@@ -131,7 +131,6 @@ function prepareLabel(
     vocabulary: { label: string | null }[],
   },
 ) {
-  console.log(">>", data);
   switch (options.labelVisual) {
   case LabelVisual.Entity:
     return data.label;

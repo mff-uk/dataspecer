@@ -228,6 +228,7 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
   const onDissolveGroup = () => context?.callbacks().onDissolveGroup(props.data.group);
   const onAddAttribute = () => context?.callbacks().onCreateAttributeForNode(props.data);
   const onEditAttributes = () => context?.callbacks().onEditVisualNode(props.data);
+  const onShowExpandSelection = () => context?.callbacks().onShowExpandSelection();
 
   const shouldShowToolbar = props.selected === true;
 
@@ -265,6 +266,8 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
         <button onClick={onAnchor} title={isPartOfGroup ? t("group-anchor-button") : t("node-anchor-button")} >⚓</button>
         &nbsp;
         <button onClick={onAddAttribute} title={addAttributeTitle} >➕</button>
+        &nbsp;
+        <button onClick={onShowExpandSelection} title={t("selection-extend-button")} >📈</button>
         &nbsp;
       </NodeToolbar>
     </>);
