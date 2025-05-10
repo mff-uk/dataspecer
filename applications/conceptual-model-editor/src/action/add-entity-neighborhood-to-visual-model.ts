@@ -1,22 +1,23 @@
-import { XY } from "@dataspecer/layout";
-import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualNode, isVisualRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { ClassesContextType } from "../context/classes-context";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { EntityToAddToVisualModel, addSemanticEntitiesToVisualModelAction } from "./add-semantic-entities-to-visual-model";
+import { EntityToAddToVisualModel } from "./add-semantic-entities-to-visual-model";
 import { ExtensionType, NodeSelection, VisibilityFilter, extendSelectionAction } from "./extend-selection-action";
-import { isSemanticModelAttribute, isSemanticModelRelationship, SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelRelationshipProfile, SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { isSemanticModelAttribute, isSemanticModelRelationship, SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isSemanticModelAttributeProfile } from "@/dataspecer/semantic-model";
-import { getDomainAndRange, getDomainAndRangeConcepts } from "@/util/relationship-utils";
+import { getDomainAndRange, getDomainAndRangeConcepts, getSemanticConnectionEndConcepts } from "@/util/relationship-utils";
 import { addSemanticClassToVisualModelAction } from "./add-class-to-visual-model";
 import { findSourceModelOfEntity } from "@/service/model-service";
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
-import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
-import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
 import { findPositionForNewNodesUsingLayouting, findPositionForNewNodeUsingLayouting } from "./layout-visual-model";
+import { XY } from "@dataspecer/layout";
 import { getVisualNodeContentBasedOnExistingEntities } from "./add-semantic-attribute-to-visual-model";
+import { addSemanticAttributeToVisualNodeAction } from "./add-semantic-attribute-to-visual-node";
+import { getViewportCenterForClassPlacement } from "./utilities";
+import { EntityModel } from "@dataspecer/core-v2";
 
 export const addEntityNeighborhoodToVisualModelAction = async (
   notifications: UseNotificationServiceWriterType,
@@ -51,9 +52,22 @@ export const addEntityNeighborhoodToVisualModelAction = async (
         return;
       }
 
-      addClassOrClassProfileToVisualModel(
+      // Try to add the domain node
+      await addClassOrClassProfileToVisualModel(
         notifications, classes, graph, diagram, visualModel,
-        domain.concept, null, false, [possibleRelationship.id]);
+        domain.concept, null, false, [identifier]);
+
+      // Add attribute to all existing domain nodes
+      for (const domainNode of visualModel.getVisualEntitiesForRepresented(domain.concept)) {
+        if (!isVisualNode(domainNode)) {
+          notifications.error("Domain node of attribute is not a node");
+          return;
+        }
+
+        addSemanticAttributeToVisualNodeAction(
+          notifications, visualModel, domainNode, identifier, null, false);
+      }
+
     }
     else if (isSemanticModelAttributeProfile(possibleRelationship)) {
       const { domain } = getDomainAndRange(possibleRelationship);
@@ -62,16 +76,24 @@ export const addEntityNeighborhoodToVisualModelAction = async (
         return;
       }
 
+      // Try to add the domain node
       addClassOrClassProfileToVisualModel(
         notifications, classes, graph, diagram, visualModel,
-        domain.concept, null, false, [possibleRelationship.id]);
+        domain.concept, null, false, [identifier]);
+
+      // Add attribute to all existing domain nodes
+      for (const domainNode of visualModel.getVisualEntitiesForRepresented(domain.concept)) {
+        if (!isVisualNode(domainNode)) {
+          notifications.error("Domain node of attribute is not a node");
+          return;
+        }
+
+        addSemanticAttributeToVisualNodeAction(
+          notifications, visualModel, domainNode, identifier, null, false);
+      }
     }
     else if (isSemanticModelRelationship(possibleRelationship) ||
              isSemanticModelRelationshipProfile(possibleRelationship)) {
-      if (visualModel.hasVisualEntityForRepresented(identifier)) {
-        return;
-      }
-
       const { domain, range } = getDomainAndRangeConcepts(possibleRelationship);
       if (domain === null) {
         notifications.error("Given entity is relationship or relationship profile, but it does not have domain class");
@@ -84,49 +106,51 @@ export const addEntityNeighborhoodToVisualModelAction = async (
 
       const positions = await findPositionForNewNodesUsingLayouting(
         notifications, diagram, graph, visualModel, classes, [domain, range]);
-      const isDomainAdded = await addClassOrClassProfileToVisualModel(
-        notifications, classes, graph, diagram, visualModel,
-        domain, positions[domain], false, []);
-      if (!isDomainAdded) {
-        return;
+
+      if (!visualModel.hasVisualEntityForRepresented(domain)) {
+        const isDomainAdded = await addClassOrClassProfileToVisualModel(
+          notifications, classes, graph, diagram, visualModel,
+          domain, positions[domain], false, []);
+        if (!isDomainAdded) {
+          return;
+        }
       }
 
-      const isRangeAdded = await addClassOrClassProfileToVisualModel(
-        notifications, classes, graph, diagram, visualModel,
-        range, positions[range], false, []);
-      if (!isRangeAdded) {
-        return;
+      if (!visualModel.hasVisualEntityForRepresented(range)) {
+        const isRangeAdded = await addClassOrClassProfileToVisualModel(
+          notifications, classes, graph, diagram, visualModel,
+          range, positions[range], false, []);
+        if (!isRangeAdded) {
+          return;
+        }
       }
 
-      const model = findSourceModelOfEntity(identifier, graph.models);
-      if (model === null) {
-        notifications.error("Given entity is relationship or relationship profile, but it has missing source model");
-        return;
-      }
-      if (isSemanticModelRelationship(possibleRelationship)) {
-        addSemanticRelationshipToVisualModelAction(
-          notifications, graph, visualModel, identifier, model.getId());
-      }
-      else {
-        addSemanticRelationshipProfileToVisualModelAction(
-          notifications, graph, visualModel, identifier, model.getId());
-      }
+
+      const allConnections = [
+        ...classes.generalizations,
+        ...classes.relationships,
+        ...classes.relationshipProfiles
+      ];
+      addSemanticConnectionBetweenAllValidVisualNodes(
+        notifications, allConnections, graph.models, visualModel, identifier);
     }
   }
 }
 
-function addSemanticClassOrClassProfileToVisualModelCommand(
+async function addSemanticClassOrClassProfileToVisualModelCommand(
+  notifications: UseNotificationServiceWriterType,
   classes: ClassesContextType,
+  graph: ModelGraphContextType,
   visualModel: WritableVisualModel,
   entity: SemanticModelClass | SemanticModelClassProfile,
   model: string,
   position: { x: number, y: number },
   content: string[] | null
-): string {
+): Promise<string> {
   const nodeContent = content ?? getVisualNodeContentBasedOnExistingEntities(
     classes, entity);
-  return visualModel.addVisualNode({
-    model: model,
+  const createdNodeIdentifier = visualModel.addVisualNode({
+    model,
     representedEntity: entity.id,
     position: {
       x: position.x,
@@ -136,6 +160,54 @@ function addSemanticClassOrClassProfileToVisualModelCommand(
     content: nodeContent,
     visualModels: [],
   });
+
+
+  const inputForExtension: NodeSelection = {
+    identifiers: [entity.id],
+    areIdentifiersFromVisualModel: false
+  };
+  const classProfileChildren = await extendSelectionAction(
+    notifications, graph, classes, inputForExtension,
+    [ExtensionType.ClassProfileChild],
+    VisibilityFilter.All, false, null);
+
+  const classProfileParents = await extendSelectionAction(
+    notifications, graph, classes, inputForExtension,
+    [ExtensionType.ClassProfileParent],
+    VisibilityFilter.All, false, null);
+
+
+  for (const classProfileChild of classProfileChildren.selectionExtension.nodeSelection) {
+    const modelForVisualProfileRelationship = findSourceModelOfEntity(classProfileChild, graph.models);
+    if (modelForVisualProfileRelationship === null) {
+      notifications.error("The related class profile has no source model");
+      continue;
+    }
+
+    for (const visualClassProfileChild of visualModel.getVisualEntitiesForRepresented(classProfileChild)) {
+      visualModel.addVisualProfileRelationship({
+        model: modelForVisualProfileRelationship.getId(),
+        entity: classProfileChild,
+        waypoints: [],
+        visualSource: visualClassProfileChild.identifier,
+        visualTarget: createdNodeIdentifier
+      })
+    }
+  }
+
+  for (const classProfileParent of classProfileParents.selectionExtension.nodeSelection) {
+    for (const visualClassProfileParent of visualModel.getVisualEntitiesForRepresented(classProfileParent)) {
+      visualModel.addVisualProfileRelationship({
+        model,
+        entity: entity.id,
+        waypoints: [],
+        visualSource: createdNodeIdentifier,
+        visualTarget: visualClassProfileParent.identifier
+      })
+    }
+  }
+
+  return createdNodeIdentifier;
 }
 
 /**
@@ -182,8 +254,9 @@ const addClassOrClassProfileToVisualModel = async (
     else {
       const exactPosition = position ?? await findPositionForNewNodeUsingLayouting(
         notifications, diagram, graph, visualModel, classes, identifier);
-      addSemanticClassOrClassProfileToVisualModelCommand(
-        classes, visualModel, classProfile, model.getId(), exactPosition, nodeContent);
+      await addSemanticClassOrClassProfileToVisualModelCommand(
+        notifications, classes, graph, visualModel, classProfile,
+        model.getId(), exactPosition, nodeContent);
     }
     return true;
   }
@@ -201,8 +274,9 @@ const addClassOrClassProfileToVisualModel = async (
   else {
     const exactPosition = position ?? await findPositionForNewNodeUsingLayouting(
       notifications, diagram, graph, visualModel, classes, identifier);
-    addSemanticClassOrClassProfileToVisualModelCommand(
-      classes, visualModel, cclass, model.getId(), exactPosition, nodeContent);
+    await addSemanticClassOrClassProfileToVisualModelCommand(
+      notifications, classes, graph, visualModel, cclass,
+      model.getId(), exactPosition, nodeContent);
   }
 
   return true;
@@ -222,26 +296,126 @@ const addClassNeighborhoodToVisualModelAction = async (
   };
   const neighborhoodPromise = extendSelectionAction(
     notifications, graph, classes, inputForExtension,
-    [ExtensionType.Association, ExtensionType.Generalization],
+    [ExtensionType.Association, ExtensionType.Generalization,
+      ExtensionType.ClassProfile, ExtensionType.ProfileEdge],
     VisibilityFilter.All, false, null);
 
   return neighborhoodPromise.then(async (neighborhood) => {
-    const classesOrClassProfilesToAdd: EntityToAddToVisualModel[] = [{ identifier, position: null }];
+    const viewportCenter = getViewportCenterForClassPlacement(diagram);
+
+    const classesOrClassProfilesToAdd: EntityToAddToVisualModel[] = [
+      {
+        identifier,
+        position: { ...viewportCenter }
+      }
+    ];
+
 
     // We have to filter the source class, whose neighborhood we are adding, from the extension.
     // Because we don't want to have duplicate there.
     classesOrClassProfilesToAdd.push(
       ...neighborhood.selectionExtension.nodeSelection
         .filter(node => node !== identifier)
-        .map(node => ({ identifier: node, position: null }))
+        .map(node => ({
+          identifier: node,
+          position: { ...viewportCenter }
+        }))
     );
-    await addSemanticEntitiesToVisualModelAction(
-      notifications, classes, graph, visualModel, diagram, classesOrClassProfilesToAdd);
 
-    // Some might got already added by the fact that the relevant class was added, but the action will deal with that.
+    const allClasses = [
+      ...classes.classes,
+      ...classes.classProfiles
+    ];
+
+    const neighborhoodClassesIdentifiers = classesOrClassProfilesToAdd
+    .map(cclass => cclass.identifier);
+    const positions = await findPositionForNewNodesUsingLayouting(
+      notifications, diagram, graph, visualModel, classes, neighborhoodClassesIdentifiers);
+    for (const classOrClassProfileToAdd of classesOrClassProfilesToAdd) {
+      classOrClassProfileToAdd.position = positions[classOrClassProfileToAdd.identifier];
+    }
+
+    for (const classOrClassProfileToAdd of classesOrClassProfilesToAdd) {
+      const classOrClassProfileEntityToAdd = allClasses
+        .find(cclass => cclass.id === classOrClassProfileToAdd.identifier);
+
+      const position = classOrClassProfileToAdd.position ?? { ...viewportCenter };
+
+      await addClassOrClassProfileToVisualModel(
+        notifications, classes, graph, diagram, visualModel,
+        classOrClassProfileToAdd.identifier, position, false, []);
+    }
+
     const allNeighborhoodSemanticEdges = neighborhood.selectionExtension.edgeSelection
       .map(semanticEdge => ({ identifier: semanticEdge, position: null }));
-    await addSemanticEntitiesToVisualModelAction(
-      notifications, classes, graph, visualModel, diagram, allNeighborhoodSemanticEdges);
+
+
+    const allConnections = [
+      ...classes.generalizations,
+      ...classes.relationships,
+      ...classes.relationshipProfiles
+    ];
+
+    for (const neighborhoodSemanticEdge of allNeighborhoodSemanticEdges) {
+      addSemanticConnectionBetweenAllValidVisualNodes(
+        notifications, allConnections, graph.models, visualModel, neighborhoodSemanticEdge.identifier);
+    }
   });
 };
+
+function addSemanticConnectionBetweenAllValidVisualNodes(
+  notifications: UseNotificationServiceWriterType,
+  allConnections: (SemanticModelRelationship | SemanticModelRelationshipProfile | SemanticModelGeneralization)[],
+  models: Map<string, EntityModel>,
+  visualModel: WritableVisualModel,
+  connectionIdentifier: string,
+) {
+  const connection = allConnections.find(relationship => relationship.id === connectionIdentifier);
+  if (connection === undefined) {
+    notifications.error("Can't find related relationhip in the list of all semantic relationships.");
+    return;
+  }
+
+  const model = findSourceModelOfEntity(connection.id, models);
+  if (model === null) {
+    notifications.error("Missing source model for related relationship");
+    return;
+  }
+
+  const { source, target } = getSemanticConnectionEndConcepts(connection);
+  if (source === null || target === null) {
+    notifications.error("Invalid relationship entity.");
+    console.error("Ignored relationship as ends are null.", { source, target, relationship: connection });
+    return;
+  }
+
+  const visualSources = visualModel.getVisualEntitiesForRepresented(source);
+  const visualTargets = visualModel.getVisualEntitiesForRepresented(target);
+  if (visualSources.length === 0 || visualTargets.length === 0) {
+    return;
+  }
+
+  const existingVisualRelationships = visualModel.getVisualEntitiesForRepresented(connection.id)
+    .filter(isVisualRelationship);
+
+  for (const visualSource of visualSources) {
+    for (const visualTarget of visualTargets) {
+      const isVisualRelationshipAlreadyPresent = existingVisualRelationships
+        .find(visualRelationship =>
+          visualRelationship.visualSource === visualSource.identifier &&
+          visualRelationship.visualTarget === visualTarget.identifier) !== undefined;
+      if (isVisualRelationshipAlreadyPresent) {
+        continue;
+      }
+
+      visualModel.addVisualRelationship({
+        representedRelationship: connection.id,
+        model: model.getId(),
+        waypoints: [],
+        visualSource: visualSource.identifier,
+        visualTarget: visualTarget.identifier
+      });
+    }
+  }
+
+}
