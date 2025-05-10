@@ -72,7 +72,7 @@ test("Test adding semantic model to visual model - fully connected graph", async
     notificationMockup, classesContext, graph,
     diagram, visualModel, relevantModel);
 
-    const result = [...visualModel.getVisualEntities().entries()].map(entity => entity[1]);
+  const result = [...visualModel.getVisualEntities().entries()].map(entity => entity[1]);
   const nodes = result.filter(isVisualNode);
   const edges = result.filter(isVisualRelationship);
   expect(result.length).toBe(10);  // 4 nodes + 6 edges

@@ -7,7 +7,6 @@ import { ActionsTestSuite, notificationMockup, TestedSemanticConnectionType } fr
 import { removeFromVisualModelByRepresentedAction } from "./remove-from-visual-model-by-represented";
 import { createVisualNodeDuplicateAction } from "./create-visual-node-duplicate";
 
-
 test("Remove relationship", () => {
   const {
     visualModel,
@@ -101,7 +100,6 @@ test("Remove node duplicate", () => {
     4, TestedSemanticConnectionType.Association);
 
   const testDiagram = ActionsTestSuite.createTestDiagram();
-
 
   ActionsTestSuite.createNewVisualRelationshipsForTestingFromSemanticEnds(
     visualModel, firstModel.getId(), "0", "1", "relationshipId");

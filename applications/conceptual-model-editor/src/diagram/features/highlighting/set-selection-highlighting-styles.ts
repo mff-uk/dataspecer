@@ -97,8 +97,8 @@ function storeEdgeCopyToGivenMap(
     newEdgeColor = edge?.data?.color;
   }
 
-  const changedEdge = changedCopiesOfPreviousEdges[edge.id] ?? ({...edge});
-  changedEdge.style = {...changedEdge.style, stroke: newEdgeColor ?? undefined};
+  const changedEdge = changedCopiesOfPreviousEdges[edge.id] ?? ({ ...edge });
+  changedEdge.style = { ...changedEdge.style, stroke: newEdgeColor ?? undefined };
   changedEdge.markerEnd = selectMarkerEnd(changedEdge.data, newEdgeColor);
   changedCopiesOfPreviousEdges[changedEdge.id] = changedEdge;
 }

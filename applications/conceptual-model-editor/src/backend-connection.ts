@@ -7,7 +7,6 @@ import type { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { createLayoutConfiguration } from "@dataspecer/layout";
 import { createDefaultConfigurationModelFromJsonObject } from "@dataspecer/core-v2/configuration-model";
 
-
 export const useBackendConnection = () => {
   // Should fail already when spinning up the next app
   const service = useMemo(() => new BackendPackageService(import.meta.env.VITE_PUBLIC_APP_BACKEND!, httpFetch), []);

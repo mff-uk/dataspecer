@@ -38,7 +38,7 @@ test("Test change attribute - Visibility", () => {
     notificationMockup, classesContext, visualModel, [newAttributes[0].identifier]);
   expect((visualModel.getVisualEntitiesForRepresented("0")![0] as VisualNode).content.length).toEqual(1);
   expect((visualModel.getVisualEntitiesForRepresented("0")![0] as VisualNode).content[0])
-  .toEqual(newAttributes[1].identifier);
+    .toEqual(newAttributes[1].identifier);
 });
 
 test("Test change attribute - Visibility - order", () => {
@@ -61,8 +61,8 @@ test("Test change attribute - Visibility - order", () => {
   expect((visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode).content.length).toEqual(1);
   newAttributes.push(ActionsTestSuite.createSemanticAttributeTestVariant(
     classesContext, models, "0", firstModel.getId(), "attribute-1"));
-    addSemanticAttributeToVisualNodeAction(
-      notificationMockup, visualModel,
+  addSemanticAttributeToVisualNodeAction(
+    notificationMockup, visualModel,
       visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode,
       newAttributes[1].identifier, 0, true);
   //
@@ -74,8 +74,8 @@ test("Test change attribute - Visibility - order", () => {
   //
   newAttributes.push(ActionsTestSuite.createSemanticAttributeTestVariant(
     classesContext, models, "0", firstModel.getId(), "attribute-3"));
-    addSemanticAttributeToVisualNodeAction(
-      notificationMockup, visualModel,
+  addSemanticAttributeToVisualNodeAction(
+    notificationMockup, visualModel,
       visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode,
       newAttributes[2].identifier, 1, true);
   expect((visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode).content.length).toEqual(3);

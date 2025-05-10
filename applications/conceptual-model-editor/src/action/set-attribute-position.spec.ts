@@ -197,7 +197,6 @@ test("Test change attribute order - change multi", () => {
   expect(resultContent[5]).toBe(attributes[2]);
 });
 
-
 test("Test change attribute order - change multi - attribute profile", () => {
   const {
     visualModel,

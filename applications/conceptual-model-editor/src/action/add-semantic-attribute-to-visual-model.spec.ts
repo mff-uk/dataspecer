@@ -23,7 +23,6 @@ test("Test addSemanticAttributeToVisualNodeAction by adding multiple attributes"
   //
   let visualNode = visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode;
 
-
   newAttributes.push(ActionsTestSuite.createSemanticAttributeTestVariant(
     classesContext, models, "0", modelIdentifer, "attribute-0"));
   addSemanticAttributeToVisualNodeAction(

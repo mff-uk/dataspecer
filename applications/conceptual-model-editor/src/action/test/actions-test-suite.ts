@@ -769,7 +769,7 @@ export class ActionsTestSuite {
   ) {
 
     const range = representRdfsLiteral();
-    const name = {"en": attributeName};
+    const name = { "en": attributeName };
     const operation = createRelationship({
       ends: [{
         iri: null,
@@ -846,7 +846,6 @@ export class ActionsTestSuite {
       model,
     };
   }
-
 
   static createSemanticRelationshipTestVariant(
     models: Map<string, EntityModel>,
