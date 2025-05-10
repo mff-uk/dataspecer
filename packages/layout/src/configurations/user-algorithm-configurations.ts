@@ -210,7 +210,7 @@ type ConfigMapFromUnion<T extends { layout_alg: string }> = {
   [K in T['layout_alg']]: Extract<T, { layout_alg: K }>;
 };
 
-type UserGivenAlgorithmConfigurationsMap = ConfigMapFromUnion<UserGivenAlgorithmConfigurationInterfaces>;
+export type UserGivenAlgorithmConfigurationsMap = ConfigMapFromUnion<UserGivenAlgorithmConfigurationInterfaces>;
 
 /**
 *
