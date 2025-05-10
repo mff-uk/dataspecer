@@ -14,7 +14,7 @@ test("Create default visual model.", () => {
 
 function createModel(identifier: string) : WritableVisualModel {
   const internal = createDefaultEntityModel(MODEL_VISUAL_TYPE, identifier);
-  const model = factory.createWritableVisualModelSync(internal);
+  const model = factory.createWritableVisualModelSyncNoWrap(internal);
   expect(model).not.toBeNull;
   // TypeScript does not infer the not null from previous line.
   return model as WritableVisualModel;

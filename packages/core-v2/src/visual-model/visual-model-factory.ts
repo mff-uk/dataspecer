@@ -21,6 +21,15 @@ export interface VisualModelFactory {
     model: SynchronousUnderlyingVisualModel,
   ): WritableVisualModel;
 
+  /**
+   * Create default visual model with no wraps.
+   * Do not use this method unless you have a good reason,
+   * use {@link createWritableVisualModelSync} instead.
+   */
+  createWritableVisualModelSyncNoWrap(
+    model: SynchronousUnderlyingVisualModel,
+  ): WritableVisualModel;
+
 }
 
 class DefaultVisualModelFactory implements VisualModelFactory {
@@ -35,6 +44,12 @@ class DefaultVisualModelFactory implements VisualModelFactory {
     model: SynchronousUnderlyingVisualModel,
   ): WritableVisualModel {
     return wrapWithColorGenerator(new DefaultVisualModel(model));
+  }
+
+  createWritableVisualModelSyncNoWrap(
+    model: SynchronousUnderlyingVisualModel,
+  ):  WritableVisualModel {
+    return new DefaultVisualModel(model);
   }
 
 }
