@@ -2,7 +2,7 @@
  * Tests {@link addEntitiesFromSemanticModelToVisualModelAction}
  */
 
-import { expect, test } from "vitest";
+import { expect, beforeEach, test } from "vitest";
 import { isVisualNode, isVisualRelationship, VisualNode } from "@dataspecer/core-v2/visual-model";
 import { isSemanticModelClass, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { addEntitiesFromSemanticModelToVisualModelAction } from "./add-entities-from-semantic-model-to-visual-model";
