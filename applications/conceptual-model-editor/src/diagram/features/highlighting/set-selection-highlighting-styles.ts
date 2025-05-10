@@ -1,9 +1,9 @@
-import { Edge, ReactFlowInstance, getConnectedEdges } from "@xyflow/react";
+import { Edge, getConnectedEdges } from "@xyflow/react";
 import { NodeType, selectMarkerEnd } from "../../diagram-controller";
 import { ReactPrevSetStateType } from "../../utilities";
 
 export const setHighlightingStylesBasedOnSelection = (
-  reactflowInstance: ReactFlowInstance<any, any>,
+  getNode: (id: string) => any,
   selectedNodes: string[],
   selectedEdges: string[],
   setNodes: ReactPrevSetStateType<NodeType[]>,
@@ -21,7 +21,7 @@ export const setHighlightingStylesBasedOnSelection = (
     });
     // Set style of edges going from selected nodes
     selectedNodes.forEach(nodeIdentifier => {
-      const reactflowNode = reactflowInstance.getNode(nodeIdentifier);
+      const reactflowNode = getNode(nodeIdentifier);
       // Something is wrong, we are most-likely working with old, no longer valid values of selected nodes.
       if(reactflowNode === undefined) {
         return prevEdges;
@@ -89,15 +89,16 @@ export const highlightColorMap: Record<HighlightLevel, string> = {
 };
 
 function storeEdgeCopyToGivenMap(
-  edge: Edge<any>, newEdgeColor: string | null,
+  edge: Edge<any>,
+  newEdgeColor: string | null,
   changedCopiesOfPreviousEdges: Record<string, Edge<any>>
 ): void {
   if(newEdgeColor === null) {
     newEdgeColor = edge?.data?.color;
   }
 
-  const changedEdge = changedCopiesOfPreviousEdges[edge.id] ?? ({ ...edge });
-  changedEdge.style = { ...changedEdge.style, stroke: newEdgeColor ?? undefined };
+  const changedEdge = changedCopiesOfPreviousEdges[edge.id] ?? ({...edge});
+  changedEdge.style = {...changedEdge.style, stroke: newEdgeColor ?? undefined};
   changedEdge.markerEnd = selectMarkerEnd(changedEdge.data, newEdgeColor);
   changedCopiesOfPreviousEdges[changedEdge.id] = changedEdge;
 }
