@@ -79,9 +79,9 @@ export async function layoutGivenVisualEntities(
 }
 
 /**
- * Calls {@link layoutActiveVisualModelAdvancedAction}
+ * Calls {@link layoutGivenVisualEntities} with default parameters
  */
-export function layouGivenVisualEntitiesAction(
+export async function layouGivenVisualEntitiesAction(
   notifications: UseNotificationServiceWriterType,
   classes: ClassesContextType,
   diagram: UseDiagramType,

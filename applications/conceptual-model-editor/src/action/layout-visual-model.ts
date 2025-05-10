@@ -57,6 +57,10 @@ export async function layoutActiveVisualModel(
   });
 }
 
+/**
+ * Calls {@link layoutActiveVisualModel} with default parameters
+ * @returns Returns layouted visual model
+ */
 export async function layoutActiveVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   classes: ClassesContextType,
