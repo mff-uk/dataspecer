@@ -106,7 +106,7 @@ const dialogVisualModel = prefix(
 
 const dialogVisualNode = prefix(
   "edit-visual-node-dialog.", {
-    "label": "Edit visual node",
+    "label": (nodeLabel: string) => `Edit visual node ${nodeLabel}`,
     "btn-ok": "✅ Accept",
     "btn-cancel": "❌ Cancel",
     "content-visible": "Visible content:",
