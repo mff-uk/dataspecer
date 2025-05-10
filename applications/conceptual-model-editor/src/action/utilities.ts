@@ -490,7 +490,6 @@ export const getOtherCoordinate = (coordinate: Coordinate): Coordinate => {
   return coordinate === "x" ? "y" : "x";
 };
 
-
 /**
  * Checks if we can reach the {@link visualModelToAddTo} from {@link addedVisualModel}
  */
@@ -503,7 +502,6 @@ export function doesAddingVisualModelCauseSelfReference(
     availableVisualModels, addedVisualModel);
   return classesInVisualModel.includes(visualModelToAddTo.getIdentifier());
 }
-
 
 export type VisualEdgeEndPoint = VisualDiagramNode | VisualNode;
 /**

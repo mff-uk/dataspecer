@@ -96,8 +96,6 @@ test("Creating edges between two visual diagram nodes", () => {
     classesContext
   } = ActionsTestSuite.prepareModelsWithSemanticData(0, TestedSemanticConnectionType.Association);
   const model = modelsAsArray[2];
-  const diagram = ActionsTestSuite.createTestDiagram();
-
   const firstNodeInModel = ActionsTestSuite.createNewVisualNodeForTesting(visualModel, model.getId(), "4");
 
   const firstReferencedVisualModel = createDefaultVisualModelFactory().createNewWritableVisualModelSync();
@@ -108,7 +106,6 @@ test("Creating edges between two visual diagram nodes", () => {
   const secondReferencedVisualModel = createDefaultVisualModelFactory().createNewWritableVisualModelSync();
   ActionsTestSuite.createNewVisualNodeForTesting(secondReferencedVisualModel, model.getId(), "5");
   graph.aggregator.addModel(secondReferencedVisualModel);
-
 
   const firstDiagramNodeIdentifier = ActionsTestSuite.createNewVisualDiagramNodeForTesting(
     visualModel, firstReferencedVisualModel.getIdentifier());
@@ -130,7 +127,6 @@ test("Creating edges between two visual diagram nodes", () => {
     diagramNodeInVisualModel);
   diagramNodesInVisualModel.push(diagramNodeInDiagram);
 
-
   // Sanity check
   expect([...visualModel.getVisualEntities().keys()].length).toBe(3);
 
@@ -150,7 +146,7 @@ test("Creating edges between two visual diagram nodes", () => {
   // The new model has 2 additional edges
   expect([...visualModel.getVisualEntities().keys()].length).toBe(5);
   //
-  let firstEdge = visualModel.getVisualEntitiesForRepresented("5-6") as VisualRelationship[];
+  const firstEdge = visualModel.getVisualEntitiesForRepresented("5-6") as VisualRelationship[];
   const secondEdge = visualModel.getVisualEntitiesForRepresented("7-4") as VisualRelationship[];
   expect(firstEdge.length).toBe(1);
   expect(secondEdge.length).toBe(1);

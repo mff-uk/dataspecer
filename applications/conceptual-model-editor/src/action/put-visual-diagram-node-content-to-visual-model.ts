@@ -36,7 +36,6 @@ import {
 import { getSemanticConnectionEndConcepts } from "@/util/relationship-utils";
 import { layoutActiveVisualModelAction } from "./layout-visual-model";
 
-
 /**
  * Puts the content of the {@link diagramNode} on canvas, removes the node and puts its content on canvas.
  * So basically replaces the {@link diagramNode} with its content.
@@ -175,7 +174,7 @@ function rerouteEdgesFromVisualDiagramNodeToItsContent(
         }
 
         const newIdentifier = originalToCopyMap[newEnd];
-        visualModelContainingDiagramNode.updateVisualEntity(visualEntity.identifier, {visualSource: newIdentifier});
+        visualModelContainingDiagramNode.updateVisualEntity(visualEntity.identifier, { visualSource: newIdentifier });
       }
       else if(visualEntity.visualTarget === diagramNodeToReroute) {
         // Same code but with source instead
@@ -190,7 +189,7 @@ function rerouteEdgesFromVisualDiagramNodeToItsContent(
 
         const newIdentifier = originalToCopyMap[newEnd];
 
-        visualModelContainingDiagramNode.updateVisualEntity(visualEntity.identifier, {visualTarget: newIdentifier});
+        visualModelContainingDiagramNode.updateVisualEntity(visualEntity.identifier, { visualTarget: newIdentifier });
       }
     }
     // Visual profile relationships are handled by visual model refresh and the validation.
@@ -274,7 +273,6 @@ function rerouteToEntityInsideDiagramNode(
   return null;
 }
 
-
 /**
  * Adds copies of the {@link nodesToCopy} to the {@link copyTo} visual model.
  * Together with the other visual entities defined in {@link visualEntitiesToCopy}.
@@ -291,11 +289,11 @@ function addCopiesToVisualModel(
 
   // Handle nodes first, so the edges have ends in visual model
   for (const node of nodesToCopy) {
-    const position = {...node.position};
+    const position = { ...node.position };
     position.x -= positionShift.x;
     position.y -= positionShift.y;
     if(isVisualNode(node)) {
-      const identifier = addVisualNode(copyTo, {id: node.representedEntity}, node.model, position, [...node.content]);
+      const identifier = addVisualNode(copyTo, { id: node.representedEntity }, node.model, position, [...node.content]);
       originalToCopyMap[node.identifier] = identifier;
     }
     else if(isVisualDiagramNode(node)) {
