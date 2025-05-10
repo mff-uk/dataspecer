@@ -4,11 +4,11 @@
 
 import { expect, test } from "vitest";
 import { isVisualProfileRelationship, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { ActionsTestExportedTypesAndEnums, ActionsTestSuite, notificationMockup } from "./test/actions-test-suite";
+import { ActionsTestSuite, notificationMockup, TestedSemanticConnectionType } from "./test/actions-test-suite";
 import { extendSelectionAction, ExtensionType, NodeSelection, VisibilityFilter } from "./extend-selection-action";
 
 test("Test extension by relationship targets - visual identifiers", async () => {
-  const connectionType = ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Association;
+  const connectionType = TestedSemanticConnectionType.Association;
 
   const {
     classesContext,
@@ -48,7 +48,7 @@ test("Test extension by relationship targets - visual identifiers", async () => 
 });
 
 test("Test extension by Generalization targets - visual identifiers", async () => {
-  const connectionType = ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Generalization;
+  const connectionType = TestedSemanticConnectionType.Generalization;
 
   const {
     classesContext,
@@ -88,7 +88,7 @@ test("Test extension by Generalization targets - visual identifiers", async () =
 });
 
 test("Test extension by Relationship profiles targets - visual identifiers", async () => {
-  const connectionType = ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.AssociationProfile;
+  const connectionType = TestedSemanticConnectionType.AssociationProfile;
 
   const {
     classesContext,
@@ -128,7 +128,7 @@ test("Test extension by Relationship profiles targets - visual identifiers", asy
 });
 
 test("Test extension by Relationship class profiles targets - visual identifiers", async () => {
-  const connectionType = ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Association;
+  const connectionType = TestedSemanticConnectionType.Association;
 
   const {
     classesContext,

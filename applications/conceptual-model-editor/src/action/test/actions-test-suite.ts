@@ -23,7 +23,7 @@ import { createDefaultVisualModelFactory, isVisualNode, VisualDiagramNode, Writa
 import { SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { XY } from "@dataspecer/layout";
 import { ModelGraphContextType, UseModelGraphContextType } from "@/context/model-context";
-import { CmeSpecialization, NewCmeClassProfile, NewCmeRelationshipProfile } from "@/dataspecer/cme-model/model";
+import { CmeSpecialization } from "@/dataspecer/cme-model/model";
 import { addVisualDiagramNode } from "@/dataspecer/visual-model/operation/add-visual-diagram-node";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { addSemanticGeneralizationToVisualModelAction } from "../add-generalization-to-visual-model";
@@ -33,13 +33,11 @@ import { createCmeClassProfile } from "@/dataspecer/cme-model/operation/create-c
 import { createCmeRelationshipProfile } from "@/dataspecer/cme-model/operation/create-cme-relationship-profile";
 import { addVisualRelationshipsWithSpecifiedVisualEnds } from "@/dataspecer/visual-model/operation/add-visual-relationships";
 
-export namespace ActionsTestExportedTypesAndEnums {
-  export enum TestedSemanticConnectionType {
-    Association,
-    Generalization,
-    AssociationProfile
-  };
-}
+export enum TestedSemanticConnectionType {
+  Association,
+  Generalization,
+  AssociationProfile
+};
 
 type CreatedSemanticEntityData = {
   identifier: string,
@@ -342,7 +340,7 @@ export class ActionsTestSuite {
    */
   static prepareModelsWithSemanticData = (
     visualModelSize: number,
-    connectionToTestType: ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType,
+    connectionToTestType: TestedSemanticConnectionType,
   ) => {
     const visualModel: WritableVisualModel = createDefaultVisualModelFactory().createNewWritableVisualModelSync();
     const modelAlias = "TEST MODEL";
@@ -473,9 +471,9 @@ export class ActionsTestSuite {
 
     const classesContext = ActionsTestSuite.createClassesContextTypeForTests(
       createdClasses.flat(),
-      connectionToTestType === ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Association ? createdRelationships.flat() : [],
-      connectionToTestType === ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Generalization ? createdRelationships.flat() : [],
-      connectionToTestType === ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.AssociationProfile ? createdRelationships.flat() : [],
+      connectionToTestType === TestedSemanticConnectionType.Association ? createdRelationships.flat() : [],
+      connectionToTestType === TestedSemanticConnectionType.Generalization ? createdRelationships.flat() : [],
+      connectionToTestType === TestedSemanticConnectionType.AssociationProfile ? createdRelationships.flat() : [],
     );
 
     return {
@@ -496,7 +494,7 @@ export class ActionsTestSuite {
     modelDsIdentifier: string,
     createdClasses: CreatedSemanticEntityData[][],
     currentModel: number,
-    connectionToTestType: ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType,
+    connectionToTestType: TestedSemanticConnectionType,
     profileOf: string[] | null,
   ): CreatedSemanticEntityData[] => {
     const createdRelationships = [];
@@ -577,29 +575,29 @@ export class ActionsTestSuite {
   }
 
   static mapTestedSemanticConnectionToSemanticCheck = {
-    [ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Association]: isSemanticModelRelationship,
-    [ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Generalization]: isSemanticModelGeneralization,
-    [ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.AssociationProfile]: isSemanticModelRelationshipProfile,
+    [TestedSemanticConnectionType.Association]: isSemanticModelRelationship,
+    [TestedSemanticConnectionType.Generalization]: isSemanticModelGeneralization,
+    [TestedSemanticConnectionType.AssociationProfile]: isSemanticModelRelationshipProfile,
   } as const;
 
   static createSemanticConnectionToTest(
     models: Map<string, EntityModel>,
     modelDsIdentifier: string,
-    relationshipToTestType: ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType,
+    relationshipToTestType: TestedSemanticConnectionType,
     domain: string,
     range: string,
     profileOf: string[] | null,
   ): CreatedSemanticEntityData {
     let result: CreatedSemanticEntityData ;
-    if(relationshipToTestType === ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Generalization) {
+    if(relationshipToTestType === TestedSemanticConnectionType.Generalization) {
       result = ActionsTestSuite.createSemanticGeneralizationTestVariant(
         range, domain, null, models, modelDsIdentifier);
     }
-    else if(relationshipToTestType === ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Association) {
+    else if(relationshipToTestType === TestedSemanticConnectionType.Association) {
       result = ActionsTestSuite.createSemanticRelationshipTestVariant(
         models, domain, range, modelDsIdentifier);
     }
-    else if(relationshipToTestType === ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.AssociationProfile) {
+    else if(relationshipToTestType === TestedSemanticConnectionType.AssociationProfile) {
       result = ActionsTestSuite.createRelationshipProfileTestVariant(
         models, modelDsIdentifier, profileOf ?? [], domain, range);
     }
@@ -864,23 +862,23 @@ export class ActionsTestSuite {
     graph: ModelGraphContextType,
     visualModel: WritableVisualModel,
     modelDsIdentifier: string,
-    relationshipToTestType: ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType,
+    relationshipToTestType: TestedSemanticConnectionType,
     relationshipIdentifier: string,
     visualSources: string[] | null,
     visualTargets: string[] | null,
   ) {
     if (visualSources === null || visualTargets === null) {
-      if(relationshipToTestType === ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Generalization) {
+      if(relationshipToTestType === TestedSemanticConnectionType.Generalization) {
         addSemanticGeneralizationToVisualModelAction(
           notificationMockup, graph, visualModel,
           relationshipIdentifier, modelDsIdentifier);
       }
-      else if(relationshipToTestType === ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Association) {
+      else if(relationshipToTestType === TestedSemanticConnectionType.Association) {
         addSemanticRelationshipToVisualModelAction(
           notificationMockup, graph, visualModel,
           relationshipIdentifier, modelDsIdentifier);
       }
-      else if(relationshipToTestType === ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.AssociationProfile) {
+      else if(relationshipToTestType === TestedSemanticConnectionType.AssociationProfile) {
         addSemanticRelationshipProfileToVisualModelAction(
           notificationMockup, graph, visualModel,
           relationshipIdentifier, modelDsIdentifier);
@@ -905,7 +903,7 @@ export class ActionsTestSuite {
   static fillVisualModelWithData(
     modelToFillWith: EntityModel,
     visualmodelToFill: WritableVisualModel,
-    relationshipToTestType: ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType,
+    relationshipToTestType: TestedSemanticConnectionType,
   ) {
     const nodes: string[] = [];
     const edges: string[] = [];
@@ -921,7 +919,7 @@ export class ActionsTestSuite {
     for(const entity of Object.values(modelToFillWith.getEntities())) {
       if(ActionsTestSuite.mapTestedSemanticConnectionToSemanticCheck[relationshipToTestType](entity)) {
         const ends = [];
-        if(relationshipToTestType === ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Generalization) {
+        if(relationshipToTestType === TestedSemanticConnectionType.Generalization) {
           ends.push((entity as SemanticModelGeneralization).child);
           ends.push((entity as SemanticModelGeneralization).parent);
         }

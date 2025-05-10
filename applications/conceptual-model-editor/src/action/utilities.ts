@@ -240,7 +240,7 @@ const findAssociatedClassesAndClassProfiles = async (
   const selection = await extendSelectionAction(notifications, graph, classesContext,
     { areIdentifiersFromVisualModel: false, identifiers: [classToFindAssociationsFor] },
     [ExtensionType.Association, ExtensionType.Generalization,
-     ExtensionType.ClassProfile, ExtensionType.ProfileEdge],
+      ExtensionType.ClassProfile, ExtensionType.ProfileEdge],
     VisibilityFilter.OnlyVisibleNodes, false, null);
   return selection;
 }

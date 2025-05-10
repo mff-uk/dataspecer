@@ -5,13 +5,13 @@
 import { expect, test } from "vitest";
 import { isVisualProfileRelationship, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
 import { isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { ActionsTestExportedTypesAndEnums, ActionsTestSuite, notificationMockup } from "./test/actions-test-suite";
+import { ActionsTestSuite, notificationMockup, TestedSemanticConnectionType } from "./test/actions-test-suite";
 import { filterSelectionAction, SelectionFilter, SelectionsWithIdInfo } from "./filter-selection-action";
 import { VisibilityFilter } from "./extend-selection-action";
 import { isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 test("Test filter - Class - visual identifiers", () => {
-  const connectionType = ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Association;
+  const connectionType = TestedSemanticConnectionType.Association;
 
   const {
     classesContext,
@@ -43,7 +43,7 @@ test("Test filter - Class - visual identifiers", () => {
 });
 
 test("Test filter - Class - semantic identifiers", () => {
-  const connectionType = ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Association;
+  const connectionType = TestedSemanticConnectionType.Association;
 
   const {
     classesContext,
@@ -79,7 +79,7 @@ test("Test filter - Class - semantic identifiers", () => {
 });
 
 test("Test filter - Class - Using wrong identifiers", () => {
-  const connectionType = ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Association;
+  const connectionType = TestedSemanticConnectionType.Association;
 
   const {
     classesContext,
@@ -114,7 +114,7 @@ test("Test filter - Class - Using wrong identifiers", () => {
 });
 
 test("Test filter - Relationships - visual identifiers", () => {
-  const connectionType = ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Association;
+  const connectionType = TestedSemanticConnectionType.Association;
 
   const {
     classesContext,
@@ -149,7 +149,7 @@ test("Test filter - Relationships - visual identifiers", () => {
 });
 
 test("Test filter - Relationships - semantic identifiers", () => {
-  const connectionType = ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Association;
+  const connectionType = TestedSemanticConnectionType.Association;
 
   const {
     classesContext,
@@ -185,7 +185,7 @@ test("Test filter - Relationships - semantic identifiers", () => {
 });
 
 test("Test filter - Generalizations - visual identifiers", () => {
-  const connectionType = ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Generalization;
+  const connectionType = TestedSemanticConnectionType.Generalization;
 
   const {
     classesContext,
@@ -217,7 +217,7 @@ test("Test filter - Generalizations - visual identifiers", () => {
 });
 
 test("Test filter - Generalizations - semantic identifiers", () => {
-  const connectionType = ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Generalization;
+  const connectionType = TestedSemanticConnectionType.Generalization;
 
   const {
     classesContext,
@@ -253,7 +253,7 @@ test("Test filter - Generalizations - semantic identifiers", () => {
 });
 
 test("Test filter - Class profiles - visual identifiers", () => {
-  const connectionType = ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Generalization;
+  const connectionType = TestedSemanticConnectionType.Generalization;
 
   const {
     classesContext,
@@ -269,7 +269,7 @@ test("Test filter - Class profiles - visual identifiers", () => {
   const semanticModelFilter: Record<string, boolean> | null = null;
 
   const { nodes } = ActionsTestSuite.fillVisualModelWithData(fullyConnectedModel, visualModel, connectionType);
-  const classes = Object.values(modelEntities).filter(isSemanticModelClass).map(cclass => cclass.id);
+
   const generalizations = Object.values(modelEntities)
     .filter(ActionsTestSuite.mapTestedSemanticConnectionToSemanticCheck[connectionType])
     .map(relation => relation.id);
@@ -308,7 +308,7 @@ test("Test filter - Class profiles - visual identifiers", () => {
 });
 
 test("Test filter - Class profiles - semantic identifiers", () => {
-  const connectionType = ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Generalization;
+  const connectionType = TestedSemanticConnectionType.Generalization;
 
   const {
     classesContext,
@@ -343,11 +343,6 @@ test("Test filter - Class profiles - semantic identifiers", () => {
     createdProfileNodes.push(id);
   }
 
-  const allEdges = [...visualModel.getVisualEntities().entries()]
-    .map(visual => visual[1])
-    .filter(visual => isVisualRelationship(visual) || isVisualProfileRelationship(visual))
-    .map(edge => edge.identifier);
-
   const inputSelection: SelectionsWithIdInfo = {
     nodeSelection: [...inputClassProfiles, ...classes],
     edgeSelection: [...generalizations],
@@ -363,7 +358,7 @@ test("Test filter - Class profiles - semantic identifiers", () => {
 });
 
 test("Test filter - Relationship profiles - visual identifiers", () => {
-  const connectionType = ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Association;
+  const connectionType = TestedSemanticConnectionType.Association;
 
   const {
     classesContext,
@@ -373,17 +368,12 @@ test("Test filter - Relationship profiles - visual identifiers", () => {
   } = ActionsTestSuite.prepareModelsWithSemanticData(0, connectionType);
 
   const fullyConnectedModel = [...models.entries()][2][1];
-  const modelEntities = fullyConnectedModel.getEntities();
   const filters: SelectionFilter[] = [SelectionFilter.RelationshipUsage];
   const visibilityFilter: VisibilityFilter = VisibilityFilter.OnlyVisible;
   const semanticModelFilter: Record<string, boolean> | null = null;
 
   const { nodes } = ActionsTestSuite.fillVisualModelWithData(
     fullyConnectedModel, visualModel, connectionType);
-  const classes = Object.values(modelEntities).filter(isSemanticModelClass).map(cclass => cclass.id);
-  const associations = Object.values(modelEntities)
-    .filter(ActionsTestSuite.mapTestedSemanticConnectionToSemanticCheck[connectionType])
-    .map(relation => relation.id);
 
   const classProfiles = ActionsTestSuite.createClassProfileOfEveryClassTestVariant(
     models, fullyConnectedModel.getId(), classesContext);
@@ -423,7 +413,7 @@ test("Test filter - Relationship profiles - visual identifiers", () => {
 });
 
 test("Test filter - Relationship profiles - semantic identifiers", () => {
-  const connectionType = ActionsTestExportedTypesAndEnums.TestedSemanticConnectionType.Association;
+  const connectionType = TestedSemanticConnectionType.Association;
 
   const {
     classesContext,
@@ -440,9 +430,6 @@ test("Test filter - Relationship profiles - semantic identifiers", () => {
 
   ActionsTestSuite.fillVisualModelWithData(fullyConnectedModel, visualModel, connectionType);
   const classes = Object.values(modelEntities).filter(isSemanticModelClass).map(cclass => cclass.id);
-  const associations = Object.values(modelEntities)
-    .filter(ActionsTestSuite.mapTestedSemanticConnectionToSemanticCheck[connectionType])
-    .map(relation => relation.id);
 
   const classProfiles = ActionsTestSuite.createClassProfileOfEveryClassTestVariant(
     models, fullyConnectedModel.getId(), classesContext);

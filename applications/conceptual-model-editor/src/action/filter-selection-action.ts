@@ -263,7 +263,7 @@ function profileEdgeFilter(
   edgeSelection.map(selectedEdgeId => {
     const selectedEdgeSemanticId = getSemanticEdgeIdentifier(selectedEdgeId, areVisualModelIdentifiers, visualModel);
     if(contextEntities.relationshipProfiles.findIndex(relationshipProfile =>
-        relationshipProfile.id === selectedEdgeSemanticId) >= 0) {
+      relationshipProfile.id === selectedEdgeSemanticId) >= 0) {
       filteredEdgeSelection.push(selectedEdgeId);
     }
   });
