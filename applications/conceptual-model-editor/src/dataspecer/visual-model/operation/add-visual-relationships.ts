@@ -58,7 +58,7 @@ export function createWaypointsForSelfLoop(
 /**
  * @throws DataspecerError
  */
-export function addVisualRelationships(
+export function addVisualRelationshipsForRepresented(
   visualModel: WritableVisualModel,
   model: ModelDsIdentifier,
   represented: EntityDsIdentifier,

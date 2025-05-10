@@ -516,7 +516,6 @@ export class ActionsTestSuite {
       identifier,
       externalIdentifier: representedVisualModel,
       label: "",
-      description: null,
       representedModelAlias: "",
       group: null,
       position: nodePosition
@@ -531,7 +530,6 @@ export class ActionsTestSuite {
       identifier: visualDiagramNode.identifier,
       externalIdentifier: visualDiagramNode.representedVisualModel,
       label: "",
-      description: "",
       representedModelAlias: "",
       group: null,
       position: visualDiagramNode.position
