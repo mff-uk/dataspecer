@@ -35,7 +35,7 @@ export function SelectionMenu(props: NodeProps<Node<DiagramNodeTypes>>) {
     <NodeToolbar isVisible={shouldShowMenu} position={Position.Top} className="flex gap-2 entity-node-menu" >
       <button onClick={onShowSelectionActions} title={t("selection-action-button")}>🎬</button>
       &nbsp;
-      <button onClick={onLayoutSelection} title={t("selection-layout-button")} disabled>🔀</button>
+      <button onClick={onLayoutSelection} title={t("selection-layout-button")}>🔀</button>
       &nbsp;
       <button onClick={(event) => onOpenAlignmentMenu(event)}>
         { /* https://www.svgrepo.com/svg/535125/align-left */}
