@@ -541,3 +541,4 @@ function isEntityModelV0(what: object): what is VisualModelJsonSerializationV0 {
   return (what as any).modelColors !== undefined
     || (what as any).visualEntities !== undefined;
 }
+
