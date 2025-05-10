@@ -3,7 +3,7 @@
  */
 
 import { expect, test } from "vitest";
-import { notificationMockup } from "./test/actions-test-suite";
+import { notificationMockup, TestedSemanticConnectionType } from "./test/actions-test-suite";
 import { createVisualEdgeEndpointDuplicateAction } from "./create-visual-edge-endpoint-duplicate";
 import { ActionsTestSuite } from "./test/actions-test-suite";
 import { removeFromVisualModelByRepresentedAction } from "./remove-from-visual-model-by-represented";
@@ -14,7 +14,7 @@ test("removeFromVisualModelAction - relationship", () => {
     model,
     graph,
     classesContext
-  } = ActionsTestSuite.prepareModelsWithSemanticData(4);
+  } = ActionsTestSuite.prepareModelsWithSemanticData(4, TestedSemanticConnectionType.Association);
 
   const visualRelationship = ActionsTestSuite.createNewVisualRelationshipsForTestingFromSemanticEnds(
     visualModel, model.getId(), "0", "1", "relationshipSemanticIdentifier");
@@ -35,7 +35,7 @@ test("Remove relationship end - semantic id", () => {
     model,
     graph,
     classesContext
-  } = ActionsTestSuite.prepareModelsWithSemanticData(4);
+  } = ActionsTestSuite.prepareModelsWithSemanticData(4, TestedSemanticConnectionType.Association);
 
   const nodeToRemove = visualModel.getVisualEntitiesForRepresented("0")[0];
   const visualRelationship = ActionsTestSuite.createNewVisualRelationshipsForTestingFromSemanticEnds(
@@ -58,7 +58,7 @@ test("Remove relationship ends at the same time", () => {
     model,
     graph,
     classesContext
-  } = ActionsTestSuite.prepareModelsWithSemanticData(4);
+  } = ActionsTestSuite.prepareModelsWithSemanticData(4, TestedSemanticConnectionType.Association);
 
   const sourceNodeToRemove = visualModel.getVisualEntitiesForRepresented("0")[0];
   const targetNodeToRemove = visualModel.getVisualEntitiesForRepresented("1")[0];
@@ -83,7 +83,7 @@ test("Remove ends and the relationship", () => {
     model,
     graph,
     classesContext
-  } = ActionsTestSuite.prepareModelsWithSemanticData(4);
+  } = ActionsTestSuite.prepareModelsWithSemanticData(4, TestedSemanticConnectionType.Association);
 
   const sourceNodeToRemove = visualModel.getVisualEntitiesForRepresented("0")[0];
   const targetNodeToRemove = visualModel.getVisualEntitiesForRepresented("1")[0];
@@ -109,7 +109,7 @@ test("Remove end of many edges", () => {
     model,
     graph,
     classesContext
-  } = ActionsTestSuite.prepareModelsWithSemanticData(4);
+  } = ActionsTestSuite.prepareModelsWithSemanticData(4, TestedSemanticConnectionType.Association);
 
   ActionsTestSuite.createNewVisualRelationshipsForTestingFromSemanticEnds(
     visualModel, model.getId(), "0", "1", "relationshipId1");
@@ -134,7 +134,7 @@ test("Remove node duplicate", () => {
     model,
     graph,
     classesContext
-  } = ActionsTestSuite.prepareModelsWithSemanticData(4);
+  } = ActionsTestSuite.prepareModelsWithSemanticData(4, TestedSemanticConnectionType.Association);
   const diagram = ActionsTestSuite.createTestDiagram();
 
   ActionsTestSuite.createNewVisualRelationshipsForTestingFromSemanticEnds(
