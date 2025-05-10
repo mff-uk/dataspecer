@@ -90,6 +90,9 @@ import { alignHorizontallyAction, AlignmentHorizontalPosition, AlignmentVertical
 import { openVisualDiagramNodeInfoDialogAction } from "./open-visual-diagram-node-info-dialog";
 import { openEditVisualDiagramNodeDialogAction } from "./open-edit-visual-diagram-node-dialog";
 import { openCreateVisualDiagramNodeDialogAction } from "./open-create-visual-diagram-node-dialog";
+import { addAllRelationshipsForVisualDiagramNodeToVisualModelAction } from "./add-all-relationships";
+import { addVisualDiagramNodeForExistingModelToVisualModelAction } from "./create-visual-diagram-node-for-existing-model";
+import { putVisualDiagramNodeContentToVisualModelAction } from "./put-visual-diagram-node-content-to-visual-model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -582,7 +585,7 @@ function createActionsContext(
           notifications.error("Node which changed position can not be found in visual model.");
           return;
         }
-        visualModel.updateVisualEntity(identifier, { position: { ...position, anchored: node.position.anchored} });
+        visualModel.updateVisualEntity(identifier, { position: { ...position, anchored: node.position.anchored } });
       }
     });
   };
@@ -794,14 +797,20 @@ function createActionsContext(
     });
   };
 
-  const addVisualDiagramNodeForExistingModelToVisualModel = (_visualModelToRepresent: string): void => {
-    // TODO RadStr: Empty mock-up for now
+  const addVisualDiagramNodeForExistingModelToVisualModel = (visualModelToRepresent: string): void => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      addVisualDiagramNodeForExistingModelToVisualModelAction(
+        notifications, graph, diagram, visualModel, visualModelToRepresent);
+    });
   };
 
   const addAllRelationshipsForVisualDiagramNodeToVisualModel = (
-    _visualModelDiagramNode: VisualModelDiagramNode
+    visualModelDiagramNode: VisualModelDiagramNode
   ): void => {
-    // TODO RadStr: Empty mock-up for now
+    withVisualModel(notifications, graph, (visualModel) => {
+      addAllRelationshipsForVisualDiagramNodeToVisualModelAction(
+        notifications, classes, graph, visualModel, visualModelDiagramNode);
+    });
   };
 
   const shiftAttributeUp = (attribute: string, domainNode: string | null): void => {
@@ -1165,8 +1174,11 @@ function createActionsContext(
       });
     },
 
-    onDissolveVisualModelDiagramNode: (_visualModelDiagramNode: VisualModelDiagramNode) => {
-      // TODO RadStr: Empty mock-up for now
+    onDissolveVisualModelDiagramNode: (visualModelDiagramNode: VisualModelDiagramNode) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        putVisualDiagramNodeContentToVisualModelAction(notifications, classes, graph, diagram, visualModel, visualModelDiagramNode);
+        removeFromVisualModelByVisualAction(notifications, visualModel, [visualModelDiagramNode.identifier]);
+      });
     },
 
     onMoveToVisualModelRepresentedByVisualModelDiagramNode: (visualModelDiagramNodeIdentifier: string) => {
