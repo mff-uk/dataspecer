@@ -6,10 +6,6 @@ import { usePackageService } from "../service/package-service-context";
 import { getLocalizedStringFromLanguageString } from "../util/language-utils";
 import { type Package } from "@dataspecer/core-v2/project";
 import { useActions } from "../action/actions-react-binding";
-import { packageService } from "@/service/package-service";
-import { createDefaultConfigurationModelFromJsonObject } from "@dataspecer/core-v2/configuration-model";
-import { useLayoutConfigurationContext } from "@/context/layout-configuration-context";
-import { applyLayoutConfiguration } from "@dataspecer/layout";
 
 const MGR_REDIRECT_PATH = import.meta.env.VITE_PUBLIC_MANAGER_PATH;
 
@@ -24,19 +20,10 @@ export const usePackageSectionService = (): PackageSectionServiceType => {
   const actions = useActions();
   const { updateSemanticModelPackageModels } = useBackendConnection();
   const { models, visualModels, aggregatorView } = useModelGraphContext();
-  const { layoutConfiguration } = useLayoutConfigurationContext();
 
   const { currentPackage, currentPackageIdentifier } = usePackageService();
   const options = useOptions();
   const notifications = useNotificationServiceWriter();
-
-  const saveLayoutConfiguration = async (packageIri: string) => {
-    const configurationData = (await packageService.getPackageConfiguration(packageIri)) ?? {};
-    const configuration = createDefaultConfigurationModelFromJsonObject(configurationData);
-    applyLayoutConfiguration(configuration, layoutConfiguration);
-    const result = configuration.serializeModelToApiJsonObject(configurationData);
-    await packageService.savePackageConfiguration(packageIri, result);
-  };
 
   const save = async () => {
     if (currentPackageIdentifier === null) {
@@ -45,8 +32,6 @@ export const usePackageSectionService = (): PackageSectionServiceType => {
     const result = await updateSemanticModelPackageModels(currentPackageIdentifier, [...models.values()], [...visualModels.values()]);
     const svg = await actions.diagram?.actions().renderToSvgString();
     const activeVisualModel = aggregatorView.getActiveVisualModel();
-
-    saveLayoutConfiguration(currentPackageIdentifier);
 
     if (activeVisualModel !== null && svg !== undefined && svg !== null) {
       // Remove header "data:image/svg+xml;charset=utf-8,"
@@ -64,7 +49,7 @@ export const usePackageSectionService = (): PackageSectionServiceType => {
     if (result) {
       notifications.success("Package has been saved.");
     } else {
-      notifications.error("Can't save the package!");
+      notifications.success("Can't save the package!");
     }
   };
 

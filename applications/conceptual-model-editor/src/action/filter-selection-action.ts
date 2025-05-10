@@ -1,5 +1,6 @@
 import { EntityModel } from "@dataspecer/core-v2";
 import { sourceModelOfEntity } from "../util/model-utils";
+import { isSemanticModelRelationshipUsage, } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ClassesContextEntities, VisibilityFilter, getSemanticClassIdentifier, getSemanticEdgeIdentifier, isEntityInVisualModel } from "./extend-selection-action";
 import { ClassesContextType } from "../context/classes-context";
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
@@ -161,7 +162,7 @@ function filterBasedOnVisibility(
   visibilityFilter: VisibilityFilter,
   visualModel: VisualModel | null
 ): string[] {
-  const filteredArray: string[] = identifiersToFilter.filter(identifier => {
+  const filteredArray: string[] = identifiersToFilter.filter(entity => {
     if(visibilityFilter === VisibilityFilter.All) {
       return true;
     }
@@ -170,7 +171,7 @@ function filterBasedOnVisibility(
       return visibilityFilter === VisibilityFilter.OnlyNonVisible;
     }
 
-    const isInVisualModel = isEntityInVisualModel(visualModel, identifier, areIdentifiersFromVisualModel);
+    const isInVisualModel = isEntityInVisualModel(visualModel, entity, areIdentifiersFromVisualModel);
     if(visibilityFilter === VisibilityFilter.OnlyVisible && isInVisualModel) {
       return true;
     }
@@ -220,7 +221,7 @@ function profileClassFilter(
 ): void {
   nodeSelection.map(selectedClassId => {
     const selectedClassSemanticId = getSemanticClassIdentifier(selectedClassId, areVisualModelIdentifiers, visualModel);
-    if(contextEntities.classProfiles.findIndex(profile => profile.id === selectedClassSemanticId) >= 0) {
+    if(contextEntities.usages.findIndex(profile => profile.id === selectedClassSemanticId) >= 0) {
       filteredNodeSelection.push(selectedClassId);
     }
   });
@@ -262,8 +263,7 @@ function profileEdgeFilter(
 ): void {
   edgeSelection.map(selectedEdgeId => {
     const selectedEdgeSemanticId = getSemanticEdgeIdentifier(selectedEdgeId, areVisualModelIdentifiers, visualModel);
-    if(contextEntities.relationshipProfiles.findIndex(relationshipProfile =>
-      relationshipProfile.id === selectedEdgeSemanticId) >= 0) {
+    if(contextEntities.usages.findIndex(relationshipProfile => relationshipProfile.id === selectedEdgeSemanticId && isSemanticModelRelationshipUsage(relationshipProfile)) >= 0) {
       filteredEdgeSelection.push(selectedEdgeId);
     }
   });

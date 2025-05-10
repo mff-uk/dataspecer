@@ -442,6 +442,5 @@ export const useConfigDialog = () => {
   return {
     getConfig,
     ConfigDialog,
-    setConfig,
   };
 };

@@ -6,7 +6,7 @@
 import { expect, test } from "vitest";
 import { isVisualDiagramNode, isWritableVisualModel, VisualDiagramNode, VisualRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
-import { notificationMockup, TestedSemanticConnectionType } from "./test/actions-test-suite";
+import { notificationMockup } from "./test/actions-test-suite";
 import { ActionsTestSuite } from "./test/actions-test-suite";
 import { addVisualDiagramNodeForNewModelToVisualModelAction } from "./add-visual-diagram-node-to-visual-model";
 
@@ -16,7 +16,7 @@ test("Put 4 visual nodes without edges into visual model with visual diagram nod
     graph,
     useGraph,
     visualNodeIdentifiers
-  } = ActionsTestSuite.prepareModelsWithSemanticData(4, TestedSemanticConnectionType.Association);
+  } = ActionsTestSuite.prepareModelsWithSemanticData(4);
   const diagram = ActionsTestSuite.createTestDiagram();
 
   const createdVisualDiagramNodeIdentifier = addVisualDiagramNodeForNewModelToVisualModelAction(
@@ -42,7 +42,7 @@ test("Put visual nodes with edges into visual model with visual diagram node ref
     modelsAsArray,
     graph,
     useGraph,
-  } = ActionsTestSuite.prepareModelsWithSemanticData(0, TestedSemanticConnectionType.Association);
+  } = ActionsTestSuite.prepareModelsWithSemanticData(0);
   const diagram = ActionsTestSuite.createTestDiagram();
   const model = modelsAsArray[2].getId();
 

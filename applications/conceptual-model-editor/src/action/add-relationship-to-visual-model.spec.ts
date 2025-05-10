@@ -24,6 +24,7 @@ import { ActionsTestSuite } from "./test/actions-test-suite";
 import { addVisualRelationshipsWithSpecifiedVisualEnds } from "../dataspecer/visual-model/operation/add-visual-relationships";
 import { semanticModelMapToCmeSemanticModel } from "../dataspecer/cme-model/adapter/";
 import { CmeSpecialization } from "../dataspecer/cme-model/model";
+import { fail } from "@/utilities/fail-test";
 
 test("Create single relationship - association", () => {
   testCreateSingleRelationship(RelationshipToTestType.Association);
@@ -545,7 +546,7 @@ function createTestRelationshipOfGivenType(
       models, semanticSource, semanticTarget, modelDsIdentifier, name ?? "");
   }
   else {
-    throw new Error("Unexpected relationshipToTestType");
+    fail("Unexpected relationshipToTestType");
   }
 
   if(shouldAlsoAddTheCreatedRelationshipToVisualModel) {

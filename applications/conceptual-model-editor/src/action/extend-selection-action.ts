@@ -4,11 +4,11 @@ import { ModelGraphContextType } from "../context/model-context";
 import { sourceModelOfEntity } from "../util/model-utils";
 import { Entity, EntityModel } from "@dataspecer/core-v2";
 import { SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { VisualEntity, VisualModel, isVisualNode, isVisualProfileRelationship, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
 import { Selections } from "./filter-selection-action";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { createLogger } from "../application";
 
 const LOG = createLogger(import.meta.url);
@@ -17,8 +17,7 @@ export type ClassesContextEntities = {
     classes: SemanticModelClass[],
     relationships: SemanticModelRelationship[],
     generalizations: SemanticModelGeneralization[],
-    classProfiles: SemanticModelClassProfile[],
-    relationshipProfiles: SemanticModelRelationshipProfile[],
+    usages: (SemanticModelClassUsage | SemanticModelRelationshipUsage)[],
     rawEntities: (Entity | null)[],
 };
 
@@ -77,7 +76,8 @@ const addToSelectionExtension = (
 ) => {
   const nodeSelection = selectionExtensionToExtend.selectionExtension.nodeSelection;
   if(usingSemanticIdentifiers && contextEntities !== null) {
-    const existsInEntities = isClassOrClassProfile(classId, contextEntities);
+    const existsInEntities = contextEntities.classes.find(classEntity => classEntity.id === classId) !== undefined ||
+            contextEntities.usages.find(profile => profile.id === classId && isSemanticModelClassUsage(profile)) !== undefined
     if(!existsInEntities) {
       return;
     }
@@ -636,14 +636,14 @@ function extendEntityArraysBasedOnExternalAllowanceOfSurroundings(
       if(isSemanticModelClass(entity)) {
         contextEntities.classes.push(entity);
       }
-      else if(isSemanticModelClassProfile(entity)) {
-        contextEntities.classProfiles.push(entity);
+      else if(isSemanticModelClassUsage(entity)) {
+        contextEntities.usages.push(entity);
       }
       else if(isSemanticModelGeneralization(entity)) {
         contextEntities.generalizations.push(entity);
       }
-      else if(isSemanticModelRelationshipProfile(entity)) {
-        contextEntities.relationshipProfiles.push(entity);
+      else if(isSemanticModelRelationshipUsage(entity)) {
+        contextEntities.usages.push(entity);
       }
       else if(isSemanticModelRelationship(entity)) {
         contextEntities.relationships.push(entity);
@@ -655,11 +655,11 @@ function extendEntityArraysBasedOnExternalAllowanceOfSurroundings(
 }
 
 function isClassOrClassProfile(
-  classIdentifier: string,
+  classId: string,
   contextEntities: ClassesContextEntities
 ) {
-  return !(contextEntities.classes.find(cclass => cclass.id === classIdentifier) === undefined &&
-            contextEntities.classProfiles.find(profile => profile.id === classIdentifier) === undefined);
+  return !(contextEntities.classes.find(cclass => cclass.id === classId) === undefined &&
+                                          contextEntities.usages.find(profile => profile.id === classId) === undefined);
 }
 
 /**
@@ -680,7 +680,7 @@ async function extendThroughAssociation(
   const checkForAssociatedClassOrClassProfile = async (
     classInSelection: string,
     endContainingClassInSelection: SourceOrTarget,
-    relationship: SemanticModelRelationship | SemanticModelRelationshipProfile
+    relationship: SemanticModelRelationship
   ) => {
     // Maybe possible issues with attributes?
     const endIndex = convertSTTypeToEndIndex(endContainingClassInSelection);
@@ -692,9 +692,12 @@ async function extendThroughAssociation(
     }
 
     if(relationship.ends[endIndex]?.concept === classInSelection && otherEndId !== null) {
-      let classOnOtherEnd: SemanticModelClass | SemanticModelClassProfile | undefined = contextEntities.classes.find(cclass => cclass.id === otherEndId);
+      let classOnOtherEnd: SemanticModelClass | SemanticModelClassUsage | undefined = contextEntities.classes.find(cclass => cclass.id === otherEndId);
       if(classOnOtherEnd === undefined) {
-        classOnOtherEnd = contextEntities.classProfiles.find(profile => profile.id === otherEndId);
+        const profile = contextEntities.usages.find(profile => profile.id === otherEndId);
+        if(isSemanticModelClassUsage(profile as Entity)) {
+          classOnOtherEnd = contextEntities.usages.find(profile => profile.id === otherEndId) as SemanticModelClassUsage;
+        }
       }
       return classOnOtherEnd;
     }
@@ -719,26 +722,43 @@ async function extendThroughAssociation(
 
     await allowSurroundingsInExternalModels(selectedClassSemanticId, relevantExternalModels, contextEntities, visibilityFilter);
 
-    let relationshipsToCheck: (SemanticModelRelationship | SemanticModelRelationshipProfile)[] = [];
+    let relationshipsToCheck: {
+            relationships: SemanticModelRelationship[],
+            profileIdentifiers: string[],
+         } = { relationships: [], profileIdentifiers: [] };
     if(associationType === "PROFILE-EDGE") {
-      relationshipsToCheck = [...contextEntities.relationshipProfiles];
+      contextEntities.usages.forEach(profile => {
+        if(isSemanticModelRelationshipUsage(profile)) {
+          const profiledRelationship = contextEntities.relationships.find(relationship => {
+            return relationship.id === profile.usageOf;
+          });
+          if(profiledRelationship !== undefined) {
+            relationshipsToCheck.relationships.push(profiledRelationship);
+            relationshipsToCheck.profileIdentifiers.push(profile.id);
+          }
+        }
+      });
     }
     else if(associationType === "CLASSIC") {
-      relationshipsToCheck = [...contextEntities.relationships];
+      relationshipsToCheck = {
+        relationships: contextEntities.relationships,
+        profileIdentifiers: []
+      };
     }
 
     const extension: {
-      classInExtension: SemanticModelClass | SemanticModelClassProfile,
-      edgeAddingClass: string
-    }[] = [];
+            classInExtension: SemanticModelClass | SemanticModelClassUsage,
+            edgeAddingClass: string
+        }[] = [];
 
-    for(let i = 0; i < relationshipsToCheck.length; i++) {
-      const extensionCandidate = await checkForAssociatedClassOrClassProfile(
-        selectedClassSemanticId, getTheOtherEndForSTType(directionOfExtension), relationshipsToCheck[i]);
+    for(let i = 0; i < relationshipsToCheck.relationships.length; i++) {
+      const extensionCandidate = await checkForAssociatedClassOrClassProfile(selectedClassSemanticId,
+        getTheOtherEndForSTType(directionOfExtension),
+        relationshipsToCheck.relationships[i]);
       if(extensionCandidate !== null && extensionCandidate !== undefined) {
         extension.push({
           classInExtension: extensionCandidate,
-          edgeAddingClass: relationshipsToCheck[i].id
+          edgeAddingClass: relationshipsToCheck?.profileIdentifiers?.[i] ?? relationshipsToCheck.relationships[i].id
         });
       }
     }
@@ -978,34 +998,30 @@ async function extendThroughClassProfile(
     }
 
     const selectedClass = contextEntities.classes.find(entity => entity?.id === selectedClassSemanticId) ??
-                                contextEntities.classProfiles.find(entity => entity?.id === selectedClassSemanticId);
+                                contextEntities.usages.find(entity => isSemanticModelClassUsage(entity) && entity?.id === selectedClassSemanticId);
     if(selectedClass === undefined) {
       continue;         // TODO RadStr: Maybe remove from the selection?
     }
 
     if(directionOfExtension === "CHILD") {
-      contextEntities.classProfiles.forEach(entity => {
-        for(const profileSource of entity.profiling) {
-          if(profileSource === selectedClassSemanticId) {
-            addToExtensionIfSatisfiesVisibilityFilter(outputToExtend, visibilityFilter, entity.id,
-              SpecialEdge.FromProfiledClassToClassProfile, visualModel, selectedClassId,
-              nodeSelection.areIdentifiersFromVisualModel, contextEntities);
-          }
+      contextEntities.usages.forEach(entity => {
+        if(entity.usageOf === selectedClassSemanticId) {
+          addToExtensionIfSatisfiesVisibilityFilter(outputToExtend, visibilityFilter, entity.id,
+            SpecialEdge.FromProfiledClassToClassProfile, visualModel, selectedClassId,
+            nodeSelection.areIdentifiersFromVisualModel, contextEntities);
         }
       });
     }
     else if(directionOfExtension === "PARENT") {
-      if(!isSemanticModelClassProfile(selectedClass)) {
+      if(!isSemanticModelClassUsage(selectedClass)) {
         continue;
       }
-      const selectedClassAsProfile = (selectedClass as SemanticModelClassProfile);
+      const selectedClassAsProfile = (selectedClass as SemanticModelClassUsage);
 
-      for(const profileSource of selectedClassAsProfile.profiling) {
-        await tryAllowClassInExternalModelsIfNotFound(profileSource, relevantExternalModels, contextEntities, visibilityFilter);
-        addToExtensionIfSatisfiesVisibilityFilter(outputToExtend, visibilityFilter, profileSource,
-          SpecialEdge.FromClassProfileToProfiledClass, visualModel, selectedClassId,
-          nodeSelection.areIdentifiersFromVisualModel, contextEntities);
-      }
+      await tryAllowClassInExternalModelsIfNotFound(selectedClassAsProfile.usageOf, relevantExternalModels, contextEntities, visibilityFilter);
+      addToExtensionIfSatisfiesVisibilityFilter(outputToExtend, visibilityFilter, selectedClassAsProfile.usageOf,
+        SpecialEdge.FromClassProfileToProfiledClass, visualModel, selectedClassId,
+        nodeSelection.areIdentifiersFromVisualModel, contextEntities);
     }
   }
 }
