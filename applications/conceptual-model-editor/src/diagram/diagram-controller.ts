@@ -1725,19 +1725,25 @@ const createActions = (
       setNodes((prev) => {
         let nothingChanged = true;
         const possibleNewNodes = prev.map(node => {
-          if(changed[node.data.identifier] !== undefined) {
-            if(!shouldBreakSelection(node, changed[node.data.identifier])) {
+          const changedNode = changed[node.data.identifier];
+          if(changedNode !== undefined) {
+            if(!shouldBreakSelection(node, changedNode)) {
               return node;
             }
             nothingChanged = false;
-            // TODO RadStr: We are not using the groups property anyways, so idk
-            if(changed[node.data.identifier].data.group === null) {
-              changed[node.data.identifier].data.group = node.data.group;
+            // TODO RadStr: 2 issues: 1) We are not really using this property,
+            //                           since we usually work without the reactflow nodes, when working with groups
+            //                        2) After thinking about it later,
+            //                           I think that we should always copy the previous group, not only when null,
+            //                           since the groups should be handled by changing the groups
+            //                           and not by changing the nodes
+            if(changedNode.data.group === null) {
+              changedNode.data.group = node.data.group;
             }
-            changed[node.data.identifier].selected = node.selected;
-            changed[node.data.identifier].className = node.className;
-            changed[node.data.identifier].style = node.style;
-            return changed[node.data.identifier];
+            changedNode.selected = node.selected;
+            changedNode.className = node.className;
+            changedNode.style = node.style;
+            return changedNode;
           }
           return node;
         });
