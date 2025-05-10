@@ -49,7 +49,7 @@ export const usePackageSectionService = (): PackageSectionServiceType => {
     if (result) {
       notifications.success("Package has been saved.");
     } else {
-      notifications.success("Can't save the package!");
+      notifications.error("Can't save the package!");
     }
   };
 
