@@ -2,19 +2,11 @@
  * Tests {@link addEntitiesFromSemanticModelToVisualModelAction}
  */
 
-import { expect, beforeEach, test } from "vitest";
+import { expect, test } from "vitest";
 import { isVisualNode, isVisualRelationship, VisualNode } from "@dataspecer/core-v2/visual-model";
 import { isSemanticModelClass, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { addEntitiesFromSemanticModelToVisualModelAction } from "./add-entities-from-semantic-model-to-visual-model";
 import { ActionsTestSuite, notificationMockup, TestedSemanticConnectionType } from "./test/actions-test-suite";
-
-// TODO RadStr: For now - since layout prints a lot of debug stuff
-//             (based on https://stackoverflow.com/questions/44467657/better-way-to-disable-console-inside-unit-tests)
-beforeEach(() => {
-  vitest.spyOn(console, "warn").mockImplementation(() => {});
-  vitest.spyOn(console, "info").mockImplementation(() => {});
-  vitest.spyOn(console, "log").mockImplementation(() => {});
-});
 
 test("Test adding semantic model to visual model - graph with no relationships", async () => {
   const {
