@@ -179,8 +179,8 @@ export interface WritableVisualModel extends VisualModel {
     deleteModelData(identifier: ModelIdentifier): void;
 
     /**
-     * Set visual view information.
-     * As of not we support only one view setting.
+     * Set visual view information, this can be set only once
+     * for a given visual model.
      */
     setView(view: Omit<VisualView, "identifier" | "type">): void;
 
