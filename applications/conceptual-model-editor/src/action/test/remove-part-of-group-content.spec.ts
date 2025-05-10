@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { ActionsTestSuite, notificationMockup } from "./actions-test-suite";
+import { ActionsTestSuite, notificationMockup, TestedSemanticConnectionType } from "./actions-test-suite";
 import { addGroupToVisualModelAction } from "../add-group-to-visual-model";
 import { createDefaultVisualModelFactory, VisualGroup, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { removeTopLevelGroupFromVisualModelAction } from "../remove-group-from-visual-model";
@@ -10,7 +10,7 @@ test("Test dissolving top level groups", () => {
   const {
     visualModel,
     visualNodeIdentifiers
-  } = ActionsTestSuite.prepareModelsWithSemanticData(4);
+  } = ActionsTestSuite.prepareModelsWithSemanticData(4, TestedSemanticConnectionType.Association);
 
   const group1 = addGroupToVisualModelAction(
     visualModel,
@@ -43,7 +43,7 @@ test("Test dissolving group through visibility", () => {
   const {
     visualModel,
     visualNodeIdentifiers,
-  } = ActionsTestSuite.prepareModelsWithSemanticData(3);
+  } = ActionsTestSuite.prepareModelsWithSemanticData(3, TestedSemanticConnectionType.Association);
 
   addGroupToVisualModelAction(
     visualModel,
@@ -60,7 +60,7 @@ test("Test dissolving multi-group through visibility of one whole group", () => 
   const {
     visualModel,
     visualNodeIdentifiers,
-  } = ActionsTestSuite.prepareModelsWithSemanticData(4);
+  } = ActionsTestSuite.prepareModelsWithSemanticData(4, TestedSemanticConnectionType.Association);
 
   const group1 = addGroupToVisualModelAction(
     visualModel,
@@ -85,7 +85,7 @@ test("Test dissolving multi-group through visibility sequentially", () => {
   const {
     visualModel,
     visualNodeIdentifiers,
-  } = ActionsTestSuite.prepareModelsWithSemanticData(4);
+  } = ActionsTestSuite.prepareModelsWithSemanticData(4, TestedSemanticConnectionType.Association);
 
   const group1 = addGroupToVisualModelAction(
     visualModel,
@@ -117,7 +117,7 @@ test("Test dissolving multi-group through visibility sequentially again", () => 
   const {
     visualModel,
     visualNodeIdentifiers,
-  } = ActionsTestSuite.prepareModelsWithSemanticData(4);
+  } = ActionsTestSuite.prepareModelsWithSemanticData(4, TestedSemanticConnectionType.Association);
 
   const group1 = addGroupToVisualModelAction(
     visualModel,
@@ -149,7 +149,7 @@ test("Test dissolving everything through visiblity", () => {
   const {
     visualModel,
     visualNodeIdentifiers,
-  } = ActionsTestSuite.prepareModelsWithSemanticData(4);
+  } = ActionsTestSuite.prepareModelsWithSemanticData(4, TestedSemanticConnectionType.Association);
 
   const group1 = addGroupToVisualModelAction(
     visualModel,

@@ -5,6 +5,7 @@ import {
   Waypoint,
   WritableVisualModel,
   isVisualDiagramNode,
+  isVisualNode,
   isVisualProfileRelationship,
   isVisualRelationship,
   isWritableVisualModel

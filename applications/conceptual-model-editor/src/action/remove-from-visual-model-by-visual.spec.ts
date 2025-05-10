@@ -14,7 +14,6 @@ import { semanticModelMapToCmeSemanticModel } from "../dataspecer/cme-model/adap
 import { ModelGraphContextType } from "../context/model-context";
 import { ActionsTestSuite } from "./test/actions-test-suite";
 import { removeFromVisualModelByVisualAction } from "./remove-from-visual-model-by-visual";
-import { createVisualNodeDuplicateAction } from "./create-visual-node-duplicate";
 
 test("removeFromVisualModelAction - relationship", () => {
   const {

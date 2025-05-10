@@ -554,7 +554,6 @@ export class ActionsTestSuite {
       representedModelAlias: "",
       group: null,
       position: nodePosition,
-      description: null
     };
     return result;
   }
@@ -569,7 +568,6 @@ export class ActionsTestSuite {
       representedModelAlias: "",
       group: null,
       position: visualDiagramNode.position,
-      description: null
     };
     return result;
   }

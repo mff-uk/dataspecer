@@ -436,3 +436,12 @@ export const getOtherCoordinate = (coordinate: Coordinate): Coordinate => {
   return coordinate === "x" ? "y" : "x";
 };
 
+
+export type VisualEdgeEndPoint = VisualDiagramNode | VisualNode;
+/**
+ * @returns True if the given {@link what} is visual entity, which can be visual end of edge.
+ * Currently that is either {@link VisualNode} or node representing diagram ({@link VisualDiagramNode}).
+ */
+export function isVisualEdgeEnd(what: VisualEntity): what is VisualEdgeEndPoint {
+    return isVisualNode(what) || isVisualDiagramNode(what);
+}
