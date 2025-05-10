@@ -1,8 +1,10 @@
 import {
+  isVisualDiagramNode,
   isVisualNode,
   isVisualProfileRelationship,
   isVisualRelationship,
   Position,
+  VisualDiagramNode,
   VisualNode,
   VisualProfileRelationship,
   VisualRelationship,
@@ -13,13 +15,13 @@ import { createWaypointsForSelfLoop } from "../dataspecer/visual-model/operation
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { placeCoordinateOnGrid } from "@dataspecer/layout";
 import { configuration } from "../application";
+import { isVisualEdgeEnd } from "./utilities";
 
-// TODO RadStr: I don't want to copy the docs of the react binding here - create issue for it later.
 /**
  * @param nodeIdentifier is the identifier of the node to create duplicate of
  * @returns Returns identifier of the created node, or null if the action failed
  */
-export function createVisualNodeDuplicateAction(
+export function createVisualEdgeEndpointDuplicateAction(
   notifications: UseNotificationServiceWriterType,
   diagram: UseDiagramType,
   visualModel: WritableVisualModel,
@@ -30,40 +32,58 @@ export function createVisualNodeDuplicateAction(
     notifications.error("Unable to find source node to create duplicate of");
     return null;
   }
-  if(!isVisualNode(node)) {
-    notifications.error("The given node to create duplicate of is not a node");
+  if(!isVisualEdgeEnd(node)) {
+    notifications.error("The given node to create duplicate of is not a edge endpoint");
     return null;
   }
 
+  const width = diagram.actions().getNodeWidth(nodeIdentifier) ?? 0;
+
   const position: Position = {
-    x: placeCoordinateOnGrid(node.position.x -
-      (diagram.actions().getNodeWidth(nodeIdentifier) ?? 0), configuration().xSnapGrid),
+    x: placeCoordinateOnGrid(node.position.x - width, configuration().xSnapGrid),
     y: node.position.y,
     anchored: node.position.anchored
   };
 
-  const duplicatedNodeIdentifier = visualModel.addVisualNode({
-    ...node,
-    position: position,
-  });
+  let duplicatedNodeIdentifier: string;
+  let findExistingDuplicatesMethod;
+  if(isVisualNode(node)) {
+    duplicatedNodeIdentifier = visualModel.addVisualNode({
+      ...node,
+      position: position,
+    });
+    findExistingDuplicatesMethod = findAllExistingVisualNodeDuplicates;
+  }
+  else if(isVisualDiagramNode(node)) {
+    duplicatedNodeIdentifier = visualModel.addVisualDiagramNode({
+      ...node,
+      position: position,
+    });
+    findExistingDuplicatesMethod = findAllExistingVisualDiagramNodeDuplicates;
+  }
+  else {
+    notifications.error("Unknown edge end point");
+    return null;
+  }
 
   const duplicateNode = visualModel.getVisualEntity(duplicatedNodeIdentifier);
-  if(duplicateNode === null || !isVisualNode(duplicateNode)) {
+  if(duplicateNode === null || !isVisualEdgeEnd(duplicateNode)) {
     notifications.error("The created duplicate node is not present in visual model for some reason");
     return null;
   }
 
-  addRelatedEdgesDuplicatesToVisualModel(
-    visualModel, node, duplicateNode);
+  const allOtherExistingDuplicates = (findExistingDuplicatesMethod as any)(visualModel, node, duplicateNode);
+
+  addRelatedEdgesDuplicatesToVisualModel(visualModel, duplicateNode, allOtherExistingDuplicates);
 
   return duplicatedNodeIdentifier;
 }
 
-function addRelatedEdgesDuplicatesToVisualModel(
+function findAllExistingVisualNodeDuplicates(
   visualModel: WritableVisualModel,
   originalNode: VisualNode,
-  duplicateNode: VisualNode,
-) {
+  duplicateNode: VisualNode
+): string[] {
   const visualEntities = visualModel.getVisualEntities();
   const allExistingNodeDuplicates = [...visualEntities.values()]
     .filter((visualEntity, _) =>
@@ -71,6 +91,32 @@ function addRelatedEdgesDuplicatesToVisualModel(
       visualEntity.representedEntity === originalNode.representedEntity &&
       duplicateNode.identifier !== visualEntity.identifier)
     .map(node => node.identifier);
+
+  return allExistingNodeDuplicates;
+}
+
+function findAllExistingVisualDiagramNodeDuplicates(
+  visualModel: WritableVisualModel,
+  originalNode: VisualDiagramNode,
+  duplicateNode: VisualDiagramNode
+): string[] {
+  const visualEntities = visualModel.getVisualEntities();
+  const allExistingNodeDuplicates = [...visualEntities.values()]
+    .filter((visualEntity, _) =>
+      isVisualDiagramNode(visualEntity) &&
+      visualEntity.representedVisualModel === originalNode.representedVisualModel &&
+      duplicateNode.identifier !== visualEntity.identifier)
+    .map(node => node.identifier);
+
+  return allExistingNodeDuplicates;
+}
+
+function addRelatedEdgesDuplicatesToVisualModel(
+  visualModel: WritableVisualModel,
+  duplicateNode: VisualNode | VisualDiagramNode,
+  allExistingNodeDuplicates: string[]
+) {
+  const visualEntities = visualModel.getVisualEntities();
 
   const alreadyAddedRepresentedEdges: Record<string, true> = {};
 
@@ -98,7 +144,7 @@ function addRelatedEdgesDuplicatesToVisualModel(
 
 function addRelationshipDuplicate(
   relationship: VisualRelationship | VisualProfileRelationship,
-  duplicateNode: VisualNode,
+  duplicateNode: VisualNode | VisualDiagramNode,
   allExistingNodeDuplicates: string[],
   visualModel: WritableVisualModel,
   addToVisualModelFunctionName: "addVisualRelationship" | "addVisualProfileRelationship",
