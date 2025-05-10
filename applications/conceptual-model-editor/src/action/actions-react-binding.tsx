@@ -84,6 +84,8 @@ import { ModelDsIdentifier } from "@/dataspecer/entity-model";
 import { openSearchExternalSemanticModelDialogAction } from "./open-search-external-semantic-model-dialog";
 import { openEditVisualModelDialogAction } from "./open-edit-visual-model-dialog";
 import { LayoutConfigurationContextType, useLayoutConfigurationContext } from "@/context/layout-configuration-context";
+import { openLayoutSelectionDialogAction } from "./open-layout-selection-dialog";
+import { openLayoutVisualModelDialogAction } from "./open-layout-visual-model-dialog";
 
 const LOG = createLogger(import.meta.url);
 
@@ -168,6 +170,10 @@ interface DialogActions {
    */
   openFilterSelectionDialog: (selections: SelectionsWithIdInfo) => void;
 
+  /**
+   * Open dialog to layout visual model.
+   */
+  openPerformLayoutVisualModelDialog: () => void;
 }
 
 /**
@@ -416,6 +422,7 @@ const noOperationActionsContext: ActionsContextType = {
   //
   openExtendSelectionDialog: noOperation,
   openFilterSelectionDialog: noOperation,
+  openPerformLayoutVisualModelDialog: noOperation,
   // TODO PRQuestion: How to define this - Should actions return values?, shouldn't it be just function defined in utils?
   extendSelection: async () => ({ nodeSelection: [], edgeSelection: [] }),
   filterSelection: () => ({ nodeSelection: [], edgeSelection: [] }),
@@ -992,6 +999,12 @@ function createActionsContext(
     dialogs?.openDialog(createFilterSelectionDialog(onConfirm, selections, setSelections));
   };
 
+  const openPerformLayoutVisualModelDialog = () => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      openLayoutVisualModelDialogAction(notifications, dialogs, classes, diagram, graph, visualModel);
+    });
+  };
+
   const extendSelection = async (
     nodeSelection: NodeSelection,
     extensionTypes: ExtensionType[],
@@ -1105,7 +1118,12 @@ function createActionsContext(
       diagram.actions().openSelectionActionsMenu(source, canvasPosition);
     },
     onLayoutSelection: () => {
-      // TODO RadStr: Currently does nothing
+      const selection = getSelections(diagram, false, true);
+      withVisualModel(notifications, graph, (visualModel) => {
+        openLayoutSelectionDialogAction(
+          notifications, dialogs, classes, diagram, graph,
+          visualModel, selection.nodeSelection, selection.edgeSelection);
+      });
     },
 
     onCreateGroup: () => {
@@ -1309,6 +1327,7 @@ function createActionsContext(
     removeEntitiesInSemanticModelFromVisualModel,
     addEntityNeighborhoodToVisualModel,
 
+    openPerformLayoutVisualModelDialog,
     layoutActiveVisualModel,
     //
     openExtendSelectionDialog,
