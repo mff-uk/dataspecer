@@ -60,9 +60,15 @@ export function putVisualDiagramNodeContentToVisualModelAction(
 
   const availableVisualModels = graph.aggregatorView.getAvailableVisualModels();
 
+  const visualDiagramNode = visualModel.getVisualEntity(diagramNode.identifier);
+  if(visualDiagramNode === null || !isVisualDiagramNode(visualDiagramNode)) {
+    notifications.error("Missing visual diagram node in visual model");
+    return;
+  }
+
   copyVisualEntitiesBetweenModels(
     notifications, classesContext, graph, diagram, availableVisualModels,
-    referencedVisualModel, visualModel, diagramNode.position, diagramNode);
+    referencedVisualModel, visualModel, visualDiagramNode.position, diagramNode);
 
   // Ideally we would implement the rerouting for visual profile relationships somewhere down in this file,
   // but the validation in visual model handles it for us. So that seems like extra work,
@@ -298,7 +304,7 @@ function addCopiesToVisualModel(
     }
     else if(isVisualDiagramNode(node)) {
       const identifier = addVisualDiagramNode(
-        copyTo, node.position, node.representedVisualModel);
+        copyTo, position, node.representedVisualModel);
       originalToCopyMap[node.identifier] = identifier
     }
     else {
