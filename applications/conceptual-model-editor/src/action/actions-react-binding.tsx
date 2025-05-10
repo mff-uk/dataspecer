@@ -83,6 +83,8 @@ import { ModelDsIdentifier } from "@/dataspecer/entity-model";
 import { openSearchExternalSemanticModelDialogAction } from "./open-search-external-semantic-model-dialog";
 import { openEditVisualModelDialogAction } from "./open-edit-visual-model-dialog";
 import { LayoutConfigurationContextType, useLayoutConfigurationContext } from "@/context/layout-configuration-context";
+import { openLayoutSelectionDialogAction } from "./open-layout-selection-dialog";
+import { openLayoutVisualModelDialogAction } from "./open-layout-visual-model-dialog";
 
 const LOG = createLogger(import.meta.url);
 
