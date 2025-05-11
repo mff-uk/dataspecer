@@ -68,7 +68,7 @@ Layout solution is based on the ElkJS layouting library.
 ### Warnings
 - Only force-directed algorithm (Elk Stress) takes into consideration anchors
 - All algorithms remove existing edge layout on the layouted part
-- The layouting of groups is not optimal, for reason why you can check the [technical documentation for layout package](https://github.com/mff-uk/dataspecer/tree/main/packages/layout). Therefore you should create groups only after you are kinda happy with the overall layout.
+- The layouting of groups is not optimal, for reason why you can check the [technical documentation for layout package](https://github.com/mff-uk/dataspecer/tree/radstr-project-branch/packages/layout). Therefore you should create groups only after you are kinda happy with the overall layout.
 
 #### Force-directed algorithms
 

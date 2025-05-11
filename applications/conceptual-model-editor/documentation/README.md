@@ -33,7 +33,7 @@ Where the layout is the layout package, so technically it is not part of CME.
 - `components` - Some of the exported React components used on multiple places.
 - `configuration` - Language options and static configuration for diagram, etc.
 - `context` - Model, Class, Layout configuration and query params context.
-- `dataspecer` - Communication with backend containing packages and communication layer for core-v2 models.
+- `dataspecer` - Communication layer for core-v2 models.
 - `diagram` - The diagram component of CME. Should be separated from the rest of CME. So we can swap out the rendering library if necessary.
   - `diagram-api.tsx` - The API used for communication with the rest of CME.
   - `diagram-controller.ts` - The controller handling logic for diagram component.
@@ -43,8 +43,13 @@ Where the layout is the layout package, so technically it is not part of CME.
 - `dialog` - Contains all the dialogs available in CME.
 - `features` - Mostly Features from header component, like autosave.
 - `header` - The React components related to header. Header is the top part of page containing save, language, etc.
+- `service` - Communication with backend containing packages
+- `notification` - User notifications service. For example the thing you see, when you click save in CME.
+- `context` - React contexts.
 
 `visualization.tsx` file - Creates the diagram component and handles callbacks caused by changes to entities in semantic model and changes in entities in visual model and the model itself and propagates them to the diagram component.
+
+`page.tsx` file - The top level file, which creates everything.
 
 ### Directories / Packages
 This section contains comments relevant for developing code in certain packages.
