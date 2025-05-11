@@ -12,7 +12,7 @@ import { isVisualDiagramNode,
 import { VisualModelDiagramNode } from "@/diagram";
 import { ModelGraphContextType } from "@/context/model-context";
 import { UseNotificationServiceWriterType } from "@/notification/notification-service-context";
-import { getDefaultUserGivenAlgorithmConfigurationsFull, XY } from "@dataspecer/layout";
+import { AnchorOverrideSetting, getDefaultUserGivenAlgorithmConfigurationsFull, XY } from "@dataspecer/layout";
 import { addVisualNode } from "@/dataspecer/visual-model/operation/add-visual-node";
 import { UseDiagramType } from "@/diagram/diagram-hook";
 import { addVisualDiagramNode } from "@/dataspecer/visual-model/operation/add-visual-diagram-node";
@@ -128,7 +128,13 @@ function copyVisualEntitiesBetweenModels(
   const layoutConfiguration = getDefaultUserGivenAlgorithmConfigurationsFull();
   layoutConfiguration.chosenMainAlgorithm = "elk_overlapRemoval";
   layoutConfiguration.main.elk_overlapRemoval.min_distance_between_nodes = 0;
-  layoutActiveVisualModelAction(notifications, classesContext, diagram, graph, copyTo, layoutConfiguration);
+  // We perform manual shift in elk if some nodes are anchored, so we force the check using this.
+  // Note that in general case we can not tell if the graph shifted, therefore we shift only when anchors exist.
+  layoutActiveVisualModelAction(notifications, classesContext, diagram, graph, copyTo, layoutConfiguration, {
+    notAnchored: [],
+    anchored: [],
+    shouldAnchorEverythingExceptNotAnchored: AnchorOverrideSetting.AnchorEverythingExceptNotAnchored
+  });
   copyTo.deleteVisualEntity(helpGroupForLayout);
 }
 
