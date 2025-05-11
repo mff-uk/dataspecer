@@ -455,7 +455,7 @@ export const translations: Record<string, string | Function> = {
   "layout-dialog-algorithm-configuration-label": "Algorithm configuration",
   "layout-minimal-distance-between-nodes": "Minimal distance between nodes",
   "layout-number-of-runs-text": "Number of runs (may take several seconds for high numbers)",
-  "layout-number-of-runs-tooltip": "Specifies the number of times the algorithm should run. The one with best metrics is chosen. For huge diagrams (hundreds of classes) use low values like 1-2, otherwise 10 seems to find not-perfect but good enough layouts.",
+  "layout-number-of-runs-tooltip": "Specifies the number of times the algorithm should run. The one with best metrics is chosen. For huge diagrams (hundreds of classes) use low values like 1-2, otherwise 10-50 should be the range for mid-size graphs, where 10 seems to find not-perfect but good enough layouts.",
   "layout-stress-edge-length": "Ideal edge length",
   "layout-stress-class-profile-edge-length": "Ideal edge length between the class profile and profiled class",
   "layout-layered-in-layer-length": "Distance between layers",
