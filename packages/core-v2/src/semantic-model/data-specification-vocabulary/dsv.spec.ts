@@ -559,10 +559,10 @@ test("Issue #1005", async () => {
 @prefix role: <https://w3id.org/dsv/class-role#>.
 
 
-<http://dcat/model/> a dsv:ConceptualModel.
+<http://dcat/model/> a dsv:ApplicationProfile.
 
 <http://dcat/model/juicyBusinessProfile> dct:isPartOf <http://dcat/model/>;
-    a dsv:Profile;
+    a dsv:TermProfile;
     skos:prefLabel "Juicy Business"@en;
     dsv:reusesPropertyValue [
   a dsv:PropertyValueReuse;
@@ -573,7 +573,7 @@ test("Issue #1005", async () => {
     dsv:class <http://dcat/model/juicyBusiness>.
 
 <http://dcat/model/bulkyForceProfile> dct:isPartOf <http://dcat/model/>;
-    a dsv:Profile;
+    a dsv:TermProfile;
     skos:prefLabel "Bulky Force"@en;
     dsv:specializes <http://dcat/model/juicyBusinessProfile>;
     dsv:reusesPropertyValue [
@@ -586,7 +586,7 @@ test("Issue #1005", async () => {
 
 <http://dcat/model/BulkyForce.juicyWork> dsv:domain <http://dcat/model/bulkyForceProfile>;
     dct:isPartOf <http://dcat/model/>;
-    a dsv:Profile;
+    a dsv:TermProfile;
     skos:prefLabel "Juicy Work"@en;
     dsv:property <http://dcat/model/juicyWork>;
     a dsv:ObjectPropertyProfile;
@@ -594,7 +594,7 @@ test("Issue #1005", async () => {
 
 <http://dcat/model/JuicyBusiness.juicyWorkSpecial> dsv:domain <http://dcat/model/bulkyForceProfile>;
     dct:isPartOf <http://dcat/model/>;
-    a dsv:Profile;
+    a dsv:TermProfile;
     skos:prefLabel "Juicy Work"@en;
     dsv:specializes <http://dcat/model/BulkyForce.juicyWork>;
     dsv:property <http://dcat/model/juicyWork>;
