@@ -2,7 +2,7 @@
 
 This package contains the implementation for layouting to be used in the rest of Dataspecer.
 
-You can also check [the user documentation](https://dataspecer.com/docs/projects/layout-algorithms/) explaining types of implemented algorithms and their properties.
+You can also check [the user documentation](https://radstr-project-branch.dataspecer-www.pages.dev/docs/projects/layout-algorithms/) explaining types of implemented algorithms and their properties.
 
 ## Build
 

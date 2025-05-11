@@ -29,9 +29,6 @@ Where the layout is the layout package, so technically it is not part of CME.
 ### Directory structure
 
 - `action` - The actions that can user do, so basically business logic.
-
-TODO: Missing img
-
 - `catalog (newly catalog-v2)` - Represents the catalog component in CME. Catalog is the part of page which lists semantic information contained in package. ![img_6.png](images/catalog.png)
 - `components` - Some of the exported React components used on multiple places.
 - `configuration` - Language options and static configuration for diagram, etc.
