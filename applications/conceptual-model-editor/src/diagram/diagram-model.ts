@@ -328,6 +328,10 @@ export function isNodeTitleItem(
   return node.type === NODE_TITLE_ITEM_TYPE;
 }
 
+/**
+ * Type representing group. It is currently used purely as API object to get group data
+ * from visual model to the diagram component.
+ */
 export type GroupWithContent = {
 
   /**
@@ -351,12 +355,24 @@ export type Group = {
 
 }
 
+/**
+ * Represents positional data related to Viewport, that is position, width and height.
+ */
 export type ViewportDimensions = {
 
+  /**
+   * Top left position of the viewport.
+   */
   position: Position;
 
+  /**
+   * Viewport's width, that is how much space does the HTML element takes on the screen.
+   */
   width: number;
 
+  /**
+   * Viewport's height, that is how much space does the HTML element takes on the screen.
+   */
   height: number;
 
 }

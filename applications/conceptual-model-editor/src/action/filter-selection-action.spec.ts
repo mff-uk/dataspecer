@@ -264,7 +264,7 @@ test("Test filter - Class profiles - visual identifiers", () => {
 
   const fullyConnectedModel = [...models.entries()][2][1];
   const modelEntities = fullyConnectedModel.getEntities();
-  const filters: SelectionFilter[] = [SelectionFilter.ClassUsage];
+  const filters: SelectionFilter[] = [SelectionFilter.ClassProfile];
   const visibilityFilter: VisibilityFilter = VisibilityFilter.OnlyVisible;
   const semanticModelFilter: Record<string, boolean> | null = null;
 
@@ -319,7 +319,7 @@ test("Test filter - Class profiles - semantic identifiers", () => {
 
   const fullyConnectedModel = [...models.entries()][2][1];
   const modelEntities = fullyConnectedModel.getEntities();
-  const filters: SelectionFilter[] = [SelectionFilter.ClassUsage];
+  const filters: SelectionFilter[] = [SelectionFilter.ClassProfile];
   const visibilityFilter: VisibilityFilter = VisibilityFilter.OnlyVisible;
   const semanticModelFilter: Record<string, boolean> | null = null;
 
@@ -368,7 +368,7 @@ test("Test filter - Relationship profiles - visual identifiers", () => {
   } = ActionsTestSuite.prepareModelsWithSemanticData(0, connectionType);
 
   const fullyConnectedModel = [...models.entries()][2][1];
-  const filters: SelectionFilter[] = [SelectionFilter.RelationshipUsage];
+  const filters: SelectionFilter[] = [SelectionFilter.RelationshipProfile];
   const visibilityFilter: VisibilityFilter = VisibilityFilter.OnlyVisible;
   const semanticModelFilter: Record<string, boolean> | null = null;
 
@@ -424,7 +424,7 @@ test("Test filter - Relationship profiles - semantic identifiers", () => {
 
   const fullyConnectedModel = [...models.entries()][2][1];
   const modelEntities = fullyConnectedModel.getEntities();
-  const filters: SelectionFilter[] = [SelectionFilter.RelationshipUsage];
+  const filters: SelectionFilter[] = [SelectionFilter.RelationshipProfile];
   const visibilityFilter: VisibilityFilter = VisibilityFilter.OnlyVisible;
   const semanticModelFilter: Record<string, boolean> | null = null;
 
