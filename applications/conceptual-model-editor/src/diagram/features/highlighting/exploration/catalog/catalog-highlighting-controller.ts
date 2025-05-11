@@ -36,20 +36,11 @@ const getClassNamesBasedOnHighlighting = (
 export const useCatalogHighlightingController = () => {
   const {
     highlightLevels,
-    changeHighlight,
     resetHighlight,
     semanticToVisualIdentifierMap,
     shouldShrinkCatalog,
     isHighlightingChangeAllowed,
   } = useExploration();
-
-  const highlightEntity = (
-    entityId: string,
-    reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
-    modelOfClassWhichStartedHighlighting: string | null
-  ) => {
-    changeHighlight([entityId], reactFlowInstance, false, modelOfClassWhichStartedHighlighting);
-  };
 
   const getClassNames = useCallback((semanticEntityId: string) => {
     semanticEntityId = semanticToVisualIdentifierMap[semanticEntityId];
@@ -63,7 +54,6 @@ export const useCatalogHighlightingController = () => {
   const isAnyEntityHighlighted = useMemo(() => Object.values(highlightLevels).length, [highlightLevels]);
 
   return {
-    highlightEntity,
     resetHighlight,
     getClassNames,
     shouldShrinkCatalog,
