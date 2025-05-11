@@ -10,7 +10,7 @@ toc: true
 
 # Description of document
 - The first part of the document is quick guide for the project. This is useful, if you are my oponent, or you just want quick introduction.
-- The second part is full fledged user documentation.
+- The second part is full fledged user documentation - Even if you are planning to read this, don't skip the quick guide.
 
 
 ## Quick quide for the project itself
@@ -23,15 +23,15 @@ First thing you are probably thinking is **What was the project about**.
 
 The project focused on improving users' experience when creating diagrams inside the `Dataspecer's Conceptual model editor (CME)`. On surface you can think of the CME as any other conceptual model editor, for example UML tools like Enterprise architect, but it is actually much more, since it allows users to profile entities or allows them to reuse vocabularies from the web.
 
-To improve the experience we introduced layouting, highlighting, groups, alignment, etc. You can read more about that in the user documentation (TODO: Link). You should visit the doumentation if:
+To improve the experience we introduced layouting, highlighting, groups, alignment, etc. You can read more about that in the [user documentation](https://radstr-project-branch.dataspecer-www.pages.dev/docs/projects/cme-and-layout/#conceptual-model-editor-cme---user-documentation). You should visit the doumentation if:
 
 - You want to check what I did. The documentation mostly focuses on that, which is quite nice in a way that you can map the functional requirements from the specification to the actual final result. Unfortunately the actual mapping is not in the documentation. Also be careful that some of the functionality is "hidden", for example alignment helper or the fact that each node added to canvas is placed on canvas through layouting.
 - You are not understanding, how some of the functionality work
-- You want to learn something about layouting algorithms - for that is special document. (TODO: Docs)
+- You want to learn something about layouting algorithms - for that is [special document](https://radstr-project-branch.dataspecer-www.pages.dev/docs/projects/layout-algorithms/).
 
 #### I am good, get me into action
 ##### How to launch
-You can launch `CME` either locally (TODO: Odkaz) or you can run the [deployed version](https://radstr-project-branch.dataspecer.pages.dev/conceptual-model-editor/diagram). Every push to GitHub deploys Dataspecer using CloudFlare. You can visit that using the green checkmark (TODO:) next to the commit message.
+You can launch `CME` either [locally](https://radstr-project-branch.dataspecer-www.pages.dev/docs/projects/cme-and-layout/#how-to-run-cme-and-the-rest-locally-but-may-get-deprecated-over-time) or you can run the [deployed version](https://radstr-project-branch.dataspecer.pages.dev/conceptual-model-editor/diagram). Every push to GitHub deploys Dataspecer using CloudFlare. So if you want to visit some specific version, you can do that by clicking the ✔️ next to the commit message.
 
 Assuming you opened the deployed version through the [given link](https://radstr-project-branch.dataspecer.pages.dev/conceptual-model-editor/diagram), now you are inside CME.
 
@@ -44,6 +44,7 @@ To get you started:
 - Click on the eye next to the model.
 
 To Add your own concepts click on the relevant tab, for example classes and again click on the + in the local model.
+Note that all of the buttons contains tooltip on hover, so definitely use that to explore the buttons in catalog.
 
 Note that CME is not the only part of Dataspecer. You can visit the manager [here](https://radstr-project-branch.dataspecer.pages.dev/), that is the URL without the `conceptual-model-editor/...` suffix. Manager allows you to:
 - create new package at the top right
@@ -51,9 +52,9 @@ Note that CME is not the only part of Dataspecer. You can visit the manager [her
 - clicking open on the `Visual Model`, which opens CME. Now you can also save your work using the buttons at the top of the page.
 
 #### Give me the technical details
-There are two main places to look at:
-- The layout package (TODO: Link). You can read more about the implementation in the README. In this package all of the code is created by me.
-- CME (TODO: Link) - Here we provided in the documentation (TODO: Link) only the highlevel image of C4 component and directory structure. The code here is shared with [Petr Škoda](https://github.com/skodapetr), who is also responsible for the code related to CME, which brings us to the fact, as you may have already noticed, we are not on the main branch.
+There are two main places to look at, when you want to see the code:
+- The [layout package](https://github.com/mff-uk/dataspecer/tree/radstr-project-branch/packages/layout). You can read more about the implementation in the README. In this package all of the code is created by me.
+- [CME](https://github.com/mff-uk/dataspecer/tree/radstr-project-branch/applications/conceptual-model-editor) - Here we provided in the [documentation](https://github.com/mff-uk/dataspecer/tree/radstr-project-branch/applications/conceptual-model-editor/documentation) only the highlevel image of C4 component and directory structure. The code here is shared with [Petr Škoda](https://github.com/skodapetr), who is also responsible for the code related to CME, which brings us to the fact, as you may have already noticed, we are not on the main branch.
 
 #### Technical state of project
 Last "few" commits of project are on [separate branch](https://github.com/mff-uk/dataspecer/tree/radstr-project-branch), because as the end of project approached, the amount of code was growing bigger, so there was simply no time for code reviews. Also one big breaking point was [this pull request](https://github.com/mff-uk/dataspecer/pull/1131), where simply the number of changes was too large process. So I had to from then on make the pull requests smaller and split the pull request into smaller ones. This unfortunately added some mental overhead about where is actually what and how to piece it all together.
@@ -73,7 +74,7 @@ However we also did some extra things like
 This document explains most of the available non-basic features of CME, which were developed as part of research project.
 
 If you want to look at how the basic functionality works, like editation of semantic entities, etc.. You have 3 options:
-1) Read through this document. Even though the basics are not covered directly, some of it may become clear as you go. Especially after reading the Quick guide (TODO:)
+1) Read through this document. Even though the basics are not covered directly, some of it may become clear as you go. Especially after reading the [Quick guide](https://radstr-project-branch.dataspecer-www.pages.dev/docs/projects/cme-and-layout/#quick-quide-for-the-project-itself) above.
 2) Learn them by playing a bit in the editor.
 3) You can consult the [original CME docs](https://github.com/mff-uk/dataspecer/blob/main/applications/conceptual-model-editor/docs/intro-document.md), but note that they are quite old and therefore deprecated at places, so even though it may help, you may be better just figuring out yourself.
 
@@ -290,7 +291,7 @@ Newly the dialog contains also the relationships, which means that we can show r
 
 #### Layouting
 
-Layouting is described separately, you can check it [here](layout-algorithms.md)
+Layouting is described separately, you can check it [here](https://radstr-project-branch.dataspecer-www.pages.dev/docs/projects/layout-algorithms/)
 
 ### Selection actions
 
@@ -493,8 +494,8 @@ However it should still support all the possible use-cases.
   - In the applications/conceptual-model-editor directory create .env file from .env.example
     - When you want to use the official Dataspecer backend:
       - VITE_PUBLIC_APP_BACKEND="https://tool.dataspecer.com/api"
-      - When you also want to run the manager and connect it to locally running CME, create .env.local from .env and set the backend to
-        - VITE_BACKEND=https://tool.dataspecer.com/api
+      - When you also want to run the manager and connect it to locally running CME, create .env.local from .env in the `/manager` and set the backend to
+        - VITE_BACKEND="https://tool.dataspecer.com/api"
         - And run the manager using `npm run dev` from the applications/manager
     - When you want to run backend locally set the backend variables mentioned above to http://localhost:3100
 and run the backend as described [here](https://github.com/mff-uk/dataspecer/tree/main/services/backend) (that being said I am no longer able to run the backend, so not sure if it still works, might be related to the https://github.com/mff-uk/dataspecer/issues/1145)
