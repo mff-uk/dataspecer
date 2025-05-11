@@ -83,7 +83,7 @@ import { openSearchExternalSemanticModelDialogAction } from "./open-search-exter
 import { openEditVisualModelDialogAction } from "./open-edit-visual-model-dialog";
 import { LayoutConfigurationContextType, useLayoutConfigurationContext } from "@/context/layout-configuration-context";
 import { openCreateClassDialogAndCreateGeneralizationAction } from "./open-create-class-dialog-with-generalization";
-import { openCreateClassDialogAndCreateAssociationAction } from "./open-create-class-dialog-with-edge copy";
+import { openCreateClassDialogAndCreateAssociationAction } from "./open-create-class-dialog-with-association";
 
 const LOG = createLogger(import.meta.url);
 
