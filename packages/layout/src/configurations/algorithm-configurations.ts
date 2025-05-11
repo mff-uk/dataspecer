@@ -106,7 +106,6 @@ export class RandomConfiguration extends DefaultAlgorithmConfiguration<UserGiven
 
 }
 
-// TODO RadStr: I can return default object in the same way as for LayeredConfiguration.
 /**
  * General Class which has all relevant configurations for the stress like algorithm. The classes extending this should convert the user configurations
  *  into

@@ -27,11 +27,6 @@ async function performSecondPartGeneralizationTwoRunLayout(graph: Graph, graphIn
     const layoutPromise = elk.layout(graphInElk)
                              .catch(console.error);
 
-    // TODO: 3 following lines are for Debug
-    layoutPromise.then(result => console.log("!!! performGeneralizationTwoRunLayout LAYOUTING OVER !!!"));
-    layoutPromise.then(console.log);
-    layoutPromise.then(result => console.log(JSON.stringify(result)));
-
     return layoutPromise;
 }
 
@@ -93,10 +88,6 @@ export class ElkLayout implements LayoutAlgorithm {
                                     .catch(console.error);
         }
 
-        console.log("elkGraph layouted");
-        console.log({...graphInElkWorkCopy});
-
-
         return layoutPromise.then(layoutedGraph => {
             if(layoutedGraph !== null && typeof layoutedGraph === 'object') {       // Void check
                 this.elkGraphTransformer.updateExistingGraphRepresentationBasedOnLibraryRepresentation(layoutedGraph, this.graph, false, true);
@@ -111,13 +102,8 @@ export class ElkLayout implements LayoutAlgorithm {
         let subgraphIndices: number[] = [];
 
         const graphInElkWorkCopy = this.getGraphInElk();
-        console.log("GRAPH BEFORE DOUBLE LAYOUTING:");
-        console.log(JSON.stringify(graphInElkWorkCopy));
         for(const [index, subgraph] of graphInElkWorkCopy.children.entries()) {
-            console.log(index);
-            console.log(subgraph);
             if(isSubgraph(this.graph, subgraph.id)) {
-                console.log(subgraph);
                 subgraphIndices.push(index);
                 // We use the variant which removes the edges going to the subgraph boundaries, other solution is
                 // to box it inside another node and the reroute the edges there
@@ -125,30 +111,20 @@ export class ElkLayout implements LayoutAlgorithm {
                 const [keptEdges, removedEdges] = removeEdgesLeadingToSubgraphInsideSubgraph(subgraph);
                 subgraphAllEdges.push([keptEdges, removedEdges]);
                 subgraph.edges = keptEdges;
-                console.log("THE layouted SUBGRAPH:");
-                console.log(subgraph);
-                console.log(JSON.stringify(subgraph));
                 const layoutPromise = this.elk.layout(subgraph)
                     .then(console.log)
                     .catch(console.error);
-                await layoutPromise;            // TODO: Just debug
+                await layoutPromise;            // TODO: Just debug, but I will keep it, so I don't break anything
                 layoutPromises.push(layoutPromise);
             }
         }
         return Promise.all(layoutPromises).then(result => {
-            console.log("GRAPH AFTER FIRST LAYOUTING:");
-            console.log(JSON.stringify(graphInElkWorkCopy));
             for(const [i, [keptEdges, removedEdges]] of subgraphAllEdges.entries()) {
-                console.log("Layouted subgraph");
-                console.log(graphInElkWorkCopy.children[subgraphIndices[i]]);
                 graphInElkWorkCopy.children[subgraphIndices[i]].edges = graphInElkWorkCopy.children[subgraphIndices[i]].edges.concat(removedEdges);
             }
-            console.log("GRAPH AFTER FIRST LAYOUTING AND REPAIRING EDGES:");
-            console.log(graphInElkWorkCopy);
-            console.log(JSON.stringify(graphInElkWorkCopy));
 
             this.elkGraphTransformer.updateExistingGraphRepresentationBasedOnLibraryRepresentation(graphInElkWorkCopy, this.graph, false, true);
-            return this.graph.mainGraph;            // TODO: Again main graph
+            return this.graph.mainGraph;
         });
     }
 

@@ -22,6 +22,3 @@ export const ALGORITHM_NAME_TO_LAYOUT_MAPPING: Record<AlgorithmName, LayoutAlgor
     "none": new NoActionLayout(),
     "automatic": new AutomaticLayout(),
 }
-
-// TODO: Theoretically you can create the same map for the ConfigurationsContainer and for the UserConfiguration
-//       or at least use map, the map forces me to add the code unlike the switch
