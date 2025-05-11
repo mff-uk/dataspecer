@@ -64,9 +64,6 @@ export const PropertyEdge = (props: EdgeProps<Edge<ApiEdge>>) => {
   const label = data === undefined ? props.label : prepareLabel(data.options, data);
 
   const style = { ...props.style };
-  if (data !== undefined) {
-    style.stroke = prepareColor(data);
-  }
 
   return (
     <>
