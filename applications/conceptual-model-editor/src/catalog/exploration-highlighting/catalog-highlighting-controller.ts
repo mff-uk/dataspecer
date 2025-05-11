@@ -1,7 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { useExploration } from "../context/highlighting-exploration-mode";
-import { ReactFlowInstance } from "@xyflow/react";
-import { EdgeType, NodeType } from "../../../../diagram-controller";
+import { useExploration } from "../../context/highlighting-exploration-mode";
 
 export const getDefaultClassNamesForEntityCatalogRow = () => {
   return "flex flex-row justify-between flex-wrap whitespace-nowrap hover:shadow highlight-catalog-transition-default";

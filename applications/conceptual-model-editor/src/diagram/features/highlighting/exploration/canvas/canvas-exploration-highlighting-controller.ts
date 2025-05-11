@@ -1,7 +1,7 @@
 import "./canvas-exploration-highlighting-styles.css";
-import "../context/exploration-highlighting-styles.css";
+import "../shared-style/exploration-highlighting-styles.css";
 import { useEffect } from "react";
-import { useExploration } from "../context/highlighting-exploration-mode";
+import { useExploration } from "../../../../../context/highlighting-exploration-mode";
 import { Edge, Node, ReactFlowInstance, getConnectedEdges } from "@xyflow/react";
 import { HighlightLevel, highlightColorMap } from "../../set-selection-highlighting-styles";
 import { EdgeType, NodeType, selectMarkerEnd } from "../../../../diagram-controller";
