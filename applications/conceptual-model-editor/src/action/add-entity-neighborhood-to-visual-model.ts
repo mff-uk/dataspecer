@@ -34,7 +34,6 @@ import { getViewportCenterForClassPlacement } from "./utilities";
 import { EntityModel } from "@dataspecer/core-v2";
 import { isSemanticModelAttributeUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
-
 /**
  * Adds entity's neighborhood to visual model. That is:
  * For classes it is classes connected to semantic class or class profile identified by {@link identifier}.

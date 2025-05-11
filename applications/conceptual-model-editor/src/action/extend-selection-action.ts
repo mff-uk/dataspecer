@@ -8,19 +8,19 @@ import {
   SemanticModelRelationship,
   isSemanticModelClass,
   isSemanticModelRelationship
- } from "@dataspecer/core-v2/semantic-model/concepts";
+} from "@dataspecer/core-v2/semantic-model/concepts";
 import {
   SemanticModelRelationshipUsage,
   isSemanticModelClassUsage,
   isSemanticModelRelationshipUsage
- } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import {
   VisualEntity,
   VisualModel,
   isVisualNode,
   isVisualProfileRelationship,
   isVisualRelationship
- } from "@dataspecer/core-v2/visual-model";
+} from "@dataspecer/core-v2/visual-model";
 import { Selections } from "./filter-selection-action";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import {
