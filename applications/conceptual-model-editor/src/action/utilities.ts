@@ -13,8 +13,8 @@ import { ClassesContextType } from "../context/classes-context";
 import { ExtensionType, VisibilityFilter, extendSelectionAction } from "./extend-selection-action";
 import { Selections } from "./filter-selection-action";
 import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelAttributeProfile } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { addToRecordArray } from "@/utilities/functional";
+import { isSemanticModelAttributeProfile } from "@/dataspecer/semantic-model";
 
 const LOG = createLogger(import.meta.url);
 
