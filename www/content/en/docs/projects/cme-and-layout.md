@@ -31,7 +31,7 @@ To improve the experience we introduced layouting, highlighting, groups, alignme
 
 #### I am good, get me into action
 ##### How to launch
-You can launch `CME` either [locally using guide](https://radstr-project-branch.dataspecer-www.pages.dev/docs/projects/cme-and-layout/#how-to-run-cme-and-the-rest-locally-but-may-get-deprecated-over-time) or you can run the [deployed version](https://radstr-project-branch.dataspecer.pages.dev/conceptual-model-editor/diagram). Every push to GitHub deploys Dataspecer using CloudFlare. So if you want to visit some specific version, you can do that by clicking the ✔️ next to the commit message.
+You can launch `CME` either [locally using guide](https://radstr-project-branch.dataspecer-www.pages.dev/docs/projects/cme-and-layout/#how-to-run-cme-and-the-rest-locally-but-may-get-deprecated-over-time) or you can run the [deployed version](https://radstr-project-branch.dataspecer.pages.dev/conceptual-model-editor/diagram). Every push to [GitHub](https://github.com/mff-uk/dataspecer/tree/radstr-project-branch) deploys Dataspecer using CloudFlare. So if you want to visit some specific version, you can do that by clicking the ✔️ next to the commit message.
 
 Assuming you opened the deployed version through the [given link](https://radstr-project-branch.dataspecer.pages.dev/conceptual-model-editor/diagram), now you are inside CME.
 
