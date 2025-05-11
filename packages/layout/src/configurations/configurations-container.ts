@@ -113,7 +113,9 @@ export class ConfigurationsContainer {
     }
 
 
-    // TODO: Add Docs
+    /**
+     * Resets the iterator, which has action to run before the main algorithm.
+     */
     resetLayoutActionsBeforeRunIterator() {
         this.layoutActionsIteratorBefore = this.createLayoutActionsBeforeRunIterator();
     }
@@ -132,7 +134,9 @@ export class ConfigurationsContainer {
     }
 
 
-    // TODO: Add Docs
+    /**
+     * @returns Returns true if we perform generalization run before running the main algorithm.
+     */
     isGeneralizationPerformedBefore(): boolean {
         if(this.currentLayoutAction.isInActionsBefore) {
             for(let i = 0; i < this.currentStepInLayoutActionsToRunBefore; i++) {

@@ -33,8 +33,6 @@ export class AreaMetric implements Metric {
             areaMetric = 1 / areaMetric;
         }
 
-        // TODO RadStr: Debug
-        console.info({areaMetric, area, idealArea});
         return {
             absoluteValue: area,
             relativeValue: areaMetric

@@ -59,15 +59,11 @@ export class ElkGraphTransformer implements GraphTransformer {
         configurations?: ElkConfigurationsContainer,
         elkNodeToSet?: ElkNode
     ): ElkNode {
-        console.info("convertGraphToLibraryRepresentationInternal", {...graph})
-
         let nodes = Object.entries(graph.nodes).map(([id, node]) => {
             if(node.isConsideredInLayout === false) {
                 return null;
             }
 
-            console.warn("Visual node copy before createElkNode");
-            console.warn(_.cloneDeep(node));
             if(node.isProfile) {
                 return this.createElkNode(
                     id, configurations, node, elkNodeToSet, true,
@@ -86,22 +82,10 @@ export class ElkGraphTransformer implements GraphTransformer {
         const edges = [];
 
         Object.entries(graph.nodes).map(([id, node]) => {
-            // TODO RadStr: Remove the commented code after debugging visual model
-            // console.log("node");
-            // console.log(node);
-            // console.log(node.getAllOutgoingEdges());
             for(const edge of node.getAllOutgoingEdges()) {
                 if(edge.isConsideredInLayout === false) {
                     continue;
                 }
-
-
-                // TODO RadStr: Remove the commented code after debugging visual model
-                // console.log("Created edge:");
-                // console.log("START:");
-                // console.log(edge.start.node?.iri ?? edge.start.id);
-                // console.log("END:");
-                // console.log(edge.end.node?.iri ?? edge.end.id);
 
                 const source = edge.reverseInLayout === false ? edge.start.id : edge.end.id;
                 const target = edge.reverseInLayout === false ? edge.end.id : edge.start.id;
@@ -149,9 +133,6 @@ export class ElkGraphTransformer implements GraphTransformer {
                 };
             }
         }
-
-        console.log("elkGraph after conversion");
-        console.log(_.cloneDeep(elkGraph));
 
         return elkGraph;
     }
@@ -223,14 +204,6 @@ export class ElkGraphTransformer implements GraphTransformer {
      */
     recursivelyUpdateGraphBasedOnElkNode(elkNode: ElkNode, graphToBeUpdated: Graph, referenceX: number, referenceY: number, shouldUpdateEdges: boolean): VisualEntitiesType {
         let visualEntities : VisualEntitiesType = [];
-        // TODO RadStr: Debug prints, just remove later
-        console.info("referenceX");
-        console.info({...elkNode});
-        console.info(elkNode);
-        console.info(referenceX);
-        console.info(referenceY);
-
-        console.info("graphToBeUpdated.mainGraph", graphToBeUpdated.mainGraph);
 
         for(let ch of elkNode.children) {
             const newPosition = this.convertElkNodeToPosition(ch, referenceX, referenceY);
@@ -441,14 +414,6 @@ export class ElkGraphTransformer implements GraphTransformer {
                 ...layoutOptions
             },
         };
-
-        if(parentElkNode !== undefined && parentElkNode.id.startsWith("subgraph")) {
-            console.info("parentElkNode.id.startsWith(subgraph)");
-            console.info({...node});
-            console.info({...parentElkNode});
-            console.info(parentElkNode);
-            console.info(parentElkNode.width);
-        }
 
         const currentLayoutAction = configurations.currentLayoutAction?.action as (AlgorithmConfiguration<UserGivenAlgorithmConfigurationBase>);
 

@@ -81,6 +81,9 @@ export interface NodeDimensionQueryHandler {
 
 export type XY = Omit<Position, "anchored">;
 
+// Just writing again, what is already written in README, so check README and if you don't understand
+// this low level explanation may help
+
 // The layout works like this. The layout package gets configuration from user, usually inserted through dialog.
 // This configuration is converted to different set of configurations, this looked like over-engineering at first, but actually after working with it a bit, while
 // programming my own algorithm, it is quite flexible.
@@ -88,8 +91,6 @@ export type XY = Omit<Position, "anchored">;
 // 1) Actions which should be performed before we start the layouting. Meaning layouting in sense that we enter the loop which runs the algorithm 1 or more times to find the best layout.
 // 2) Then actions which should be performed in the loop (For example run random layout, followed by stress layout, followed by layered algorithm)
 // The actions in 1) and 2) are either GraphConversionActionConfigurations or AlgorithmConfiguration, depending on the type of action
-// TODO: Write the important places here to look at if you want to program your own algorithm
-
 
 
 /**
@@ -112,15 +113,12 @@ export async function performLayout(
 	nodeDimensionQueryHandler?: NodeDimensionQueryHandler,
 	explicitAnchors?: ExplicitAnchors
 ): Promise<LayoutedVisualEntities> {
-	console.log("config");
-	console.log(config);
-
 	const visualEntitiesPromise = performLayoutInternal(visualModel, semanticModels, entitiesToLayout, config, nodeDimensionQueryHandler, explicitAnchors);
 	return visualEntitiesPromise;
 }
 
 
-// TODO PRQuestion: Maybe just return VisualEntities - so without the information about entity being an outsider
+// TODO: Maybe just return VisualEntities - so without the information about entity being an outsider
 //                  On one side, I have the info in nice format so why shouldn't I give it out
 //                  On other side, the caller should know about the outsiders, and the API - especially here should be probably minimal
 /**
@@ -139,9 +137,6 @@ export async function performLayoutOfVisualModel(
 	nodeDimensionQueryHandler?: NodeDimensionQueryHandler,
 	explicitAnchors?: ExplicitAnchors
 ): Promise<LayoutedVisualEntities> {
-	console.log("config");
-	console.log(config);
-
 	const entitiesToLayout: VisualEntitiesWithOutsiders = {
 		visualEntities: [...visualModel.visualModel.getVisualEntities().keys()],
 		outsiders: visualModel.outsiders
@@ -222,7 +217,7 @@ function performLayoutInternal(
 	});
 
 	if(visualEntitiesPromise == undefined) {
-		console.log("LAYOUT FAILED")
+		console.error("LAYOUT FAILED")
 		throw new Error("Layout Failed");
 	}
 
@@ -239,13 +234,7 @@ export async function performLayoutFromGraph(
 	config: UserGivenAlgorithmConfigurations
 ): Promise<Record<string, MetricResultsAggregation>> {
 	const configurations = ConfigurationFactory.createConfigurationsContainer(config);
-
 	const resultingAggregationsPromise = performLayoutingBasedOnConfigurations(graph, configurations);
-
-	// TODO: DEBUG
-	// console.log("THE END");
-	// throw new Error("THE END");
-
 	return resultingAggregationsPromise;
 }
 
@@ -342,7 +331,6 @@ const runMainLayoutAlgorithm = async (
 			else if(action instanceof DefaultAlgorithmConfiguration) {
 				const layoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[action.algorithmName];
 				if(action.algorithmPhasesToCall === "ONLY-PREPARE" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
-					console.info("workGraph", {...workGraph});
 					layoutAlgorithm.prepareFromGraph(workGraph, configurations);
 				}
 				if(action.algorithmPhasesToCall === "ONLY-RUN" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
@@ -370,9 +358,10 @@ const runMainLayoutAlgorithm = async (
 		computedMetricsData.metricResultAggregations[key].avg.relativeValue /= numberOfAlgorithmRuns;
 	}
 
-	console.log("Metrics aggregations result: ", computedMetricsData.metricResultAggregations);
-	console.log("Metrics all results: ", computedMetricsData.metricResults);
-	console.log(await computedMetricsData.metricResultAggregations["total"].max.graphPromise);
+	// TODO RadStr: Just for debug - I am keeping it here for future
+	// console.log("Metrics aggregations result: ", computedMetricsData.metricResultAggregations);
+	// console.log("Metrics all results: ", computedMetricsData.metricResults);
+	// console.log(await computedMetricsData.metricResultAggregations["total"].max.graphPromise);
 	return computedMetricsData.metricResultAggregations;
 }
 

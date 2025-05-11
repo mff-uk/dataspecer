@@ -32,7 +32,6 @@ export class VisualNodeComplete {
         isAnchored?: boolean
     ) {
         if(useCopyOfCoreVisualNode) {
-            // TODO: Maybe deep copy?
             this.coreVisualNode = {...coreVisualNode};
         }
         else {
@@ -262,8 +261,6 @@ export class DefaultNode implements Node {
       else {
           addToRecordArray(semanticEntityRepresentingNode.id, this, this.mainGraph.semanticNodeToVisualMap);
       }
-
-      console.info("Created node - constructor", this);
   }
 
   static createNewVisualNodeBasedOnSemanticData(
