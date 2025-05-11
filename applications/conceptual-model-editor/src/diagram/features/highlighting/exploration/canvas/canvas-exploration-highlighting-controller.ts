@@ -27,6 +27,9 @@ import { ReactPrevSetStateType } from "../../../../utilities";
 // we would probably have to pass in another property in the data property of edge
 // and that it is too complicated with almost nothing to gain
 
+/**
+ * The controller of highlighting exploration mode for canvas.
+ */
 export const useExplorationCanvasHighlightingController = (
   setNodes: ReactPrevSetStateType<Node<any>[]>,
   setEdges: ReactPrevSetStateType<Edge<any>[]>
@@ -43,6 +46,9 @@ export const useExplorationCanvasHighlightingController = (
     setShouldShrinkCatalog
   } = useExploration();
 
+  /**
+   * Changes the state of context to signalize change in highlighting.
+   */
   const changeHighlight = (
     startingNodesIdentifiers: string[],
     reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
@@ -132,8 +138,6 @@ export const useExplorationCanvasHighlightingController = (
           });
         });
 
-        // TODO RadStr: If we will use the black color for edges, then there is no need to reset the edges here,
-        // because we have to change the color anyways
         setEdges(prevEdges => {
           return prevEdges.map(edge => {
             return {
@@ -160,6 +164,9 @@ type HighlightedNodesContainers = {
     mainHighlightedNodes: Node[];
 };
 
+/**
+ * Creates copies of the nodes and puts to them to correct style for highlighting.
+ */
 function createHighlightedNodes(
   nodes: Node<any>[],
   highlightLevels: Record<string, number>
@@ -189,6 +196,9 @@ function createHighlightedNodes(
   return { mainHighlightedNodes, highlightedNodes };
 }
 
+/**
+ * Sets the style of edges based on {@link mainHighlightedNodes}.
+ */
 function setEdgesHighlighting(
   mainHighlightedNodes: Node[],
   setEdges: (value: (prevState: Edge<any>[]) => Edge<any>[]) => void,
@@ -225,6 +235,9 @@ function setEdgesHighlighting(
   });
 }
 
+/**
+ * Resets the highlighting of entities back to default colors.
+ */
 function resetHighlightingToDefault(
   setNodes: (value: (prevState: Node<any>[]) => Node<any>[]) => void,
   setEdges: (value: (prevState: Edge<any>[]) => Edge<any>[]) => void,
@@ -255,9 +268,11 @@ function resetHighlightingToDefault(
 }
 
 /**
+ * Returns class name, which removes all the parts related to highlighting
+ * and then puts in the the {@link replaceClassName}
  * @param isReplacingNodeClassNames If set to false then replacing edge class names
  */
-export const replaceClassNameWith = (
+const replaceClassNameWith = (
   className: string | undefined,
   replaceClassName: string,
   shouldAddAdditionalAnimation: boolean,
@@ -312,7 +327,7 @@ const edgeHighlightOpacityMap: Record<HighlightLevel, number> = {
 };
 
 // Actually probably no need to export, because we are using styles instead of classnames for the highlighting selection
-export const nodesHighlightingLevelToClassnameMap: Record<HighlightLevel, string> = Object.freeze({
+const nodesHighlightingLevelToClassnameMap: Record<HighlightLevel, string> = Object.freeze({
   "no-highlight": "node-highlight-classic",
   "highlight-opposite": "node-highlight-opposite",
   0: "node-highlight-main",

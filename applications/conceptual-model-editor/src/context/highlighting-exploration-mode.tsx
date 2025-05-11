@@ -4,19 +4,55 @@ import React, { useContext, useMemo, useState } from "react";
  * Highlighting exploration interface
  */
 export interface Exploration {
+  /**
+   * Tells us if the exploration mode is on.
+   */
   isHighlightingOn: boolean;
+  /**
+   * Turns on/off the exploration mode
+   */
   toggleHighlighting: () => void;
-  //
+
+  /**
+   * Is the map which maps visual identifier of node to its highlight level
+   */
   highlightLevels: Record<string, number>;
+
+  /**
+   * Is used to set the {@link highlightLevels}
+   */
   setHighlightLevels: React.Dispatch<React.SetStateAction<Record<string, number>>>;
-  //
+
+  /**
+   * Maps semantic identifiers of nodes to their visual ones. This is here for optimization.
+   */
   semanticToVisualIdentifierMap: Record<string, string>;
+
+  /**
+   * Sets he {@link semanticToVisualIdentifierMap}
+   */
   setSemanticToVisualIdentifierMap: React.Dispatch<React.SetStateAction<Record<string, string>>>;
-  //
+
+  /**
+   * Extra variable, which can disable the highlighting, it is again used for performace,
+   * since sometimes we want to say that we don't want to react to actions causing highlighting
+   */
   isHighlightingInternallyOn: boolean;
+
+  /**
+   * Sets the {@link isHighlightingInternallyOn}
+   */
   setIsHighlightingInternallyOn: React.Dispatch<React.SetStateAction<boolean>>;
-  //
+
+  /**
+   * Sometimes we want to shrink the catalog and sometimes not, for example when the highlighting
+   * comes from catalog, then we don't want to shrink since it would break everything
+   */
   shouldShrinkCatalog: boolean;
+
+  /**
+   * Sets the {@link shouldShrinkCatalog}
+   */
   setShouldShrinkCatalog: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
