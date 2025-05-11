@@ -148,7 +148,9 @@ interface DialogActions {
     onConfirmCallback: ((state: AttributeDialogState | AttributeProfileDialogState, createdAttributeIdentifier: string) => void) | null
   ) => void;
 
-  // TODO RadStr: Document
+  /**
+   * Open dialog to edit node's attributes.
+   */
   openEditNodeAttributesDialog: (nodeIdentifier: string) => void;
 
   /**
@@ -173,10 +175,6 @@ interface DialogActions {
  * Contains actions used for manipulation with visual model .
  */
 interface VisualModelActions {
-  // TODO PRQuestion: How should we document these action methods? Since their implementation is usually
-  //                  within the .*Action methods defined in different files in this directory.
-  //                  So should the actual documentation look like: For further information about the action see {@link ...Action} method.
-  //                  Can be seen on the centerViewportToVisualEntity method, where the Action method is already documented
 
   /**
    * Adds semantic entities identified by identifier to currently active visual model at optional position.
@@ -223,12 +221,22 @@ interface VisualModelActions {
    */
   addRelationProfileToVisualModel: (model: string, identifier: string) => void;
 
-  // TODO RadStr: Document
+  /**
+   * Add attribute to visual model, that is put the {@link attribute} each node representing {@link domainClass}.
+   * Add it only to those nodes, which don't have it yet.
+   */
   addAttributeToVisualModel: (attribute: string, domainClass: string | null) => void;
+
+  /**
+   * Moves {@link attribute} one position up on {@link domainNode} of attributes.
+   */
   shiftAttributeUp: (attribute: string, domainNode: string | null) => void;
+
+  /**
+   * Moves {@link attribute} one position down on {@link domainNode} of attributes.
+   */
   shiftAttributeDown: (attribute: string, domainNode: string | null) => void;
 
-  // TODO PRQuestion - different docs from this method and for the actual action
   /**
    * Uses the identifiers of the semantic entities unlike the {@link removeFromVisualModelByVisual},
    * which uses the visual identifiers.
@@ -247,7 +255,9 @@ interface VisualModelActions {
    */
   removeFromVisualModelByVisual: (identifiers: string[]) => void;
 
-  // TODO RadStr: Document
+  /**
+   * Remove all occurrences of {@link attributes} from visual model
+   */
   removeAttributesFromVisualModel: (attributes: string[]) => void;
 
   /**
@@ -288,11 +298,15 @@ interface VisualModelActions {
    */
   openEditVisualModelDialog: (identifier: string) => void;
 
-  //
-  // TODO PRQuestion: Again document using {@link .*Action} or not?
+  /**
+   * Add entities from given semantic model identified by
+   * {@link semanticModel} to currently active visual model.
+   */
   addEntitiesFromSemanticModelToVisualModel: (semanticModel: EntityModel | string) => Promise<void>;
 
-  // TODO PRQuestion: Again document using {@link .*Action} or not?
+  /**
+   * Remove all visual representations of entities present in {@link semanticModel} from active visual model.
+   */
   removeEntitiesInSemanticModelFromVisualModel: (semanticModel: EntityModel | string) => void;
 
   /**
@@ -414,7 +428,7 @@ function noOperation() {
   LOG.error("[ACTIONS] Using uninitialized actions context!");
 }
 
-// TODO PRQuestion: I added back the async operation for layout action (but maybe it isn't action?).
+// TODO PRQuestion: I added back the async operation for layout action, because there was no other way.
 function noOperationAsync() {
   LOG.error("[ACTIONS] Using uninitialized actions context!");
   return Promise.resolve();
