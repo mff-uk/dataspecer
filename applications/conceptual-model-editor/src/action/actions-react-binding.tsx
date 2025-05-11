@@ -190,10 +190,6 @@ interface DialogActions {
  * Contains actions used for manipulation with visual model .
  */
 interface VisualModelActions {
-  // TODO PRQuestion: How should we document these action methods? Since their implementation is usually
-  //                  within the .*Action methods defined in different files in this directory.
-  //                  So should the actual documentation look like: For further information about the action see {@link ...Action} method.
-  //                  Can be seen on the centerViewportToVisualEntity method, where the Action method is already documented
 
   /**
    * Adds semantic entities identified by identifier to currently active visual model at optional position.
