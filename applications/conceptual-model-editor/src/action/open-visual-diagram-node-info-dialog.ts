@@ -7,6 +7,9 @@ import { ModelGraphContextType } from "@/context/model-context";
 import { prepareDataForVisualDiagramNodeDialog } from "./open-edit-visual-diagram-node-dialog";
 import { createVisualDiagramNodeInfoDialog } from "@/dialog/visual-model/visual-diagram-node/show-info-about-visual-diagram-node/create-visual-diagram-node-info-dialog";
 
+/**
+ * Open dialog containing info about {@link visualDiagramNode}.
+ */
 export function openVisualDiagramNodeInfoDialogAction(
   notifications: UseNotificationServiceWriterType,
   options: Options,

@@ -12,8 +12,11 @@ import { ModelGraphContextType } from "../context/model-context";
 import { ClassesContextType } from "../context/classes-context";
 import { ExtensionType, VisibilityFilter, extendSelectionAction } from "./extend-selection-action";
 import { Selections } from "./filter-selection-action";
-import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelAttributeUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelAttribute, SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelAttributeUsage, SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelAttributeProfile } from "@/dataspecer/semantic-model";
+import { getDomainAndRange } from "@/util/relationship-utils";
+import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 const LOG = createLogger(import.meta.url);
 
@@ -431,3 +434,43 @@ export type Coordinate = "x" | "y";
 export const getOtherCoordinate = (coordinate: Coordinate): Coordinate => {
   return coordinate === "x" ? "y" : "x";
 };
+
+
+/**
+ * @returns The visual content (attributes) of node to relevant values existing in semantic model.
+ */
+export function getVisualNodeContentBasedOnExistingEntities(
+  classes: ClassesContextType,
+  entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelClassProfile,
+): string[] {
+  const nodeContent: string[] = [];
+  const attributes = classes.relationships.filter(isSemanticModelAttribute);
+  const attributesUsages = classes.usages.filter(isSemanticModelAttributeUsage);
+  const attributesProfiles = classes.relationshipProfiles.filter(isSemanticModelAttributeProfile);
+
+  const nodeAttributes = attributes
+    .filter(isSemanticModelAttribute)
+    .filter((attr) => getDomainAndRange(attr).domain?.concept === entity.id);
+
+  const nodeAttributeUsages = attributesUsages
+    .filter(isSemanticModelAttributeUsage)
+    .filter((attr) => getDomainAndRange(attr).domain?.concept === entity.id);
+
+  const nodeAttributeProfiles = attributesProfiles
+    .filter(isSemanticModelAttributeProfile)
+    .filter((attr) => getDomainAndRange(attr).domain?.concept === entity.id);
+
+  for (const attribute of nodeAttributes) {
+    nodeContent.push(attribute.id);
+  }
+
+  for (const attributeUsage of nodeAttributeUsages) {
+    nodeContent.push(attributeUsage.id);
+  }
+
+  for (const attributeProfile of nodeAttributeProfiles) {
+    nodeContent.push(attributeProfile.id);
+  }
+
+  return nodeContent;
+}

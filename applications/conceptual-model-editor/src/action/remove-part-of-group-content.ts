@@ -31,7 +31,8 @@ export function removePartOfGroupContentAction(
   const newGroupContent = group.content.filter(elementInGroup => {
     if(contentToRemove.includes(elementInGroup)) {
       if(shouldReportRemovalOfInvalidContent) {
-        notifications.error("Continuing in removal of group's content, but one of given element is not in present in group");
+        notifications.error(
+          "Continuing in removal of group's content, but one of given element is not in present in group");
       }
       return false;
     }
