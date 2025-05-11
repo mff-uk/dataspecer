@@ -417,6 +417,8 @@ export const translations: Record<string, string | Function> = {
   "extend-selection-class-profile-name": "Class profiles",
   "extend-by-incoming-header": "Incoming",
   "extend-by-outgoing-header": "Outgoing",
+  "extend-selection-dialog.extend-button": "Extend",
+  "extend-selection-dialog.only-edges-checkbox": "Only edges",
   //
   "show-all-classes-from-semantic-model-to-visual-model-button.title": "Add all entities from semantic model to visual model",
   "remove-all-classes-contained-semantic-model-from-visual-model-button.title": "Remove all entities from semantic model from the visual model",
