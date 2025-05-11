@@ -117,7 +117,7 @@ export async function findPositionForNewNodesUsingLayouting(
   classes: ClassesContextType,
   identifiers: string[],
 ): Promise<Record<string, XY>> {
-  const identifiersWithPositions: Record<string, XY> = {};
+  const identifierToPositionMap: Record<string, XY> = {};
   const explicitAnchors: ExplicitAnchors = {
     notAnchored: [],
     anchored: [],
@@ -138,7 +138,7 @@ export async function findPositionForNewNodesUsingLayouting(
     computedInitialPosition.position.x += Math.floor(Math.random() * maxDeviation) - maxDeviation / 2;
     computedInitialPosition.position.y += Math.floor(Math.random() * maxDeviation) - maxDeviation / 2;
     explicitAnchors.notAnchored.push(identifier);
-    identifiersWithPositions[identifier] = computedInitialPosition.position;
+    identifierToPositionMap[identifier] = computedInitialPosition.position;
   }
 
   const configuration = getDefaultUserGivenAlgorithmConfigurationsFull();
@@ -154,7 +154,7 @@ export async function findPositionForNewNodesUsingLayouting(
   // anchored (for example when they are not connected by any edge).
   const layoutResults = await layoutActiveVisualModel(
     notifications, classes, diagram, graph, visualModel, configuration,
-    explicitAnchors, false, identifiersWithPositions, false);
+    explicitAnchors, false, identifierToPositionMap, false);
 
   for(const identifier of identifiers) {
     // https://stackoverflow.com/questions/50959135/detecting-that-a-function-returned-void-rather-than-undefined
@@ -168,12 +168,12 @@ export async function findPositionForNewNodesUsingLayouting(
       })?.[1].visualEntity;
 
       if(newVisualEntityForNewNode !== undefined && isVisualNode(newVisualEntityForNewNode)) {
-        identifiersWithPositions[identifier] = newVisualEntityForNewNode.position;
+        identifierToPositionMap[identifier] = newVisualEntityForNewNode.position;
       }
     }
   }
 
-  return identifiersWithPositions;
+  return identifierToPositionMap;
 }
 
 //
