@@ -7,7 +7,7 @@ import { isVisualProfileRelationship, isVisualRelationship } from "@dataspecer/c
 import { ActionsTestSuite, notificationMockup, TestedSemanticConnectionType } from "./test/actions-test-suite";
 import { extendSelectionAction, ExtensionType, NodeSelection, VisibilityFilter } from "./extend-selection-action";
 
-test("Test extension by relationship targets - visual identifiers", async () => {
+test("Test extension by relationship targets - visual identifiers", () => {
   const connectionType = TestedSemanticConnectionType.Association;
 
   const {
@@ -30,9 +30,9 @@ test("Test extension by relationship targets - visual identifiers", async () => 
     areIdentifiersFromVisualModel: true
   };
 
-  const result = await extendSelectionAction(
+  const result = extendSelectionAction(
     notificationMockup, graph, classesContext, inputNodeSelection,
-    extensionType, visibilityFilter, false, semanticModelFilter);
+    extensionType, visibilityFilter, semanticModelFilter);
 
   const edgesAsObjects = edges
     .map(edge => visualModel.getVisualEntity(edge))
@@ -44,10 +44,11 @@ test("Test extension by relationship targets - visual identifiers", async () => 
   expect(result.selectionExtension.nodeSelection[0]).toBe(expectedTargetEdge!.visualTarget);
   expect(result.selectionExtension.edgeSelection.length).toEqual(1);
   expect(result.selectionExtension.edgeSelection[0]).toBe(expectedTargetEdge!.identifier);
-  expect(result.nodesToEdgesMapping[result.selectionExtension.nodeSelection[0]][0]).toEqual(expectedTargetEdge!.identifier);
+  expect(result.nodesToEdgesMapping[result.selectionExtension.nodeSelection[0]][0])
+    .toEqual(expectedTargetEdge!.identifier);
 });
 
-test("Test extension by Generalization targets - visual identifiers", async () => {
+test("Test extension by Generalization targets - visual identifiers", () => {
   const connectionType = TestedSemanticConnectionType.Generalization;
 
   const {
@@ -70,9 +71,9 @@ test("Test extension by Generalization targets - visual identifiers", async () =
     areIdentifiersFromVisualModel: true
   };
 
-  const result = await extendSelectionAction(
+  const result = extendSelectionAction(
     notificationMockup, graph, classesContext, inputNodeSelection,
-    extensionType, visibilityFilter, false, semanticModelFilter);
+    extensionType, visibilityFilter, semanticModelFilter);
 
   const edgesAsObjects = edges
     .map(edge => visualModel.getVisualEntity(edge))
@@ -84,10 +85,11 @@ test("Test extension by Generalization targets - visual identifiers", async () =
   expect(result.selectionExtension.nodeSelection[0]).toBe(expectedTargetEdge!.visualTarget);
   expect(result.selectionExtension.edgeSelection.length).toEqual(1);
   expect(result.selectionExtension.edgeSelection[0]).toBe(expectedTargetEdge!.identifier);
-  expect(result.nodesToEdgesMapping[result.selectionExtension.nodeSelection[0]][0]).toEqual(expectedTargetEdge!.identifier);
+  expect(result.nodesToEdgesMapping[result.selectionExtension.nodeSelection[0]][0])
+    .toEqual(expectedTargetEdge!.identifier);
 });
 
-test("Test extension by Relationship profiles targets - visual identifiers", async () => {
+test("Test extension by Relationship profiles targets - visual identifiers", () => {
   const connectionType = TestedSemanticConnectionType.AssociationProfile;
 
   const {
@@ -110,9 +112,9 @@ test("Test extension by Relationship profiles targets - visual identifiers", asy
     areIdentifiersFromVisualModel: true
   };
 
-  const result = await extendSelectionAction(
+  const result = extendSelectionAction(
     notificationMockup, graph, classesContext, inputNodeSelection,
-    extensionType, visibilityFilter, false, semanticModelFilter);
+    extensionType, visibilityFilter, semanticModelFilter);
 
   const edgesAsObjects = edges
     .map(edge => visualModel.getVisualEntity(edge))
@@ -124,10 +126,11 @@ test("Test extension by Relationship profiles targets - visual identifiers", asy
   expect(result.selectionExtension.nodeSelection[0]).toBe(expectedTargetEdge!.visualTarget);
   expect(result.selectionExtension.edgeSelection.length).toEqual(1);
   expect(result.selectionExtension.edgeSelection[0]).toBe(expectedTargetEdge!.identifier);
-  expect(result.nodesToEdgesMapping[result.selectionExtension.nodeSelection[0]][0]).toEqual(expectedTargetEdge!.identifier);
+  expect(result.nodesToEdgesMapping[result.selectionExtension.nodeSelection[0]][0])
+    .toEqual(expectedTargetEdge!.identifier);
 });
 
-test("Test extension by Relationship class profiles targets - visual identifiers", async () => {
+test("Test extension by Relationship class profiles targets - visual identifiers", () => {
   const connectionType = TestedSemanticConnectionType.Association;
 
   const {
@@ -161,9 +164,9 @@ test("Test extension by Relationship class profiles targets - visual identifiers
     areIdentifiersFromVisualModel: true
   };
 
-  const result = await extendSelectionAction(
+  const result = extendSelectionAction(
     notificationMockup, graph, classesContext, inputNodeSelection,
-    extensionType, visibilityFilter, false, semanticModelFilter);
+    extensionType, visibilityFilter, semanticModelFilter);
 
   const edgesAsObjects = [...visualModel.getVisualEntities().entries()].map(visual => visual[1])
     .filter(isVisualProfileRelationship);
@@ -173,5 +176,6 @@ test("Test extension by Relationship class profiles targets - visual identifiers
   expect(result.selectionExtension.nodeSelection[0]).toBe(expectedTargetEdge!.visualTarget);
   expect(result.selectionExtension.edgeSelection.length).toEqual(1);
   expect(result.selectionExtension.edgeSelection[0]).toBe(expectedTargetEdge!.identifier);
-  expect(result.nodesToEdgesMapping[result.selectionExtension.nodeSelection[0]][0]).toEqual(expectedTargetEdge!.identifier);
+  expect(result.nodesToEdgesMapping[result.selectionExtension.nodeSelection[0]][0])
+    .toEqual(expectedTargetEdge!.identifier);
 });

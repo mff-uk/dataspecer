@@ -173,16 +173,16 @@ type ComputedPositionForNodePlacement = {
 /**
  * @returns The barycenter of nodes associated to {@link classToFindAssociationsFor} and boolean variable saying if the position was explicitly put to middle of viewport.
  */
-export const computeRelatedAssociationsBarycenterAction = async (
+export const computeRelatedAssociationsBarycenterAction = (
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   visualModel: WritableVisualModel,
   diagram: UseDiagramType,
   classesContext: ClassesContextType,
   classToFindAssociationsFor: string,
-): Promise<ComputedPositionForNodePlacement> => {
-  const associatedClasses: string[] = (await findAssociatedClassesAndClassProfiles(
-    notifications, graph, classesContext, classToFindAssociationsFor)).selectionExtension.nodeSelection;
+): ComputedPositionForNodePlacement => {
+  const associatedClasses: string[] = findAssociatedClassesAndClassProfiles(
+    notifications, graph, classesContext, classToFindAssociationsFor).selectionExtension.nodeSelection;
   const associatedPositions = associatedClasses.flatMap(associatedNodeIdentifier => {
     const visualEntities = visualModel.getVisualEntitiesForRepresented(associatedNodeIdentifier);
     if(visualEntities.length === 0) {
@@ -235,18 +235,18 @@ const computeBarycenter = (positions: Position[], diagram: UseDiagramType): Comp
   };
 };
 
-const findAssociatedClassesAndClassProfiles = async (
+const findAssociatedClassesAndClassProfiles = (
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   classesContext: ClassesContextType,
   classToFindAssociationsFor: string
 ) => {
   // Is synchronous for this case
-  const selection = await extendSelectionAction(notifications, graph, classesContext,
+  const selection = extendSelectionAction(notifications, graph, classesContext,
     { areIdentifiersFromVisualModel: false, identifiers: [classToFindAssociationsFor] },
     [ExtensionType.Association, ExtensionType.Generalization,
       ExtensionType.ClassProfile, ExtensionType.ProfileEdge],
-    VisibilityFilter.OnlyVisibleNodes, false, null);
+    VisibilityFilter.OnlyVisibleNodes, null);
   return selection;
 }
 
