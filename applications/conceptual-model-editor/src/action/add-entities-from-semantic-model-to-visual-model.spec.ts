@@ -544,6 +544,9 @@ const createTestDiagramForNodePlacement = () => {
         ): void {
           throw new Error("Function not implemented.");
         },
+        openAlignmentMenu: function (_sourceNode: Node, _canvasPosition: Position): void {
+          throw new Error("Function not implemented.");
+        }
       }
 
       return diagramActions;
