@@ -24,7 +24,8 @@ test("Test shift attribute - up and down", () => {
   const newAttributes = [];
   //
   for(let i = 0; i < 3; i++) {
-    const createdAttributeData = createSemanticAttributeTestVariant(models, `${i}`, cmeModels[0].identifier, `attribute-${i}`);
+    const createdAttributeData = createSemanticAttributeTestVariant(
+      models, `${i}`, cmeModels[0].identifier, `attribute-${i}`);
     newAttributes.push(createdAttributeData);
     addSemanticAttributeToVisualModelAction(
       notificationMockup, visualModel, "0", createdAttributeData.identifier, false);
@@ -56,7 +57,8 @@ test("Test shift attribute - up and down over boundary", () => {
   const newAttributes = [];
   //
   for(let i = 0; i < 3; i++) {
-    const createdAttributeData = createSemanticAttributeTestVariant(models, `${i}`, cmeModels[0].identifier, `attribute-${i}`);
+    const createdAttributeData = createSemanticAttributeTestVariant(
+      models, `${i}`, cmeModels[0].identifier, `attribute-${i}`);
     newAttributes.push(createdAttributeData);
     addSemanticAttributeToVisualModelAction(
       notificationMockup, visualModel, "0", createdAttributeData.identifier, false);
@@ -211,7 +213,11 @@ const _createEmptyClassesContextType = (): ClassesContextType => {
   return classes;
 };
 
-const createNewVisualNodeForTesting = (visualModel: WritableVisualModel, model: string, semanticIdentifierAsNumber: number) => {
+const createNewVisualNodeForTesting = (
+  visualModel: WritableVisualModel,
+  model: string,
+  semanticIdentifierAsNumber: number
+) => {
   const visualId = visualModel.addVisualNode({
     representedEntity: semanticIdentifierAsNumber.toString(),
     model,

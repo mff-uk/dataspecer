@@ -212,13 +212,18 @@ test("Test removing part of visual group", () => {
   //
   removePartOfGroupContentAction(notificationMockup, visualModel, group1, [visualIdentifiers[0]], false);
   expect(visualModel.getVisualEntity(group1)).toEqual(null);
-  expect(visualModel.getVisualEntity(group3)).toEqual(null);      // Because the group will have only 1 underlying group therefore it can be destroyed
+  // Because the group will have only 1 underlying group therefore it can be destroyed
+  expect(visualModel.getVisualEntity(group3)).toEqual(null);
   expect(visualModel.getVisualEntities().size).toEqual(5);
 });
 
 //
 
-export const createNewVisualNodeForTesting = (visualModel: WritableVisualModel, model: string, semanticIdentifierAsNumber: number) => {
+export const createNewVisualNodeForTesting = (
+  visualModel: WritableVisualModel,
+  model: string,
+  semanticIdentifierAsNumber: number
+) => {
   const visualId = visualModel.addVisualNode({
     representedEntity: semanticIdentifierAsNumber.toString(),
     model,

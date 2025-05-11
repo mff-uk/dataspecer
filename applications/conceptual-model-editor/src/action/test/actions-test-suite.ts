@@ -15,23 +15,52 @@ import {
 import { UseDiagramType } from "../../diagram/diagram-hook";
 import { UseNotificationServiceWriterType } from "../../notification/notification-service-context";
 import { ClassesContextType } from "@/context/classes-context";
-import { isSemanticModelAttribute, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship, SEMANTIC_MODEL_GENERALIZATION, SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { createClass, CreatedEntityOperationResult, createGeneralization, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
+import {
+  isSemanticModelAttribute,
+  isSemanticModelClass,
+  isSemanticModelGeneralization,
+  isSemanticModelRelationship,
+  SEMANTIC_MODEL_GENERALIZATION,
+  SemanticModelClass,
+  SemanticModelGeneralization,
+  SemanticModelRelationship
+} from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+  createClass,
+  CreatedEntityOperationResult,
+  createGeneralization,
+  createRelationship
+} from "@dataspecer/core-v2/semantic-model/operations";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { SetStateAction } from "react";
-import { createDefaultVisualModelFactory, isVisualNode, VisualDiagramNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
+import {
+  createDefaultVisualModelFactory,
+  isVisualNode,
+  VisualDiagramNode,
+  WritableVisualModel
+} from "@dataspecer/core-v2/visual-model";
+import {
+  SemanticModelAggregator,
+  SemanticModelAggregatorView
+} from "@dataspecer/core-v2/semantic-model/aggregator";
 import { XY } from "@dataspecer/layout";
 import { ModelGraphContextType, UseModelGraphContextType } from "@/context/model-context";
 import { CmeSpecialization } from "@/dataspecer/cme-model/model";
 import { addVisualDiagramNode } from "@/dataspecer/visual-model/operation/add-visual-diagram-node";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  isSemanticModelClassProfile,
+  isSemanticModelRelationshipProfile,
+  SemanticModelClassProfile,
+  SemanticModelRelationshipProfile
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { addSemanticGeneralizationToVisualModelAction } from "../add-generalization-to-visual-model";
 import { addSemanticRelationshipToVisualModelAction } from "../add-relationship-to-visual-model";
 import { addSemanticRelationshipProfileToVisualModelAction } from "../add-relationship-profile-to-visual-model";
 import { createCmeClassProfile } from "@/dataspecer/cme-model/operation/create-cme-class-profile";
 import { createCmeRelationshipProfile } from "@/dataspecer/cme-model/operation/create-cme-relationship-profile";
-import { addVisualRelationshipsWithSpecifiedVisualEnds } from "@/dataspecer/visual-model/operation/add-visual-relationships";
+import {
+  addVisualRelationshipsWithSpecifiedVisualEnds
+} from "@/dataspecer/visual-model/operation/add-visual-relationships";
 import { createCmeModelOperationExecutor } from "@/dataspecer/cme-model";
 import { representRdfsLiteral } from "@/dialog/utilities/dialog-utilities";
 
@@ -254,17 +283,20 @@ export class ActionsTestSuite {
 
     const relationshipsAsSemanticEntities: SemanticModelRelationship[] = [];
     givenRelationships.forEach(relationship => {
-      relationshipsAsSemanticEntities.push(relationship.model.getEntities()[relationship.identifier] as SemanticModelRelationship);
+      relationshipsAsSemanticEntities.push(
+        relationship.model.getEntities()[relationship.identifier] as SemanticModelRelationship);
     });
 
     const generalizationsAsSemanticEntities: SemanticModelGeneralization[] = [];
     givenGeneralizations.forEach(generalization => {
-      generalizationsAsSemanticEntities.push(generalization.model.getEntities()[generalization.identifier] as SemanticModelGeneralization);
+      generalizationsAsSemanticEntities.push(
+        generalization.model.getEntities()[generalization.identifier] as SemanticModelGeneralization);
     });
 
     const relationshipProfilesAsSemanticEntities: SemanticModelRelationshipProfile[] = [];
     givenRelationshipProfiles.forEach(relationshipProfile => {
-      relationshipProfilesAsSemanticEntities.push(relationshipProfile.model.getEntities()[relationshipProfile.identifier] as SemanticModelRelationshipProfile);
+      relationshipProfilesAsSemanticEntities.push(
+        relationshipProfile.model.getEntities()[relationshipProfile.identifier] as SemanticModelRelationshipProfile);
     });
 
     const rawEntities = (classesAsSemanticEntities as Entity[])
@@ -361,7 +393,9 @@ export class ActionsTestSuite {
     aggregator.addModel(visualModel);
     const aggregatorView = aggregator.getView();
     aggregatorView.changeActiveVisualModel(visualModel.getIdentifier());
-    const visualModels: Map<string, WritableVisualModel> = new Map(Object.entries({ [visualModel.getIdentifier()]: visualModel }));
+    const visualModels: Map<string, WritableVisualModel> = new Map(Object.entries({
+      [visualModel.getIdentifier()]: visualModel
+    }));
 
     const graph: ModelGraphContextType = {
       aggregator,
@@ -750,7 +784,8 @@ export class ActionsTestSuite {
       });
     }
 
-    const newClassProfiles = createdIdentifiers.map(created => model.getEntities()[created.classProfile] as SemanticModelClassProfile);
+    const newClassProfiles = createdIdentifiers
+      .map(created => model.getEntities()[created.classProfile] as SemanticModelClassProfile);
     classesContext.classProfiles = classesContext.classProfiles.concat(newClassProfiles);
     return {
       createdIdentifiers,
@@ -1003,7 +1038,8 @@ export class ActionsTestSuite {
     // First add all nodes
     for(const entity of Object.values(modelToFillWith.getEntities())) {
       if(isSemanticModelClass(entity)) {
-        const id = ActionsTestSuite.createNewVisualNodeForTesting(visualmodelToFill, modelToFillWith.getId(), entity.id);
+        const id = ActionsTestSuite.createNewVisualNodeForTesting(
+          visualmodelToFill, modelToFillWith.getId(), entity.id);
         nodes.push(id);
       }
     }
@@ -1042,7 +1078,6 @@ export class ActionsTestSuite {
 
 }
 
-// TODO RadStr: Put into class - and rewrite it as function which returns the notification object.
 export const notificationMockup: UseNotificationServiceWriterType = {
   success: () => { },
   error: () => { },
