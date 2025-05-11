@@ -49,17 +49,7 @@ type SemanticModelAggregatorType = typeof _semanticModelAggregator;
 
 /** Select Catalog component. */
 const Catalog = (() => {
-  const params = new URLSearchParams(window.location.search);
-  const catalog = params.get("dev-catalog");
-  if (catalog === "v1" || catalog === "v2") {
-    updatePreferences({ catalogComponent: catalog });
-  }
-  switch (preferences().catalogComponent) {
-  case "v1":
-    return CatalogV1;
-  case "v2":
-    return CatalogV2
-  }
+  return CatalogV1;
 })();
 
 const Page = () => {
