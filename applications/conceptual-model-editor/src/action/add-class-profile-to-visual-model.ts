@@ -9,8 +9,11 @@ import { ClassesContextType } from "../context/classes-context";
 import { findPositionForNewNodesUsingLayouting } from "./layout-visual-model";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { createLogger } from "../application";
-import { isSemanticModelClassProfile, SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { getVisualNodeContentBasedOnExistingEntities } from "./add-semantic-attribute-to-visual-model";
+import {
+  isSemanticModelClassProfile,
+  SemanticModelClassProfile
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { getVisualNodeContentBasedOnExistingEntities } from "./utilities";
 
 const LOG = createLogger(import.meta.url);
 

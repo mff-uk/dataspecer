@@ -92,7 +92,7 @@ class ConceptualModelWriter {
   }
 
   writeConceptualModel(): void {
-    this.addType(this.model.iri, DSV.ConceptualModel);
+    this.addType(this.model.iri, DSV.ApplicationProfile);
     for (const profile of this.model.profiles) {
       this.writeClassProfile(profile);
     }
@@ -132,7 +132,7 @@ class ConceptualModelWriter {
 
   private writeProfileBase(profile: Profile) {
     this.addIri(profile.iri, DCT.isPartOf, this.model.iri);
-    this.addType(profile.iri, DSV.Profile);
+    this.addType(profile.iri, DSV.TermProfile);
     //
     this.addLiteral(profile.iri, SKOS.prefLabel, profile.prefLabel);
     this.addLiteral(profile.iri, SKOS.definition, profile.definition);

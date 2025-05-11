@@ -28,7 +28,7 @@ import { findSourceModelOfEntity } from "@/service/model-service";
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
 import { findPositionForNewNodesUsingLayouting, findPositionForNewNodeUsingLayouting } from "./layout-visual-model";
 import { XY } from "@dataspecer/layout";
-import { getVisualNodeContentBasedOnExistingEntities } from "./add-semantic-attribute-to-visual-model";
+import { getVisualNodeContentBasedOnExistingEntities } from "./utilities";
 import { addSemanticAttributeToVisualNodeAction } from "./add-semantic-attribute-to-visual-node";
 import { getViewportCenterForClassPlacement } from "./utilities";
 import { EntityModel } from "@dataspecer/core-v2";

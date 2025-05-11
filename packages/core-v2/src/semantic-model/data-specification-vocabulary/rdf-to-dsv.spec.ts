@@ -19,10 +19,10 @@ test("From RDF to DSV and back.", async () => {
 @prefix role: <https://w3id.org/dsv/class-role#>.
 
 
-<http://dcat-ap-cz/model> a dsv:ConceptualModel.
+<http://dcat-ap-cz/model> a dsv:ApplicationProfile.
 
 <https://dcat-ap/#Dataset> dct:isPartOf <http://dcat-ap-cz/model>;
-    a dsv:Profile;
+    a dsv:TermProfile;
     dsv:reusesPropertyValue [
   a dsv:PropertyValueReuse;
   dsv:reusedProperty skos:prefLabel;
@@ -39,7 +39,7 @@ test("From RDF to DSV and back.", async () => {
 
 <http://www.w3.org/ns/dcat#distribution-profile> dsv:domain <https://dcat-ap/#Dataset>;
     dct:isPartOf <http://dcat-ap-cz/model>;
-    a dsv:Profile;
+    a dsv:TermProfile;
     dsv:reusesPropertyValue [
   a dsv:PropertyValueReuse;
   dsv:reusedProperty skos:prefLabel;
@@ -55,13 +55,13 @@ test("From RDF to DSV and back.", async () => {
     dsv:objectPropertyRange <http://dcat-ap/ns/dcat#Distribution>.
 
 <https://dcat-ap-cz/#Dataset> dct:isPartOf <http://dcat-ap-cz/model>;
-    a dsv:Profile;
+    a dsv:TermProfile;
     dsv:profileOf <https://dcat-ap/#Dataset>;
     a dsv:ClassProfile;
     dsv:classRole role:main.
 
 <http://dcat-ap/ns/dcat#Distribution> dct:isPartOf <http://dcat-ap-cz/model>;
-    a dsv:Profile, dsv:ClassProfile;
+    a dsv:TermProfile, dsv:ClassProfile;
     dsv:class <http://www.w3.org/ns/dcat#Distribution>;
     dsv:classRole role:supportive.
 `;
@@ -157,10 +157,10 @@ test("Issue #989", async () => {
 @prefix owl: <http://www.w3.org/2002/07/owl#>.
 @prefix skos: <http://www.w3.org/2004/02/skos/core#>.
 
-<http://localhost/applicationProfileConceptualModel> a dsv:ConceptualModel.
+<http://localhost/applicationProfileConceptualModel> a dsv:ApplicationProfile.
 
 <http://localhost/Source[profile]> dct:isPartOf <http://localhost/applicationProfileConceptualModel>;
-    a dsv:Profile;
+    a dsv:TermProfile;
     skos:prefLabel "Source [profile]"@en;
     dsv:reusesPropertyValue _:n3-811.
 _:n3-811 a dsv:PropertyValueReuse;
@@ -172,7 +172,7 @@ _:n3-811 a dsv:PropertyValueReuse;
 
 <http://localhost/Source[profile].attribute[profile]> dsv:domain <http://localhost/Source[profile]>;
     dct:isPartOf <http://localhost/applicationProfileConceptualModel>;
-    a dsv:Profile;
+    a dsv:TermProfile;
     skos:prefLabel "attribute [profile]"@en;
     dsv:reusesPropertyValue _:n3-812.
 _:n3-812 a dsv:PropertyValueReuse;
@@ -184,7 +184,7 @@ _:n3-812 a dsv:PropertyValueReuse;
     dsv:datatypePropertyRange rdfs:Literal.
 
 <http://localhost/Target[profile]> dct:isPartOf <http://localhost/applicationProfileConceptualModel>;
-    a dsv:Profile;
+    a dsv:TermProfile;
     skos:prefLabel "Target [profile]"@en;
     dsv:reusesPropertyValue _:n3-813.
 _:n3-813 a dsv:PropertyValueReuse;

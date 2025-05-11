@@ -1,4 +1,13 @@
-import { isVisualDiagramNode, isVisualNode, isVisualProfileRelationship, isVisualRelationship, VisualModel, VisualProfileRelationship, VisualRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import {
+  isVisualDiagramNode,
+  isVisualNode,
+  isVisualProfileRelationship,
+  isVisualRelationship,
+  VisualModel,
+  VisualProfileRelationship,
+  VisualRelationship,
+  WritableVisualModel
+} from "@dataspecer/core-v2/visual-model";
 import { ModelGraphContextType, UseModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
@@ -100,7 +109,8 @@ function addEdgesFromSourceModelToTargetModel(
 /**
  * Creates new relationship based on given mapping
  */
-function createRelationshipCopy<T extends Omit<VisualRelationship, "identifier" | "type"> | Omit<VisualProfileRelationship, "identifier" | "type">>(
+function createRelationshipCopy<T extends Omit<VisualRelationship, "identifier" | "type"> |
+                                         Omit<VisualProfileRelationship, "identifier" | "type">>(
   oldVisualRelationship: T,
   oldNodeIdToNewNodeIdMapping: Record<string, string>,
 ): T | null {

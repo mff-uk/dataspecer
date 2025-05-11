@@ -54,7 +54,6 @@ import { EntityModel } from "@dataspecer/core-v2";
 import { openCreateAttributeForEntityDialogAction } from "./open-add-attribute-for-entity-dialog";
 import { addGroupToVisualModelAction } from "./add-group-to-visual-model";
 import { removeTopLevelGroupFromVisualModelAction } from "./remove-group-from-visual-model";
-import { openCreateClassDialogAndCreateAssociationAction, openCreateClassDialogAndCreateGeneralizationAction } from "./open-create-class-dialog-with-edge";
 import { removeAttributesFromVisualModelAction } from "./remove-attributes-from-visual-model";
 import { ShiftAttributeDirection, shiftAttributePositionAction } from "./shift-attribute";
 import { openEditNodeAttributesDialogAction } from "./open-edit-node-attributes-dialog";
@@ -93,6 +92,8 @@ import { openCreateVisualDiagramNodeDialogAction } from "./open-create-visual-di
 import { addAllRelationshipsForVisualDiagramNodeToVisualModelAction } from "./add-all-relationships";
 import { addVisualDiagramNodeForExistingModelToVisualModelAction } from "./create-visual-diagram-node-for-existing-model";
 import { putVisualDiagramNodeContentToVisualModelAction } from "./put-visual-diagram-node-content-to-visual-model";
+import { openCreateClassDialogAndCreateGeneralizationAction } from "./open-create-class-dialog-with-generalization";
+import { openCreateClassDialogAndCreateAssociationAction } from "./open-create-class-dialog-with-association";
 
 const LOG = createLogger(import.meta.url);
 
