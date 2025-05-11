@@ -9,7 +9,7 @@ import {
 } from "@xyflow/react";
 
 import { configuration } from "../../configuration/configuration";
-import { type NodeType } from "../diagram-controller";
+import { EdgeType, type NodeType } from "../diagram-controller";
 import { type Point } from "../edge/math";
 import { binarySearchIndex } from "../../utilities/functional";
 
@@ -20,7 +20,7 @@ import { binarySearchIndex } from "../../utilities/functional";
 // (which equals the absolute position if there is no parent node)
 // There some places where I probably don't update the absolute position,
 // but I should (some of the commented code), so after group nodes will be added, it will have to be fixed
-const getInternalNodeFromNode = (node: Node, reactFlowInstance: ReactFlowInstance<any, any>): InternalNode => {
+const getInternalNodeFromNode = (node: Node, reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>): InternalNode => {
   return reactFlowInstance.getInternalNode(node.id) as InternalNode;
 };
 
@@ -79,7 +79,7 @@ export type LineEndPointsForOrthogonal = {
 }
 
 export const useAlignmentController = (props: {
-    reactFlowInstance: ReactFlowInstance<NodeType, any>,
+    reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
 }): AlignmentController => {
   const { reactFlowInstance } = props;
 
