@@ -25,13 +25,13 @@ The project focused on improving users' experience when creating diagrams inside
 
 To improve the experience we introduced layouting, highlighting, groups, alignment, etc. You can read more about that in the [user documentation](https://radstr-project-branch.dataspecer-www.pages.dev/docs/projects/cme-and-layout/#conceptual-model-editor-cme---user-documentation). You should visit the doumentation if:
 
-- You want to check what I did. The documentation mostly focuses on that, which is quite nice in a way that you can map the functional requirements from the specification to the actual final result. Unfortunately the actual mapping is not in the documentation. Also be careful that some of the functionality is "hidden", for example alignment helper or the fact that each node added to canvas is placed on canvas through layouting.
+- You want to check what I did. The documentation mostly focuses on that, which is quite nice in a way that you can map the functional requirements from the specification to the actual final result. Unfortunately the actual mapping is not in the documentation. Also be careful that some of the functionality is "hidden", for example alignment helper or the fact that each node added to canvas is placed on canvas through layouting and some might not even be in the specification.
 - You are not understanding, how some of the functionality work
 - You want to learn something about layouting algorithms - for that is [special document](https://radstr-project-branch.dataspecer-www.pages.dev/docs/projects/layout-algorithms/).
 
 #### I am good, get me into action
 ##### How to launch
-You can launch `CME` either [locally](https://radstr-project-branch.dataspecer-www.pages.dev/docs/projects/cme-and-layout/#how-to-run-cme-and-the-rest-locally-but-may-get-deprecated-over-time) or you can run the [deployed version](https://radstr-project-branch.dataspecer.pages.dev/conceptual-model-editor/diagram). Every push to GitHub deploys Dataspecer using CloudFlare. So if you want to visit some specific version, you can do that by clicking the ✔️ next to the commit message.
+You can launch `CME` either [locally using guide](https://radstr-project-branch.dataspecer-www.pages.dev/docs/projects/cme-and-layout/#how-to-run-cme-and-the-rest-locally-but-may-get-deprecated-over-time) or you can run the [deployed version](https://radstr-project-branch.dataspecer.pages.dev/conceptual-model-editor/diagram). Every push to GitHub deploys Dataspecer using CloudFlare. So if you want to visit some specific version, you can do that by clicking the ✔️ next to the commit message.
 
 Assuming you opened the deployed version through the [given link](https://radstr-project-branch.dataspecer.pages.dev/conceptual-model-editor/diagram), now you are inside CME.
 
@@ -39,12 +39,12 @@ Assuming you opened the deployed version through the [given link](https://radstr
 
 To get you started:
 - click the `vocabulary` tab in catalog
-- Click on the +
+- Click on the ➕
 - Add some of the well-known vocabulary, for example FOAF.
 - Click on the eye next to the model.
 
-To Add your own concepts click on the relevant tab, for example classes and again click on the + in the local model.
-Note that all of the buttons contains tooltip on hover, so definitely use that to explore the buttons in catalog.
+To Add your own concepts click on the relevant tab, for example classes and again click on the ➕ in the local model.
+Note that all of the buttons contain tooltip on hover, so definitely use that to explore the buttons in catalog.
 
 Note that CME is not the only part of Dataspecer. You can visit the manager [here](https://radstr-project-branch.dataspecer.pages.dev/), that is the URL without the `conceptual-model-editor/...` suffix. Manager allows you to:
 - create new package at the top right
@@ -54,18 +54,18 @@ Note that CME is not the only part of Dataspecer. You can visit the manager [her
 #### Give me the technical details
 There are two main places to look at, when you want to see the code:
 - The [layout package](https://github.com/mff-uk/dataspecer/tree/radstr-project-branch/packages/layout). You can read more about the implementation in the README. In this package all of the code is created by me.
-- [CME](https://github.com/mff-uk/dataspecer/tree/radstr-project-branch/applications/conceptual-model-editor) - Here we provided in the [documentation](https://github.com/mff-uk/dataspecer/tree/radstr-project-branch/applications/conceptual-model-editor/documentation) only the highlevel image of C4 component and directory structure. The code here is shared with [Petr Škoda](https://github.com/skodapetr), who is also responsible for the code related to CME, which brings us to the fact, as you may have already noticed, we are not on the main branch.
+- [Conceptual model editor](https://github.com/mff-uk/dataspecer/tree/radstr-project-branch/applications/conceptual-model-editor) - Here we provided in the [documentation](https://github.com/mff-uk/dataspecer/tree/radstr-project-branch/applications/conceptual-model-editor/documentation) only the highlevel image of C4 component and directory structure. The code here is shared with [Petr Škoda](https://github.com/skodapetr), who is also responsible for the code related to CME, which brings us to the fact, as you may have already noticed, we are not on the main branch.
 
 #### Technical state of project
 Last "few" commits of project are on [separate branch](https://github.com/mff-uk/dataspecer/tree/radstr-project-branch), because as the end of project approached, the amount of code was growing bigger, so there was simply no time for code reviews. Also one big breaking point was [this pull request](https://github.com/mff-uk/dataspecer/pull/1131), where simply the number of changes was too large process. So I had to from then on make the pull requests smaller and split the pull request into smaller ones. This unfortunately added some mental overhead about where is actually what and how to piece it all together.
 
-All of the functional requirements from project were implemented. Except one
+All of the functional requirements from specification were implemented. Except one
 - Have model containing visual model configuration (for example color).
 
 Since we already had working version, which stores the color inside visual model and we couldn't think of anything else to put into the model, we skipped it.
 
 However we also did some extra things like
-- Implemented one optional requirement - More visual entities for one semantic one
+- Implemented one optional requirement - More visual entities for one semantic one.
 - and went beyond normal scope on layouting by designing and implementing layouting algorithm.
 
 
