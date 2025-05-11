@@ -3,7 +3,7 @@ import React, { useContext, useMemo, useState } from "react";
 /**
  * Highlighting exploration interface
  */
-export interface Exploration {
+export interface ExplorationContext {
   /**
    * Tells us if the exploration mode is on.
    */
@@ -56,7 +56,7 @@ export interface Exploration {
   setShouldShrinkCatalog: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const ExplorationContext = React.createContext<Exploration>(null as any);
+const ExplorationContext = React.createContext<ExplorationContext>(null as any);
 
 export const ExplorationContextProvider = (props: { children: React.ReactNode }) => {
   const [isHighlightingOn, setIsHighlightingOn] = useState(false);
@@ -96,7 +96,36 @@ export const ExplorationContextProvider = (props: { children: React.ReactNode })
   );
 };
 
-export const useExploration = () => {
+interface UseExplorationContext extends
+  Omit<ExplorationContext, "setIsHighlightingInternallyOn" | "isHighlightingInternallyOn"> {
+
+  /**
+   * Resets the highlighting levels.
+   */
+  resetHighlight: () => void;
+
+  /**
+   * Disables the exploration temporarily, but it is still on.
+   */
+  disableTemporarily: () => void;
+
+  /**
+   * Enables the exploration, so if it is on, it reacts properly.
+   */
+  enableTemporarily: () => void;
+
+  /**
+   * @returns Returns true if any entity is highlighted
+   */
+  isHighlightingPresent: () => boolean;
+
+  /**
+   * @returns Returns true if both highlighting is on and it is internally allowed
+   */
+  isHighlightingChangeAllowed: () => boolean;
+}
+
+export const useExploration = (): UseExplorationContext => {
   const {
     highlightLevels,
     setHighlightLevels,
