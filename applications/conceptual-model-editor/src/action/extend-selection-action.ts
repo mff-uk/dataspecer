@@ -1,14 +1,34 @@
-import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { ClassesContextType } from "../context/classes-context";
 import { ModelGraphContextType } from "../context/model-context";
 import { sourceModelOfEntity } from "../util/model-utils";
 import { Entity, EntityModel } from "@dataspecer/core-v2";
-import { SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { VisualEntity, VisualModel, isVisualNode, isVisualProfileRelationship, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
+import {
+  SemanticModelClass,
+  SemanticModelGeneralization,
+  SemanticModelRelationship,
+  isSemanticModelClass,
+  isSemanticModelRelationship
+ } from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+  SemanticModelRelationshipUsage,
+  isSemanticModelClassUsage,
+  isSemanticModelRelationshipUsage
+ } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+  VisualEntity,
+  VisualModel,
+  isVisualNode,
+  isVisualProfileRelationship,
+  isVisualRelationship
+ } from "@dataspecer/core-v2/visual-model";
 import { Selections } from "./filter-selection-action";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  isSemanticModelClassProfile,
+  isSemanticModelRelationshipProfile,
+  SemanticModelClassProfile,
+  SemanticModelRelationshipProfile
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { createLogger } from "../application";
 
 const LOG = createLogger(import.meta.url);
@@ -44,8 +64,10 @@ export enum ExtensionType {
 };
 
 /**
- * Type representing additional visibility filter on the result. The visibility filter is almost always applied to both nodes and edges.
- * Only in the OnlyVisibleNodes option, the visibility of edges is ignored - This option is used fror example when we want to find edge of to be added node
+ * Type representing additional visibility filter on the result.
+ * The visibility filter is almost always applied to both nodes and edges.
+ * Only in the OnlyVisibleNodes option, the visibility of edges is ignored -
+ * This option is used fror example when we want to find edge of to be added node
  */
 export enum VisibilityFilter {
     OnlyVisible,
@@ -57,16 +79,20 @@ export enum VisibilityFilter {
 type SelectionExtension = {
     selectionExtension: Selections,
     /**
-     * By which edges was the node added to the extension. So identifier of the node is the key and identifiers of the corresponding edges are in the value.
+     * By which edges was the node added to the extension.
+     * So identifier of the node is the key and identifiers of the corresponding edges are in the value.
      */
     nodesToEdgesMapping: Record<string, string[]>,
 }
 
 /**
- * @param usingSemanticIdentifiers If set to true, we also check all classes and class profiles in {@link contextEntities}
- * (if the {@link contextEntities} are null then the check is skipped), if the semantic entity represented by {@link classId} is part of it.
- * (if set to false, then we don't check because we expect that since we know the visual entity, we already checked that the semantic exists).
- * We do that to filter out things like owl:Thing which are not part of the model.
+ * @param usingSemanticIdentifiers If set to true,
+ *  we also check all classes and class profiles in {@link contextEntities}
+ *  (if the {@link contextEntities} are null then the check is skipped),
+ *   if the semantic entity represented by {@link classId} is part of it.
+ *  (if set to false, then we don't check because we expect that since we know the visual entity,
+ *   we already checked that the semantic exists).
+ *  We do that to filter out things like owl:Thing which are not part of the model.
  */
 const addToSelectionExtension = (
   selectionExtensionToExtend: SelectionExtension,
@@ -113,33 +139,30 @@ export type NodeSelection = {
  * Implementation note: Even when we get visual ids on input, we are working with the semantic ones,
  * We get the correct form of id right at the end of the process, which is in the
  * {@link addToExtensionIfSatisfiesVisibilityFilter} method.
- * @param shouldExpandExternalModels If set to true, then allow the extension to go through external models -
- * meaning through elements which are not expanded. If set to false then don't allow.
- * Also If set to false, then this method this method is synchronous!!!
  * @param semanticModelFilter Null if all models should be considered, otherwise record with modelID as key and
  * true as value if the model should be considered, false if it shouldn't be.
  * Models which are not part of the semanticModelFilter, are by default not considered.
  * @param shouldExtendByNodeDuplicates When you don't know, just ignore this parameter, it is by default set to true.
  * If set to true then the node extension is extended by node duplicates (both before extension and after).
  * Logically this parameter is used only when the given nodeIdentifiers are visual.
- * @returns Promise which contains the result after performing the extension corresponding to given arguments. The result contains only the extension!
+ * @returns The result after performing the extension corresponding to given arguments.
+ * The result contains only the extension!
  * The removal of duplicities and concat with the selection given on input is on the caller of the method.
- * It is promise, because we allow to select classes which are in the external semantic model (SGOV) and not part of current model expansion.
- * But this use-case is not accessible to user from editor, it is only accessible for internal usage in cme codebase, if {@link shouldExpandExternalModels} is set to true.
- * The returned identifiers are of semantic entities. Only case when identifiers of visual entities are returned is when the property areIdentifiersFromVisualModel on {@link nodeSelection} equals true
- * AND the visibility filter is set to "ONLY-VISIBLE" (it doesn't make sense otherwise, because in such case we are referencing entities which are not part of the visual model)
+ * The returned identifiers are either semantic of visual. Identifiers of visual entities are returned,
+ * when the property areIdentifiersFromVisualModel on {@link nodeSelection} equals true
+ * AND the visibility filter is set to "ONLY-VISIBLE" (it doesn't make sense otherwise,
+ * because in such case we are referencing entities which are not part of the visual model)
  */
-export const extendSelectionAction = async (
+export const extendSelectionAction = (
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   classesContext: ClassesContextType | null,
   nodeSelection: NodeSelection,
   extensionTypes: ExtensionType[],
   visibilityFilter: VisibilityFilter,
-  shouldExpandExternalModels: boolean,
   semanticModelFilter: Record<string, boolean> | null,
   shouldExtendByNodeDuplicates: boolean = true
-): Promise<SelectionExtension> => {
+): SelectionExtension => {
   if(classesContext === null) {
     notifications.error("Classes context is null");
     return createEmptySelectionExtension();
@@ -153,19 +176,6 @@ export const extendSelectionAction = async (
     return createEmptySelectionExtension();
   }
 
-  let relevantExternalModels;
-  if(!shouldExpandExternalModels) {
-    relevantExternalModels = null;
-  }
-  else {
-    if(semanticModelFilter === null) {
-      semanticModelFilter = {};
-      for(const [modelId, _] of graph.models) {
-        semanticModelFilter[modelId] = true;
-      }
-    }
-    relevantExternalModels = getRelevantExternalModelsForExtension(semanticModelFilter, graph.models);
-  }
   const selectionExtension: SelectionExtension = createEmptySelectionExtension();
 
   const shouldPerformExtensionByNodeDuplicates = shouldExtendByNodeDuplicates &&
@@ -181,60 +191,60 @@ export const extendSelectionAction = async (
   for(const extensionType of extensionTypes) {
     switch(extensionType) {
     case ExtensionType.Association:
-      await extendThroughAssociationSources(
-        nodeSelectionToExtend, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
-      await extendThroughAssociationTargets(
-        nodeSelectionToExtend, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      extendThroughAssociationSources(
+        nodeSelectionToExtend, visibilityFilter, selectionExtension, entities, visualModel);
+      extendThroughAssociationTargets(
+        nodeSelectionToExtend, visibilityFilter, selectionExtension, entities, visualModel);
       break;
     case ExtensionType.AssociationTarget:
-      await extendThroughAssociationTargets(
-        nodeSelectionToExtend, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      extendThroughAssociationTargets(
+        nodeSelectionToExtend, visibilityFilter, selectionExtension, entities, visualModel);
       break;
     case ExtensionType.AssociationSource:
-      await extendThroughAssociationSources(
-        nodeSelectionToExtend, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      extendThroughAssociationSources(
+        nodeSelectionToExtend, visibilityFilter, selectionExtension, entities, visualModel);
       break;
     case ExtensionType.ProfileEdge:
-      await extendThroughProfileEdgeSources(
-        nodeSelectionToExtend, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
-      await extendThroughProfileEdgeTargets(
-        nodeSelectionToExtend, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      extendThroughProfileEdgeSources(
+        nodeSelectionToExtend, visibilityFilter, selectionExtension, entities, visualModel);
+      extendThroughProfileEdgeTargets(
+        nodeSelectionToExtend, visibilityFilter, selectionExtension, entities, visualModel);
       break;
     case ExtensionType.ProfileEdgeSource:
-      await extendThroughProfileEdgeSources(
-        nodeSelectionToExtend, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      extendThroughProfileEdgeSources(
+        nodeSelectionToExtend, visibilityFilter, selectionExtension, entities, visualModel);
       break;
     case ExtensionType.ProfileEdgeTarget:
-      await extendThroughProfileEdgeTargets(
-        nodeSelectionToExtend, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      extendThroughProfileEdgeTargets(
+        nodeSelectionToExtend, visibilityFilter, selectionExtension, entities, visualModel);
       break;
     case ExtensionType.Generalization:
-      await extendThroughGeneralizationParents(
-        nodeSelectionToExtend, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
-      await extendThroughGeneralizationChildren(
-        nodeSelectionToExtend, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      extendThroughGeneralizationParents(
+        nodeSelectionToExtend, visibilityFilter, selectionExtension, entities, visualModel);
+      extendThroughGeneralizationChildren(
+        nodeSelectionToExtend, visibilityFilter, selectionExtension, entities, visualModel);
       break;
     case ExtensionType.GeneralizationChild:
-      await extendThroughGeneralizationChildren(
-        nodeSelectionToExtend, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      extendThroughGeneralizationChildren(
+        nodeSelectionToExtend, visibilityFilter, selectionExtension, entities, visualModel);
       break;
     case ExtensionType.GeneralizationParent:
-      await extendThroughGeneralizationParents(
-        nodeSelectionToExtend, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      extendThroughGeneralizationParents(
+        nodeSelectionToExtend, visibilityFilter, selectionExtension, entities, visualModel);
       break;
     case ExtensionType.ClassProfile:
-      await extendThroughClassProfileParents(
-        nodeSelectionToExtend, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
-      await extendThroughClassProfileChildren(
-        nodeSelectionToExtend, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      extendThroughClassProfileParents(
+        nodeSelectionToExtend, visibilityFilter, selectionExtension, entities, visualModel);
+      extendThroughClassProfileChildren(
+        nodeSelectionToExtend, visibilityFilter, selectionExtension, entities, visualModel);
       break;
     case ExtensionType.ClassProfileParent:
-      await extendThroughClassProfileParents(
-        nodeSelectionToExtend, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      extendThroughClassProfileParents(
+        nodeSelectionToExtend, visibilityFilter, selectionExtension, entities, visualModel);
       break;
     case ExtensionType.ClassProfileChild:
-      await extendThroughClassProfileChildren(
-        nodeSelectionToExtend, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      extendThroughClassProfileChildren(
+        nodeSelectionToExtend, visibilityFilter, selectionExtension, entities, visualModel);
       break;
     }
   }
@@ -258,7 +268,9 @@ function getNewNodeSelectionExtendedByNodeDuplicates(
   };
   const newlyAddedNodes = [];
   const visualEntities = visualModel.getVisualEntities();
-  const selectedNodesAsNodes = extendedNodeSelection.identifiers.map(id => visualModel!.getVisualEntity(id)).filter(node => node !== null);
+  const selectedNodesAsNodes = extendedNodeSelection.identifiers
+    .map(id => visualModel!.getVisualEntity(id))
+    .filter(node => node !== null);
   const selectedNodesAsClasses = selectedNodesAsNodes.filter(isVisualNode).map(node => node.representedEntity);
   for(const [_, visualEntity] of visualEntities) {
     if(isVisualNode(visualEntity)) {
@@ -290,7 +302,8 @@ function extendExtensionByNodeDuplicates(
       }
       const representations = visualModel.getVisualEntitiesForRepresented(visualEntity.representedEntity);
       if(representations.length === 0) {
-        LOG.error("While extending through node duplicates, we noticed that visual node can't be found when it is looked up through represented entity");
+        LOG.error("While extending through node duplicates, " +
+          "we noticed that visual node can't be found when it is looked up through represented entity");
         continue;
       }
       for(const node of representations) {
@@ -301,16 +314,6 @@ function extendExtensionByNodeDuplicates(
     }
   }
 }
-
-/**
- * @returns All the External Semantic Models (SGOV) from the given semantic ones
- */
-const getRelevantExternalModelsForExtension = (
-  semanticModelFilter: Record<string, boolean>,
-  models: Map<string, EntityModel>
-): ExternalSemanticModel[] => {
-  return getRelevantModelsForExtension(semanticModelFilter, models).filter(model => model instanceof ExternalSemanticModel);
-};
 
 /**
  * @returns All the models which should be considered (the value in map is set to True)
@@ -401,7 +404,9 @@ enum SpecialEdge {
 // On other side the enum also isn't perfect, we have to recase to string even we know what the given value is string.
 type EdgeWhichAddedClass = string | SpecialEdge;
 
-function isEdgeWhichAddedClassNotClassProfileEdge(edgeWhichAddedClass: EdgeWhichAddedClass): edgeWhichAddedClass is string {
+function isEdgeWhichAddedClassNotClassProfileEdge(
+  edgeWhichAddedClass: EdgeWhichAddedClass
+): edgeWhichAddedClass is string {
   return typeof edgeWhichAddedClass === "string";
 }
 
@@ -437,8 +442,9 @@ function addToExtensionIfSatisfiesVisibilityFilter(
         if(isVisualProfileRelationship(visualEntity)) {
           const visualSource = visualModel.getVisualEntity(visualEntity.visualSource);
           const visualTarget = visualModel.getVisualEntity(visualEntity.visualTarget);
-          if(visualSource === null || !isVisualNode(visualSource) || visualTarget === null || !isVisualNode(visualTarget)) {
-            // TODO RadStr: Maybe should throw error, since this shouldn't happen
+          if(visualSource === null || !isVisualNode(visualSource) ||
+              visualTarget === null || !isVisualNode(visualTarget)) {
+            LOG.error("Relationship doesn't have visual end, returning. Something is wrong.")
             return;
           }
           const ends = edgeWhichAddedClass === SpecialEdge.FromClassProfileToProfiledClass ?
@@ -479,9 +485,11 @@ function addToExtensionIfSatisfiesVisibilityFilter(
         return;
       }
       for(const visualNodeToAddToSelection of visualNodesForTheAddedClass) {
-        const edgesWhichAddedTheNode = edgesWhichAddedVisualNodes.filter(edge => hasEdgeEndInNode(visualNodeToAddToSelection.identifier, edge));
+        const edgesWhichAddedTheNode = edgesWhichAddedVisualNodes
+          .filter(edge => hasEdgeEndInNode(visualNodeToAddToSelection.identifier, edge));
         for (const edgeWhichAddedTheNode of edgesWhichAddedTheNode) {
-          addToSelectionExtension(extension, visualNodeToAddToSelection.identifier, edgeWhichAddedTheNode.identifier, false, null);
+          addToSelectionExtension(
+            extension, visualNodeToAddToSelection.identifier, edgeWhichAddedTheNode.identifier, false, null);
         }
       }
     }
@@ -489,8 +497,10 @@ function addToExtensionIfSatisfiesVisibilityFilter(
       addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass, true, contextEntities);
     }
   }
-  else if(visibilityFilter === VisibilityFilter.OnlyNonVisible && !isClassInVisualModel) {     // Not sure about the semantics of the filters for edges,
-    addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass, true, contextEntities);      // So we just check the visibility of the class
+  else if(visibilityFilter === VisibilityFilter.OnlyNonVisible && !isClassInVisualModel) {
+    // Not sure about the semantics of the filters for edges,
+    // So we just check the visibility of the class
+    addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass, true, contextEntities);
   }
 }
 
@@ -529,131 +539,6 @@ function handleTrivialVisibilityFilters(
   return false;
 }
 
-/**
- * This method goes through all the {@link relevantExternalModel} and checks if {@link selectedClassId} is in any of those. If it is then we allow surroundings of the class.
- * @returns Promise with either null if the selected class isn't part of any of the {@link relevantExternalModel}, otherwise promise with external model where it lies.
- */
-async function allowSurroundingsInExternalModels(
-  selectedClassId: string,
-  relevantExternalModels: ExternalSemanticModel[] | null,
-  contextEntities: ClassesContextEntities,
-  visibilityFilter: VisibilityFilter
-): Promise<ExternalSemanticModel | null> {
-  if(relevantExternalModels === null || visibilityFilter === VisibilityFilter.OnlyVisible || visibilityFilter === VisibilityFilter.OnlyVisibleNodes) {
-    return null;
-  }
-
-  const externalModelWhereSelectedClassResides = sourceModelOfEntity(selectedClassId, relevantExternalModels) as ExternalSemanticModel;
-  if(externalModelWhereSelectedClassResides !== undefined) {
-    await externalModelWhereSelectedClassResides.allowClassSurroundings(selectedClassId);
-    extendEntityArraysBasedOnExternalAllowanceOfSurroundings(externalModelWhereSelectedClassResides, contextEntities);
-    return externalModelWhereSelectedClassResides;
-  }
-
-  return null;
-}
-
-/**
- * In cases where the given class or class profile misses. We try to look for it in {@link relevantExternalModels},
- * but we don't know where it resides, so so we have to try to expand every model.
- *
- *
- * Note: Once we expand we can't unexpand though, but that is how it is designed even for the search bar.
- *
- *
- * If the {@link classIdentifier} can't be found in list of all entities, then try to allow it in all of the given {@link relevantExternalModels}.
- * If we actually do find the {@link classIdentifier} in {@link relevantExternalModels} then we extend the given {@link contextEntities}.
- * @returns False if it can be found in list of all entities, true otherwise (so we TRIED to perform expansion, but we are not actually saying that we found something).
- */
-async function tryAllowClassInExternalModelsIfNotFound(
-  classIdentifier: string,
-  relevantExternalModels: ExternalSemanticModel[] | null,
-  contextEntities: ClassesContextEntities,
-  visibilityFilter: VisibilityFilter
-): Promise<boolean> {
-  if(relevantExternalModels === null || visibilityFilter === VisibilityFilter.OnlyVisible || visibilityFilter === VisibilityFilter.OnlyVisibleNodes) {
-    return false;
-  }
-
-  if(contextEntities.rawEntities.find(entity => entity?.id === classIdentifier) === undefined) {
-    await tryAllowClassInExternalSemanticModels(classIdentifier, relevantExternalModels);
-    refillContextByMissingEntities(relevantExternalModels, contextEntities);
-    return true;
-  }
-
-  return false;
-}
-
-/**
- * For each of the {@link ExternalSemanticModels} try to allow the given {@link classId}
- */
-async function tryAllowClassInExternalSemanticModels(
-  classId: string,
-  relevantExternalModels: ExternalSemanticModel[] | null
-) {
-  if(relevantExternalModels === null) {
-    return;
-  }
-
-  // Try everything, we have no idea in which external model it resides
-  for (const externalModelWhereSelectedClassCouldPossiblyReside of relevantExternalModels) {
-    if(externalModelWhereSelectedClassCouldPossiblyReside !== undefined) {
-      await externalModelWhereSelectedClassCouldPossiblyReside.allowClass(classId);
-    }
-  }
-}
-
-/**
- * Extends the internally saved ({@link contextEntities}), so like classes, rawEntities, etc. based on entities present in {@link relevantExternalModels},
- * but not present in the {@link contextEntities}.
- */
-function refillContextByMissingEntities(
-  relevantExternalModels: ExternalSemanticModel[] | null,
-  contextEntities: ClassesContextEntities
-): void {
-  if(relevantExternalModels === null) {
-    return;
-  }
-
-  relevantExternalModels.forEach(relevantExternalModel => {
-    extendEntityArraysBasedOnExternalAllowanceOfSurroundings(relevantExternalModel, contextEntities);
-  });
-}
-
-/**
- * Extends the classes, rawEntities, profiles, etc. - stored in {@link contextEntities} based on newly added (allowed) entities from {@link relevantExternalModel}
- * @param relevantExternalModel The model to search in for entities missing in {@link contextEntities}.
- */
-function extendEntityArraysBasedOnExternalAllowanceOfSurroundings(
-  relevantExternalModel: ExternalSemanticModel,
-  contextEntities: ClassesContextEntities
-): void {
-  const newRawEntities: Entity[] = [];
-  const externalEntities = relevantExternalModel.getEntities();
-  Object.values(externalEntities).forEach(entity => {
-    if(contextEntities.rawEntities.find(rawEntity => entity.id === rawEntity?.id) === undefined) {
-      newRawEntities.push(entity);
-      if(isSemanticModelClass(entity)) {
-        contextEntities.classes.push(entity);
-      }
-      else if(isSemanticModelClassProfile(entity)) {
-        contextEntities.classProfiles.push(entity);
-      }
-      else if(isSemanticModelGeneralization(entity)) {
-        contextEntities.generalizations.push(entity);
-      }
-      else if(isSemanticModelRelationshipProfile(entity)) {
-        contextEntities.relationshipProfiles.push(entity);
-      }
-      else if(isSemanticModelRelationship(entity)) {
-        contextEntities.relationships.push(entity);
-      }
-    }
-  });
-
-  contextEntities.rawEntities = contextEntities.rawEntities.concat(newRawEntities);
-}
-
 function isClassOrClassProfile(
   classIdentifier: string,
   contextEntities: ClassesContextEntities
@@ -663,21 +548,22 @@ function isClassOrClassProfile(
 }
 
 /**
- * The internal function used for the extension through associations (and profiled associations), the type of association is decided through
- * {@link associationType} and the direction is decided through {@link directionOfExtension}. The result of extension is put inside {@link outputToExtend}
+ * The internal function used for the extension through associations (and profiled associations),
+ * the type of association is decided through
+ * {@link associationType} and the direction is decided through {@link directionOfExtension}.
+ * The result of extension is put inside {@link outputToExtend}
  * (non-destructively - i.e. the parameter is extended by the result).
  */
-async function extendThroughAssociation(
+function extendThroughAssociation(
   nodeSelection: NodeSelection,
   visibilityFilter: VisibilityFilter,
   directionOfExtension: SourceOrTarget,
   associationType: AssociationType,
   outputToExtend: SelectionExtension,
-  relevantExternalModels: ExternalSemanticModel[] | null,
   contextEntities: ClassesContextEntities,
   visualModel: VisualModel | null
-): Promise<void> {
-  const checkForAssociatedClassOrClassProfile = async (
+): void {
+  const checkForAssociatedClassOrClassProfile = (
     classInSelection: string,
     endContainingClassInSelection: SourceOrTarget,
     relationship: SemanticModelRelationship | SemanticModelRelationshipProfile
@@ -687,12 +573,9 @@ async function extendThroughAssociation(
     const otherEndIndex = convertSTTypeToEndIndex(getTheOtherEndForSTType(endContainingClassInSelection));
     const otherEndId = relationship.ends[otherEndIndex]?.concept;
 
-    if(otherEndId !== undefined && otherEndId !== null) {
-      await tryAllowClassInExternalModelsIfNotFound(otherEndId, relevantExternalModels, contextEntities, visibilityFilter);
-    }
-
     if(relationship.ends[endIndex]?.concept === classInSelection && otherEndId !== null) {
-      let classOnOtherEnd: SemanticModelClass | SemanticModelClassProfile | undefined = contextEntities.classes.find(cclass => cclass.id === otherEndId);
+      let classOnOtherEnd: SemanticModelClass | SemanticModelClassProfile | undefined = contextEntities.classes
+        .find(cclass => cclass.id === otherEndId);
       if(classOnOtherEnd === undefined) {
         classOnOtherEnd = contextEntities.classProfiles.find(profile => profile.id === otherEndId);
       }
@@ -707,17 +590,17 @@ async function extendThroughAssociation(
   //
 
   for(const selectedClassId of nodeSelection.identifiers) {
-    const selectedClassSemanticId = getSemanticClassIdentifier(selectedClassId, nodeSelection.areIdentifiersFromVisualModel, visualModel);
+    const selectedClassSemanticId = getSemanticClassIdentifier(
+      selectedClassId, nodeSelection.areIdentifiersFromVisualModel, visualModel);
     if(selectedClassSemanticId === null) {
-      // TODO RadStr: Maybe log error
+      LOG.error("Can't find selected class in list of existing, skipping");
       continue;
     }
 
     if(!isClassOrClassProfile(selectedClassSemanticId, contextEntities)) {
-      return;         // TODO RadStr: Maybe remove from the selection?
+      LOG.error("Selected class is neither class or class profile, returning");
+      return;
     }
-
-    await allowSurroundingsInExternalModels(selectedClassSemanticId, relevantExternalModels, contextEntities, visibilityFilter);
 
     let relationshipsToCheck: (SemanticModelRelationship | SemanticModelRelationshipProfile)[] = [];
     if(associationType === "PROFILE-EDGE") {
@@ -733,7 +616,7 @@ async function extendThroughAssociation(
     }[] = [];
 
     for(let i = 0; i < relationshipsToCheck.length; i++) {
-      const extensionCandidate = await checkForAssociatedClassOrClassProfile(
+      const extensionCandidate = checkForAssociatedClassOrClassProfile(
         selectedClassSemanticId, getTheOtherEndForSTType(directionOfExtension), relationshipsToCheck[i]);
       if(extensionCandidate !== null && extensionCandidate !== undefined) {
         extension.push({
@@ -751,74 +634,70 @@ async function extendThroughAssociation(
 }
 
 /**
- * Extends {@link outputToExtend} by all direct association sources, which also pass the {@link visibilityFilter}
- * and may possibly reside in non-expanded parts of {@link relevantExternalModels}.
- * The result of extension is put inside {@link outputToExtend} (non-destructively - i.e. the parameter is extended by the result).
+ * Extends {@link outputToExtend} by all direct association sources, which also pass the {@link visibilityFilter}.
+ * The result of extension is put inside {@link outputToExtend}
+ * (non-destructively - i.e. the parameter is extended by the result).
  */
-async function extendThroughAssociationSources(
+function extendThroughAssociationSources(
   nodeSelection: NodeSelection,
   visibilityFilter: VisibilityFilter,
   outputToExtend: SelectionExtension,
-  relevantExternalModels: ExternalSemanticModel[] | null,
   contextEntities: ClassesContextEntities,
   visualModel: VisualModel | null
-): Promise<void> {
-  await extendThroughAssociation(nodeSelection, visibilityFilter, "SOURCE", "CLASSIC",
-    outputToExtend, relevantExternalModels, contextEntities, visualModel);
+): void {
+  extendThroughAssociation(nodeSelection, visibilityFilter, "SOURCE", "CLASSIC",
+    outputToExtend, contextEntities, visualModel);
 }
 
 /**
- * Extends {@link outputToExtend} by all direct association targets, which also pass the {@link visibilityFilter}
- * and may possibly reside in non-expanded parts of {@link relevantExternalModels}.
- * The result of extension is put inside {@link outputToExtend} (non-destructively - i.e. the parameter is extended by the result).
+ * Extends {@link outputToExtend} by all direct association targets, which also pass the {@link visibilityFilter}.
+ * The result of extension is put inside {@link outputToExtend}
+ * (non-destructively - i.e. the parameter is extended by the result).
  */
-async function extendThroughAssociationTargets(
+function extendThroughAssociationTargets(
   nodeSelection: NodeSelection,
   visibilityFilter: VisibilityFilter,
   outputToExtend: SelectionExtension,
-  relevantExternalModels: ExternalSemanticModel[] | null,
   contextEntities: ClassesContextEntities,
   visualModel: VisualModel | null
-): Promise<void> {
-  await extendThroughAssociation(nodeSelection, visibilityFilter, "TARGET", "CLASSIC",
-    outputToExtend, relevantExternalModels, contextEntities, visualModel);
+): void {
+  extendThroughAssociation(nodeSelection, visibilityFilter, "TARGET", "CLASSIC",
+    outputToExtend, contextEntities, visualModel);
 }
 
 //
 //
 
 /**
- * Extends {@link outputToExtend} by all direct profiled edges sources, which also pass the {@link visibilityFilter}
- * and may possibly reside in non-expanded parts of {@link relevantExternalModels}.
- * The result of extension is put inside {@link outputToExtend} (non-destructively - i.e. the parameter is extended by the result).
+ * Extends {@link outputToExtend} by all direct profiled edges sources, which also pass the {@link visibilityFilter}.
+ * The result of extension is put inside {@link outputToExtend}
+ * (non-destructively - i.e. the parameter is extended by the result).
  */
-async function extendThroughProfileEdgeSources(
+function extendThroughProfileEdgeSources(
   nodeSelection: NodeSelection,
   visibilityFilter: VisibilityFilter,
   outputToExtend: SelectionExtension,
-  relevantExternalModels: ExternalSemanticModel[] | null,
   contextEntities: ClassesContextEntities,
   visualModel: VisualModel | null
-): Promise<void> {
-  await extendThroughAssociation(nodeSelection, visibilityFilter, "SOURCE", "PROFILE-EDGE",
-    outputToExtend, relevantExternalModels, contextEntities, visualModel);
+): void {
+  extendThroughAssociation(nodeSelection, visibilityFilter, "SOURCE", "PROFILE-EDGE",
+    outputToExtend, contextEntities, visualModel);
 }
 
 /**
- * Extends {@link outputToExtend} by all direct profiled edges targets, which also pass the {@link visibilityFilter}
- * and may possibly reside in non-expanded parts of {@link relevantExternalModels}.
- * The result of extension is put inside {@link outputToExtend} (non-destructively - i.e. the parameter is extended by the result).
+ * Extends {@link outputToExtend} by all direct profiled edges targets, which also pass the {@link visibilityFilter}.
+ * The result of extension is put inside {@link outputToExtend}
+ * (non-destructively - i.e. the parameter is extended by the result).
  */
-async function extendThroughProfileEdgeTargets(
+function extendThroughProfileEdgeTargets(
   nodeSelection: NodeSelection,
   visibilityFilter: VisibilityFilter,
   outputToExtend: SelectionExtension,
-  relevantExternalModels: ExternalSemanticModel[] | null,
   contextEntities: ClassesContextEntities,
   visualModel: VisualModel | null
-): Promise<void> {
-  await extendThroughAssociation(nodeSelection, visibilityFilter, "TARGET", "PROFILE-EDGE",
-    outputToExtend, relevantExternalModels, contextEntities, visualModel);
+): void {
+  extendThroughAssociation(nodeSelection, visibilityFilter, "TARGET", "PROFILE-EDGE",
+    outputToExtend, contextEntities, visualModel);
 }
 
 //
@@ -838,39 +717,40 @@ function convertParentChildToGeneralizationProperty(parentChild: ParentOrChild):
 }
 
 /**
- * The internal function used for the extension through generalization, the direction of extension is decided through {@link directionOfExtension} parameter.
- * The result of extension is put inside {@link outputToExtend} (non-destructively - i.e. the parameter is extended by the result).
+ * The internal function used for the extension through generalization,
+ * the direction of extension is decided through {@link directionOfExtension} parameter.
+ * The result of extension is put inside {@link outputToExtend}
+ * (non-destructively - i.e. the parameter is extended by the result).
  */
-async function extendThroughGeneralization(
+function extendThroughGeneralization(
   nodeSelection: NodeSelection,
   visibilityFilter: VisibilityFilter,
   directionOfExtension: ParentOrChild,
   outputToExtend: SelectionExtension,
-  relevantExternalModels: ExternalSemanticModel[] | null,
   contextEntities: ClassesContextEntities,
   visualModel: VisualModel | null
-): Promise<void> {
+): void {
   for(const selectedClassId of nodeSelection.identifiers) {
-    const selectedClassSemanticId = getSemanticClassIdentifier(selectedClassId, nodeSelection.areIdentifiersFromVisualModel, visualModel);
+    const selectedClassSemanticId = getSemanticClassIdentifier(
+      selectedClassId, nodeSelection.areIdentifiersFromVisualModel, visualModel);
     if(selectedClassSemanticId === null) {
-      // TODO RadStr: Maybe log error
+      LOG.error("Can't find selected class in list of existing, skipping");
       continue;
     }
 
     if(!isClassOrClassProfile(selectedClassSemanticId, contextEntities)) {
-      return;         // TODO RadStr: Maybe remove from the selection?
+      LOG.error("Selected class is neither class or class profile, returning");
+      return;
     }
-    // TODO RadStr: I think that it isn't necessary, it is enough to just call the tryAllowClass method, but this is for future, when I will actually need it
-    //              and that it is probably for the use-case to put neighborhood of node to visual model ... right now it is difficult to test
-    await allowSurroundingsInExternalModels(selectedClassSemanticId, relevantExternalModels, contextEntities, visibilityFilter);
 
-    const theEndOfGeneralizationWhereShouldBeTheSelectedClass = convertParentChildToGeneralizationProperty(getTheOtherEndForPCType(directionOfExtension));
+    const theEndOfGeneralizationWhereShouldBeTheSelectedClass = convertParentChildToGeneralizationProperty(
+      getTheOtherEndForPCType(directionOfExtension));
     const theOtherEndOfGeneralization = convertParentChildToGeneralizationProperty(directionOfExtension);
     for(const generalization of contextEntities.generalizations) {
       if(generalization[theEndOfGeneralizationWhereShouldBeTheSelectedClass] === selectedClassSemanticId) {
         const otherEndId = generalization[theOtherEndOfGeneralization];
-        await tryAllowClassInExternalModelsIfNotFound(otherEndId, relevantExternalModels, contextEntities, visibilityFilter);
-        addToExtensionIfSatisfiesVisibilityFilter(outputToExtend, visibilityFilter, otherEndId, generalization.id, visualModel,
+        addToExtensionIfSatisfiesVisibilityFilter(
+          outputToExtend, visibilityFilter, otherEndId, generalization.id, visualModel,
           selectedClassId, nodeSelection.areIdentifiersFromVisualModel, contextEntities);
       }
     }
@@ -878,35 +758,35 @@ async function extendThroughGeneralization(
 }
 
 /**
- * Extends {@link outputToExtend} by all direct parents in generalization hirearchy, which also pass the {@link visibilityFilter}
- * and may possibly reside in non-expanded parts of {@link relevantExternalModels}.
- * The result of extension is put inside {@link outputToExtend} (non-destructively - i.e. the parameter is extended by the result).
+ * Extends {@link outputToExtend} by all direct parents in generalization hirearchy,
+ * which also pass the {@link visibilityFilter}.
+ * The result of extension is put inside {@link outputToExtend}
+ * (non-destructively - i.e. the parameter is extended by the result).
  */
-async function extendThroughGeneralizationParents(
+function extendThroughGeneralizationParents(
   nodeSelection: NodeSelection,
   visibilityFilter: VisibilityFilter,
   outputToExtend: SelectionExtension,
-  relevantExternalModels: ExternalSemanticModel[] | null,
   contextEntities: ClassesContextEntities,
   visualModel: VisualModel | null
-): Promise<void> {
-  await extendThroughGeneralization(nodeSelection, visibilityFilter, "PARENT", outputToExtend, relevantExternalModels, contextEntities, visualModel);
+): void {
+  extendThroughGeneralization(nodeSelection, visibilityFilter, "PARENT", outputToExtend, contextEntities, visualModel);
 }
 
 /**
- * Extends {@link outputToExtend} by all direct children in generalization hirearchy, which also pass the {@link visibilityFilter}
- * and may possibly reside in non-expanded parts of {@link relevantExternalModels}.
- * The result of extension is put inside {@link outputToExtend} (non-destructively - i.e. the parameter is extended by the result).
+ * Extends {@link outputToExtend} by all direct children in generalization hirearchy,
+ * which also pass the {@link visibilityFilter}.
+ * The result of extension is put inside {@link outputToExtend}
+ * (non-destructively - i.e. the parameter is extended by the result).
  */
-async function extendThroughGeneralizationChildren(
+function extendThroughGeneralizationChildren(
   nodeSelection: NodeSelection,
   visibilityFilter: VisibilityFilter,
   outputToExtend: SelectionExtension,
-  relevantExternalModels: ExternalSemanticModel[] | null,
   contextEntities: ClassesContextEntities,
   visualModel: VisualModel | null
-): Promise<void> {
-  await extendThroughGeneralization(nodeSelection, visibilityFilter, "CHILD", outputToExtend, relevantExternalModels, contextEntities, visualModel);
+): void {
+  extendThroughGeneralization(nodeSelection, visibilityFilter, "CHILD", outputToExtend, contextEntities, visualModel);
 }
 
 ////////////////////////////////////////
@@ -958,29 +838,32 @@ export function getSemanticEdgeIdentifier(
 }
 
 /**
- * The internal function used for the extension through profiles, the direction of extension is decided through {@link directionOfExtension} parameter.
- * The result of extension is put inside {@link outputToExtend} (non-destructively - i.e. the parameter is extended by the result).
+ * The internal function used for the extension through profiles,
+ * the direction of extension is decided through {@link directionOfExtension} parameter.
+ * The result of extension is put inside {@link outputToExtend}
+ * (non-destructively - i.e. the parameter is extended by the result).
  */
-async function extendThroughClassProfile(
+function extendThroughClassProfile(
   nodeSelection: NodeSelection,
   visibilityFilter: VisibilityFilter,
   directionOfExtension: ParentOrChild,
   outputToExtend: SelectionExtension,
-  relevantExternalModels: ExternalSemanticModel[] | null,
   contextEntities: ClassesContextEntities,
   visualModel: VisualModel | null
 ) {
   for(const selectedClassId of nodeSelection.identifiers) {
-    const selectedClassSemanticId = getSemanticClassIdentifier(selectedClassId, nodeSelection.areIdentifiersFromVisualModel, visualModel);
+    const selectedClassSemanticId = getSemanticClassIdentifier(
+      selectedClassId, nodeSelection.areIdentifiersFromVisualModel, visualModel);
     if(selectedClassSemanticId === null) {
-      // TODO RadStr: Maybe log error
+      LOG.error("Can't find selected class in list of existing, skipping");
       continue;
     }
 
     const selectedClass = contextEntities.classes.find(entity => entity?.id === selectedClassSemanticId) ??
                                 contextEntities.classProfiles.find(entity => entity?.id === selectedClassSemanticId);
     if(selectedClass === undefined) {
-      continue;         // TODO RadStr: Maybe remove from the selection?
+      LOG.error("Selected class is neither class or class profile, returning");
+      return;
     }
 
     if(directionOfExtension === "CHILD") {
@@ -1001,7 +884,6 @@ async function extendThroughClassProfile(
       const selectedClassAsProfile = (selectedClass as SemanticModelClassProfile);
 
       for(const profileSource of selectedClassAsProfile.profiling) {
-        await tryAllowClassInExternalModelsIfNotFound(profileSource, relevantExternalModels, contextEntities, visibilityFilter);
         addToExtensionIfSatisfiesVisibilityFilter(outputToExtend, visibilityFilter, profileSource,
           SpecialEdge.FromClassProfileToProfiledClass, visualModel, selectedClassId,
           nodeSelection.areIdentifiersFromVisualModel, contextEntities);
@@ -1011,37 +893,35 @@ async function extendThroughClassProfile(
 }
 
 /**
- * Extends {@link outputToExtend} by all directly profiled classes, which also pass the {@link visibilityFilter}
- * and may possibly reside in non-expanded parts of {@link relevantExternalModels}.
- * The result of extension is put inside {@link outputToExtend} (non-destructively - i.e. the parameter is extended by the result).
+ * Extends {@link outputToExtend} by all directly profiled classes, which also pass the {@link visibilityFilter}.
+ * The result of extension is put inside {@link outputToExtend}
+ * (non-destructively - i.e. the parameter is extended by the result).
  */
-async function extendThroughClassProfileParents(
+function extendThroughClassProfileParents(
   nodeSelection: NodeSelection,
   visibilityFilter: VisibilityFilter,
   outputToExtend: SelectionExtension,
-  relevantExternalModels: ExternalSemanticModel[] | null,
   contextEntities: ClassesContextEntities,
   visualModel: VisualModel | null
 ) {
-  await extendThroughClassProfile(nodeSelection, visibilityFilter, "PARENT", outputToExtend, relevantExternalModels, contextEntities, visualModel);
+  extendThroughClassProfile(nodeSelection, visibilityFilter, "PARENT", outputToExtend, contextEntities, visualModel);
 }
 
 /**
- * Extends {@link outputToExtend} by all direct profile classes, which also pass the {@link visibilityFilter}
- * and may possibly reside in non-expanded parts of {@link relevantExternalModels}.
- * The result of extension is put inside {@link outputToExtend} (non-destructively - i.e. the parameter is extended by the result).
+ * Extends {@link outputToExtend} by all direct profile classes, which also pass the {@link visibilityFilter}.
+ * The result of extension is put inside {@link outputToExtend}
+ * (non-destructively - i.e. the parameter is extended by the result).
  */
-async function extendThroughClassProfileChildren(
+function extendThroughClassProfileChildren(
   nodeSelection: NodeSelection,
   visibilityFilter: VisibilityFilter,
   outputToExtend: SelectionExtension,
-  relevantExternalModels: ExternalSemanticModel[] | null,
   contextEntities: ClassesContextEntities,
   visualModel: VisualModel | null
-): Promise<void> {
-  await extendThroughClassProfile(
+): void {
+  extendThroughClassProfile(
     nodeSelection, visibilityFilter, "CHILD", outputToExtend,
-    relevantExternalModels, contextEntities, visualModel);
+    contextEntities, visualModel);
 }
 
 //

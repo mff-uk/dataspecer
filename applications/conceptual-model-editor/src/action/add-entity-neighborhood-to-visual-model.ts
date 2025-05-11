@@ -158,7 +158,7 @@ export const addEntityNeighborhoodToVisualModelAction = async (
   }
 }
 
-async function addSemanticClassOrClassProfileToVisualModelCommand(
+function addSemanticClassOrClassProfileToVisualModelCommand(
   notifications: UseNotificationServiceWriterType,
   classes: ClassesContextType,
   graph: ModelGraphContextType,
@@ -167,7 +167,7 @@ async function addSemanticClassOrClassProfileToVisualModelCommand(
   model: string,
   position: { x: number, y: number },
   content: string[] | null
-): Promise<string> {
+): string {
   const nodeContent = content ?? getVisualNodeContentBasedOnExistingEntities(
     classes, entity);
   const createdNodeIdentifier = visualModel.addVisualNode({
@@ -186,15 +186,15 @@ async function addSemanticClassOrClassProfileToVisualModelCommand(
     identifiers: [entity.id],
     areIdentifiersFromVisualModel: false
   };
-  const classProfileChildren = await extendSelectionAction(
+  const classProfileChildren = extendSelectionAction(
     notifications, graph, classes, inputForExtension,
     [ExtensionType.ClassProfileChild],
-    VisibilityFilter.All, false, null);
+    VisibilityFilter.All, null);
 
-  const classProfileParents = await extendSelectionAction(
+  const classProfileParents = extendSelectionAction(
     notifications, graph, classes, inputForExtension,
     [ExtensionType.ClassProfileParent],
-    VisibilityFilter.All, false, null);
+    VisibilityFilter.All, null);
 
   for (const classProfileChild of classProfileChildren.selectionExtension.nodeSelection) {
     const modelForVisualProfileRelationship = findSourceModelOfEntity(classProfileChild, graph.models);
@@ -313,73 +313,66 @@ const addClassNeighborhoodToVisualModelAction = async (
     identifiers: [identifier],
     areIdentifiersFromVisualModel: false
   };
-  const neighborhoodPromise = extendSelectionAction(
+  const neighborhood = extendSelectionAction(
     notifications, graph, classes, inputForExtension,
     [ExtensionType.Association, ExtensionType.Generalization,
       ExtensionType.ClassProfile, ExtensionType.ProfileEdge],
-    VisibilityFilter.All, false, null);
+    VisibilityFilter.All, null);
 
-  return neighborhoodPromise.then(async (neighborhood) => {
-    const viewportCenter = getViewportCenterForClassPlacement(diagram);
+  const viewportCenter = getViewportCenterForClassPlacement(diagram);
 
-    const classesOrClassProfilesToAdd: EntityToAddToVisualModel[] = [
-      {
-        identifier,
+  const classesOrClassProfilesToAdd: EntityToAddToVisualModel[] = [
+    {
+      identifier,
+      position: { ...viewportCenter }
+    }
+  ];
+
+  // We have to filter the source class, whose neighborhood we are adding, from the extension.
+  // Because we don't want to have duplicate there.
+  classesOrClassProfilesToAdd.push(
+    ...neighborhood.selectionExtension.nodeSelection
+      .filter(node => node !== identifier)
+      .map(node => ({
+        identifier: node,
         position: { ...viewportCenter }
-      }
-    ];
+      }))
+  );
 
-    // We have to filter the source class, whose neighborhood we are adding, from the extension.
-    // Because we don't want to have duplicate there.
-    classesOrClassProfilesToAdd.push(
-      ...neighborhood.selectionExtension.nodeSelection
-        .filter(node => node !== identifier)
-        .map(node => ({
-          identifier: node,
-          position: { ...viewportCenter }
-        }))
-    );
+  const neighborhoodClassesIdentifiers = classesOrClassProfilesToAdd
+    .map(cclass => cclass.identifier);
+  const positions = await findPositionForNewNodesUsingLayouting(
+    notifications, diagram, graph, visualModel, classes, neighborhoodClassesIdentifiers);
+  for (const classOrClassProfileToAdd of classesOrClassProfilesToAdd) {
+    classOrClassProfileToAdd.position = positions[classOrClassProfileToAdd.identifier];
+  }
 
-    const allClasses = [
-      ...classes.classes,
-      ...classes.classProfiles
-    ];
+  for (const classOrClassProfileToAdd of classesOrClassProfilesToAdd) {
+    const position = classOrClassProfileToAdd.position ?? { ...viewportCenter };
 
-    const neighborhoodClassesIdentifiers = classesOrClassProfilesToAdd
-      .map(cclass => cclass.identifier);
-    const positions = await findPositionForNewNodesUsingLayouting(
-      notifications, diagram, graph, visualModel, classes, neighborhoodClassesIdentifiers);
-    for (const classOrClassProfileToAdd of classesOrClassProfilesToAdd) {
-      classOrClassProfileToAdd.position = positions[classOrClassProfileToAdd.identifier];
+    let nodeContent: string[] = [];
+    if (identifier === classOrClassProfileToAdd.identifier) {
+      nodeContent = getAllAttributesForDomainClass(classes, identifier);
     }
 
-    for (const classOrClassProfileToAdd of classesOrClassProfilesToAdd) {
-      const position = classOrClassProfileToAdd.position ?? { ...viewportCenter };
+    await addClassOrClassProfileToVisualModel(
+      notifications, classes, graph, diagram, visualModel,
+      classOrClassProfileToAdd.identifier, position, false, nodeContent);
+  }
 
-      let nodeContent: string[] = [];
-      if (identifier === classOrClassProfileToAdd.identifier) {
-        nodeContent = getAllAttributesForDomainClass(classes, identifier);
-      }
+  const allNeighborhoodSemanticEdges = neighborhood.selectionExtension.edgeSelection
+    .map(semanticEdge => ({ identifier: semanticEdge, position: null }));
 
-      await addClassOrClassProfileToVisualModel(
-        notifications, classes, graph, diagram, visualModel,
-        classOrClassProfileToAdd.identifier, position, false, nodeContent);
-    }
+  const allConnections = [
+    ...classes.generalizations,
+    ...classes.relationships,
+    ...classes.relationshipProfiles
+  ];
 
-    const allNeighborhoodSemanticEdges = neighborhood.selectionExtension.edgeSelection
-      .map(semanticEdge => ({ identifier: semanticEdge, position: null }));
-
-    const allConnections = [
-      ...classes.generalizations,
-      ...classes.relationships,
-      ...classes.relationshipProfiles
-    ];
-
-    for (const neighborhoodSemanticEdge of allNeighborhoodSemanticEdges) {
-      addSemanticConnectionBetweenAllValidVisualNodes(
-        notifications, allConnections, graph.models, visualModel, neighborhoodSemanticEdge.identifier);
-    }
-  });
+  for (const neighborhoodSemanticEdge of allNeighborhoodSemanticEdges) {
+    addSemanticConnectionBetweenAllValidVisualNodes(
+      notifications, allConnections, graph.models, visualModel, neighborhoodSemanticEdge.identifier);
+  }
 };
 
 function getAllAttributesForDomainClass(

@@ -340,7 +340,7 @@ export interface ActionsContextType extends DialogActions, VisualModelActions {
     visibilityFilter: VisibilityFilter,
     semanticModelFilter: Record<string, boolean> | null,
     shouldExtendByNodeDuplicates: boolean,
-  ) => Promise<Selections>;
+  ) => Selections;
 
   filterSelection: (
     selections: SelectionsWithIdInfo,
@@ -403,7 +403,7 @@ const noOperationActionsContext: ActionsContextType = {
   openExtendSelectionDialog: noOperation,
   openFilterSelectionDialog: noOperation,
   // TODO PRQuestion: How to define this - Should actions return values?, shouldn't it be just function defined in utils?
-  extendSelection: async () => ({ nodeSelection: [], edgeSelection: [] }),
+  extendSelection: () => ({ nodeSelection: [], edgeSelection: [] }),
   filterSelection: () => ({ nodeSelection: [], edgeSelection: [] }),
   highlightNodeInExplorationModeFromCatalog: noOperation,
   openSearchExternalSemanticModelDialog: noOperation,
@@ -968,16 +968,16 @@ function createActionsContext(
     dialogs?.openDialog(createFilterSelectionDialog(onConfirm, selections, setSelections));
   };
 
-  const extendSelection = async (
+  const extendSelection = (
     nodeSelection: NodeSelection,
     extensionTypes: ExtensionType[],
     visibilityFilter: VisibilityFilter,
     semanticModelFilter: Record<string, boolean> | null,
     shouldExtendByNodeDuplicates: boolean = true,
   ) => {
-    const selectionExtension = await extendSelectionAction(
+    const selectionExtension = extendSelectionAction(
       notifications, graph, classes, nodeSelection,
-      extensionTypes, visibilityFilter, false, semanticModelFilter,
+      extensionTypes, visibilityFilter, semanticModelFilter,
       shouldExtendByNodeDuplicates);
     return selectionExtension.selectionExtension;
   };

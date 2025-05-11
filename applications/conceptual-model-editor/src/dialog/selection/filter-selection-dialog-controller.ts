@@ -71,7 +71,9 @@ export interface CreateFilterSelectionControllerType {
     setFilterActivness: (next: {index: number, isActive: boolean}) => void;
 }
 
-export function useFilterSelectionController({ state, changeState }: DialogProps<SelectionFilterState>): CreateFilterSelectionControllerType {
+export function useFilterSelectionController(
+  { state, changeState }: DialogProps<SelectionFilterState>
+): CreateFilterSelectionControllerType {
   return useMemo(() => {
 
     const setFilterActivness = (next: {index: number, isActive: boolean}) => {
