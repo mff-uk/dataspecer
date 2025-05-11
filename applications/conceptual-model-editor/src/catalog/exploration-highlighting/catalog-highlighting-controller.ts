@@ -1,12 +1,13 @@
 import { useCallback, useMemo } from "react";
-import { useExploration } from "../context/highlighting-exploration-mode";
-import { ReactFlowInstance } from "@xyflow/react";
-import { EdgeType, NodeType } from "../../../../diagram-controller";
+import { useExploration } from "../../context/highlighting-exploration-mode";
 
 export const getDefaultClassNamesForEntityCatalogRow = () => {
   return "flex flex-row justify-between flex-wrap whitespace-nowrap hover:shadow highlight-catalog-transition-default";
 };
 
+/**
+ * @returns Returns the class names to use for entity based on which higlighting it has.
+ */
 const getClassNamesBasedOnHighlighting = (
   highlightLevels: Record<string, number>,
   semanticEntityId: string
@@ -36,21 +37,15 @@ const getClassNamesBasedOnHighlighting = (
 export const useCatalogHighlightingController = () => {
   const {
     highlightLevels,
-    changeHighlight,
     resetHighlight,
     semanticToVisualIdentifierMap,
     shouldShrinkCatalog,
     isHighlightingChangeAllowed,
   } = useExploration();
 
-  const highlightEntity = (
-    entityId: string,
-    reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
-    modelOfClassWhichStartedHighlighting: string | null
-  ) => {
-    changeHighlight([entityId], reactFlowInstance, false, modelOfClassWhichStartedHighlighting);
-  };
-
+  /**
+   * Returns the classname this entity should have for current highlighting
+   */
   const getClassNames = useCallback((semanticEntityId: string) => {
     semanticEntityId = semanticToVisualIdentifierMap[semanticEntityId];
     return getClassNamesBasedOnHighlighting(highlightLevels, semanticEntityId);
@@ -63,7 +58,6 @@ export const useCatalogHighlightingController = () => {
   const isAnyEntityHighlighted = useMemo(() => Object.values(highlightLevels).length, [highlightLevels]);
 
   return {
-    highlightEntity,
     resetHighlight,
     getClassNames,
     shouldShrinkCatalog,

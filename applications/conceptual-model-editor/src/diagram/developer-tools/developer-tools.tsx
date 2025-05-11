@@ -18,7 +18,7 @@ import {
 } from "@xyflow/react";
 
 import "./developer-tools.css";
-import { useExploration } from "../features/highlighting/exploration/context/highlighting-exploration-mode";
+import { useExploration } from "../../context/highlighting-exploration-mode";
 import { t } from "../../application";
 import { useActions } from "@/action/actions-react-binding";
 
