@@ -435,7 +435,6 @@ export const getOtherCoordinate = (coordinate: Coordinate): Coordinate => {
   return coordinate === "x" ? "y" : "x";
 };
 
-
 /**
  * @returns The visual content (attributes) of node to relevant values existing in semantic model.
  */

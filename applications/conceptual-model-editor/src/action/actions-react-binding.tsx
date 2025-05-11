@@ -558,7 +558,7 @@ function createActionsContext(
           notifications.error("Node which changed position can not be found in visual model.");
           return;
         }
-        visualModel.updateVisualEntity(identifier, { position: { ...position, anchored: node.position.anchored} });
+        visualModel.updateVisualEntity(identifier, { position: { ...position, anchored: node.position.anchored } });
       }
     });
   };
