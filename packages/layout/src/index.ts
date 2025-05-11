@@ -104,6 +104,17 @@ export type VisualEntitiesWithOutsiders = {
 	outsiders: Record<string, XY | null>;
 };
 
+
+/**
+ * Layout given visual entities.
+ * @param visualModel The visual model the entities are part ofperform layout on.
+ * @param semanticModels map of the semantic models
+ * @param entitiesToLayout the entities to be layouted
+ * @param config the layout configuration
+ * @param nodeDimensionQueryHandler optional parameter to estimate dimensions of nodes for the layouting
+ * @param explicitAnchors If this is undefined then use the anchors of visual model, otherwise it depends on the given anchors' settings.
+ * @returns Promise with new positions of the visual entities.
+ */
 export async function performLayout(
 	visualModel: VisualModel,
 	semanticModels: Map<string, EntityModel>,
