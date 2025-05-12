@@ -73,6 +73,9 @@ const PREFIX_MAP: Record<string, string> = {
   "http://www.w3.org/2006/time#": "time",
   "http://www.w3.org/2006/vcard/ns#": "vcard",
   "http://www.w3.org/2001/XMLSchema#": "xsd",
+  "http://www.w3.org/ns/dx/prof/": "prof",
+  "https://w3id.org/dsv-dap#": "dsv-dap",
+  "https://w3id.org/dsv#": "dsv",
 };
 
 export type DocumentationGeneratorInputModel = {
