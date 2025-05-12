@@ -296,7 +296,7 @@ export async function generateSpecification(packageId: string, context: Generate
       const dsvEntry = semanticDataSpecification({
         id: modelIri,
         types: [OWL.Ontology],
-        title: model.title ?? {},
+        title: resource.getUserMetadata().label ?? model.title ?? {},
         //token: "xxx",
         profileOf: [...usedVocabularies],
         hasResource,
@@ -333,7 +333,7 @@ export async function generateSpecification(packageId: string, context: Generate
       const dsvEntry = semanticDataSpecification({
         id: modelIri,
         types: [DSV.ApplicationProfile],
-        title: model.title ?? {},
+        title: resource.getUserMetadata().label ?? model.title ?? {},
         //token: "xxx",
         profileOf: [...usedVocabularies],
         hasResource,
