@@ -192,6 +192,15 @@ export const defaultConfiguration: DocumentationConfiguration = {
 
   <table class="def">
     <tr>
+      <td>{{#iflng "cs"}}IRI profilů{{lng}}Profile IRI(s){{/iflng}}</td>
+      <td>
+        {{#each aggregation.conceptIris}}
+          {{#if @index}}<br />{{/if}}
+          <a href="{{{.}}}">{{prefixed .}}</a>
+        {{/each}}
+      </td>
+    </tr>
+    <tr>
       <td>IRI</td>
       <td><a href="{{{iri}}}">{{prefixed iri}}</a></td>
     </tr>
@@ -271,6 +280,15 @@ export const defaultConfiguration: DocumentationConfiguration = {
   <h4>{{#translate aggregation.ends.1.name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}</h4>
 
   <table class="def">
+    <tr>
+      <td>{{#iflng "cs"}}IRI profilů{{lng}}Profile IRI(s){{/iflng}}</td>
+      <td>
+        {{#each aggregation.ends.1.conceptIris}}
+          {{#if @index}}<br />{{/if}}
+          <a href="{{{.}}}">{{prefixed .}}</a>
+        {{/each}}
+      </td>
+    </tr>
     <tr>
       <td>IRI</td>
       <td><a href="{{{ends.1.iri}}}">{{prefixed ends.1.iri}}</a></td>
