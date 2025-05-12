@@ -192,7 +192,7 @@ export const defaultConfiguration: DocumentationConfiguration = {
 
   <table class="def">
     <tr>
-      <td>{{#iflng "cs"}}IRI profilů{{lng}}Profile IRI(s){{/iflng}}</td>
+      <td>{{#iflng "cs"}}IRI profilovaných tříd{{lng}}Profiled class IRI(s){{/iflng}}</td>
       <td>
         {{#each aggregation.conceptIris}}
           {{#if @index}}<br />{{/if}}
@@ -281,7 +281,7 @@ export const defaultConfiguration: DocumentationConfiguration = {
 
   <table class="def">
     <tr>
-      <td>{{#iflng "cs"}}IRI profilů{{lng}}Profile IRI(s){{/iflng}}</td>
+      <td>{{#iflng "cs"}}IRI profilovaných vztahů{{lng}}Profiled relationship IRI(s){{/iflng}}</td>
       <td>
         {{#each aggregation.ends.1.conceptIris}}
           {{#if @index}}<br />{{/if}}
