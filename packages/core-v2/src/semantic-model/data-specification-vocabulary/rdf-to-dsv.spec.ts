@@ -17,9 +17,11 @@ test("From RDF to DSV and back.", async () => {
 @prefix cardinality: <https://w3id.org/dsv/cardinality#>.
 @prefix requirement: <https://w3id.org/dsv/requirement-level#>.
 @prefix role: <https://w3id.org/dsv/class-role#>.
+@prefix prof: <http://www.w3.org/ns/dx/prof/>.
+@prefix : <http://dcat-ap-cz/model>.
 
 
-<http://dcat-ap-cz/model> a dsv:ApplicationProfile.
+<http://dcat-ap-cz/model> a prof:Profile, dsv:ApplicationProfile.
 
 <https://dcat-ap/#Dataset> dct:isPartOf <http://dcat-ap-cz/model>;
     a dsv:TermProfile;

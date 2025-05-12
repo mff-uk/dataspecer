@@ -557,49 +557,49 @@ test("Issue #1005", async () => {
 @prefix cardinality: <https://w3id.org/dsv/cardinality#>.
 @prefix requirement: <https://w3id.org/dsv/requirement-level#>.
 @prefix role: <https://w3id.org/dsv/class-role#>.
+@prefix prof: <http://www.w3.org/ns/dx/prof/>.
+@prefix : <http://dcat/model/>.
 
 
-<http://dcat/model/> a dsv:ApplicationProfile.
-
-<http://dcat/model/juicyBusinessProfile> dct:isPartOf <http://dcat/model/>;
+<http://dcat/model/> a prof:Profile, dsv:ApplicationProfile.
+:juicyBusinessProfile dct:isPartOf <http://dcat/model/>;
     a dsv:TermProfile;
     skos:prefLabel "Juicy Business"@en;
     dsv:reusesPropertyValue [
   a dsv:PropertyValueReuse;
   dsv:reusedProperty skos:definition;
-  dsv:reusedFromResource <http://dcat/model/juicyBusiness>
+  dsv:reusedFromResource :juicyBusiness
 ];
     a dsv:ClassProfile;
-    dsv:class <http://dcat/model/juicyBusiness>.
-
-<http://dcat/model/bulkyForceProfile> dct:isPartOf <http://dcat/model/>;
+    dsv:class :juicyBusiness.
+:bulkyForceProfile dct:isPartOf <http://dcat/model/>;
     a dsv:TermProfile;
     skos:prefLabel "Bulky Force"@en;
-    dsv:specializes <http://dcat/model/juicyBusinessProfile>;
+    dsv:specializes :juicyBusinessProfile;
     dsv:reusesPropertyValue [
   a dsv:PropertyValueReuse;
   dsv:reusedProperty skos:definition;
-  dsv:reusedFromResource <http://dcat/model/bulkyForce>
+  dsv:reusedFromResource :bulkyForce
 ];
     a dsv:ClassProfile;
-    dsv:class <http://dcat/model/bulkyForce>.
+    dsv:class :bulkyForce.
 
-<http://dcat/model/BulkyForce.juicyWork> dsv:domain <http://dcat/model/bulkyForceProfile>;
+<http://dcat/model/BulkyForce.juicyWork> dsv:domain :bulkyForceProfile;
     dct:isPartOf <http://dcat/model/>;
     a dsv:TermProfile;
     skos:prefLabel "Juicy Work"@en;
-    dsv:property <http://dcat/model/juicyWork>;
+    dsv:property :juicyWork;
     a dsv:ObjectPropertyProfile;
-    dsv:objectPropertyRange <http://dcat/model/juicyBusinessProfile>.
+    dsv:objectPropertyRange :juicyBusinessProfile.
 
-<http://dcat/model/JuicyBusiness.juicyWorkSpecial> dsv:domain <http://dcat/model/bulkyForceProfile>;
+<http://dcat/model/JuicyBusiness.juicyWorkSpecial> dsv:domain :bulkyForceProfile;
     dct:isPartOf <http://dcat/model/>;
     a dsv:TermProfile;
     skos:prefLabel "Juicy Work"@en;
     dsv:specializes <http://dcat/model/BulkyForce.juicyWork>;
-    dsv:property <http://dcat/model/juicyWork>;
+    dsv:property :juicyWork;
     a dsv:ObjectPropertyProfile;
-    dsv:objectPropertyRange <http://dcat/model/juicyBusinessProfile>.
+    dsv:objectPropertyRange :juicyBusinessProfile.
 `;
 
   expect(actualRdf).toStrictEqual(expectedRdf);
