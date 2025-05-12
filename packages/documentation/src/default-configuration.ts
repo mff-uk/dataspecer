@@ -5,101 +5,111 @@ export const defaultConfiguration: DocumentationConfiguration = {
     // [DOCUMENTATION_MAIN_TEMPLATE_PARTIAL]
     specification: `{{> definitions}}
 <!DOCTYPE html>
-  <html>
-    <head>
-      {{> html-head}}
-    </head>
-    <body>
-      <p class="copyright"></p>
-      <section id="abstract">
-        <p>
-          {{#iflng "cs"}}Tento soubor dokumentuje{{lng}}This file documents{{/iflng}}
-          {{#translate label}}<strong>{{translation}}</strong>{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}.</p>
-      </section>
+<html>
+  <head>
+    {{> html-head}}
+  </head>
+  <body>
+    <p class="copyright"></p>
+    <section id="abstract">
+      <p>
+        {{#iflng "cs"}}Tento soubor dokumentuje{{lng}}This file documents{{/iflng}}
+        {{#translate label}}<strong>{{translation}}</strong>{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}.</p>
+    </section>
 
+    <section>
+      <h2>{{#iflng "cs"}}Přehled{{lng}}Overview{{/iflng}}</h2>
+
+      {{#each externalArtifacts.svg}}
+        <a href="{{{URL}}}">
+          <figure>
+            <img src="{{{URL}}}" alt="{{translate ./label}}" />
+            <figcaption>{{translate ./label}}</figcaption>
+          </figure>
+        </a>
+      {{/each}}
+    </section>
+
+    {{json locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#main]}}
+    {{json locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#supportive]}}
+
+    {{#if locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#main]}}dddddddddd
       <section>
-        <h2>{{#iflng "cs"}}Přehled{{lng}}Overview{{/iflng}}</h2>
+        <h2>{{#iflng "cs"}}Hlavní profily tříd{{lng}}Main class profiles{{/iflng}}</h2>
 
-        {{#each externalArtifacts.svg}}
-          <a href="{{{URL}}}">
-            <figure>
-              <img src="{{{URL}}}" alt="{{translate ./label}}" />
-              <figcaption>{{translate ./label}}</figcaption>
-            </figure>
-          </a>
-        {{/each}}
-      </section>
-
-      <section>
-        <h2>{{#iflng "cs"}}Třídy{{lng}}Classes{{/iflng}}</h2>
-
-        {{#if locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#main]}}
-          <section>
-            <h3>{{#iflng "cs"}}Hlavní třídy{{lng}}Main classes{{/iflng}}</h3>
-
-            {{#each locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#main]}}
-              {{#ifEquals type.[0] "class-profile"}}
-                {{> class-profile}}
-              {{/ifEquals}}
-            {{/each}}
-          </section>
-        {{/if}}
-
-        {{#if locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#supportive]}}
-          <section>
-            <h3>{{#iflng "cs"}}Podpůrné třídy{{lng}}Supportive classes{{/iflng}}</h3>
-
-            {{#each locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#supportive]}}
-              {{#ifEquals type.[0] "class-profile"}}
-                {{> class-profile}}
-              {{/ifEquals}}
-            {{/each}}
-          </section>
-        {{/if}}
-
-        {{#each locallyDefinedSemanticEntity}}
-          {{#ifEquals type.[0] "class"}}
-            {{> semantic-model-class}}
+        {{#each locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#main]}}
+          {{#ifEquals type.[0] "class-profile"}}
+            {{> class-profile}}
           {{/ifEquals}}
         {{/each}}
+      </section>
+    {{/if}}
+
+    {{#if locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#supportive]}}sssssssssss
+      <section>
+        <h2>{{#iflng "cs"}}Podpůrné profily třídy{{lng}}Supportive class profiles{{/iflng}}</h2>
+
+        {{#each locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#supportive]}}
+          {{#ifEquals type.[0] "class-profile"}}
+            {{> class-profile}}
+          {{/ifEquals}}
+        {{/each}}
+      </section>
+    {{/if}}
+
+    {{#if (and (non-empty locallyDefinedSemanticEntityByTags.default) (non-empty semanticEntitiesByType.classProfiles))}}
+      <section>
+        {{#if (or locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#main] locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#supportive])}}
+          <h2>{{#iflng "cs"}}Nezařazené profily tříd{{lng}}Other class profiles{{/iflng}}</h2>
+        {{else}}
+          <h2>{{#iflng "cs"}}Profily tříd{{lng}}Class profiles{{/iflng}}</h2>
+        {{/if}}
 
         {{#each locallyDefinedSemanticEntityByTags.default}}
           {{#ifEquals type.[0] "class-profile"}}
             {{> class-profile}}
           {{/ifEquals}}
         {{/each}}
+      </section>
+    {{/if}}
 
-        </section>
+    {{#if semanticEntitiesByType.classes}}
+      <section>
+        <h2>{{#iflng "cs"}}Třídy{{lng}}Classes{{/iflng}}</h2>
 
-        <section>
+        {{#each locallyDefinedSemanticEntity}}
+          {{#ifEquals type.[0] "class"}}
+            {{> semantic-model-class}}
+          {{/ifEquals}}
+        {{/each}}
+      </section>
+    {{/if}}
+
+    {{#if semanticEntitiesByType.relationships}}
+      <section>
         <h2>{{#iflng "cs"}}Vlastnosti{{lng}}Properties{{/iflng}}</h2>
         {{#each locallyDefinedSemanticEntity}}
           {{#ifEquals type.[0] "relationship"}}
             {{> semantic-model-relationship}}
           {{/ifEquals}}
         {{/each}}
+      </section>
+    {{/if}}
 
-        {{#each locallyDefinedSemanticEntity}}
-          {{#ifEquals type.[0] "relationship-profile"}}
+    {{#structureModels}}
+      <section>
+      <h2>Specifikace struktury pro {{translate humanLabel}}</h2>
+      <p>{{translate humanDescription}}</p>
 
-          {{/ifEquals}}
-        {{/each}}
-        </section>
+      {{#artifacts}}{{#getDocumentation}}{{> (useTemplate)}}{{/getDocumentation}}{{/artifacts}}
+      </section>
+    {{/structureModels}}
 
-      {{#structureModels}}
-        <section>
-        <h2>Specifikace struktury pro {{translate humanLabel}}</h2>
-        <p>{{translate humanDescription}}</p>
+    {{> used-prefixes}}
 
-        {{#artifacts}}{{#getDocumentation}}{{> (useTemplate)}}{{/getDocumentation}}{{/artifacts}}
-        </section>
-      {{/structureModels}}
-
-      {{> used-prefixes}}
-
-      {{> attachments}}
-    </body>
-  </html>`,
+    {{> attachments}}
+  </body>
+</html>`,
 
     "semantic-model-relationship": `<section id="{{anchor}}">
   <h4>{{#translate ends.1.name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}</h4>

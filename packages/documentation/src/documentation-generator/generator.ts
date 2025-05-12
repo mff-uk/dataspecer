@@ -171,6 +171,14 @@ export async function generateDocumentation(
     label: inputModel.label,
     locallyDefinedSemanticEntity: sortedSemanticModel,
     locallyDefinedSemanticEntityByTags,
+
+    semanticEntitiesByType: {
+      classes: sortedSemanticModel.filter(entity => isSemanticModelClass(entity)),
+      classProfiles: sortedSemanticModel.filter(entity => isSemanticModelClassProfile(entity)),
+      relationships: sortedSemanticModel.filter(entity => isSemanticModelRelationship(entity)),
+      relationshipProfiles: sortedSemanticModel.filter(entity => isSemanticModelRelationshipProfile(entity)),
+    },
+
     dsv: inputModel.dsv,
 
     // The goal of the given documentation
