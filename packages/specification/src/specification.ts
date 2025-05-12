@@ -182,7 +182,16 @@ export async function generateSpecification(packageId: string, context: Generate
    * @todo So far user provide only base IRI for the model. We will use it as a base
    * IRI for metadata.
    */
-  const metaDataBaseIri = userInputIri;
+  let metaDataBaseIri = userInputIri;
+  // This could be considered as a hotfix to generate IRIs for metadata resources
+  if (userInputIri.endsWith("#")) {
+    const withoutHash = userInputIri.substring(0, userInputIri.length - 1);
+    if (withoutHash.endsWith("/")) {
+      metaDataBaseIri = withoutHash.substring(0, withoutHash.length - 1) + "#";
+    } else {
+      metaDataBaseIri = withoutHash + "/#";
+    }
+  }
 
   /**
    * Edge case, this is the IRI of the resource descriptor for HTML as it must not collide with package IRI.
