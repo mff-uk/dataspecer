@@ -43,7 +43,7 @@ export const ADMS = {
 export const RDFS_BASE = "http://www.w3.org/2000/01/rdf-schema#";
 
 export const knownPrefixes = {
-  format: "http://publications.europa.eu/resource/authority/file-type/",
+  filetype: "http://publications.europa.eu/resource/authority/file-type/",
   dsv: "https://w3id.org/dsv#",
   prof: "http://www.w3.org/ns/dx/prof/",
   role: "http://www.w3.org/ns/dx/prof/role/",
