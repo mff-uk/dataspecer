@@ -13,9 +13,10 @@ import { BlobModel } from "./model-repository/blob-model.ts";
 export async function generateLightweightOwl(entities: Record<string, SemanticModelEntity>, baseIri: string, iri: string): Promise<string> {
   // @ts-ignore
   return await generate(Object.values(entities), { baseIri, iri });
-}export async function generateDsv(models: ModelDescription[]): Promise<string> {
+}
+
+export async function generateDsv(models: ModelDescription[], iri: string): Promise<string> {
   // We collect all models as context and all entities for export.
-  const conceptualModelIri = models[0]?.baseIri + "applicationProfileConceptualModel"; // We consider documentation URL as the IRI of the conceptual model.
   const contextModels: DataSpecificationVocabulary.EntityListContainer[] = [];
   const modelForExport: DataSpecificationVocabulary.EntityListContainer = {
     baseIri: "",
@@ -34,7 +35,7 @@ export async function generateLightweightOwl(entities: Record<string, SemanticMo
   // Create context.
   const context = DataSpecificationVocabulary.createContext(contextModels);
   //
-  const conceptualModel = DataSpecificationVocabulary.entityListContainerToConceptualModel(conceptualModelIri, modelForExport, context);
+  const conceptualModel = DataSpecificationVocabulary.entityListContainerToConceptualModel(iri, modelForExport, context);
   return await DataSpecificationVocabulary.conceptualModelToRdf(conceptualModel, { prettyPrint: true });
 }
 /**
