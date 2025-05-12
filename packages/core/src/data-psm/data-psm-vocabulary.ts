@@ -137,6 +137,8 @@ export const SET_ROOTS = PSM + "SetRoots";
 
 export const SET_TECHNICAL_LABEL = PSM + "SetTechnicalLabel";
 
+export const SET_JSON_ENFORCE_CONTEXT = PSM + "SetJsonEnforceContext";
+
 export const SET_JSON_LD_DEFINED_PREFIXES = PSM + "SetJsonLdDefinedPrefixes";
 
 export const SET_JSON_LD_TYPE_MAPPING = PSM + "SetJsonLdDefinedTypeMapping";
