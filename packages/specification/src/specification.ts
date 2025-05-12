@@ -1,116 +1,43 @@
-import { createDefaultConfigurationModelFromJsonObject } from "@dataspecer/core-v2/configuration-model";
 import { LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL } from "@dataspecer/core-v2/model/known-models";
 import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
-import * as DataSpecificationVocabulary from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
-import { generate } from "@dataspecer/core-v2/semantic-model/lightweight-owl";
 import { createSgovModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { withAbsoluteIri } from "@dataspecer/core-v2/semantic-model/utils";
 import { PimStoreWrapper } from "@dataspecer/core-v2/semantic-model/v1-adapters";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
 import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
 import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
-import { getMustacheView } from "@dataspecer/documentation";
-import { createPartialDocumentationConfiguration, DOCUMENTATION_MAIN_TEMPLATE_PARTIAL } from "@dataspecer/documentation/configuration";
-import { generateDocumentation } from "@dataspecer/documentation/documentation-generator";
-import { mergeDocumentationConfigurations } from "./documentation/index.ts";
-import { BlobModel, ModelRepository } from "./model-repository/index.ts";
+import { resourceDescriptor, semanticDataSpecification } from "./dsv/model.ts";
+import { isModelProfile, isModelVocabulary } from "./dsv/utils.ts";
+import { DSV, DSV_CONFORMS_TO, DSV_KNOWN_FORMATS, OWL, OWL_BASE, PROF, RDFS_BASE } from "./dsv/well-known.ts";
+import { ModelRepository } from "./model-repository/index.ts";
+import { ModelDescription } from "./model.ts";
+import { generateDsv, generateHtmlDocumentation, generateLightweightOwl } from "./utils.ts";
+import { dsvModelToJsonLdSerialization } from "./dsv/adapter.ts";
 
-interface ModelDescription {
-  isPrimary: boolean;
-  documentationUrl: string | null;
-  entities: Record<string, SemanticModelEntity>;
-  baseIri: string | null;
-}
-
-async function generateLightweightOwl(entities: Record<string, SemanticModelEntity>, baseIri: string, iri: string): Promise<string> {
-  // @ts-ignore
-  return await generate(Object.values(entities), { baseIri, iri });
-}
-
-async function generateDsv(models: ModelDescription[]): Promise<string> {
-  // We collect all models as context and all entities for export.
-  const conceptualModelIri = models[0]?.baseIri + "applicationProfileConceptualModel"; // We consider documentation URL as the IRI of the conceptual model.
-  const contextModels: DataSpecificationVocabulary.EntityListContainer[] = [];
-  const modelForExport: DataSpecificationVocabulary.EntityListContainer = {
-    baseIri: "",
-    entities: [],
-  };
-  for (const model of models.values()) {
-    contextModels.push({
-      baseIri: model.baseIri ?? "",
-      entities: Object.values(model.entities),
-    });
-    if (model.isPrimary) {
-      modelForExport.baseIri = model.baseIri ?? "";
-      Object.values(model.entities).forEach((entity) => modelForExport.entities.push(entity));
-    }
-  }
-  // Create context.
-  const context = DataSpecificationVocabulary.createContext(contextModels);
-  //
-  const conceptualModel = DataSpecificationVocabulary.entityListContainerToConceptualModel(conceptualModelIri, modelForExport, context);
-  return await DataSpecificationVocabulary.conceptualModelToRdf(conceptualModel, { prettyPrint: true });
-}
+const PIM_STORE_WRAPPER = "https://dataspecer.com/core/model-descriptor/pim-store-wrapper";
+const SGOV = "https://dataspecer.com/core/model-descriptor/sgov";
 
 /**
- * Returns HTML documentation for the given package.
+ * Additional context needed for generating the specification.
+ * Basically this interface contains all functional dependencies.
+ * @todo Consider how this is related to {@link GenerateSpecificationOptions}.
  */
-async function getDocumentationData(
-  thisPackageModel: BlobModel,
-  models: ModelDescription[],
-  options: {
-    externalArtifacts?: Record<
-      string,
-      {
-        type: string;
-        URL: string;
-      }[]
-    >;
-    dsv?: any;
-    language?: string;
-    prefixMap?: Record<string, string>;
-  } = {},
-  generatorContext: GenerateSpecificationContext
-): Promise<string> {
-  const externalArtifacts = options.externalArtifacts ?? {};
-
-  const packageData = await thisPackageModel.getJsonBlob();
-  const configuration = createDefaultConfigurationModelFromJsonObject(packageData as object);
-  const documentationConfiguration = createPartialDocumentationConfiguration(configuration);
-  const fullConfiguration = mergeDocumentationConfigurations([documentationConfiguration]);
-
-  const context = {
-    label: thisPackageModel.getUserMetadata().label ?? {},
-    models,
-    externalArtifacts,
-    dsv: options.dsv,
-    prefixMap: options.prefixMap ?? {},
-  };
-
-  return await generateDocumentation(context, {
-    template: fullConfiguration.partials[DOCUMENTATION_MAIN_TEMPLATE_PARTIAL]!,
-    language: options.language ?? "en",
-    partials: fullConfiguration.partials,
-  }, generatorContext.v1Context ? adapter => getMustacheView(
-    {
-      context: generatorContext.v1Context,
-      specification: generatorContext.v1Specification,
-      artefact: generatorContext.v1Specification.artefacts.find((a: any) => a.generator === "https://schemas.dataspecer.com/generator/template-artifact"),
-    },
-    adapter,
-  ) : undefined);
-}
-
 export interface GenerateSpecificationContext {
   modelRepository: ModelRepository;
   output: StreamDictionary;
 
   fetch: HttpFetch;
 
+  // todo Following properties are temporary to support the old API.
+
   v1Context?: any;
   v1Specification?: any;
+  artifacts?: any;
 }
 
+/**
+ * Additional configuration for generating the specification.
+ */
 export interface GenerateSpecificationOptions {
   /**
    * Generate only a single file specified by this local path.
@@ -130,15 +57,23 @@ export interface GenerateSpecificationOptions {
   subdirectory?: string;
 }
 
-
-
-
-
-
-
-
-
-
+/**
+ * Generates the specification with all the artifacts into the output stream.
+ *
+ * @todo The interface of this function is still not final. We need to properly
+ * consider how generators should work and how to migrate old generators to the
+ * new API.
+ *
+ * ! This function is called from backend and DSE
+ *
+ *  await generateSpecification(packageIri, {
+ *    modelRepository: new BackendModelRepository(resourceModel),
+ *    output: streamDictionary,
+ *    fetch: httpFetch,
+ *  }, {
+ *    queryParams,
+ *  });
+ */
 export async function generateSpecification(packageId: string, context: GenerateSpecificationContext, options: GenerateSpecificationOptions = {}): Promise<void> {
   const subdirectory = options.subdirectory ?? "";
   const queryParams = options.queryParams ?? "";
@@ -146,6 +81,12 @@ export async function generateSpecification(packageId: string, context: Generate
   const model = (await context.modelRepository.getModelById(packageId))!;
   const resource = await model.asPackageModel();
   const subResources = await resource.getSubResources();
+
+  let hasVocabulary = false;
+  let hasApplicationProfile = false;
+
+  //const pckg = await model.asPackageModel();
+  //const baseUrl = (pckg.getUserMetadata() as any)?.documentBaseUrl ?? "";
 
   const prefixMap = {} as Record<string, string>;
 
@@ -160,7 +101,7 @@ export async function generateSpecification(packageId: string, context: Generate
     const subResources = await pckg.getSubResources();
     const semanticModels = subResources.filter((r) => r.types[0] === LOCAL_SEMANTIC_MODEL);
     for (const model of semanticModels) {
-      const data = await (await model.asBlobModel()).getJsonBlob() as any;
+      const data = (await (await model.asBlobModel()).getJsonBlob()) as any;
 
       const modelName = model.getUserMetadata()?.label?.en ?? model.getUserMetadata()?.label?.cs;
       if (modelName && modelName.length > 0 && modelName.match(/^[a-z]+$/)) {
@@ -172,25 +113,27 @@ export async function generateSpecification(packageId: string, context: Generate
         isPrimary: isRoot,
         documentationUrl: (pckg.getUserMetadata() as any)?.documentBaseUrl, //data.baseIri + "applicationProfileConceptualModel", //pckg.userMetadata?.documentBaseUrl,// ?? (isRoot ? "." : null),
         baseIri: data.baseIri,
+        title: model.getUserMetadata()?.label,
       });
     }
-    const sgovModels = subResources.filter((r) => r.types[0] === "https://dataspecer.com/core/model-descriptor/sgov");
+    const sgovModels = subResources.filter((r) => r.types[0] === SGOV);
     for (const sgovModel of sgovModels) {
       const model = createSgovModel("https://slovník.gov.cz/sparql", context.fetch, sgovModel.id);
       const blobModel = await sgovModel.asBlobModel();
-      const data = await blobModel.getJsonBlob() as any;
+      const data = (await blobModel.getJsonBlob()) as any;
       await model.unserializeModel(data);
       models.push({
         entities: model.getEntities() as Record<string, SemanticModelEntity>,
         isPrimary: false,
         documentationUrl: null,
         baseIri: null,
+        title: null,
       });
     }
-    const pimModels = subResources.filter((r) => r.types[0] === "https://dataspecer.com/core/model-descriptor/pim-store-wrapper");
+    const pimModels = subResources.filter((r) => r.types[0] === PIM_STORE_WRAPPER);
     for (const model of pimModels) {
       const blobModel = await model.asBlobModel();
-      const data = await blobModel.getJsonBlob() as any;
+      const data = (await blobModel.getJsonBlob()) as any;
       const constructedModel = new PimStoreWrapper(data.pimStore, data.id, data.alias);
       constructedModel.fetchFromPimStore();
       const entities = constructedModel.getEntities() as Record<string, SemanticModelEntity>;
@@ -200,6 +143,7 @@ export async function generateSpecification(packageId: string, context: Generate
         // @ts-ignore
         documentationUrl: model.userMetadata?.documentBaseUrl ?? null,
         baseIri: null,
+        title: null,
       });
     }
     const packages = subResources.filter((r) => r.types[0] === LOCAL_PACKAGE);
@@ -209,23 +153,87 @@ export async function generateSpecification(packageId: string, context: Generate
   }
   await fillModels(packageId, true);
 
+  /**
+   * Each model has formally its own IRI and a base IRI of its own entities.
+   * Usually these two IRIs are the same. For example we may have a model with
+   * IRI <http://w3id.org/dsv-dap#> and a resource with IRI
+   * <http://w3id.org/dsv-dap#Resource>. Please not that the IRI of the model
+   * ends with a #. In theory, we can have different IRIs for the model and its
+   * entities.
+   *
+   * We then need URL for the physical distribution of the model. The URL may
+   * not match the IRI of the model but is expected that you will be redirected
+   * to the URL.
+   *
+   * We also need IRIs for helper concepts outside of the model. These concepts
+   * describe the distribution of the model for example. For these concepts we
+   * will use IRI of the package.
+   */
+
+  const userInputIri = models.find((m) => m.isPrimary)?.baseIri ?? "";
+
+  /**
+   * Base IRI for helper concepts that belongs to the package and not to the
+   * model.
+   *
+   * Should be dereferenceable and point to some file that describes them.
+   * Therefore should end with a hash.
+   *
+   * @todo So far user provide only base IRI for the model. We will use it as a base
+   * IRI for metadata.
+   */
+  const metaDataBaseIri = userInputIri;
+
+  /**
+   * Edge case, this is the IRI of the resource descriptor for HTML as it must not collide with package IRI.
+   */
+  const metaDataDocumentationIri = metaDataBaseIri.endsWith("#") ? metaDataBaseIri.substring(0, metaDataBaseIri.length - 1) : metaDataBaseIri;
+
+  /**
+   * Main URL for the physical distribution of the specification. It points to
+   * the main page of the specification.
+   */
+  const mainUrl = "."; //metaDataDocumentationIri;
+
+  /**
+   * Base URL for the physical distribution of the specification. It ends with a
+   * slash.
+   */
+  const baseUrl = mainUrl.endsWith("/") ? mainUrl : mainUrl + "/";
+
   // Get used vocabularies
-  const usedVocabularies = new Set<string>();
+
+  const usedVocabularies: {
+    iri: null | string;
+    urls: string[];
+    title: LanguageString;
+  }[] = [];
+
   for (const model of subResources) {
-    if (model.types[0] === "https://dataspecer.com/core/model-descriptor/pim-store-wrapper") {
+    if (model.types[0] === PIM_STORE_WRAPPER) {
       const blobModel = await model.asBlobModel();
-      const data = await blobModel.getJsonBlob() as any;
-      if (data.urls) {
-        for (const url of data.urls) {
-          usedVocabularies.add(url);
-        }
-      }
+      const data = (await blobModel.getJsonBlob()) as any;
+      usedVocabularies.push({
+        iri: null,
+        urls: data.urls ?? [],
+        title: { en: data.alias },
+      });
     }
     if (model.types[0] === LOCAL_PACKAGE) {
+      // We need to obtain IRI of the application profile/vocabulary which is the base IRI of the semantic model.
 
-      const imported = (model.getUserMetadata() as any)?.importedFromUrl as string | undefined;
-      if (imported) {
-        usedVocabularies.add(imported);
+      const importedPackage = await model.asPackageModel();
+      const models = await importedPackage.getSubResources();
+      const semanticModel = models.find((m) => m.types[0] === LOCAL_SEMANTIC_MODEL);
+      if (semanticModel) {
+        const semanticModelBlob = await semanticModel.asBlobModel();
+        const data = (await semanticModelBlob.getJsonBlob()) as any;
+        const baseIri = data.baseIri ?? "";
+        usedVocabularies.push({
+          iri: baseIri,
+          urls: [(model.getUserMetadata() as any)["importedFromUrl"]], // todo
+          title: {},
+        });
       }
     }
   }
@@ -257,139 +265,154 @@ export async function generateSpecification(packageId: string, context: Generate
     }
   };
 
-  const dsvMetadata: any = {
-    "@id": options.queryParams ?? ".",
-    "@type": ["http://purl.org/dc/terms/Standard", "http://www.w3.org/2002/07/owl#Ontology"],
-    "http://purl.org/dc/terms/title": Object.entries(resource.getUserMetadata()?.label ?? {}).map(([lang, value]) => ({
-      "@language": lang,
-      "@value": value,
-    })),
-    "https://w3id.org/dsv#artefact": [],
-    "http://www.w3.org/ns/dx/prof/hasResource": [],
-    "http://purl.org/dc/terms/references": [[...usedVocabularies].map((v) => ({ "@id": v }))], //TODO: remove when every known instance is updated to prof:isProfileOf
-    "http://www.w3.org/ns/dx/prof/isProfileOf": [[...usedVocabularies].map((v) => ({ "@id": v }))],
-  };
+  // Array of all models' resource descriptors' has resource
+  const allModelsHasResource: object[][] = [];
+  const allModelsDsvEntries: object[] = [];
+  // For each model we need to decide whether it is a standalone vocabulary of application profile
+  for (const model of models.filter((m) => m.isPrimary)) {
+    // Resource ID of the Model
+    const modelIri = model.baseIri ?? "";
+    const fileName = isModelVocabulary(model.entities) ? "model.owl.ttl" : "dsv.ttl";
+    // This is the physical location of the model
+    const modelUrl = baseUrl + fileName + queryParams;
 
-  // OWL
-  if (models.length > 0) {
-    // Todo: base iri and iri itself should be part of specification metadata
-    const firstModel = models[0]!;
-    const owl = await generateLightweightOwl(semanticModel, firstModel.baseIri ?? "", firstModel?.baseIri ?? "");
-    if (owl) {
-      await writeFile("model.owl.ttl", owl);
-      externalArtifacts["owl-vocabulary"] = [{ type: "model.owl.ttl", URL: "./model.owl.ttl" + queryParams }];
+    // Process vocabulary models as standalone RDFS vocabularies
+    if (isModelVocabulary(model.entities)) {
+      hasVocabulary = true;
 
-      dsvMetadata["https://w3id.org/dsv#artefact"].push({ //TODO: remove when every known instance is updated to prof:hasResource
-        "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
-        "http://www.w3.org/ns/dx/prof/hasArtifact": [
-          {
-            "@id": "./model.owl.ttl" + queryParams,
-          },
-        ],
-        "http://www.w3.org/ns/dx/prof/hasRole": [
-          {
-            "@id": "http://www.w3.org/ns/dx/prof/role/vocabulary",
-          },
-        ],
+      const hasResource: object[] = [];
+      allModelsHasResource.push(hasResource);
+
+      // This describes the model as a resource, not the descriptor of the serialization
+      const dsvEntry = semanticDataSpecification({
+        id: modelIri,
+        types: [OWL.Ontology],
+        title: model.title ?? {},
+        //token: "xxx",
+        profileOf: [...usedVocabularies],
+        hasSpecification: [metaDataDocumentationIri],
+        hasResource,
       });
-      dsvMetadata["http://www.w3.org/ns/dx/prof/hasResource"].push({
-        "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
-        "http://www.w3.org/ns/dx/prof/hasArtifact": [
-          {
-            "@id": "./model.owl.ttl" + queryParams,
-          },
-        ],
-        "http://www.w3.org/ns/dx/prof/hasRole": [
-          {
-            "@id": "http://www.w3.org/ns/dx/prof/role/vocabulary",
-          },
-        ],
+      allModelsDsvEntries.push(dsvEntry);
+
+      // Serialize the model in OWL
+
+      const owl = await generateLightweightOwl(model.entities, model.baseIri ?? "", modelIri);
+      await writeFile(fileName, owl);
+      // Add entry for the documentation
+      externalArtifacts["owl-vocabulary"] = [{ type: fileName, URL: modelUrl }];
+
+      // Create the descriptor of the OWL serialization
+
+      const descriptor = resourceDescriptor({
+        id: metaDataBaseIri + "spec", // We use URL as IRI of the descriptor resource as it describes itself
+        artifactFullUrl: modelUrl,
+        roles: PROF.ROLE.Vocabulary,
+        conformsTo: [RDFS_BASE, OWL_BASE],
+        format: DSV_KNOWN_FORMATS.rdf,
       });
+      hasResource.push(descriptor);
+    }
+
+    // Process application profile model as a standalone application profile - we do not need to see additional vocabularies for it.
+    if (isModelProfile(model.entities)) {
+      hasApplicationProfile = true;
+
+      const hasResource: object[] = [];
+      allModelsHasResource.push(hasResource);
+
+      // This describes the model as a resource, not the descriptor of the serialization
+      const dsvEntry = semanticDataSpecification({
+        id: modelIri,
+        types: [DSV.ApplicationProfile],
+        title: model.title ?? {},
+        //token: "xxx",
+        profileOf: [...usedVocabularies],
+        hasSpecification: [metaDataDocumentationIri],
+        hasResource,
+      });
+      allModelsDsvEntries.push(dsvEntry);
+
+      // Serialize the model in DSV
+
+      const dsv = await generateDsv([model]);
+      await writeFile(fileName, dsv);
+      externalArtifacts["dsv-profile"] = [{ type: fileName, URL: modelUrl }];
+
+      // Create the descriptor of the DSV serialization
+
+      const descriptor = resourceDescriptor({
+        id: metaDataBaseIri + "dsv",
+        artifactFullUrl: modelUrl,
+        roles: PROF.ROLE.Guidance,
+        conformsTo: [DSV.ApplicationProfileSpecificationDocument, PROF.Profile],
+        format: DSV_KNOWN_FORMATS.rdf,
+      });
+      hasResource.push(descriptor);
     }
   }
 
-  // DSV
-  const dsv = await generateDsv(models);
-  if (dsv) {
-    await writeFile("dsv.ttl", dsv);
-    externalArtifacts["dsv-profile"] = [{ type: "dsv.ttl", URL: "./dsv.ttl" + queryParams }];
-
-    dsvMetadata["https://w3id.org/dsv#artefact"].push({ //TODO: remove when every known instance is updated to prof:hasResource
-      "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
-      "http://www.w3.org/ns/dx/prof/hasArtifact": [
-        {
-          "@id": "./dsv.ttl" + queryParams,
-        },
-      ],
-      "http://www.w3.org/ns/dx/prof/hasRole": [
-        {
-          "@id": "http://www.w3.org/ns/dx/prof/role/schema",
-        },
-      ],
-    });
-    dsvMetadata["http://www.w3.org/ns/dx/prof/hasResource"].push({
-      "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
-      "http://www.w3.org/ns/dx/prof/hasArtifact": [
-        {
-          "@id": "./dsv.ttl" + queryParams,
-        },
-      ],
-      "http://www.w3.org/ns/dx/prof/hasRole": [
-        {
-          "@id": "http://www.w3.org/ns/dx/prof/role/schema",
-        },
-      ],
-    });
-  }
-
-  // All SVGs
+  // Process all SVGs. Because we do not know which svg belongs to which model,
+  // we assign all of them to all models.
   const visualModels = subResources.filter((r) => r.types[0] === LOCAL_VISUAL_MODEL);
   for (const visualModel of visualModels) {
     const model = await visualModel.asBlobModel();
     const svgModel = await model.getJsonBlob("svg");
-    const svg = svgModel ? (svgModel as {svg: string}).svg : null;
+    const svg = svgModel ? (svgModel as { svg: string }).svg : null;
 
     if (svg) {
-      await writeFile(`${visualModel.id}.svg`, svg);
-      externalArtifacts["svg"] = [...(externalArtifacts["svg"] ?? []), {
-        type: "svg",
-        URL: `./${visualModel.id}.svg` + queryParams,
-        label: visualModel.getUserMetadata()?.label,
-      }];
+      const resourceIri = metaDataBaseIri + visualModel.id; // We do not support custom IRIs right now
+      const resourceFileName = visualModel.id + ".svg";
+      const resourceUrl = baseUrl + resourceFileName + queryParams;
+
+      await writeFile(resourceFileName, svg);
+      externalArtifacts["svg"] = [
+        ...(externalArtifacts["svg"] ?? []),
+        {
+          type: "svg",
+          URL: "./" + resourceFileName + queryParams,
+          label: visualModel.getUserMetadata()?.label,
+        },
+      ];
+
+      const descriptor = resourceDescriptor({
+        id: resourceIri,
+        artifactFullUrl: resourceUrl,
+        roles: PROF.ROLE.Guidance,
+        format: DSV_KNOWN_FORMATS.svg,
+        conformsTo: DSV_CONFORMS_TO.svg,
+      });
+      allModelsHasResource.forEach((hasResource) => hasResource.push(descriptor));
     }
   }
 
-  // HTML
-  dsvMetadata["https://w3id.org/dsv#artefact"].push({ //TODO: remove when every known instance is updated to prof:hasResource
-    "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
-    "http://www.w3.org/ns/dx/prof/hasArtifact": [
-      {
-        "@id": options.queryParams ?? ".",
-      },
-    ],
-    "http://www.w3.org/ns/dx/prof/hasRole": [
-      {
-        "@id": "http://www.w3.org/ns/dx/prof/role/specification",
-      },
-    ],
+  // Generate HTML
+
+  const types: string[] = [];
+  if (hasVocabulary) {
+    types.push(DSV.VocabularySpecificationDocument);
+  }
+  if (hasApplicationProfile) {
+    types.push(DSV.ApplicationProfileSpecificationDocument);
+  }
+  const htmlDescriptor = resourceDescriptor({
+    id: metaDataDocumentationIri,
+    artifactFullUrl: mainUrl + queryParams,
+    roles: PROF.ROLE.Guidance,
+    format: DSV_KNOWN_FORMATS.html,
+    types,
   });
-  dsvMetadata["http://www.w3.org/ns/dx/prof/hasResource"].push({
-    "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
-    "http://www.w3.org/ns/dx/prof/hasArtifact": [
-      {
-        "@id": options.queryParams ?? ".",
-      },
-    ],
-    "http://www.w3.org/ns/dx/prof/hasRole": [
-      {
-        "@id": "http://www.w3.org/ns/dx/prof/role/specification",
-      },
-    ],
-  });
+  allModelsHasResource.forEach((hasResource) => hasResource.push(structuredClone(htmlDescriptor)));
+  const dsvJsonRoot = { ...htmlDescriptor };
+  // @reverse http://www.w3.org/ns/dx/prof/hasResource
+  dsvJsonRoot["inSpecificationOf"] = allModelsDsvEntries;
+
+  // Generate the DSV serialization in JSON
+  const dsv = dsvModelToJsonLdSerialization(dsvJsonRoot);
 
   for (const lang of langs) {
     const documentation = context.output.writePath(`${subdirectory}${lang}/index.html`);
-    await documentation.write(await getDocumentationData(resource, models, { externalArtifacts, dsv: dsvMetadata, language: lang, prefixMap }, context));
+    await documentation.write(await generateHtmlDocumentation(resource, models, { externalArtifacts, dsv, language: lang, prefixMap }, context));
     await documentation.close();
   }
 }
