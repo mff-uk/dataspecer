@@ -22,7 +22,6 @@ export function semanticDataSpecification(data: {
   token?: string;
   profileOf: object[];
 
-  hasSpecification: string[];
   hasResource: object[];
 }): Record<string, any> {
   const result: Record<string, any> = {
@@ -35,9 +34,6 @@ export function semanticDataSpecification(data: {
     //"description": {},
     // http://www.w3.org/ns/dx/prof/isProfileOf
     isProfileOf: data.profileOf.map((p) => usedVocabulary(p as any)),
-
-    // http://www.w3.org/ns/dx/prof/hasResource
-    hasSpecification: data.hasSpecification,
 
     // http://www.w3.org/ns/dx/prof/hasResource
     hasResource: data.hasResource,

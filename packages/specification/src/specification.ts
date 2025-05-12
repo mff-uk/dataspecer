@@ -299,7 +299,6 @@ export async function generateSpecification(packageId: string, context: Generate
         title: model.title ?? {},
         //token: "xxx",
         profileOf: [...usedVocabularies],
-        hasSpecification: [metaDataDocumentationIri],
         hasResource,
       });
       allModelsDsvEntries.push(dsvEntry);
@@ -337,7 +336,6 @@ export async function generateSpecification(packageId: string, context: Generate
         title: model.title ?? {},
         //token: "xxx",
         profileOf: [...usedVocabularies],
-        hasSpecification: [metaDataDocumentationIri],
         hasResource,
       });
       allModelsDsvEntries.push(dsvEntry);
