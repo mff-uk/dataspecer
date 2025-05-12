@@ -285,6 +285,13 @@ export async function generateSpecification(packageId: string, context: Generate
     // This is the physical location of the model
     const modelUrl = baseUrl + fileName + queryParams;
 
+    // @ts-ignore
+    let modelDescription = resource.getUserMetadata().description;
+    modelDescription = modelDescription ? Object.fromEntries(Object.entries(modelDescription).filter(([_, v]) => v)) : undefined;
+    if (Object.keys(modelDescription).length === 0) {
+      modelDescription = undefined;
+    }
+
     // Process vocabulary models as standalone RDFS vocabularies
     if (isModelVocabulary(model.entities)) {
       hasVocabulary = true;
@@ -297,6 +304,7 @@ export async function generateSpecification(packageId: string, context: Generate
         id: modelIri,
         types: [OWL.Ontology],
         title: resource.getUserMetadata().label ?? model.title ?? {},
+        description: modelDescription,
         //token: "xxx",
         profileOf: [...usedVocabularies],
         hasResource,
@@ -334,6 +342,7 @@ export async function generateSpecification(packageId: string, context: Generate
         id: modelIri,
         types: [DSV.ApplicationProfile],
         title: resource.getUserMetadata().label ?? model.title ?? {},
+        description: modelDescription,
         //token: "xxx",
         profileOf: [...usedVocabularies],
         hasResource,

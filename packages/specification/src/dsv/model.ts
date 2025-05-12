@@ -19,6 +19,7 @@ export function semanticDataSpecification(data: {
   types: string[];
 
   title: LanguageString;
+  description?: LanguageString;
   token?: string;
   profileOf: object[];
 
@@ -30,8 +31,8 @@ export function semanticDataSpecification(data: {
 
     // http://purl.org/dc/terms/title
     title: data.title,
-    //// http://purl.org/dc/terms/description
-    //"description": {},
+    // http://purl.org/dc/terms/description
+    ...(data.description ? { description: data.description } : {}),
     // http://www.w3.org/ns/dx/prof/isProfileOf
     isProfileOf: data.profileOf.map((p) => usedVocabulary(p as any)),
 
