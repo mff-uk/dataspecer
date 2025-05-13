@@ -15,22 +15,22 @@ export async function generateLightweightOwl(entities: Record<string, SemanticMo
   return await generate(Object.values(entities), { baseIri, iri });
 }
 
-export async function generateDsv(models: ModelDescription[], iri: string): Promise<string> {
+export async function generateDsv(forExportModels: ModelDescription[], forContextModels: ModelDescription[], iri: string): Promise<string> {
   // We collect all models as context and all entities for export.
   const contextModels: DataSpecificationVocabulary.EntityListContainer[] = [];
   const modelForExport: DataSpecificationVocabulary.EntityListContainer = {
-    baseIri: "",
+    baseIri: iri,
     entities: [],
   };
-  for (const model of models.values()) {
+  for (const model of forContextModels.values()) {
     contextModels.push({
       baseIri: model.baseIri ?? "",
       entities: Object.values(model.entities),
     });
-    if (model.isPrimary) {
-      modelForExport.baseIri = model.baseIri ?? "";
-      Object.values(model.entities).forEach((entity) => modelForExport.entities.push(entity));
-    }
+  }
+  for (const model of forExportModels) {
+    modelForExport.baseIri = model.baseIri ?? "";
+    Object.values(model.entities).forEach((entity) => modelForExport.entities.push(entity));
   }
   // Create context.
   const context = DataSpecificationVocabulary.createContext(contextModels);

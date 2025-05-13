@@ -351,7 +351,7 @@ export async function generateSpecification(packageId: string, context: Generate
 
       // Serialize the model in DSV
 
-      const dsv = await generateDsv([model], modelIri);
+      const dsv = await generateDsv([model], models, modelIri);
       await writeFile(fileName, dsv);
       externalArtifacts["dsv-profile"] = [{ type: fileName, URL: modelUrl }];
 
