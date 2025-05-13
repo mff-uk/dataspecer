@@ -360,7 +360,7 @@ export async function generateSpecification(packageId: string, context: Generate
       const descriptor = resourceDescriptor({
         id: metaDataBaseIri + "dsv",
         artifactFullUrl: modelUrl,
-        roles: PROF.ROLE.Guidance,
+        roles: PROF.ROLE.Specification,
         conformsTo: [DSV.ApplicationProfileSpecificationDocument, PROF.Profile],
         format: DSV_KNOWN_FORMATS.rdf,
       });
