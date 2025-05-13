@@ -19,7 +19,7 @@ import {
 
 import "./developer-tools.css";
 import { useLayoutDialog } from "../../layout/layout-dialog-full";
-import { useExploration } from "../features/highlighting/exploration/context/highlighting-exploration-mode";
+import { useExploration } from "../../context/highlighting-exploration-mode";
 import { t } from "../../application";
 
 /**
