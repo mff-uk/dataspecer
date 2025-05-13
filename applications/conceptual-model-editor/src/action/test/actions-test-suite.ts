@@ -15,7 +15,7 @@ import {
 import { UseDiagramType } from "../../diagram/diagram-hook";
 import { UseNotificationServiceWriterType } from "../../notification/notification-service-context";
 import { ClassesContextType } from "@/context/classes-context";
-import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship, SEMANTIC_MODEL_GENERALIZATION, SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelAttribute, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship, SEMANTIC_MODEL_GENERALIZATION, SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { createClass, CreatedEntityOperationResult, createGeneralization, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { SetStateAction } from "react";
@@ -32,6 +32,7 @@ import { addSemanticRelationshipProfileToVisualModelAction } from "../add-relati
 import { createCmeClassProfile } from "@/dataspecer/cme-model/operation/create-cme-class-profile";
 import { createCmeRelationshipProfile } from "@/dataspecer/cme-model/operation/create-cme-relationship-profile";
 import { addVisualRelationshipsWithSpecifiedVisualEnds } from "@/dataspecer/visual-model/operation/add-visual-relationships";
+import { representRdfsLiteral } from "@/dialog/utilities/dialog-utilities";
 
 export enum TestedSemanticConnectionType {
   Association,
@@ -159,6 +160,9 @@ export class ActionsTestSuite {
             _nodeIdentifiers: string[],
             _modelOfClassWhichStartedHighlighting: string
           ): void {
+            throw new Error("Function not implemented.");
+          },
+          openAlignmentMenu: function (_sourceNode: Node, _canvasPosition: Position): void {
             throw new Error("Function not implemented.");
           }
         }
@@ -751,6 +755,54 @@ export class ActionsTestSuite {
     classesContext.classProfiles = classesContext.classProfiles.concat(newClassProfiles);
     return {
       createdIdentifiers,
+      model,
+    };
+  }
+
+  /**
+   * Creates semantic attribute, adds it to the model and extends the classes context
+   */
+  static createSemanticAttributeTestVariant(
+    classesContext: ClassesContextType,
+    models: Map<string, EntityModel>,
+    domainConceptIdentifier: string,
+    ModelDsIdentifier: string,
+    attributeName: string,
+  ) {
+
+    const range = representRdfsLiteral();
+    const name = { "en": attributeName };
+    const operation = createRelationship({
+      ends: [{
+        iri: null,
+        name: {},
+        description: {},
+        concept: domainConceptIdentifier,
+        cardinality: [0, 1],
+      }, {
+        name,
+        description: {},
+        concept: range.identifier,
+        cardinality: [0, 1],
+        iri: ActionsTestSuite.generateIriForName(name["en"]),
+      }]
+    });
+
+    const model: InMemorySemanticModel = models.get(ModelDsIdentifier) as InMemorySemanticModel;
+    const newAttribute = model.executeOperation(operation) as CreatedEntityOperationResult;
+    if (newAttribute.success === false || newAttribute.id === undefined) {
+      throw new Error("Failed in attribute creation");
+    }
+
+    const attributeObject = model.getEntities()[newAttribute.id];
+    if (!isSemanticModelAttribute(attributeObject)) {
+      throw new Error("Failed when creating attribute");
+    }
+    classesContext.relationships.push(attributeObject);
+    classesContext.rawEntities.push(attributeObject);
+
+    return {
+      identifier: newAttribute.id,
       model,
     };
   }

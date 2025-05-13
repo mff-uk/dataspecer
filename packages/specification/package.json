@@ -10,6 +10,7 @@
   "exports": {
     ".": "./lib/index.js",
     "./documentation": "./lib/documentation/index.js",
+    "./dsv": "./lib/dsv/index.js",
     "./model-repository": "./lib/model-repository/index.js"
   },
   "dependencies": {

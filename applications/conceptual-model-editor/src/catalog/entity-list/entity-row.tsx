@@ -24,9 +24,9 @@ import { MoveViewportToEntityButton } from "../components/center-viewport-on-ent
 import { useOptions } from "../../configuration/options";
 import { useActions } from "../../action/actions-react-binding";
 import { AddNeighborhoodButton } from "../components/add-neighborhood-button";
-import { useCatalogHighlightingController } from "../../diagram/features/highlighting/exploration/catalog/catalog-highlighting-controller";
-import "../../diagram/features/highlighting/exploration/catalog/highlighting-catalog-styles.css";
-import "../../diagram/features/highlighting/exploration/context/exploration-highlighting-styles.css";
+import { useCatalogHighlightingController } from "../exploration-highlighting/catalog-highlighting-controller";
+import "../exploration-highlighting/highlighting-catalog-styles.css";
+import "../../diagram/features/highlighting/exploration/shared-style/exploration-highlighting-styles.css"
 import { isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { getFallbackDisplayName, getNameLanguageString } from "../../util/name-utils";
 import { getLocalizedStringFromLanguageString } from "../../util/language-utils";

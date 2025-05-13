@@ -84,6 +84,7 @@ import { openEditVisualModelDialogAction } from "./open-edit-visual-model-dialog
 import { LayoutConfigurationContextType, useLayoutConfigurationContext } from "@/context/layout-configuration-context";
 import { openCreateClassDialogAndCreateGeneralizationAction } from "./open-create-class-dialog-with-generalization";
 import { openCreateClassDialogAndCreateAssociationAction } from "./open-create-class-dialog-with-association";
+import { alignHorizontallyAction, AlignmentHorizontalPosition, AlignmentVerticalPosition, alignVerticallyAction } from "./align-nodes";
 
 const LOG = createLogger(import.meta.url);
 
@@ -1071,6 +1072,10 @@ function createActionsContext(
       console.log("Application.onShowSelectionActions", { source, canvasPosition });
       diagram.actions().openSelectionActionsMenu(source, canvasPosition);
     },
+    onOpenAlignmentMenu: (source, canvasPosition) => {
+      console.log("Application.onOpenAlignmentMenu", { source, canvasPosition });
+      diagram.actions().openAlignmentMenu(source, canvasPosition);
+    },
     onLayoutSelection: () => {
       // TODO RadStr: Currently does nothing
     },
@@ -1208,6 +1213,20 @@ function createActionsContext(
     onMoveAttributeDown: function (attribute: string, nodeIdentifier: string): void {
       shiftAttributeDown(attribute, nodeIdentifier);
     },
+    onAlignSelectionHorizontally: function (alignmentHorizontalPosition: AlignmentHorizontalPosition): void {
+      withVisualModel(notifications, graph, (visualModel) => {
+        const nodeSelection = getSelections(diagram, true, true).nodeSelection;
+        alignHorizontallyAction(
+          notifications, diagram, visualModel, nodeSelection, alignmentHorizontalPosition);
+      });
+    },
+    onAlignSelectionVertically: (alignmentVerticalPosition: AlignmentVerticalPosition) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        const nodeSelection = getSelections(diagram, true, true).nodeSelection;
+        alignVerticallyAction(
+          notifications, diagram, visualModel, nodeSelection, alignmentVerticalPosition);
+      });
+    }
   };
 
   diagram.setCallbacks(callbacks);
