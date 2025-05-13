@@ -30,10 +30,7 @@ export const defaultConfiguration: DocumentationConfiguration = {
       {{/each}}
     </section>
 
-    {{json locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#main]}}
-    {{json locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#supportive]}}
-
-    {{#if locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#main]}}dddddddddd
+    {{#if locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#main]}}
       <section>
         <h2>{{#iflng "cs"}}Hlavní profily tříd{{lng}}Main class profiles{{/iflng}}</h2>
 
@@ -45,7 +42,7 @@ export const defaultConfiguration: DocumentationConfiguration = {
       </section>
     {{/if}}
 
-    {{#if locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#supportive]}}sssssssssss
+    {{#if locallyDefinedSemanticEntityByTags.[https://w3id.org/dsv/class-role#supportive]}}
       <section>
         <h2>{{#iflng "cs"}}Podpůrné profily třídy{{lng}}Supportive class profiles{{/iflng}}</h2>
 
