@@ -567,7 +567,6 @@ function applyIriPrefix(iri:string) : string {
   return iri;
 }
 
-
 /**
  * Collect and return direct profiles.
  */

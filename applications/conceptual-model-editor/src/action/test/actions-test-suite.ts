@@ -23,16 +23,17 @@ import { createDefaultVisualModelFactory, isVisualNode, VisualDiagramNode, Writa
 import { SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { XY } from "@dataspecer/layout";
 import { ModelGraphContextType, UseModelGraphContextType } from "@/context/model-context";
-import { CmeSpecialization } from "@/dataspecer/cme-model/model";
-import { addVisualDiagramNode } from "@/dataspecer/visual-model/operation/add-visual-diagram-node";
+import { CmeSpecialization } from "../../dataspecer/cme-model/model";
+import { addVisualDiagramNode } from "../../dataspecer/visual-model/operation/add-visual-diagram-node";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { addSemanticGeneralizationToVisualModelAction } from "../add-generalization-to-visual-model";
 import { addSemanticRelationshipToVisualModelAction } from "../add-relationship-to-visual-model";
 import { addSemanticRelationshipProfileToVisualModelAction } from "../add-relationship-profile-to-visual-model";
-import { createCmeClassProfile } from "@/dataspecer/cme-model/operation/create-cme-class-profile";
-import { createCmeRelationshipProfile } from "@/dataspecer/cme-model/operation/create-cme-relationship-profile";
-import { addVisualRelationshipsWithSpecifiedVisualEnds } from "@/dataspecer/visual-model/operation/add-visual-relationships";
-import { representRdfsLiteral } from "@/dialog/utilities/dialog-utilities";
+import { createCmeClassProfile } from "../../dataspecer/cme-model/operation/create-cme-class-profile";
+import { createCmeRelationshipProfile } from "../../dataspecer/cme-model/operation/create-cme-relationship-profile";
+import { addVisualRelationshipsWithSpecifiedVisualEnds } from "../../dataspecer/visual-model/operation/add-visual-relationships";
+import { representRdfsLiteral } from "../../dialog/utilities/dialog-utilities";
+import { createCmeModelOperationExecutor } from "../../dataspecer/cme-model";
 
 export enum TestedSemanticConnectionType {
   Association,
@@ -484,7 +485,7 @@ export class ActionsTestSuite {
       visualModel,
       visualNodeIdentifiers,
       modelAlias,
-      model: firstModel as InMemorySemanticModel,
+      firstModel: firstModel as InMemorySemanticModel,
       models,
       modelsAsArray,
       graph,
@@ -801,6 +802,48 @@ export class ActionsTestSuite {
 
     return {
       identifier: newAttribute.id,
+      model,
+    };
+  }
+
+  static createSemanticAttributeProfileTestVariant(
+    classesContext: ClassesContextType,
+    models: Map<string, EntityModel>,
+    domainAttribute: string,
+    domainConceptIdentifier: string,
+    modelDsIdentifier: string,
+  ) {
+    const range = representRdfsLiteral();
+
+    const model: InMemorySemanticModel = models.get(modelDsIdentifier) as InMemorySemanticModel;
+    const executor = createCmeModelOperationExecutor(models);
+    const result = executor.createRelationshipProfile({
+      model: modelDsIdentifier,
+      profileOf: [domainAttribute],
+      iri: ActionsTestSuite.generateIriForName(domainAttribute),
+      name: null,
+      nameSource: null,
+      description: null,
+      descriptionSource: null,
+      usageNote: null,
+      usageNoteSource: null,
+      //
+      domain: domainConceptIdentifier,
+      domainCardinality: null,
+      range: range.identifier,
+      rangeCardinality: null,
+      externalDocumentationUrl: null,
+      mandatoryLevel: null,
+    });
+
+    const createdAttributeProfile = model.getEntities()[result.identifier];
+    if(!isSemanticModelRelationshipProfile(createdAttributeProfile)) {
+      throw new Error("Failed on set-up when creating semantic attribute profile")
+    }
+    classesContext.relationshipProfiles.push(createdAttributeProfile);
+
+    return {
+      identifier: result.identifier,
       model,
     };
   }
