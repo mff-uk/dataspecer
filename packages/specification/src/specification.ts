@@ -286,9 +286,9 @@ export async function generateSpecification(packageId: string, context: Generate
     const modelUrl = baseUrl + fileName + queryParams;
 
     // @ts-ignore
-    let modelDescription = resource.getUserMetadata().description;
+    let modelDescription = resource.getUserMetadata().description as LanguageString | undefined;
     modelDescription = modelDescription ? Object.fromEntries(Object.entries(modelDescription).filter(([_, v]) => v)) : undefined;
-    if (Object.keys(modelDescription).length === 0) {
+    if (modelDescription && Object.keys(modelDescription).length === 0) {
       modelDescription = undefined;
     }
 
