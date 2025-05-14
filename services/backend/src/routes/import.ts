@@ -347,7 +347,9 @@ async function importFromUrl(parentIri: string, url: string): Promise<[BaseResou
       chunkToParse = new URL(url).pathname;
     } catch (error) {}
 
-    const name = chunkToParse.split("/").pop()?.split(".")[0] ?? null;
+    const chunks = chunkToParse.split("/");
+    const section = chunks.pop() || chunks.pop() || "unnamed"; // handle potential trailing slash
+    const name = section.split(".")[0];
 
     return [
       null,
