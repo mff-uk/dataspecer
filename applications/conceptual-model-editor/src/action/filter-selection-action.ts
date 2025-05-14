@@ -10,9 +10,9 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
  * Type representing filter on the type of entity.
  */
 export enum SelectionFilter {
-    ClassUsage,
+    ClassProfile,
     Class,
-    RelationshipUsage,
+    RelationshipProfile,
     Relationship,
     Generalization
 };
@@ -186,9 +186,9 @@ function filterBasedOnVisibility(
 
 const FILTER_NAME_TO_FILTER_METHOD_MAP: Record<SelectionFilter, SelectionFilterMethod> = {
   [SelectionFilter.Class]: classFilter,
-  [SelectionFilter.ClassUsage]: profileClassFilter,
-  [SelectionFilter.Relationship]: normalEdgeFilter,
-  [SelectionFilter.RelationshipUsage]: profileEdgeFilter,
+  [SelectionFilter.ClassProfile]: profileClassFilter,
+  [SelectionFilter.Relationship]: relatioshipFilter,
+  [SelectionFilter.RelationshipProfile]: profileRelationshipFilter,
   [SelectionFilter.Generalization]: generalizationFilter,
 };
 
@@ -234,7 +234,7 @@ function profileClassFilter(
   });
 }
 
-function normalEdgeFilter(
+function relatioshipFilter(
   nodeSelection: string[],
   areVisualModelIdentifiers: boolean,
   filteredNodeSelection: string[],
@@ -251,7 +251,7 @@ function normalEdgeFilter(
   });
 }
 
-function profileEdgeFilter(
+function profileRelationshipFilter(
   nodeSelection: string[],
   areVisualModelIdentifiers: boolean,
   filteredNodeSelection: string[],

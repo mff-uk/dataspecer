@@ -51,7 +51,7 @@ export function createNewVisualModelAction(
 function addNodesFromSourceModelToTargetModel(
   notifications: UseNotificationServiceWriterType,
   sourceVisualModel: VisualModel,
-  targetModel: WritableVisualModel,
+  targetVisualModel: WritableVisualModel,
   nodesToAdd: string[],
 ) {
   const oldToNewIdMapping: Record<string, string> = {};
@@ -62,7 +62,11 @@ function addNodesFromSourceModelToTargetModel(
       continue;
     }
     if(isVisualNode(visualEntity)) {
-      const newIdentifier = targetModel.addVisualNode({ ...visualEntity });
+      const newIdentifier = targetVisualModel.addVisualNode({ ...visualEntity });
+      oldToNewIdMapping[visualEntity.identifier] = newIdentifier;
+    }
+    else if(isVisualDiagramNode(visualEntity)) {
+      const newIdentifier = targetVisualModel.addVisualDiagramNode(visualEntity);
       oldToNewIdMapping[visualEntity.identifier] = newIdentifier;
     }
   }

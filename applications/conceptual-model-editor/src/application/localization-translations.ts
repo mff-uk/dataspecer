@@ -73,6 +73,14 @@ const dialogClassProfile = prefix(
     "ok-create": "✅ Create",
   });
 
+const dialogLayoutVisualModel = prefix(
+  "dialog.layout-visual-model.", {
+    "cancel": "❌ Cancel",
+    // Perform layout
+    "label-perform": "Autolayout algorithm configuration",
+    "ok-perform": "✅ Perform layout",
+  });
+
 const dialogVisualDiagramNode = prefix(
   "dialog.visual-diagram-node.", {
     "cancel": "❌ Cancel",
@@ -196,6 +204,7 @@ export const translations: Record<string, string | Function> = {
   ...dialogClassProfile,
   ...dialogVisualDiagramNode,
   ...dialogVisualModel,
+  ...dialogLayoutVisualModel,
   ...dataspecer,
   ...dialogVisualNode,
   ...editSemanticModelDialog,
@@ -382,8 +391,8 @@ export const translations: Record<string, string | Function> = {
   "node-add-attribute": "Add a new attribute",
   "node-add-attribute-profile": "Add an attribute profile",
   //
-  "selection-action-button": "Show menu with actions on top of selection",
-  "selection-layout-button": "Show menu with layout actions on top of selection",
+  "selection-action-button": "Show menu with actions, which can be performed on a selection",
+  "selection-layout-button": "Show menu with layout actions, which can be performed on a selection",
   "selection-extend-button": "Show dialog to extend selection",
   "selection-filter-button": "Show dialog to filter selection",
   "selection-group-button": "Create group from selection",
@@ -411,33 +420,35 @@ export const translations: Record<string, string | Function> = {
   "extend-selection-dialog.label": "Extend selection by",
   "extend-selection-dialog.btn-ok": "✅ Accept",
   "extend-selection-dialog.btn-cancel": "❌ Cancel",
-  "extend-selection-association-name": "Association",
-  "extend-selection-generalization-name": "Generalization",
-  "extend-selection-association-profile-name": "Association profile",
-  "extend-selection-class-profile-name": "Class profile",
+  "extend-selection-association-name": "Associations",
+  "extend-selection-generalization-name": "Generalizations",
+  "extend-selection-association-profile-name": "Association profiles",
+  "extend-selection-class-profile-name": "Class profiles",
   "extend-by-incoming-header": "Incoming",
   "extend-by-outgoing-header": "Outgoing",
+  "extend-selection-dialog.extend-button": "Extend",
+  "extend-selection-dialog.only-edges-checkbox": "Only edges",
   //
   "show-all-classes-from-semantic-model-to-visual-model-button.title": "Add all entities from semantic model to visual model",
   "remove-all-classes-contained-semantic-model-from-visual-model-button.title": "Remove all entities from semantic model from the visual model",
   //
-  "exploration-mode-button.title": "Toggle highlighting exploration mode",
+  "exploration-mode-button.title": "Toggle highlighting exploration mode (try hovering with mouse cursor on top of nodes on canvas or classes in catalog)",
   "exploration-mode-button.name": "Exploration",
   //
   "drag-edge-to-canvas-create-association-target": "Create new association target",
   "drag-edge-to-canvas-create-association-source": "Create new association source",
-  "drag-edge-to-canvas-create-generalization-parent": "Create new parent",
-  "drag-edge-to-canvas-create-generalization-child": "Create new child",
+  "drag-edge-to-canvas-create-generalization-parent": "Create new generalization parent",
+  "drag-edge-to-canvas-create-generalization-child": "Create new generalization child",
   //
-  "visual-diagram-node-dissolve-button": "Dissolves node representing visual model. That is the content of the diagram node is put back on canvas.",
-  "visual-diagram-node-hide-button": "Removes the diagram node from canvas.",
-  "visual-diagram-node-add-relationships-button": "Adds all the relationships related to the content of the visual diagram node",
+  "visual-diagram-node-dissolve-button": "Dissolve node representing visual model. That is the diagram node is replaced by its content.",
+  "visual-diagram-node-hide-button": "Remove the diagram node from canvas.",
+  "visual-diagram-node-add-relationships-button": "Add all the relationships related to the content of the visual diagram node to visual model",
   "visual-diagram-node-move-to-source-visual-model-button": "Change visual model to the visual model represented by this diagram node",
   "visual-diagram-node-edit-button": "Edit diagram node's properties",
   "visual-diagram-node-detail-button": "Show info about visual model diagram node",
-  "visual-diagram-node-create-from-selection-button": "Creates new visual model with selected entities and puts diagram node representing the newly created model to the original visual model",
+  "visual-diagram-node-create-from-selection-button": "Create new visual model with selected entities and put diagram node representing the newly created model to the original visual model",
   //
-  "visual-diagram-node-info-dialog.representedVisualModelName": "Represented visual model",
+  "visual-diagram-node-info-dialog.represented-visual-model-name": "Represented visual model",
   //
   "create-visual-model-dialog.label": "Visual model name",
   //
@@ -453,4 +464,37 @@ export const translations: Record<string, string | Function> = {
   "align-top.text": "Align to top",
   "align-vertical-mid.text": "Align to middle",
   "align-bot.text": "Align to bottom",
+  "layout-dialog-open-button": "Layout",
+
+  "layout-dialog-algorithm-configuration-label": "Algorithm configuration",
+  "layout-minimal-distance-between-nodes": "Minimal distance between nodes",
+  "layout-number-of-runs-text": "Number of runs (may take several seconds for high numbers)",
+  "layout-number-of-runs-tooltip": "Specifies the number of times the algorithm should run. The one with best metrics is chosen. For huge diagrams (hundreds of classes) use low values like 1-2, otherwise 10-50 should be the range for mid-size graphs, where 10 seems to find not-perfect but good enough layouts.",
+  "layout-stress-edge-length": "Ideal edge length",
+  "layout-stress-class-profile-edge-length": "Ideal edge length between the class profile and profiled class",
+  "layout-layered-in-layer-length": "Distance between layers",
+  "layout-layered-between-layers-length": "Distance within layer",
+  "layout-layered-edge-routing": "Edge routing",
+  "layout-layered-edge-routing-orthogonal-option": "Orthogonal",
+  "layout-layered-edge-routing-splines-option": "Splines",
+  "layout-layered-edge-routing-polyline-option": "Polyline",
+  "layout-direction-string": "Direction",
+  "layout-edge-direction": "Preferred edge direction",
+  "layout-edge-direction-up": "Up",
+  "layout-edge-direction-right": "Right",
+  "layout-edge-direction-down": "Down",
+  "layout-edge-direction-left": "Left",
+  "layout-interactive-checkbox": "Take existing layout into consideration",
+  "layout-layered-after-checkbox": "Run layered layouting algorithm after",
+  "layout-node-overlap-removal-after-checkbox": "Run node overlap removal after",
+
+  "layout-dialog-chosen-algorithm-label": "Chosen layouting algorithm",
+  "layout-dialog-algorithm-elk-stress": "Force-directed",
+  "layout-dialog-algorithm-elk-stress-class-profile": "Force-directed with class profiles",
+  "layout-dialog-algorithm-elk-layered": "Hierarchical algorithm",
+  "layout-dialog-algorithm-elk-stress-using-clusters": "Force-directed with clusters",
+  "layout-dialog-algorithm-elk-overlap-removal": "Node overlap removal",
+  "layout-dialog-algorithm-random": "Random",
+  "layout-dialog-algorithm-elk-radial": "Elk radial algorithm",
+  "layout-clusters-edge-layout": "Should remove layout of edges in cluster",
 };

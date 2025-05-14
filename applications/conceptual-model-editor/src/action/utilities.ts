@@ -5,18 +5,15 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { configuration, createLogger } from "../application";
 import { ReactflowDimensionsConstantEstimator, XY, placePositionOnGrid } from "@dataspecer/layout";
-import { Position, VisualGroup, VisualModel, WritableVisualModel, isVisualNode, isVisualGroup, isVisualRelationship, VisualNode } from "@dataspecer/core-v2/visual-model";
-import { Edge, EdgeType, Node } from "../diagram";
+import { Position, VisualGroup, VisualModel, WritableVisualModel, isVisualNode, isVisualGroup, isVisualRelationship, VisualDiagramNode, VisualNode, isVisualDiagramNode, VisualEntity } from "@dataspecer/core-v2/visual-model";
+import { DiagramNodeTypes, Edge, EdgeType, Node } from "../diagram";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { ModelGraphContextType } from "../context/model-context";
 import { ClassesContextType } from "../context/classes-context";
 import { ExtensionType, VisibilityFilter, extendSelectionAction } from "./extend-selection-action";
 import { Selections } from "./filter-selection-action";
-import { isSemanticModelAttribute, SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelAttributeUsage, SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelAttributeProfile } from "@/dataspecer/semantic-model";
-import { getDomainAndRange } from "@/util/relationship-utils";
-import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 const LOG = createLogger(import.meta.url);
 
@@ -47,13 +44,13 @@ export function convertToEntitiesToDeleteType(
   return entitiesToDelete;
 }
 
-export function checkIfIsAttributeOrAttributeProfile(
+export function isAttributeOrAttributeProfile(
   entityIdentifier: string,
   allModels: Map<string, EntityModel>,
   sourceModelIdentifier: string
-) {
+): boolean {
   const entity = allModels.get(sourceModelIdentifier)?.getEntities()?.[entityIdentifier] ?? null;
-  const isAttributeOrAttributeProfile = isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity);
+  const isAttributeOrAttributeProfile = isSemanticModelAttribute(entity) || isSemanticModelAttributeProfile(entity);
   return isAttributeOrAttributeProfile;
 }
 
@@ -116,6 +113,7 @@ export function setSelectionsInDiagram(selectionsToSetWith: Selections, diagram:
 
 /**
  * @returns Current selection in diagram, which has data formatted based on function arguments.
+ * The nodes representing visual models have visual identifier of the represented model as an external identifier.
  */
 export function getSelections(
   diagram: UseDiagramType,
@@ -144,11 +142,14 @@ export function getSelections(
 
 function getMapFunctionToExtractIdentifier(shouldGetVisualIdentifiers: boolean) {
   return shouldGetVisualIdentifiers ?
-    ((entity: Node | Edge) => entity.identifier) :
-    ((entity: Node | Edge) => entity.externalIdentifier);
+    ((entity: DiagramNodeTypes | Edge) => entity.identifier) :
+    ((entity: DiagramNodeTypes | Edge) => entity.externalIdentifier);
 }
 
-export function extractIdentifiers(arrayToExtractFrom: Node[] | Edge[], shouldGetVisualIdentifiers: boolean) {
+export function extractIdentifiers(
+  arrayToExtractFrom: DiagramNodeTypes[] | Edge[],
+  shouldGetVisualIdentifiers: boolean
+) {
   const identifierMap = getMapFunctionToExtractIdentifier(shouldGetVisualIdentifiers);
   return arrayToExtractFrom.map(identifierMap);
 }
@@ -270,7 +271,7 @@ export function findTopLevelGroup<T>(
 
 /**
  * Finds the top level group for given {@link identifier}, which represents any kind of node
- * (node, group, super(diagram) node). We are looking for top level group in the given {@link visualModel}
+ * (node, group, visual diagram node). We are looking for top level group in the given {@link visualModel}
  * @returns The identifier of the top level group or null, if the input node identified by {@link identifier} isn't part of any group.
  */
 export function findTopLevelGroupInVisualModel(
@@ -435,8 +436,18 @@ export const getOtherCoordinate = (coordinate: Coordinate): Coordinate => {
   return coordinate === "x" ? "y" : "x";
 };
 
+
+export type VisualEdgeEndPoint = VisualDiagramNode | VisualNode;
 /**
- * @returns The visual content (attributes) of node to relevant values existing in semantic model.
+ * @returns True if the given {@link what} is visual entity, which can be visual end of edge.
+ * Currently that is either {@link VisualNode} or node representing diagram ({@link VisualDiagramNode}).
+ */
+export function isVisualEdgeEnd(what: VisualEntity): what is VisualEdgeEndPoint {
+    return isVisualNode(what) || isVisualDiagramNode(what);
+}
+
+/**
+ * @returns Maximum possible visual content (attributes) of node, that is all relevant values existing in semantic model.
  */
 export function getVisualNodeContentBasedOnExistingEntities(
   classes: ClassesContextType,

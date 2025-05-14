@@ -15,12 +15,14 @@ import {
   isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import {
+  VisualDiagramNode,
   type VisualEntity,
   VisualGroup,
   type VisualModel,
   type VisualNode,
   type VisualProfileRelationship,
   type VisualRelationship,
+  isVisualDiagramNode,
   isVisualGroup,
   isVisualNode,
   isVisualProfileRelationship,
@@ -42,7 +44,7 @@ import { type UseModelGraphContextType, useModelGraphContext } from "./context/m
 import { type UseClassesContextType, useClassesContext } from "./context/classes-context";
 import { cardinalityToHumanLabel, getDomainAndRange } from "./util/relationship-utils";
 import { useActions } from "./action/actions-react-binding";
-import { Diagram, type Edge, EdgeType, Group, type NodeItem, type Node, NodeType, NODE_ITEM_TYPE, NodeRelationshipItem, DiagramOptions, LabelVisual, NodeTitleItem, NODE_TITLE_ITEM_TYPE, EntityColor, ProfileOfVisual } from "./diagram/";
+import { Diagram, type Edge, EdgeType, Group, type NodeItem, type Node, NodeType, NODE_ITEM_TYPE, NodeRelationshipItem, DiagramOptions, LabelVisual, NodeTitleItem, NODE_TITLE_ITEM_TYPE, EntityColor, ProfileOfVisual, VisualModelDiagramNode, DiagramNodeTypes } from "./diagram/";
 import { type UseDiagramType } from "./diagram/diagram-hook";
 import { configuration, createLogger } from "./application";
 import { getDescriptionLanguageString } from "./util/name-utils";
@@ -220,7 +222,7 @@ function onChangeVisualModel(
   const models = graphContext.models;
   const entities = aggregatorView.getEntities();
 
-  const nextNodes: Node[] = [];
+  const nextNodes: DiagramNodeTypes[] = [];
   const nextEdges: Edge[] = [];
   const nextGroups: VisualGroup[] = [];
 
@@ -228,7 +230,12 @@ function onChangeVisualModel(
   const { nodeToGroupMapping } = getGroupMappings(visualModel);
 
   for (const visualEntity of visualEntities) {
-    if (isVisualGroup(visualEntity)) {
+    if(isVisualDiagramNode(visualEntity)) {
+      const node = createVisualModelDiagramNode(
+        options, aggregatorView.getAvailableVisualModels(),
+        visualEntity, nodeToGroupMapping[visualEntity.identifier] ?? null);
+      nextNodes.push(node);
+    } else if(isVisualGroup(visualEntity)) {
       nextGroups.push(visualEntity);
       continue;
     } else if (isVisualNode(visualEntity)) {
@@ -314,6 +321,36 @@ function onChangeVisualModel(
 
   // We do not wait for the promise.
   void diagram.actions().setContent(nextNodes, nextEdges, groupsToSetContentWith);
+}
+
+function createVisualModelDiagramNode(
+  options: ExtendedOptions,
+  availableVisualModels: VisualModel[],
+  visualDiagramNode: VisualDiagramNode,
+  group: string | null,
+): VisualModelDiagramNode {
+  const referencedVisualModel = availableVisualModels.find(availableVisualModel => availableVisualModel.getIdentifier() === visualDiagramNode.representedVisualModel);
+  let referencedVisualModelLabel = referencedVisualModel === undefined ?
+    "" :
+    getLocalizedStringFromLanguageString(referencedVisualModel.getLabel(), options.language);
+  if(referencedVisualModelLabel === null) {
+    referencedVisualModelLabel = "Visual model node";
+  }
+
+  const result: VisualModelDiagramNode = {
+    identifier: visualDiagramNode.identifier,
+    externalIdentifier: visualDiagramNode.representedVisualModel,
+    representedModelAlias: referencedVisualModelLabel,
+    label: referencedVisualModelLabel,
+    group,
+    position: {
+      x: visualDiagramNode.position.x,
+      y: visualDiagramNode.position.y,
+      anchored: visualDiagramNode.position.anchored
+    },
+  };
+
+  return result;
 }
 
 function createDiagramNode(
@@ -602,7 +639,7 @@ function createDiagramEdge(
   visualModel: VisualModel,
   semanticModels: SemanticModelMap,
   entities: SemanticEntityRecord,
-  visualNode: VisualRelationship,
+  visualRelationship: VisualRelationship,
   entity: SemanticModelRelationship | SemanticModelRelationshipUsage |
     SemanticModelGeneralization | SemanticModelRelationshipProfile,
   semanticModel: SemanticModel,
@@ -610,15 +647,15 @@ function createDiagramEdge(
   const identifier = entity.id;
   if (isSemanticModelRelationship(entity)) {
     return createDiagramEdgeForRelationship(
-      options, visualModel, semanticModels, entities, visualNode,
+      options, visualModel, semanticModels, entities, visualRelationship,
       entity, semanticModel);
   } else if (isSemanticModelRelationshipProfile(entity)) {
     return createDiagramEdgeForRelationshipProfile(
-      options, visualModel, semanticModels, entities, visualNode,
+      options, visualModel, semanticModels, entities, visualRelationship,
       entity, semanticModel);
   } else if (isSemanticModelGeneralization(entity)) {
     return createDiagramEdgeForGeneralization(
-      options, visualModel, visualNode, entity);
+      options, visualModel, visualRelationship, entity);
   }
   throw Error(`Unknown entity type ${identifier}.`);
 }
@@ -628,7 +665,7 @@ function createDiagramEdgeForRelationship(
   visualModel: VisualModel,
   semanticModels: SemanticModelMap,
   entities: SemanticEntityRecord,
-  visualNode: VisualRelationship,
+  visualRelationship: VisualRelationship,
   entity: SemanticModelRelationship,
   semanticModel: SemanticModel
 ): Edge {
@@ -637,15 +674,15 @@ function createDiagramEdgeForRelationship(
   return {
     options,
     type: EdgeType.Association,
-    identifier: visualNode.identifier,
+    identifier: visualRelationship.identifier,
     externalIdentifier: entity.id,
     label: getEntityLabelToShowInDiagram(language, entity),
-    source: visualNode.visualSource,
+    source: visualRelationship.visualSource,
     cardinalitySource: cardinalityToHumanLabel(domain?.cardinality),
-    target: visualNode.visualTarget,
+    target: visualRelationship.visualTarget,
     cardinalityTarget: cardinalityToHumanLabel(range?.cardinality),
-    color: visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR,
-    waypoints: visualNode.waypoints,
+    color: visualModel.getModelColor(visualRelationship.model) ?? DEFAULT_MODEL_COLOR,
+    waypoints: visualRelationship.waypoints,
     profileOf: [],
     vocabulary: prepareVocabulary(
       options, visualModel, semanticModels, entities, entity.id),
@@ -659,27 +696,27 @@ function createDiagramEdgeForRelationshipProfile(
   visualModel: VisualModel,
   semanticModels: SemanticModelMap,
   entities: SemanticEntityRecord,
-  visualNode: VisualRelationship,
+  visualRelationship: VisualRelationship,
   entity: SemanticModelRelationshipProfile,
   semanticModel: SemanticModel
 ): Edge {
   const { domain, range } = getDomainAndRange(entity);
   const label = getEntityLabelToShowInDiagram(options.language, entity);
   const iri = prepareIri(semanticModels, semanticModel, entity);
-  const color = visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR;
+  const color = visualModel.getModelColor(visualRelationship.model) ?? DEFAULT_MODEL_COLOR;
   return {
     options,
     type: EdgeType.AssociationProfile,
-    identifier: visualNode.identifier,
+    identifier: visualRelationship.identifier,
     externalIdentifier: entity.id,
     label,
     iri,
-    source: visualNode.visualSource,
+    source: visualRelationship.visualSource,
     cardinalitySource: cardinalityToHumanLabel(domain?.cardinality),
-    target: visualNode.visualTarget,
+    target: visualRelationship.visualTarget,
     cardinalityTarget: cardinalityToHumanLabel(range?.cardinality),
     color,
-    waypoints: visualNode.waypoints,
+    waypoints: visualRelationship.waypoints,
     profileOf: prepareProfileOf(
       options, semanticModels, entities, entity),
     vocabulary: prepareVocabulary(
@@ -691,21 +728,21 @@ function createDiagramEdgeForRelationshipProfile(
 function createDiagramEdgeForGeneralization(
   diagramOptions: DiagramOptions,
   visualModel: VisualModel,
-  visualNode: VisualRelationship,
+  visualRelationship: VisualRelationship,
   entity: SemanticModelGeneralization,
 ): Edge {
-  const color = visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR;
+  const color = visualModel.getModelColor(visualRelationship.model) ?? DEFAULT_MODEL_COLOR;
   return {
     type: EdgeType.Generalization,
-    identifier: visualNode.identifier,
+    identifier: visualRelationship.identifier,
     externalIdentifier: entity.id,
     label: null,
-    source: visualNode.visualSource,
+    source: visualRelationship.visualSource,
     cardinalitySource: null,
-    target: visualNode.visualTarget,
+    target: visualRelationship.visualTarget,
     cardinalityTarget: null,
     color,
-    waypoints: visualNode.waypoints,
+    waypoints: visualRelationship.waypoints,
     profileOf: [],
     iri: null,
     options: diagramOptions,
@@ -724,20 +761,20 @@ function createDiagramEdgeForGeneralization(
 function createDiagramEdgeForClassUsageOrProfile(
   diagramOptions: DiagramOptions,
   visualModel: VisualModel,
-  visualNode: VisualProfileRelationship,
+  visualProfileRelationship: VisualProfileRelationship,
   entity: SemanticModelClassUsage | SemanticModelClassProfile,
 ): Edge | null {
   return {
     type: EdgeType.ClassProfile,
-    identifier: visualNode.identifier,
+    identifier: visualProfileRelationship.identifier,
     externalIdentifier: entity.id,
     label: "<<profile>>",
-    source: visualNode.visualSource,
+    source: visualProfileRelationship.visualSource,
     cardinalitySource: null,
-    target: visualNode.visualTarget,
+    target: visualProfileRelationship.visualTarget,
     cardinalityTarget: null,
     color: "#000000",
-    waypoints: visualNode.waypoints,
+    waypoints: visualProfileRelationship.waypoints,
     profileOf: [],
     iri: null,
     options: diagramOptions,
@@ -811,10 +848,41 @@ function onChangeVisualEntities(
     }
   }
 
+  // TODO RadStr: This (visualDiagramNodesChanges) is here just for debugging, remove later
+  const visualDiagramNodesChanges: {
+    created: VisualModelDiagramNode[],
+    updated: {
+      previous: VisualEntity,
+      next: VisualDiagramNode,
+    }[],
+    removed: VisualEntity[],
+  } = {
+    created: [],
+    updated: [],
+    removed: [],
+  };
+
   for (const { previous, next } of changes) {
     if (next !== null) {
       // New or changed entity.
-      if (isVisualNode(next)) {
+      if(isVisualDiagramNode(next)) {
+        let group: string | null = null;
+        if (nodeIdToParentGroupIdMap[next.identifier] !== undefined) {
+          group = nodeIdToParentGroupIdMap[next.identifier];
+        }
+
+        const node = createVisualModelDiagramNode(
+          options, aggregatorView.getAvailableVisualModels(), next, group);
+        if (previous === null) {
+          // Create new entity.
+          visualDiagramNodesChanges.created.push(node);
+          actions.addNodes([node]);
+        } else {
+          // Change of existing.
+          visualDiagramNodesChanges.updated.push({previous, next});
+          actions.updateNodes([node]);
+        }
+      } else if (isVisualNode(next)) {
         const entity = entities[next.representedEntity]?.aggregatedEntity ?? null;
 
         if (!isSemanticModelClass(entity)
@@ -941,6 +1009,9 @@ function onChangeVisualEntities(
         actions.removeNodes([previous.identifier]);
       } else if (isVisualRelationship(previous) || isVisualProfileRelationship(previous)) {
         actions.removeEdges([previous.identifier]);
+      } else if(isVisualDiagramNode(previous)) {
+        actions.removeNodes([previous.identifier]);
+        visualDiagramNodesChanges.removed.push(previous);
       } else {
         // We ignore other properties.
       }

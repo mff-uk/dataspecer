@@ -45,15 +45,23 @@ export { type ExplicitAnchors } from "./explicit-anchors.ts";
 export { type VisualModelWithOutsiders } from "./graph/representation/graph.ts";
 
 export type {
+	UserGivenAlgorithmConfigurationBase,
 	UserGivenAlgorithmConfigurationElkForce,
-	UserGivenAlgorithmConfigurationExtraAlgorithmsToRunAfter as UserGivenAlgorithmConfigurationExtraData,
+	UserGivenAlgorithmConfigurationExtraAlgorithmsToRunAfter,
 	UserGivenAlgorithmConfigurationLayered,
 	UserGivenAlgorithmConfigurationStress,
 	UserGivenAlgorithmConfigurations,
+	UserGivenAlgorithmConfigurationsMap,
+	UserGivenAlgorithmConfigurationOverlapRemoval,
+	UserGivenAlgorithmConfigurationStressProfile,
+	UserGivenAlgorithmConfigurationStressWithClusters,
+	UserGivenAlgorithmConfigurationRadial,
+	UserGivenAlgorithmConfigurationRandom,
 } from "./configurations/user-algorithm-configurations.ts";
 
 export  {
-	getDefaultUserGivenAlgorithmConfigurationsFull
+	getDefaultUserGivenAlgorithmConfigurationsFull,
+	isUserGivenAlgorithmConfigurationStressProfile,
 } from "./configurations/user-algorithm-configurations.ts";
 
 export { type ElkForceAlgType } from "./configurations/elk/elk-configurations.ts";
@@ -96,6 +104,17 @@ export type VisualEntitiesWithOutsiders = {
 	outsiders: Record<string, XY | null>;
 };
 
+
+/**
+ * Layout given visual entities.
+ * @param visualModel The visual model the entities are part ofperform layout on.
+ * @param semanticModels map of the semantic models
+ * @param entitiesToLayout the entities to be layouted
+ * @param config the layout configuration
+ * @param nodeDimensionQueryHandler optional parameter to estimate dimensions of nodes for the layouting
+ * @param explicitAnchors If this is undefined then use the anchors of visual model, otherwise it depends on the given anchors' settings.
+ * @returns Promise with new positions of the visual entities.
+ */
 export async function performLayout(
 	visualModel: VisualModel,
 	semanticModels: Map<string, EntityModel>,
