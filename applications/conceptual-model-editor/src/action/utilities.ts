@@ -45,7 +45,7 @@ export function convertToEntitiesToDeleteType(
   return entitiesToDelete;
 }
 
-export function checkIfIsAttributeOrAttributeProfile(
+export function isAttributeOrAttributeProfile(
   entityIdentifier: string,
   allModels: Map<string, EntityModel>,
   sourceModelIdentifier: string

@@ -32,7 +32,7 @@ import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
-import { EntityToDelete, isAttributeOrAttributeProfile, convertToEntitiesToDeleteType, findTopLevelGroupInVisualModel, getSelections, getViewportCenterForClassPlacement, setSelectionsInDiagram } from "./utilities";
+import { EntityToDelete, isAttributeOrAttributeProfile, convertToEntitiesToDeleteType, findTopLevelGroupInVisualModel, getSelections, getViewportCenterForClassPlacement, setSelectionsInDiagram, isVisualEdgeEnd } from "./utilities";
 import { removeFromSemanticModelsAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
 import { openCreateAssociationDialogAction } from "./open-create-association-dialog";
