@@ -73,6 +73,14 @@ const dialogClassProfile = prefix(
     "ok-create": "✅ Create",
   });
 
+const dialogLayoutVisualModel = prefix(
+  "dialog.layout-visual-model.", {
+    "cancel": "❌ Cancel",
+    // Perform layout
+    "label-perform": "Autolayout algorithm configuration",
+    "ok-perform": "✅ Perform layout",
+  });
+
 const dialogVisualDiagramNode = prefix(
   "dialog.visual-diagram-node.", {
     "cancel": "❌ Cancel",
@@ -196,6 +204,7 @@ export const translations: Record<string, string | Function> = {
   ...dialogClassProfile,
   ...dialogVisualDiagramNode,
   ...dialogVisualModel,
+  ...dialogLayoutVisualModel,
   ...dataspecer,
   ...dialogVisualNode,
   ...editSemanticModelDialog,
@@ -453,4 +462,37 @@ export const translations: Record<string, string | Function> = {
   "align-top.text": "Align to top",
   "align-vertical-mid.text": "Align to middle",
   "align-bot.text": "Align to bottom",
+  "layout-dialog-open-button": "Layout",
+
+  "layout-dialog-algorithm-configuration-label": "Algorithm configuration",
+  "layout-minimal-distance-between-nodes": "Minimal distance between nodes",
+  "layout-number-of-runs-text": "Number of runs (may take several seconds for high numbers)",
+  "layout-number-of-runs-tooltip": "Specifies the number of times the algorithm should run. The one with best metrics is chosen. For huge diagrams (hundreds of classes) use low values like 1-2, otherwise 10-50 should be the range for mid-size graphs, where 10 seems to find not-perfect but good enough layouts.",
+  "layout-stress-edge-length": "Ideal edge length",
+  "layout-stress-class-profile-edge-length": "Ideal edge length between the class profile and profiled class",
+  "layout-layered-in-layer-length": "Distance between layers",
+  "layout-layered-between-layers-length": "Distance within layer",
+  "layout-layered-edge-routing": "Edge routing",
+  "layout-layered-edge-routing-orthogonal-option": "Orthogonal",
+  "layout-layered-edge-routing-splines-option": "Splines",
+  "layout-layered-edge-routing-polyline-option": "Polyline",
+  "layout-direction-string": "Direction",
+  "layout-edge-direction": "Preferred edge direction",
+  "layout-edge-direction-up": "Up",
+  "layout-edge-direction-right": "Right",
+  "layout-edge-direction-down": "Down",
+  "layout-edge-direction-left": "Left",
+  "layout-interactive-checkbox": "Take existing layout into consideration",
+  "layout-layered-after-checkbox": "Run layered layouting algorithm after",
+  "layout-node-overlap-removal-after-checkbox": "Run node overlap removal after",
+
+  "layout-dialog-chosen-algorithm-label": "Chosen layouting algorithm",
+  "layout-dialog-algorithm-elk-stress": "Force-directed",
+  "layout-dialog-algorithm-elk-stress-class-profile": "Force-directed with class profiles",
+  "layout-dialog-algorithm-elk-layered": "Hierarchical algorithm",
+  "layout-dialog-algorithm-elk-stress-using-clusters": "Force-directed with clusters",
+  "layout-dialog-algorithm-elk-overlap-removal": "Node overlap removal",
+  "layout-dialog-algorithm-random": "Random",
+  "layout-dialog-algorithm-elk-radial": "Elk radial algorithm",
+  "layout-clusters-edge-layout": "Should remove layout of edges in cluster",
 };

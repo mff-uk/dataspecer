@@ -5,7 +5,6 @@ import {
   type NodeProps,
   NodeToolbar,
   Position,
-  useReactFlow,
 } from "@xyflow/react";
 
 import {
@@ -273,7 +272,6 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
       </NodeToolbar>
     </>);
 }
-
 function RelationshipItem(props: {
   options: DiagramOptions,
   data: NodeRelationshipItem,
