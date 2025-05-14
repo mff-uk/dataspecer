@@ -1,5 +1,16 @@
 import { VisualNode, WritableVisualModel, isVisualNode } from "@dataspecer/core-v2/visual-model";
-import { AnchorOverrideSetting, ExplicitAnchors, LayoutedVisualEntities, Node, NodeDimensionQueryHandler, ReactflowDimensionsEstimator, UserGivenAlgorithmConfigurations, VisualModelWithOutsiders, getDefaultUserGivenAlgorithmConfigurationsFull, performLayoutOfVisualModel } from "@dataspecer/layout";
+import {
+  AnchorOverrideSetting,
+  ExplicitAnchors,
+  LayoutedVisualEntities,
+  Node,
+  NodeDimensionQueryHandler,
+  ReactflowDimensionsEstimator,
+  UserGivenAlgorithmConfigurations,
+  VisualModelWithOutsiders,
+  getDefaultUserGivenAlgorithmConfigurationsFull,
+  performLayoutOfVisualModel
+} from "@dataspecer/layout";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
@@ -13,10 +24,14 @@ import { isSemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/
 
 /**
  * @param configuration The configuration for layouting algorithm.
- * @param explicitAnchors For more context check the type {@link ExplicitAnchors}. But in short it is used to override the anchors stored in visual model.
- * @param shouldUpdatePositionsInVisualModel If set to true, then update the visual model. If false then not and only return the result of layouting, default is true.
- * @param outsiders are elements which are not part of visual model, but we want to layout them anyways. Use-case is for example elements which are to be added to visual model.
- * @param shouldPutOutsidersInVisualModel If set to true, then the outsiders will be put into visual model, if false then not, but user can still see them in the returned result. Default is false
+ * @param explicitAnchors For more context check the type {@link ExplicitAnchors}.
+ * But in short it is used to override the anchors stored in visual model.
+ * @param shouldUpdatePositionsInVisualModel If set to true, then update the visual model.
+ * If false then not and only return the result of layouting, default is true.
+ * @param outsiders are elements which are not part of visual model, but we want to layout them anyways.
+ * Use-case is for example elements which are to be added to visual model.
+ * @param shouldPutOutsidersInVisualModel If set to true, then the outsiders will be put into visual model.
+ * If false then not, but user can still see them in the returned result. Default is false
  * @returns
  */
 export async function layoutActiveVisualModel(
@@ -57,6 +72,10 @@ export async function layoutActiveVisualModel(
   });
 }
 
+/**
+ * Calls {@link layoutActiveVisualModel} with default parameters
+ * @returns Returns layouted visual model
+ */
 export async function layoutActiveVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   classes: ClassesContextType,
@@ -98,7 +117,7 @@ export async function findPositionForNewNodesUsingLayouting(
   classes: ClassesContextType,
   identifiers: string[],
 ): Promise<Record<string, XY>> {
-  const identifiersWithPositions: Record<string, XY> = {};
+  const identifierToPositionMap: Record<string, XY> = {};
   const explicitAnchors: ExplicitAnchors = {
     notAnchored: [],
     anchored: [],
@@ -107,7 +126,8 @@ export async function findPositionForNewNodesUsingLayouting(
   for(const identifier of identifiers) {
     const computedInitialPosition = await computeRelatedAssociationsBarycenterAction(
       notifications, graph, visualModel, diagram, classes, identifier);
-    // If there is more than 1 identifier on input, we will just layout it somewhere, so we don't have multiple entities in the middle
+    // If there is more than 1 identifier on input, we will just layout it somewhere,
+    // so we don't have multiple entities in the middle
     // Otherwise put it in the middle (respectively return the middle position)
     if(computedInitialPosition.isInCenterOfViewport && identifiers.length === 1) {
       return {
@@ -118,7 +138,7 @@ export async function findPositionForNewNodesUsingLayouting(
     computedInitialPosition.position.x += Math.floor(Math.random() * maxDeviation) - maxDeviation / 2;
     computedInitialPosition.position.y += Math.floor(Math.random() * maxDeviation) - maxDeviation / 2;
     explicitAnchors.notAnchored.push(identifier);
-    identifiersWithPositions[identifier] = computedInitialPosition.position;
+    identifierToPositionMap[identifier] = computedInitialPosition.position;
   }
 
   const configuration = getDefaultUserGivenAlgorithmConfigurationsFull();
@@ -134,12 +154,13 @@ export async function findPositionForNewNodesUsingLayouting(
   // anchored (for example when they are not connected by any edge).
   const layoutResults = await layoutActiveVisualModel(
     notifications, classes, diagram, graph, visualModel, configuration,
-    explicitAnchors, false, identifiersWithPositions, false);
+    explicitAnchors, false, identifierToPositionMap, false);
 
   for(const identifier of identifiers) {
     // https://stackoverflow.com/questions/50959135/detecting-that-a-function-returned-void-rather-than-undefined
     if(layoutResults !== null && typeof layoutResults === "object") {
-      const newVisualEntityForNewNode = Object.entries(layoutResults).find(([_visualEntityIdentifier, visualEntity]) => {
+      const layoutResultEntries = Object.entries(layoutResults);
+      const newVisualEntityForNewNode = layoutResultEntries.find(([_visualEntityIdentifier, visualEntity]) => {
         if(isVisualNode(visualEntity.visualEntity)) {
           return visualEntity.visualEntity.representedEntity === identifier;
         }
@@ -147,12 +168,12 @@ export async function findPositionForNewNodesUsingLayouting(
       })?.[1].visualEntity;
 
       if(newVisualEntityForNewNode !== undefined && isVisualNode(newVisualEntityForNewNode)) {
-        identifiersWithPositions[identifier] = newVisualEntityForNewNode.position;
+        identifierToPositionMap[identifier] = newVisualEntityForNewNode.position;
       }
     }
   }
 
-  return identifiersWithPositions;
+  return identifierToPositionMap;
 }
 
 //

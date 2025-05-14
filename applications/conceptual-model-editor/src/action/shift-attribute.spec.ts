@@ -14,7 +14,6 @@ import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usag
 import { ShiftAttributeDirection, shiftAttributePositionAction } from "./shift-attribute";
 import { notificationMockup } from "./test/actions-test-suite";
 import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
-import { fail } from "@/utilities/fail-test";
 
 test("Test shift attribute - up and down", () => {
   const {
@@ -112,7 +111,7 @@ function createSemanticAttributeTestVariant(
   const model: InMemorySemanticModel = models.get(ModelDsIdentifier) as InMemorySemanticModel;
   const newAttribute = model.executeOperation(operation) as CreatedEntityOperationResult;
   if (newAttribute.success === false || newAttribute.id === undefined) {
-    fail("Failed in attribute creation");
+    throw new Error("Failed in attribute creation");
   }
 
   return {
@@ -152,7 +151,7 @@ function _createSemanticAttributeUsageTestVariant(
   const model: InMemorySemanticModel = models.get(modelDsIdentifier) as InMemorySemanticModel;
   const newAttribute = model.executeOperation(operation) as CreatedEntityOperationResult;
   if (newAttribute.success === false || newAttribute.id === undefined) {
-    fail("Failed in attribute creation");
+    throw new Error("Failed in attribute creation");
   }
 
   return {
@@ -194,23 +193,6 @@ const prepareModelWithFourNodes = () => {
     cmeModels
   };
 }
-
-const _createEmptyClassesContextType = (): ClassesContextType => {
-  const classes: ClassesContextType = {
-    classes: [],
-    allowedClasses: [],
-    setAllowedClasses: function (_) { },
-    relationships: [],
-    generalizations: [],
-    usages: [],
-    sourceModelOfEntityMap: new Map(),
-    rawEntities: [],
-    classProfiles: [],
-    relationshipProfiles: []
-  };
-
-  return classes;
-};
 
 const createNewVisualNodeForTesting = (visualModel: WritableVisualModel, model: string, semanticIdentifierAsNumber: number) => {
   const visualId = visualModel.addVisualNode({

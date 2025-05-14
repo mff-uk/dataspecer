@@ -70,6 +70,7 @@ class StructureModelAdapter {
     root.enforceCollection = schema.dataPsmEnforceCollection ?? false;
     root.cardinalityMin = schema.dataPsmCardinality?.[0] ?? null;
     root.cardinalityMax = schema.dataPsmCardinality ? schema.dataPsmCardinality[1] : null;
+    root.enforceJsonLdContext = schema.jsonEnforceContext ?? "no";
     if (DataPsmOr.is(entity)) {
       for (const choiceIri of entity.dataPsmChoices) {
         const choice = await this.reader.readResource(choiceIri);

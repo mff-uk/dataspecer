@@ -1,6 +1,4 @@
 {
-  "actions": "Akce",
-  "available data specifications": "Dostupné datové specifikace",
   "back to specification manager": "zpět do manažeru specifikací",
   "cancel": "Zrušit",
   "close": "zavřít",
@@ -8,18 +6,6 @@
   "configure": "",
   "configure artifacts": "Konfigurovat artefakty",
   "create data structure": "Vytvořit datovou strukturu",
-  "create specification dialog": {
-    "button open create": "Vytvořit specifikaci",
-    "external specification": {
-      "button create": "Externí specifikace",
-      "button create description": "Specifikace odkazující na již existující specifikaci, která nebyla vytvořena v Dataspeceru. Takové specifikace je pak možné použít pro import z lokálních specifikací."
-    },
-    "standard specification": {
-      "button create": "Standardní specifikace",
-      "button create description": "Specifikace obsahující lokální schémata, které lze upravovat a vytvářet."
-    }
-  },
-  "data specifications": "Datové specifikace",
   "data structure": "datová struktura",
   "data structure edit title": "Editor datové struktury",
   "delete": "Odstranit",
@@ -28,40 +14,13 @@
     "text": "Chystáte se odstranit následující schéma:",
     "title": "Odstranit schéma"
   },
-  "deleteDataSpecification": {
-    "additionalText": "Tato operace je nevratná. Veškeré ostatní specifikace, které odkazují na smazanou, budou nevalidní, ale nebudou odstraněny.",
-    "text_one": "Chystáte se odstranit následující specifikaci:",
-    "text_few": "Chystáte se odstranit {{count}} následující specifikace:",
-    "text_many": "Chystáte se odstranit {{count}} následujících specifikací:",
-    "text_other": "Chystáte se odstranit {{count}} následujících specifikací:",
-    "title_one": "Odstranit specifikaci",
-    "title_few": "Odstranit {{count}} specifikace",
-    "title_many": "Odstranit {{count}} specifikací",
-    "title_other": "Odstranit {{count}} specifikací"
-  },
   "detail": "Detail",
+  "discard": "Zrušit",
   "edit": "Upravit",
   "error": "chyba",
   "generate artifacts": "Generovat artefakty",
   "generate zip file": "Generovat do .ZIP souboru",
   "generate zip file with relative paths": "Generovat s relativními cestami",
-  "import": {
-    "action": "Akce",
-    "button import": "Importovat",
-    "close button": "Zavřít",
-    "create": "Vytvořit",
-    "create-not": "Nevytvářet",
-    "data specification": "Datová specifikace",
-    "exists locally": "Existuje lokálně?",
-    "import": "Importovat",
-    "imported message": "Specifikace byly úspěšně importovány.",
-    "overwrite": "Přepsat",
-    "overwrite-not": "Nepřepisovat",
-    "title": "Import datových specifikací",
-    "unable to read file": "Nelze přečíst soubor.",
-    "upload file": "Nahrát soubor",
-    "upload info": "Prosím nahrejte .zip archiv, který byl vygenerován z Dataspeceru. Archiv musí obsahovat soubory resources/merged_store.json a resources/data_specifications.json."
-  },
   "iri_copy": {
     "fail": "Nepodařilo se zkopírovat IRI do schránky",
     "success": "IRI zkopírováno do schránky",
@@ -86,7 +45,6 @@
     "use structured class": "Použít strukturovanou třídu (neinterpretovanou)"
   },
   "set root element button": "Zvolit kořen",
-  "tags": "Tagy",
   "title": "editor schémat",
   "version": "Verze"
 }

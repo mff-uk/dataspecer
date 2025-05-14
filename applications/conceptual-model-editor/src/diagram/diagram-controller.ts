@@ -34,12 +34,13 @@ import {
   type DiagramCallbacks,
 } from "./diagram-api";
 import {
-  type Node as ApiNode,
   type Edge as ApiEdge,
   type ViewportDimensions,
   EdgeType as ApiEdgeType,
   Position,
   GroupWithContent,
+  DiagramNodeTypes,
+  isVisualModelDiagramNode,
 } from "./diagram-model";
 import { type EdgeToolbarProps } from "./edge/edge-toolbar";
 import { EntityNodeName } from "./node/entity-node";
@@ -59,6 +60,8 @@ import { GroupMenu } from "./node/group-menu";
 import { findTopLevelGroup } from "../action/utilities";
 import { GeneralCanvasMenuComponentProps } from "./canvas/canvas-menu-general";
 import { isEqual, omit } from "lodash";
+import { AlignmentMenu } from "./node/alignment-actions-menu";
+import { VisualModelNodeName } from "./node/visual-model-diagram-node";
 
 const UNINITIALIZED_VALUE_GROUP_POSITION = 10000000;
 
@@ -157,7 +160,7 @@ const createGroupNode = (groupId: string, content: Node<any>[], hidden: boolean)
   return groupNode
 };
 
-export type NodeType = Node<ApiNode>;
+export type NodeType = Node<DiagramNodeTypes>;
 
 export type EdgeType = Edge<ApiEdge>;
 
@@ -394,7 +397,7 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
 
   useEffect(() => {
     if(!canvasHighlighting.isHighlightingOn) {
-      setHighlightingStylesBasedOnSelection(reactFlowInstance, selectedNodes, selectedEdges, setNodes, setEdges);
+      setHighlightingStylesBasedOnSelection(reactFlowInstance.getNode, selectedNodes, selectedEdges, setNodes, setEdges);
     }
   }, [reactFlowInstance, setNodes, setEdges, selectedNodes, selectedEdges, canvasHighlighting.isHighlightingOn]);
 
@@ -1714,7 +1717,8 @@ const createActions = (
       return reactFlow.getNodes().map(node => node.data);
     },
     addNodes(nodes) {
-      reactFlow.addNodes(nodes.map(nodeToNodeType));
+      // We set it directly. Using reactflow may cause "Encountered two children with the same key" warning
+      setNodes(previousNodes => previousNodes.concat(nodes.map(nodeToNodeType)));
       console.log("Diagram.addNodes", nodes.map(item => item.identifier), nodes);
     },
     updateNodes(nodes) {
@@ -1725,19 +1729,25 @@ const createActions = (
       setNodes((prev) => {
         let nothingChanged = true;
         const possibleNewNodes = prev.map(node => {
-          if(changed[node.data.identifier] !== undefined) {
-            if(!shouldBreakSelection(node, changed[node.data.identifier])) {
+          const changedNode = changed[node.data.identifier];
+          if(changedNode !== undefined) {
+            if(!shouldBreakSelection(node, changedNode)) {
               return node;
             }
             nothingChanged = false;
-            // TODO RadStr: We are not using the groups property anyways, so idk
-            if(changed[node.data.identifier].data.group === null) {
-              changed[node.data.identifier].data.group = node.data.group;
+            // TODO RadStr: 2 issues: 1) We are not really using this property,
+            //                           since we usually work without the reactflow nodes, when working with groups
+            //                        2) After thinking about it later,
+            //                           I think that we should always copy the previous group, not only when null,
+            //                           since the groups should be handled by changing the groups
+            //                           and not by changing the nodes
+            if(changedNode.data.group === null) {
+              changedNode.data.group = node.data.group;
             }
-            changed[node.data.identifier].selected = node.selected;
-            changed[node.data.identifier].className = node.className;
-            changed[node.data.identifier].style = node.style;
-            return changed[node.data.identifier];
+            changedNode.selected = node.selected;
+            changedNode.className = node.className;
+            changedNode.style = node.style;
+            return changedNode;
           }
           return node;
         });
@@ -1752,7 +1762,8 @@ const createActions = (
       console.log("Diagram.updateNodesPosition", nodes);
     },
     removeNodes(identifiers) {
-      reactFlow.deleteElements({ nodes: identifiers.map(id => ({ id })) });
+      // Again setting directly instead of using reactFlow.
+      setNodes(previousNodes => previousNodes.filter(previousNode => !identifiers.includes(previousNode.id)));
       console.log("Diagram.removeNodes", identifiers);
     },
     getNodeWidth(identifier) {
@@ -1769,7 +1780,8 @@ const createActions = (
       return [];
     },
     addEdges(edges) {
-      reactFlow.addEdges(edges.map(edgeToEdgeType));
+      // Again directly instead of reactflow.
+      setEdges(previousEdges => previousEdges.concat(edges.map(edgeToEdgeType)));
       console.log("Diagram.addEdges", edges.map(item => item.identifier), edges);
     },
     updateEdges(edges) {
@@ -1787,7 +1799,8 @@ const createActions = (
       console.log("Diagram.setEdgesWaypointPosition", edges);
     },
     removeEdges(identifiers) {
-      reactFlow.deleteElements({ edges: identifiers.map(id => ({ id })) });
+      // Again setting directly instead of using reactFlow.
+      setEdges(previousEdges => previousEdges.filter(previousEdge => !identifiers.includes(previousEdge.id)));
       console.log("Diagram.removeEdges", identifiers);
     },
     //
@@ -1880,6 +1893,10 @@ const createActions = (
       console.log("openSelectionActionsMenu", { sourceNode, canvasPosition });
       context?.onOpenCanvasContextMenu(sourceNode.identifier, canvasPosition, SelectionActionsMenu);
     },
+    openAlignmentMenu(sourceNode, canvasPosition) {
+      console.log("openAlignmentMenu", { sourceNode, canvasPosition });
+      context?.onOpenCanvasContextMenu(sourceNode.identifier, canvasPosition, AlignmentMenu);
+    },
     openGroupMenu(groupIdentifier, canvasPosition) {
       console.log("openGroupMenu", { groupIdentifier, canvasPosition });
       context?.onOpenCanvasContextMenu(groupIdentifier, canvasPosition, GroupMenu);
@@ -1898,10 +1915,10 @@ const convertViewUsingZoom = (view: ViewportDimensions, zoom: number): void => {
   view.height *= zoomReciprocal;
 };
 
-const nodeToNodeType = (node: ApiNode): NodeType => {
+const nodeToNodeType = (node: DiagramNodeTypes): NodeType => {
   return {
     id: node.identifier,
-    type: EntityNodeName,
+    type: isVisualModelDiagramNode(node) ? VisualModelNodeName : EntityNodeName,
     position: {
       x: node.position.x,
       y: node.position.y,

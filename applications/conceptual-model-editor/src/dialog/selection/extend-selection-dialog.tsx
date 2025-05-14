@@ -53,7 +53,6 @@ const createSelectorPanel = (
     justifyContent: "start",
   };
 
-  // TODO RadStr: Localize the "Only edges" and "Extend", once it is finalized
   return <div>
     <div className="flex flex-row">
       <div style={gridContainerStyle}>
@@ -64,7 +63,7 @@ const createSelectorPanel = (
               controller.toggleExtendOnlyThroughEdges()
             }}>
           </input>
-          Only edges
+          {t("extend-selection-dialog.only-edges-checkbox")}
         </label>
         <div>{t("extend-by-outgoing-header")}</div>
         <div>{t("extend-by-incoming-header")}</div>
@@ -78,7 +77,7 @@ const createSelectorPanel = (
 
       <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-0 px-4 border border-blue-700 rounded ml-12"
         onClick={controller.performExtensionBasedOnExtensionState}>
-        Extend
+        {t("extend-selection-dialog.extend-button")}
       </button>
     </div>
   </div>;

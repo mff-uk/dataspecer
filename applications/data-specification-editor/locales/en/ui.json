@@ -1,6 +1,4 @@
 {
-  "actions": "Actions",
-  "available data specifications": "Available data specifications",
   "back to specification manager": "back to specification manager",
   "cancel": "Cancel",
   "close": "close",
@@ -8,18 +6,6 @@
   "configure": "",
   "configure artifacts": "Configure artifacts",
   "create data structure": "Create data structure",
-  "create specification dialog": {
-    "button open create": "Create specification",
-    "external specification": {
-      "button create": "External specification",
-      "button create description": "A placeholder for already-existing specification that was not created in Dataspecer. Such specifications can then be used for import from local specifications."
-    },
-    "standard specification": {
-      "button create": "Standard specification",
-      "button create description": "A specification containing local schemas that can be edited and created."
-    }
-  },
-  "data specifications": "Data specifications",
   "data structure": "data structure",
   "data structure edit title": "Data structure editor",
   "delete": "Delete",
@@ -28,36 +14,13 @@
     "text": "You are about to delete the following schema:",
     "title": "Delete data schema"
   },
-  "deleteDataSpecification": {
-    "additionalText": "This operation is irreversible. All other specifications that refer to deleted will be invalid, but will not be deleted.\n",
-    "text_one": "You are about to remove the following specification:",
-    "text_other": "You are about to remove {{count}} of the following specifications:",
-    "title_one": "Delete specification",
-    "title_other": "Delete {{count}} specifications"
-  },
   "detail": "Detail",
+  "discard": "Discard",
   "edit": "Edit",
   "error": "error",
   "generate artifacts": "Generate artifacts",
   "generate zip file": "Generate .ZIP file",
   "generate zip file with relative paths": "Generate with relative paths",
-  "import": {
-    "action": "Action",
-    "button import": "Import",
-    "close button": "Close",
-    "create": "Create",
-    "create-not": "Do not create",
-    "data specification": "Data specification",
-    "exists locally": "Exists locally?",
-    "import": "Import",
-    "imported message": "Specifications were successfully imported.",
-    "overwrite": "Overwrite",
-    "overwrite-not": "Do not overwrite",
-    "title": "Import data specifications",
-    "unable to read file": "Unable to read file.",
-    "upload file": "Upload file",
-    "upload info": "Please upload a .zip archive that was generated from the Dataspecer. The archive must contain resources/merged_store.json and resources/data_specifications.json files."
-  },
   "iri_copy": {
     "fail": "Failed to copy IRI to the clipboard",
     "success": "Copied IRI to the clipboard",
@@ -82,7 +45,6 @@
     "use structured class": "Use structured class (non-interpreted)"
   },
   "set root element button": "Set root element",
-  "tags": "Tags",
   "title": "schema editor",
   "version": "Version"
 }

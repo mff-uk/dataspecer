@@ -1,28 +1,62 @@
-import { ReactFlowInstance, getConnectedEdges } from "@xyflow/react";
 import React, { useContext, useMemo, useState } from "react";
-import { EdgeType, NodeType } from "../../../../diagram-controller";
 
 /**
  * Highlighting exploration interface
  */
-export interface Exploration {
+export interface ExplorationContext {
+  /**
+   * Tells us if the exploration mode is on.
+   */
   isHighlightingOn: boolean;
+  /**
+   * Turns on/off the exploration mode
+   */
   toggleHighlighting: () => void;
-  //
+
+  /**
+   * Is the map which maps visual identifier of node to its highlight level
+   */
   highlightLevels: Record<string, number>;
+
+  /**
+   * Is used to set the {@link highlightLevels}
+   */
   setHighlightLevels: React.Dispatch<React.SetStateAction<Record<string, number>>>;
-  //
+
+  /**
+   * Maps semantic identifiers of nodes to their visual ones. This is here for optimization.
+   */
   semanticToVisualIdentifierMap: Record<string, string>;
+
+  /**
+   * Sets he {@link semanticToVisualIdentifierMap}
+   */
   setSemanticToVisualIdentifierMap: React.Dispatch<React.SetStateAction<Record<string, string>>>;
-  //
+
+  /**
+   * Extra variable, which can disable the highlighting, it is again used for performace,
+   * since sometimes we want to say that we don't want to react to actions causing highlighting
+   */
   isHighlightingInternallyOn: boolean;
+
+  /**
+   * Sets the {@link isHighlightingInternallyOn}
+   */
   setIsHighlightingInternallyOn: React.Dispatch<React.SetStateAction<boolean>>;
-  //
+
+  /**
+   * Sometimes we want to shrink the catalog and sometimes not, for example when the highlighting
+   * comes from catalog, then we don't want to shrink since it would break everything
+   */
   shouldShrinkCatalog: boolean;
+
+  /**
+   * Sets the {@link shouldShrinkCatalog}
+   */
   setShouldShrinkCatalog: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const ExplorationContext = React.createContext<Exploration>(null as any);
+const ExplorationContext = React.createContext<ExplorationContext>(null as any);
 
 export const ExplorationContextProvider = (props: { children: React.ReactNode }) => {
   const [isHighlightingOn, setIsHighlightingOn] = useState(false);
@@ -31,7 +65,6 @@ export const ExplorationContextProvider = (props: { children: React.ReactNode })
   const [semanticToVisualIdentifierMap, setSemanticToVisualIdentifierMap] = useState<Record<string, string>>({});
   const [shouldShrinkCatalog, setShouldShrinkCatalog] = useState<boolean>(false);
 
-  // TODO RadStr: Probably not the best use of memo
   const context = useMemo(() => {
     return {
       isHighlightingOn,
@@ -63,22 +96,36 @@ export const ExplorationContextProvider = (props: { children: React.ReactNode })
   );
 };
 
-const setHighlightLevelDataForNode = (
-  node: NodeType,
-  newVisualIdentifierToSemanticIdentifierMap: Record<string, string>,
-  newHighlightLevelsMap: Record<string, number>,
-  highlightLevel: 0 | 1
-) => {
-  newVisualIdentifierToSemanticIdentifierMap[node.data.externalIdentifier] = node.id;
-  newHighlightLevelsMap[node.id] = highlightLevel;
-};
+interface UseExplorationContext extends
+  Omit<ExplorationContext, "setIsHighlightingInternallyOn" | "isHighlightingInternallyOn"> {
 
-const isInMainHighlight = (
-  mainHighlightedNodes: NodeType[],
-  mainHighlightCandidateIdentifier: string
-) => mainHighlightedNodes.find(mainHighlightedNode => mainHighlightCandidateIdentifier === mainHighlightedNode.id) !== undefined;
+  /**
+   * Resets the highlighting levels.
+   */
+  resetHighlight: () => void;
 
-export const useExploration = () => {
+  /**
+   * Disables the exploration temporarily, but it is still on.
+   */
+  disableTemporarily: () => void;
+
+  /**
+   * Enables the exploration, so if it is on, it reacts properly.
+   */
+  enableTemporarily: () => void;
+
+  /**
+   * @returns Returns true if any entity is highlighted
+   */
+  isHighlightingPresent: () => boolean;
+
+  /**
+   * @returns Returns true if both highlighting is on and it is internally allowed
+   */
+  isHighlightingChangeAllowed: () => boolean;
+}
+
+export const useExploration = (): UseExplorationContext => {
   const {
     highlightLevels,
     setHighlightLevels,
@@ -91,51 +138,6 @@ export const useExploration = () => {
     shouldShrinkCatalog,
     setShouldShrinkCatalog,
   } = useContext(ExplorationContext);
-
-  const changeHighlight = (
-    startingNodesIdentifiers: string[],
-    reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
-    isSourceOfEventCanvas: boolean,
-    _modelOfClassWhichStartedHighlighting: string | null
-  ) => {
-    if(!isHighlightingChangeAllowed()) {
-      return;
-    }
-
-    const newVisualIdentifierToSemanticIdentifierMap: Record<string, string> = {};
-    const newHighlightLevelsMap = {};
-    const mainHighlightedNodes: NodeType[] = [];
-
-    for(const startingNodeIdentifier of startingNodesIdentifiers) {
-      const reactflowNode = reactFlowInstance.getNode(startingNodeIdentifier);
-      if(reactflowNode === undefined) {
-        continue;
-      }
-      mainHighlightedNodes.push(reactflowNode);
-    }
-
-    const connectedEdges = getConnectedEdges(mainHighlightedNodes, reactFlowInstance.getEdges());
-    // Setting the style of nodes which are connected to the main (level 0) ones
-    connectedEdges.forEach(edge => {
-      const isSourceInMainHighlight = isInMainHighlight(mainHighlightedNodes, edge.source);
-      const otherNodeId = isSourceInMainHighlight ? edge.target : edge.source;
-      const otherNode = reactFlowInstance.getNode(otherNodeId);
-
-      if(otherNode === undefined || isInMainHighlight(mainHighlightedNodes, otherNodeId)) {
-        return;
-      }
-
-      setHighlightLevelDataForNode(otherNode, newVisualIdentifierToSemanticIdentifierMap, newHighlightLevelsMap, 1);
-    });
-
-    mainHighlightedNodes.forEach(mainHighlightedNode => {
-      setHighlightLevelDataForNode(mainHighlightedNode, newVisualIdentifierToSemanticIdentifierMap, newHighlightLevelsMap, 0);
-    });
-
-    setSemanticToVisualIdentifierMap(newVisualIdentifierToSemanticIdentifierMap);
-    setHighlightLevels(newHighlightLevelsMap);
-    setShouldShrinkCatalog(isSourceOfEventCanvas);
-  };
 
   const resetHighlight = () => {
     if(!isHighlightingChangeAllowed()) {
@@ -170,13 +172,16 @@ export const useExploration = () => {
   }
 
   return {
-    highlightLevels, resetHighlight, changeHighlight,
+    highlightLevels, resetHighlight,
     disableTemporarily, enableTemporarily,
     isHighlightingPresent,
     toggleHighlighting,
     isHighlightingChangeAllowed,
     semanticToVisualIdentifierMap,
+    setSemanticToVisualIdentifierMap,
     shouldShrinkCatalog,
+    setShouldShrinkCatalog,
     isHighlightingOn,
+    setHighlightLevels
   };
 }
