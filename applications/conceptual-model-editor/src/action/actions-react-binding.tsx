@@ -1002,7 +1002,8 @@ function createActionsContext(
 
   const openPerformLayoutVisualModelDialog = () => {
     withVisualModel(notifications, graph, (visualModel) => {
-      openLayoutVisualModelDialogAction(notifications, dialogs, classes, diagram, graph, visualModel);
+      openLayoutVisualModelDialogAction(
+        notifications, dialogs, classes, diagram, graph, layoutConfiguration, visualModel);
     });
   };
 
