@@ -29,7 +29,6 @@ import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-
 import { findPositionForNewNodesUsingLayouting, findPositionForNewNodeUsingLayouting } from "./layout-visual-model";
 import { getVisualNodeContentBasedOnExistingEntities } from "./utilities";
 import { XY } from "@dataspecer/layout";
-import { getVisualNodeContentBasedOnExistingEntities } from "./add-semantic-attribute-to-visual-model";
 import { addSemanticAttributeToVisualNodeAction } from "./add-semantic-attribute-to-visual-node";
 import { getViewportCenterForClassPlacement } from "./utilities";
 import { EntityModel } from "@dataspecer/core-v2";
