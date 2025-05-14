@@ -88,4 +88,10 @@ export class DataPsmSchema extends ExtendableCoreResource {
    * @default false
    */
   dataPsmEnforceCollection?: boolean;
+
+  /**
+   * Whether to enforce @context property in JSON Schema.
+   * @default "no"
+   */
+  jsonEnforceContext?: "no" | "as-is" | "with-extensions";
 }

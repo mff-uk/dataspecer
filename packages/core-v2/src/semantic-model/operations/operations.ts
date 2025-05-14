@@ -1,4 +1,4 @@
-import {EntityModelInformation, SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship} from "../concepts/index.ts";
+import {SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship} from "../concepts/index.ts";
 
 /**
  * Each operation is a single JS serializable object identified by its type. The type is a single string as the
@@ -163,47 +163,5 @@ export function deleteEntity(id: string): DeleteEntityOperation {
     return {
         type: DELETE_ENTITY_OPERATION,
         id
-    }
-}
-
-// Create model-information
-
-const CREATE_ENTITY_MODEL_INFORMATION_OPERATION = 'create-entity-model-information';
-
-export interface CreateEntityModelInformationOperation extends Operation {
-    type: typeof CREATE_ENTITY_MODEL_INFORMATION_OPERATION;
-    entity: Partial<Omit<EntityModelInformation, "type">>;
-}
-
-export function isCreateEntityModelInformationOperation(operation: Operation): operation is CreateEntityModelInformationOperation {
-    return operation.type === CREATE_ENTITY_MODEL_INFORMATION_OPERATION;
-}
-
-export function createEntityModelInformation(entity: Partial<Omit<EntityModelInformation, "id" | "type">>): CreateEntityModelInformationOperation {
-    return {
-        type: CREATE_ENTITY_MODEL_INFORMATION_OPERATION,
-        entity,
-    }
-}
-
-// Modify model-information
-
-const MODIFY_ENTITY_MODEL_INFORMATION_OPERATION = 'modify-entity-model-information';
-
-export interface ModifyEntityModelInformationOperation extends Operation {
-    type: typeof MODIFY_ENTITY_MODEL_INFORMATION_OPERATION;
-    id: string;
-    entity: Partial<Omit<EntityModelInformation, "type" | "id">>;
-}
-
-export function isModifyEntityModelInformationOperation(operation: Operation): operation is ModifyEntityModelInformationOperation {
-    return operation.type === MODIFY_ENTITY_MODEL_INFORMATION_OPERATION;
-}
-
-export function modifyEntityModelInformation(id: string, entity: Partial<Omit<EntityModelInformation, "type" | "id">>): ModifyEntityModelInformationOperation {
-    return {
-        type: MODIFY_ENTITY_MODEL_INFORMATION_OPERATION,
-        id,
-        entity,
     }
 }

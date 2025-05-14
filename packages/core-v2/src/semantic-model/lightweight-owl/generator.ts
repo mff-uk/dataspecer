@@ -17,6 +17,7 @@ import {
     isSemanticModelRelationship,
 } from "../concepts/index.ts";
 import { getDomainAndRange } from "../relationship-utils/utils.ts";
+import { PROF } from "../data-specification-vocabulary/vocabulary.ts";
 
 function simpleIdSort(a: SemanticModelEntity, b: SemanticModelEntity) {
     return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
@@ -56,6 +57,7 @@ class Generator {
         this.writer = new N3.Writer();
         this.writer.addPrefixes({
             owl: "http://www.w3.org/2002/07/owl#",
+            prof: "http://www.w3.org/ns/dx/prof/",
             rdfs: "http://www.w3.org/2000/01/rdf-schema#",
             rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
             ... this.context?.baseIri ? { "": this.context.baseIri } : {},
@@ -66,6 +68,11 @@ class Generator {
             namedNode(this.context.iri),
             RDF_TYPE,
             namedNode("http://www.w3.org/2002/07/owl#Ontology")
+        );
+        this.writer.addQuad(
+            namedNode(this.context.iri),
+            RDF_TYPE,
+            PROF.Profile
         );
 
         const classes = entities.filter(isSemanticModelClass);

@@ -60,6 +60,7 @@ import { GroupMenu } from "./node/group-menu";
 import { findTopLevelGroup } from "../action/utilities";
 import { GeneralCanvasMenuComponentProps } from "./canvas/canvas-menu-general";
 import { isEqual, omit } from "lodash";
+import { AlignmentMenu } from "./node/alignment-actions-menu";
 import { VisualModelNodeName } from "./node/visual-model-diagram-node";
 
 const UNINITIALIZED_VALUE_GROUP_POSITION = 10000000;
@@ -396,7 +397,7 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
 
   useEffect(() => {
     if(!canvasHighlighting.isHighlightingOn) {
-      setHighlightingStylesBasedOnSelection(reactFlowInstance, selectedNodes, selectedEdges, setNodes, setEdges);
+      setHighlightingStylesBasedOnSelection(reactFlowInstance.getNode, selectedNodes, selectedEdges, setNodes, setEdges);
     }
   }, [reactFlowInstance, setNodes, setEdges, selectedNodes, selectedEdges, canvasHighlighting.isHighlightingOn]);
 
@@ -1891,6 +1892,10 @@ const createActions = (
     openSelectionActionsMenu(sourceNode, canvasPosition) {
       console.log("openSelectionActionsMenu", { sourceNode, canvasPosition });
       context?.onOpenCanvasContextMenu(sourceNode.identifier, canvasPosition, SelectionActionsMenu);
+    },
+    openAlignmentMenu(sourceNode, canvasPosition) {
+      console.log("openAlignmentMenu", { sourceNode, canvasPosition });
+      context?.onOpenCanvasContextMenu(sourceNode.identifier, canvasPosition, AlignmentMenu);
     },
     openGroupMenu(groupIdentifier, canvasPosition) {
       console.log("openGroupMenu", { groupIdentifier, canvasPosition });

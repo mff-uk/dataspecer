@@ -16,7 +16,7 @@ import {
   RequirementLevel,
 } from "./dsv-model.ts";
 
-import { RDF, DSV, DCT, SKOS, VANN, DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL } from "./vocabulary.ts";
+import { RDF, DSV, DCT, SKOS, VANN, DSV_CLASS_ROLE, DSV_MANDATORY_LEVEL, PROF } from "./vocabulary.ts";
 
 const IRI = DataFactory.namedNode;
 
@@ -45,8 +45,11 @@ export async function conceptualModelToRdf(
     ...createDefaultConfiguration(),
     ...configuration,
   };
-  //
-  const n3Writer = new N3.Writer({ prefixes: effectiveConfiguration.prefixes });
+  const prefixes = {
+    ...effectiveConfiguration.prefixes,
+    "": model.iri,
+  };
+  const n3Writer = new N3.Writer({ prefixes });
   (new ConceptualModelWriter(n3Writer, model)).writeConceptualModel();
   // Concert to a string.
   return new Promise((resolve, reject) => n3Writer.end((error, result) => {
@@ -75,6 +78,7 @@ function createDefaultConfiguration(): ConceptualModelToRdfConfiguration {
       "cardinality": "https://w3id.org/dsv/cardinality#",
       "requirement": "https://w3id.org/dsv/requirement-level#",
       "role": "https://w3id.org/dsv/class-role#",
+      "prof": "http://www.w3.org/ns/dx/prof/",
     },
     "prettyPrint": true,
   };
@@ -92,7 +96,8 @@ class ConceptualModelWriter {
   }
 
   writeConceptualModel(): void {
-    this.addType(this.model.iri, DSV.ConceptualModel);
+    this.addType(this.model.iri, PROF.Profile);
+    this.addType(this.model.iri, DSV.ApplicationProfile);
     for (const profile of this.model.profiles) {
       this.writeClassProfile(profile);
     }
@@ -132,7 +137,7 @@ class ConceptualModelWriter {
 
   private writeProfileBase(profile: Profile) {
     this.addIri(profile.iri, DCT.isPartOf, this.model.iri);
-    this.addType(profile.iri, DSV.Profile);
+    this.addType(profile.iri, DSV.TermProfile);
     //
     this.addLiteral(profile.iri, SKOS.prefLabel, profile.prefLabel);
     this.addLiteral(profile.iri, SKOS.definition, profile.definition);

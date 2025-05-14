@@ -18,12 +18,8 @@ import {
     ModifyRelationOperation,
     Operation,
     OperationResult,
-    isCreateEntityModelInformationOperation,
-    isModifyEntityModelInformationOperation,
-    CreateEntityModelInformationOperation,
-    ModifyEntityModelInformationOperation,
 } from "./operations/index.ts";
-import { EntityModelInformation, ENTITY_MODEL_INFORMATION, SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "./concepts/index.ts";
+import { SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "./concepts/index.ts";
 import {
     CreateClassUsageOperation,
     CreateRelationshipUsageOperation,
@@ -104,10 +100,6 @@ export class WritableSemanticModelAdapter extends SemanticModelAdapter {
                 result.push(handleCreateRelationshipUsageOperation(getEntity, change, operation));
             } else if (isModifyRelationshipUsageOperation(operation)) {
                 result.push(handleModifyRelationshipUsageOperation(getEntity, change, operation));
-            } else if (isCreateEntityModelInformationOperation(operation)) {
-                result.push(handleCreateEntityModelInformationOperation(getEntity, change, operation));
-            } else if (isModifyEntityModelInformationOperation(operation)) {
-                result.push(handleModifyEntityModelInformationOperation(getEntity, change, operation));
             } else {
                 const operationResult = profileExecutor.executeOperation(operation);
                 if (operationResult !== null) {
@@ -485,49 +477,4 @@ function handleModifyRelationshipUsageOperation(
     };
 }
 
-function handleCreateEntityModelInformationOperation(
-    getEntity: EntityGetter,
-    change: ChangeCollector,
-    operation: CreateEntityModelInformationOperation,
-): OperationResult {
-    let id = operation.entity.id;
 
-    // Generate random id if not provided
-    if (id === undefined) {
-        id = uuid();
-    }
-
-    if (getEntity(id)) {
-        return {
-            success: false,
-        };
-    }
-
-    const entity: EntityModelInformation = {
-        id,
-        modelIri: operation.entity.modelIri ?? null,
-        type: [ENTITY_MODEL_INFORMATION],
-    };
-
-    change({ [id]: entity }, []);
-    return {
-        success: true,
-    };
-}
-
-function handleModifyEntityModelInformationOperation(
-    getEntity: EntityGetter,
-    change: ChangeCollector,
-    operation: ModifyEntityModelInformationOperation,
-): OperationResult {
-    if (!getEntity(operation.id)) {
-        return {
-            success: false,
-        };
-    }
-
-    change({ [operation.id]: { ...getEntity(operation.id)!, ...operation.entity } }, []);
-    return {
-        success: true,
-    };
-}

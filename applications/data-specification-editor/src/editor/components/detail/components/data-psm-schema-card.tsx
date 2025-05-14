@@ -2,7 +2,7 @@ import { DataPsmSchema } from "@dataspecer/core/data-psm/model";
 import { DataPsmSchemaXmlExtension } from "@dataspecer/core/data-psm/xml-extension/model";
 import { useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
 import { useResource } from "@dataspecer/federated-observable-store-react/use-resource";
-import { Alert, Box, Collapse, FormControlLabel, Grid, Switch, TextField, Typography } from "@mui/material";
+import { Alert, Box, Collapse, FormControl, FormControlLabel, FormLabel, Grid, Radio, RadioGroup, Switch, TextField, Typography } from "@mui/material";
 import { isEqual } from "lodash";
 import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -19,6 +19,7 @@ import { XmlSetSkipRootElement } from "../../../operations/xml-set-skip-root-ele
 import { SetKeyValue } from "./set-key-value";
 import { SetJsonPrefixes } from "../../../operations/set-json-prefixes";
 import { SetJsonTypeMapping } from "../../../operations/set-json-type-mapping";
+import { SetJsonEnforceContext } from "../../../operations/set-json-enforce-context";
 
 function cardinalityFromPsm(entity?: DataPsmSchema): Cardinality {
   return {
@@ -185,6 +186,20 @@ export const DataPsmSchemaCard: React.FC<{ iri: string; onClose: () => void }> =
   );
   // endregion
 
+  // region JSON context enforcement
+  const [jsonEnforceContext, setJsonEnforceContext] = useState<"no" | "as-is" | "with-extensions">("no");
+  useEffect(() => {
+    if (resource) {
+      const enforceContext = resource.jsonEnforceContext ?? "no";
+      setJsonEnforceContext(enforceContext);
+    }
+  }, [resource]);
+  useSaveHandler(
+    resource && resource.jsonEnforceContext !== jsonEnforceContext,
+    () => store.executeComplexOperation(new SetJsonEnforceContext(iri, jsonEnforceContext))
+  );
+  // endregion
+
   return (
     <>
       <Grid container spacing={5} sx={{ pt: 3 }}>
@@ -220,10 +235,33 @@ export const DataPsmSchemaCard: React.FC<{ iri: string; onClose: () => void }> =
           <Typography variant="h6" component="h2">
             {t("JSON attributes")}
           </Typography>
+
+          <Typography variant="subtitle1" component="h2" sx={{mt: 2}} id="json-context-enforcement">
+            {t("JSON enforce @context.title")}
+            <InfoHelp text={t("JSON enforce @context.help")} />
+          </Typography>
+
+          <FormControl>
+            <RadioGroup
+              row
+              aria-labelledby="json-context-enforcement"
+              value={jsonEnforceContext}
+              onChange={(event) => {
+                const value = event.target.value as "no" | "as-is" | "with-extensions";
+                setJsonEnforceContext(value);
+              }}
+            >
+              <FormControlLabel value="no" control={<Radio />} label={t("JSON enforce @context.option.no")} />
+              <FormControlLabel value="as-is" control={<Radio />} label={t("JSON enforce @context.option.as-is")} />
+              <FormControlLabel value="with-extensions" control={<Radio />} label={t("JSON enforce @context.option.with-extensions")} />
+            </RadioGroup>
+          </FormControl>
+
           <Typography variant="subtitle1" component="h2" sx={{mt: 2}}>
             {t("JSON-LD IRI prefixes")}
             <InfoHelp text={t("JSON-LD IRI prefixes help")} />
           </Typography>
+
 
           <Box sx={{mt: 0}}>
             <SetKeyValue

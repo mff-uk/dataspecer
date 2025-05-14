@@ -32,7 +32,7 @@ import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
-import { EntityToDelete, checkIfIsAttributeOrAttributeProfile, convertToEntitiesToDeleteType, findTopLevelGroupInVisualModel, getSelections, getViewportCenterForClassPlacement, isVisualEdgeEnd, setSelectionsInDiagram } from "./utilities";
+import { EntityToDelete, isAttributeOrAttributeProfile, convertToEntitiesToDeleteType, findTopLevelGroupInVisualModel, getSelections, getViewportCenterForClassPlacement, setSelectionsInDiagram } from "./utilities";
 import { removeFromSemanticModelsAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
 import { openCreateAssociationDialogAction } from "./open-create-association-dialog";
@@ -84,6 +84,9 @@ import { ModelDsIdentifier } from "@/dataspecer/entity-model";
 import { openSearchExternalSemanticModelDialogAction } from "./open-search-external-semantic-model-dialog";
 import { openEditVisualModelDialogAction } from "./open-edit-visual-model-dialog";
 import { LayoutConfigurationContextType, useLayoutConfigurationContext } from "@/context/layout-configuration-context";
+import { alignHorizontallyAction, AlignmentHorizontalPosition, AlignmentVerticalPosition, alignVerticallyAction } from "./align-nodes";
+import { openLayoutSelectionDialogAction } from "./open-layout-selection-dialog";
+import { openLayoutVisualModelDialogAction } from "./open-layout-visual-model-dialog";
 
 const LOG = createLogger(import.meta.url);
 
@@ -168,6 +171,10 @@ interface DialogActions {
    */
   openFilterSelectionDialog: (selections: SelectionsWithIdInfo) => void;
 
+  /**
+   * Open dialog to layout visual model.
+   */
+  openPerformLayoutVisualModelDialog: () => void;
 }
 
 /**
@@ -416,6 +423,7 @@ const noOperationActionsContext: ActionsContextType = {
   //
   openExtendSelectionDialog: noOperation,
   openFilterSelectionDialog: noOperation,
+  openPerformLayoutVisualModelDialog: noOperation,
   // TODO PRQuestion: How to define this - Should actions return values?, shouldn't it be just function defined in utils?
   extendSelection: async () => ({ nodeSelection: [], edgeSelection: [] }),
   filterSelection: () => ({ nodeSelection: [], edgeSelection: [] }),
@@ -850,7 +858,7 @@ function createActionsContext(
     withVisualModel(notifications, graph, (visualModel) => {
       const entityToDeleteWithAttributeData = entitiesToDelete.map(entityToDelete =>
         ({ ...entityToDelete,
-          isAttributeOrAttributeProfile: checkIfIsAttributeOrAttributeProfile(
+          isAttributeOrAttributeProfile: isAttributeOrAttributeProfile(
             entityToDelete.identifier, graph.models, entityToDelete.sourceModel)
         })
       );
@@ -992,6 +1000,12 @@ function createActionsContext(
     dialogs?.openDialog(createFilterSelectionDialog(onConfirm, selections, setSelections));
   };
 
+  const openPerformLayoutVisualModelDialog = () => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      openLayoutVisualModelDialogAction(notifications, dialogs, classes, diagram, graph, visualModel);
+    });
+  };
+
   const extendSelection = async (
     nodeSelection: NodeSelection,
     extensionTypes: ExtensionType[],
@@ -1075,8 +1089,8 @@ function createActionsContext(
         // Do nothing
       }
       else {
-        openCreateConnectionDialog(
-          source.externalIdentifier, target.externalIdentifier, source.identifier, target.identifier);
+      openCreateConnectionDialog(
+        source.externalIdentifier, target.externalIdentifier, source.identifier, target.identifier);
       }
     },
 
@@ -1104,8 +1118,17 @@ function createActionsContext(
       console.log("Application.onShowSelectionActions", { source, canvasPosition });
       diagram.actions().openSelectionActionsMenu(source, canvasPosition);
     },
+    onOpenAlignmentMenu: (source, canvasPosition) => {
+      console.log("Application.onOpenAlignmentMenu", { source, canvasPosition });
+      diagram.actions().openAlignmentMenu(source, canvasPosition);
+    },
     onLayoutSelection: () => {
-      // TODO RadStr: Currently does nothing
+      const selection = getSelections(diagram, false, true);
+      withVisualModel(notifications, graph, (visualModel) => {
+        openLayoutSelectionDialogAction(
+          notifications, dialogs, classes, diagram, graph,
+          visualModel, selection.nodeSelection, selection.edgeSelection);
+      });
     },
 
     onCreateGroup: () => {
@@ -1265,6 +1288,20 @@ function createActionsContext(
     onMoveAttributeDown: function (attribute: string, nodeIdentifier: string): void {
       shiftAttributeDown(attribute, nodeIdentifier);
     },
+    onAlignSelectionHorizontally: function (alignmentHorizontalPosition: AlignmentHorizontalPosition): void {
+      withVisualModel(notifications, graph, (visualModel) => {
+        const nodeSelection = getSelections(diagram, true, true).nodeSelection;
+        alignHorizontallyAction(
+          notifications, diagram, visualModel, nodeSelection, alignmentHorizontalPosition);
+      });
+    },
+    onAlignSelectionVertically: (alignmentVerticalPosition: AlignmentVerticalPosition) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        const nodeSelection = getSelections(diagram, true, true).nodeSelection;
+        alignVerticallyAction(
+          notifications, diagram, visualModel, nodeSelection, alignmentVerticalPosition);
+      });
+    }
   };
 
   diagram.setCallbacks(callbacks);
@@ -1309,6 +1346,7 @@ function createActionsContext(
     removeEntitiesInSemanticModelFromVisualModel,
     addEntityNeighborhoodToVisualModel,
 
+    openPerformLayoutVisualModelDialog,
     layoutActiveVisualModel,
     //
     openExtendSelectionDialog,

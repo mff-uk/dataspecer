@@ -5,7 +5,6 @@ import {
   type NodeProps,
   NodeToolbar,
   Position,
-  useReactFlow,
 } from "@xyflow/react";
 
 import {
@@ -63,6 +62,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
   const hideIri = data.options.labelVisual === LabelVisual.Iri;
   const label = prepareLabel(data.options, data);
   const mainColor = prepareColor(data);
+  const isSingleNodeSelected = context?.getShownNodeMenuType() === NodeMenuType.SingleNodeMenu;
 
   return (
     <>
@@ -93,7 +93,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
                   <RelationshipItem
                     options={data.options}
                     data={item}
-                    showToolbar={props.selected}
+                    showToolbar={props.selected && isSingleNodeSelected}
                     onEdit={editItem}
                     onMoveUp={moveItemUp}
                     onMoveDown={moveItemDown}
@@ -272,7 +272,6 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
       </NodeToolbar>
     </>);
 }
-
 function RelationshipItem(props: {
   options: DiagramOptions,
   data: NodeRelationshipItem,

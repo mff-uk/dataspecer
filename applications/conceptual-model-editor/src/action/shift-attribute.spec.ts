@@ -194,23 +194,6 @@ const prepareModelWithFourNodes = () => {
   };
 }
 
-const _createEmptyClassesContextType = (): ClassesContextType => {
-  const classes: ClassesContextType = {
-    classes: [],
-    allowedClasses: [],
-    setAllowedClasses: function (_) { },
-    relationships: [],
-    generalizations: [],
-    usages: [],
-    sourceModelOfEntityMap: new Map(),
-    rawEntities: [],
-    classProfiles: [],
-    relationshipProfiles: []
-  };
-
-  return classes;
-};
-
 const createNewVisualNodeForTesting = (visualModel: WritableVisualModel, model: string, semanticIdentifierAsNumber: number) => {
   const visualId = visualModel.addVisualNode({
     representedEntity: semanticIdentifierAsNumber.toString(),
