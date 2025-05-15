@@ -32,7 +32,7 @@ export const VisualDiagramNodeInfoDialog = (props: DialogProps<EditVisualDiagram
         </div>
       </div>
       <div className="grid gap-y-3 bg-slate-100 md:grid-cols-[20%_80%] md:pl-8">
-        <DialogDetailRow detailKey={t("visual-diagram-node-info-dialog.representedVisualModelName")}>
+        <DialogDetailRow detailKey={t("visual-diagram-node-info-dialog.represented-visual-model-name")}>
           {getLocalizedStringFromLanguageString(state.representedVisualModelName, language)}
         </DialogDetailRow>
       </div>

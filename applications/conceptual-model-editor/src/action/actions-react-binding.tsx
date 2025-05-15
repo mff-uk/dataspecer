@@ -5,6 +5,7 @@ import {
   Waypoint,
   WritableVisualModel,
   isVisualDiagramNode,
+  isVisualNode,
   isVisualProfileRelationship,
   isVisualRelationship,
   isWritableVisualModel
@@ -31,7 +32,7 @@ import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
-import { EntityToDelete, checkIfIsAttributeOrAttributeProfile, convertToEntitiesToDeleteType, findTopLevelGroupInVisualModel, getSelections, getViewportCenterForClassPlacement, setSelectionsInDiagram } from "./utilities";
+import { EntityToDelete, isAttributeOrAttributeProfile, convertToEntitiesToDeleteType, findTopLevelGroupInVisualModel, getSelections, getViewportCenterForClassPlacement, setSelectionsInDiagram, isVisualEdgeEnd } from "./utilities";
 import { removeFromSemanticModelsAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
 import { openCreateAssociationDialogAction } from "./open-create-association-dialog";
@@ -82,6 +83,10 @@ import { openEditSemanticModelDialogAction } from "./open-edit-semantic-model-di
 import { ModelDsIdentifier } from "@/dataspecer/entity-model";
 import { openSearchExternalSemanticModelDialogAction } from "./open-search-external-semantic-model-dialog";
 import { openEditVisualModelDialogAction } from "./open-edit-visual-model-dialog";
+import { LayoutConfigurationContextType, useLayoutConfigurationContext } from "@/context/layout-configuration-context";
+import { alignHorizontallyAction, AlignmentHorizontalPosition, AlignmentVerticalPosition, alignVerticallyAction } from "./align-nodes";
+import { openLayoutSelectionDialogAction } from "./open-layout-selection-dialog";
+import { openLayoutVisualModelDialogAction } from "./open-layout-visual-model-dialog";
 import { openVisualDiagramNodeInfoDialogAction } from "./open-visual-diagram-node-info-dialog";
 import { openEditVisualDiagramNodeDialogAction } from "./open-edit-visual-diagram-node-dialog";
 import { openCreateVisualDiagramNodeDialogAction } from "./open-create-visual-diagram-node-dialog";
@@ -169,6 +174,10 @@ interface DialogActions {
    */
   openFilterSelectionDialog: (selections: SelectionsWithIdInfo) => void;
 
+  /**
+   * Open dialog to layout visual model.
+   */
+  openPerformLayoutVisualModelDialog: () => void;
 }
 
 /**
@@ -417,6 +426,7 @@ const noOperationActionsContext: ActionsContextType = {
   //
   openExtendSelectionDialog: noOperation,
   openFilterSelectionDialog: noOperation,
+  openPerformLayoutVisualModelDialog: noOperation,
   // TODO PRQuestion: How to define this - Should actions return values?, shouldn't it be just function defined in utils?
   extendSelection: async () => ({ nodeSelection: [], edgeSelection: [] }),
   filterSelection: () => ({ nodeSelection: [], edgeSelection: [] }),
@@ -448,13 +458,14 @@ export const ActionsContextProvider = (props: {
   const graph = useContext(ModelGraphContext);
   const useGraph = useModelGraphContext();
   const diagram = useDiagram();
+  const layoutConfiguration = useLayoutConfigurationContext();
 
   const queryParamsContext = useQueryParamsContext();
 
   const actions = useMemo(
     () => createActionsContext(
-      options, dialogs, classes, useClasses, notifications, graph, useGraph, diagram, queryParamsContext),
-    [options, dialogs, classes, useClasses, notifications, graph, useGraph, diagram, queryParamsContext]
+      options, dialogs, classes, useClasses, notifications, graph, useGraph, diagram, layoutConfiguration, queryParamsContext),
+    [options, dialogs, classes, useClasses, notifications, graph, useGraph, diagram, layoutConfiguration, queryParamsContext]
   );
 
   return (
@@ -472,6 +483,7 @@ let prevNotifications: UseNotificationServiceWriterType | null = null;
 let prevGraph: ModelGraphContextType | null = null;
 let prevUseGraph: UseModelGraphContextType | null = null;
 let prevDiagram: UseDiagramType | null = null;
+let prevLayoutConfiguration: LayoutConfigurationContextType | null = null;
 let prevQueryParamsContext: QueryParamsContextType | null = null;
 
 function createActionsContext(
@@ -483,12 +495,14 @@ function createActionsContext(
   graph: ModelGraphContextType | null,
   useGraph: UseModelGraphContextType | null,
   diagram: UseDiagramType,
+  layoutConfiguration: LayoutConfigurationContextType,
   queryParamsContext: QueryParamsContextType | null,
 ): ActionsContextType {
 
   if (options === null || dialogs === null || classes === null ||
     useClasses === null || notifications === null || graph === null ||
-    !diagram.areActionsReady || queryParamsContext === null || useGraph === null) {
+    !diagram.areActionsReady || layoutConfiguration === null ||
+    queryParamsContext === null || useGraph === null) {
     // We need to return the diagram object so it can be consumed by
     // the Diagram component and initialized.
     return {
@@ -507,6 +521,7 @@ function createActionsContext(
   if (prevGraph !== graph) changed.push("graph");
   if (prevUseGraph !== useGraph) changed.push("useGraph");
   if (prevDiagram !== diagram) changed.push("diagram");
+  if (prevLayoutConfiguration !== layoutConfiguration) changed.push("layoutConfiguration");
   if (prevQueryParamsContext !== queryParamsContext) changed.push("queryParamsContext");
   console.info("[ACTIONS] Creating new context object. ", { changed });
   prevOptions = options;
@@ -517,6 +532,7 @@ function createActionsContext(
   prevGraph = graph;
   prevUseGraph = useGraph;
   prevDiagram = diagram;
+  prevLayoutConfiguration = layoutConfiguration;
   prevQueryParamsContext = queryParamsContext;
 
   // For now we create derived state here, till is is available
@@ -561,7 +577,12 @@ function createActionsContext(
   const changeNodesPositions = (changes: { [identifier: string]: Position }) => {
     withVisualModel(notifications, graph, (visualModel) => {
       for (const [identifier, position] of Object.entries(changes)) {
-        visualModel.updateVisualEntity(identifier, { position });
+        const node = visualModel.getVisualEntity(identifier);
+        if (node === null || !isVisualEdgeEnd(node)) {
+          notifications.error("Node which changed position can not be found in visual model.");
+          return;
+        }
+        visualModel.updateVisualEntity(identifier, { position: { ...position, anchored: node.position.anchored} });
       }
     });
   };
@@ -841,7 +862,7 @@ function createActionsContext(
     withVisualModel(notifications, graph, (visualModel) => {
       const entityToDeleteWithAttributeData = entitiesToDelete.map(entityToDelete =>
         ({ ...entityToDelete,
-          isAttributeOrAttributeProfile: checkIfIsAttributeOrAttributeProfile(
+          isAttributeOrAttributeProfile: isAttributeOrAttributeProfile(
             entityToDelete.identifier, graph.models, entityToDelete.sourceModel)
         })
       );
@@ -983,6 +1004,13 @@ function createActionsContext(
     dialogs?.openDialog(createFilterSelectionDialog(onConfirm, selections, setSelections));
   };
 
+  const openPerformLayoutVisualModelDialog = () => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      openLayoutVisualModelDialogAction(
+        notifications, dialogs, classes, diagram, graph, layoutConfiguration, visualModel);
+    });
+  };
+
   const extendSelection = async (
     nodeSelection: NodeSelection,
     extensionTypes: ExtensionType[],
@@ -1095,8 +1123,17 @@ function createActionsContext(
       console.log("Application.onShowSelectionActions", { source, canvasPosition });
       diagram.actions().openSelectionActionsMenu(source, canvasPosition);
     },
+    onOpenAlignmentMenu: (source, canvasPosition) => {
+      console.log("Application.onOpenAlignmentMenu", { source, canvasPosition });
+      diagram.actions().openAlignmentMenu(source, canvasPosition);
+    },
     onLayoutSelection: () => {
-      // TODO RadStr: Currently does nothing
+      const selection = getSelections(diagram, false, true);
+      withVisualModel(notifications, graph, (visualModel) => {
+        openLayoutSelectionDialogAction(
+          notifications, dialogs, classes, diagram, graph,
+          visualModel, selection.nodeSelection, selection.edgeSelection);
+      });
     },
 
     onCreateGroup: () => {
@@ -1128,7 +1165,7 @@ function createActionsContext(
       });
     },
 
-    onDissolveVisualModelDiagramNode: (visualModelDiagramNode: VisualModelDiagramNode) => {
+    onDissolveVisualModelDiagramNode: (_visualModelDiagramNode: VisualModelDiagramNode) => {
       // TODO RadStr: Empty mock-up for now
     },
 
@@ -1281,6 +1318,20 @@ function createActionsContext(
     onMoveAttributeDown: function (attribute: string, nodeIdentifier: string): void {
       shiftAttributeDown(attribute, nodeIdentifier);
     },
+    onAlignSelectionHorizontally: function (alignmentHorizontalPosition: AlignmentHorizontalPosition): void {
+      withVisualModel(notifications, graph, (visualModel) => {
+        const nodeSelection = getSelections(diagram, true, true).nodeSelection;
+        alignHorizontallyAction(
+          notifications, diagram, visualModel, nodeSelection, alignmentHorizontalPosition);
+      });
+    },
+    onAlignSelectionVertically: (alignmentVerticalPosition: AlignmentVerticalPosition) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        const nodeSelection = getSelections(diagram, true, true).nodeSelection;
+        alignVerticallyAction(
+          notifications, diagram, visualModel, nodeSelection, alignmentVerticalPosition);
+      });
+    }
   };
 
   diagram.setCallbacks(callbacks);
@@ -1325,6 +1376,7 @@ function createActionsContext(
     removeEntitiesInSemanticModelFromVisualModel,
     addEntityNeighborhoodToVisualModel,
 
+    openPerformLayoutVisualModelDialog,
     layoutActiveVisualModel,
     //
     openExtendSelectionDialog,

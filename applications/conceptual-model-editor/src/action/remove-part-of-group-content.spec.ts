@@ -1,16 +1,16 @@
 import { expect, test } from "vitest";
-import { ActionsTestSuite, notificationMockup } from "./actions-test-suite";
-import { addGroupToVisualModelAction } from "../add-group-to-visual-model";
+import { ActionsTestSuite, notificationMockup, TestedSemanticConnectionType } from "./test/actions-test-suite";
+import { addGroupToVisualModelAction } from "./add-group-to-visual-model";
 import { createDefaultVisualModelFactory, VisualGroup, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { removeTopLevelGroupFromVisualModelAction } from "../remove-group-from-visual-model";
-import { removePartOfGroupContentAction } from "../remove-part-of-group-content";
-import { removeFromVisualModelByRepresentedAction } from "../remove-from-visual-model-by-represented";
+import { removeTopLevelGroupFromVisualModelAction } from "./remove-group-from-visual-model";
+import { removePartOfGroupContentAction } from "./remove-part-of-group-content";
+import { removeFromVisualModelByRepresentedAction } from "./remove-from-visual-model-by-represented";
 
 test("Test dissolving top level groups", () => {
   const {
     visualModel,
     visualNodeIdentifiers
-  } = ActionsTestSuite.prepareModelsWithSemanticData(4);
+  } = ActionsTestSuite.prepareModelsWithSemanticData(4, TestedSemanticConnectionType.Association);
 
   const group1 = addGroupToVisualModelAction(
     visualModel,
@@ -45,7 +45,7 @@ test("Test dissolving group through visibility", () => {
     visualNodeIdentifiers,
     graph,
     classesContext,
-  } = ActionsTestSuite.prepareModelsWithSemanticData(3);
+  } = ActionsTestSuite.prepareModelsWithSemanticData(3, TestedSemanticConnectionType.Association);
 
   addGroupToVisualModelAction(
     visualModel,
@@ -64,7 +64,7 @@ test("Test dissolving multi-group through visibility of one whole group", () => 
     visualNodeIdentifiers,
     graph,
     classesContext,
-  } = ActionsTestSuite.prepareModelsWithSemanticData(4);
+  } = ActionsTestSuite.prepareModelsWithSemanticData(4, TestedSemanticConnectionType.Association);
 
   const group1 = addGroupToVisualModelAction(
     visualModel,
@@ -91,7 +91,7 @@ test("Test dissolving multi-group through visibility sequentially", () => {
     visualNodeIdentifiers,
     graph,
     classesContext,
-  } = ActionsTestSuite.prepareModelsWithSemanticData(4);
+  } = ActionsTestSuite.prepareModelsWithSemanticData(4, TestedSemanticConnectionType.Association);
 
   const group1 = addGroupToVisualModelAction(
     visualModel,
@@ -125,7 +125,7 @@ test("Test dissolving multi-group through visibility sequentially again", () => 
     visualNodeIdentifiers,
     graph,
     classesContext,
-  } = ActionsTestSuite.prepareModelsWithSemanticData(4);
+  } = ActionsTestSuite.prepareModelsWithSemanticData(4, TestedSemanticConnectionType.Association);
 
   const group1 = addGroupToVisualModelAction(
     visualModel,
@@ -159,7 +159,7 @@ test("Test dissolving everything through visiblity", () => {
     visualNodeIdentifiers,
     graph,
     classesContext,
-  } = ActionsTestSuite.prepareModelsWithSemanticData(4);
+  } = ActionsTestSuite.prepareModelsWithSemanticData(4, TestedSemanticConnectionType.Association);
 
   const group1 = addGroupToVisualModelAction(
     visualModel,
@@ -212,13 +212,18 @@ test("Test removing part of visual group", () => {
   //
   removePartOfGroupContentAction(notificationMockup, visualModel, group1, [visualIdentifiers[0]], false);
   expect(visualModel.getVisualEntity(group1)).toEqual(null);
-  expect(visualModel.getVisualEntity(group3)).toEqual(null);      // Because the group will have only 1 underlying group therefore it can be destroyed
+  // Because the group will have only 1 underlying group therefore it can be destroyed
+  expect(visualModel.getVisualEntity(group3)).toEqual(null);
   expect(visualModel.getVisualEntities().size).toEqual(5);
 });
 
 //
 
-export const createNewVisualNodeForTesting = (visualModel: WritableVisualModel, model: string, semanticIdentifierAsNumber: number) => {
+const createNewVisualNodeForTesting = (
+  visualModel: WritableVisualModel,
+  model: string,
+  semanticIdentifierAsNumber: number
+) => {
   const visualId = visualModel.addVisualNode({
     representedEntity: semanticIdentifierAsNumber.toString(),
     model,

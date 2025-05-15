@@ -41,8 +41,10 @@ export const PROF = {
 const DSV_PREFIX = "https://w3id.org/dsv#";
 
 export const DSV = {
-  "ConceptualModel": IRI(DSV_PREFIX + "ConceptualModel"),
-  "Profile": IRI(DSV_PREFIX + "Profile"),
+  "ApplicationProfileV1": IRI(DSV_PREFIX + "ConceptualModel"),
+  "ApplicationProfile": IRI(DSV_PREFIX + "ApplicationProfile"),
+  "TermProfileV1": IRI(DSV_PREFIX + "Profile"),
+  "TermProfile": IRI(DSV_PREFIX + "TermProfile"),
   "ClassProfile": IRI(DSV_PREFIX + "ClassProfile"),
   "class": IRI(DSV_PREFIX + "class"),
   "domain": IRI(DSV_PREFIX + "domain"),

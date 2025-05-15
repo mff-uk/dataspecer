@@ -60,6 +60,7 @@ import { GroupMenu } from "./node/group-menu";
 import { findTopLevelGroup } from "../action/utilities";
 import { GeneralCanvasMenuComponentProps } from "./canvas/canvas-menu-general";
 import { isEqual, omit } from "lodash";
+import { AlignmentMenu } from "./node/alignment-actions-menu";
 import { VisualModelNodeName } from "./node/visual-model-diagram-node";
 
 const UNINITIALIZED_VALUE_GROUP_POSITION = 10000000;
@@ -396,7 +397,7 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
 
   useEffect(() => {
     if(!canvasHighlighting.isHighlightingOn) {
-      setHighlightingStylesBasedOnSelection(reactFlowInstance, selectedNodes, selectedEdges, setNodes, setEdges);
+      setHighlightingStylesBasedOnSelection(reactFlowInstance.getNode, selectedNodes, selectedEdges, setNodes, setEdges);
     }
   }, [reactFlowInstance, setNodes, setEdges, selectedNodes, selectedEdges, canvasHighlighting.isHighlightingOn]);
 
@@ -1728,19 +1729,25 @@ const createActions = (
       setNodes((prev) => {
         let nothingChanged = true;
         const possibleNewNodes = prev.map(node => {
-          if(changed[node.data.identifier] !== undefined) {
-            if(!shouldBreakSelection(node, changed[node.data.identifier])) {
+          const changedNode = changed[node.data.identifier];
+          if(changedNode !== undefined) {
+            if(!shouldBreakSelection(node, changedNode)) {
               return node;
             }
             nothingChanged = false;
-            // TODO RadStr: We are not using the groups property anyways, so idk
-            if(changed[node.data.identifier].data.group === null) {
-              changed[node.data.identifier].data.group = node.data.group;
+            // TODO RadStr: 2 issues: 1) We are not really using this property,
+            //                           since we usually work without the reactflow nodes, when working with groups
+            //                        2) After thinking about it later,
+            //                           I think that we should always copy the previous group, not only when null,
+            //                           since the groups should be handled by changing the groups
+            //                           and not by changing the nodes
+            if(changedNode.data.group === null) {
+              changedNode.data.group = node.data.group;
             }
-            changed[node.data.identifier].selected = node.selected;
-            changed[node.data.identifier].className = node.className;
-            changed[node.data.identifier].style = node.style;
-            return changed[node.data.identifier];
+            changedNode.selected = node.selected;
+            changedNode.className = node.className;
+            changedNode.style = node.style;
+            return changedNode;
           }
           return node;
         });
@@ -1885,6 +1892,10 @@ const createActions = (
     openSelectionActionsMenu(sourceNode, canvasPosition) {
       console.log("openSelectionActionsMenu", { sourceNode, canvasPosition });
       context?.onOpenCanvasContextMenu(sourceNode.identifier, canvasPosition, SelectionActionsMenu);
+    },
+    openAlignmentMenu(sourceNode, canvasPosition) {
+      console.log("openAlignmentMenu", { sourceNode, canvasPosition });
+      context?.onOpenCanvasContextMenu(sourceNode.identifier, canvasPosition, AlignmentMenu);
     },
     openGroupMenu(groupIdentifier, canvasPosition) {
       console.log("openGroupMenu", { groupIdentifier, canvasPosition });

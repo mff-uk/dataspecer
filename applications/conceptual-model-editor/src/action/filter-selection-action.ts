@@ -1,6 +1,5 @@
 import { EntityModel } from "@dataspecer/core-v2";
 import { sourceModelOfEntity } from "../util/model-utils";
-import { isSemanticModelRelationshipUsage, } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ClassesContextEntities, VisibilityFilter, getSemanticClassIdentifier, getSemanticEdgeIdentifier, isEntityInVisualModel } from "./extend-selection-action";
 import { ClassesContextType } from "../context/classes-context";
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
@@ -11,9 +10,9 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
  * Type representing filter on the type of entity.
  */
 export enum SelectionFilter {
-    ClassUsage,
+    ClassProfile,
     Class,
-    RelationshipUsage,
+    RelationshipProfile,
     Relationship,
     Generalization
 };
@@ -162,7 +161,7 @@ function filterBasedOnVisibility(
   visibilityFilter: VisibilityFilter,
   visualModel: VisualModel | null
 ): string[] {
-  const filteredArray: string[] = identifiersToFilter.filter(entity => {
+  const filteredArray: string[] = identifiersToFilter.filter(identifier => {
     if(visibilityFilter === VisibilityFilter.All) {
       return true;
     }
@@ -171,7 +170,7 @@ function filterBasedOnVisibility(
       return visibilityFilter === VisibilityFilter.OnlyNonVisible;
     }
 
-    const isInVisualModel = isEntityInVisualModel(visualModel, entity, areIdentifiersFromVisualModel);
+    const isInVisualModel = isEntityInVisualModel(visualModel, identifier, areIdentifiersFromVisualModel);
     if(visibilityFilter === VisibilityFilter.OnlyVisible && isInVisualModel) {
       return true;
     }
@@ -187,9 +186,9 @@ function filterBasedOnVisibility(
 
 const FILTER_NAME_TO_FILTER_METHOD_MAP: Record<SelectionFilter, SelectionFilterMethod> = {
   [SelectionFilter.Class]: classFilter,
-  [SelectionFilter.ClassUsage]: profileClassFilter,
-  [SelectionFilter.Relationship]: normalEdgeFilter,
-  [SelectionFilter.RelationshipUsage]: profileEdgeFilter,
+  [SelectionFilter.ClassProfile]: profileClassFilter,
+  [SelectionFilter.Relationship]: relatioshipFilter,
+  [SelectionFilter.RelationshipProfile]: profileRelationshipFilter,
   [SelectionFilter.Generalization]: generalizationFilter,
 };
 
@@ -221,7 +220,7 @@ function profileClassFilter(
 ): void {
   nodeSelection.map(selectedClassId => {
     const selectedClassSemanticId = getSemanticClassIdentifier(selectedClassId, areVisualModelIdentifiers, visualModel);
-    if(contextEntities.usages.findIndex(profile => profile.id === selectedClassSemanticId) >= 0) {
+    if(contextEntities.classProfiles.findIndex(profile => profile.id === selectedClassSemanticId) >= 0) {
       filteredNodeSelection.push(selectedClassId);
     }
   });
@@ -235,7 +234,7 @@ function profileClassFilter(
   });
 }
 
-function normalEdgeFilter(
+function relatioshipFilter(
   nodeSelection: string[],
   areVisualModelIdentifiers: boolean,
   filteredNodeSelection: string[],
@@ -252,7 +251,7 @@ function normalEdgeFilter(
   });
 }
 
-function profileEdgeFilter(
+function profileRelationshipFilter(
   nodeSelection: string[],
   areVisualModelIdentifiers: boolean,
   filteredNodeSelection: string[],
@@ -263,7 +262,8 @@ function profileEdgeFilter(
 ): void {
   edgeSelection.map(selectedEdgeId => {
     const selectedEdgeSemanticId = getSemanticEdgeIdentifier(selectedEdgeId, areVisualModelIdentifiers, visualModel);
-    if(contextEntities.usages.findIndex(relationshipProfile => relationshipProfile.id === selectedEdgeSemanticId && isSemanticModelRelationshipUsage(relationshipProfile)) >= 0) {
+    if(contextEntities.relationshipProfiles.findIndex(relationshipProfile =>
+      relationshipProfile.id === selectedEdgeSemanticId) >= 0) {
       filteredEdgeSelection.push(selectedEdgeId);
     }
   });

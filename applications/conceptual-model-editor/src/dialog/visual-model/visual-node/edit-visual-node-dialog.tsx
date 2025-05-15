@@ -151,10 +151,11 @@ const mandatoryLabelToLabel = (entity: UiRelationshipProfile) => {
 
 export const createEditVisualNodeDialog = (
   state: EditVisualNodeDialogState,
+  nodeName: string,
   onConfirm: ((state: EditVisualNodeDialogState) => void) | null,
 ): DialogWrapper<EditVisualNodeDialogState> => {
   return {
-    label: "edit-visual-node-dialog.label",
+    label: t("edit-visual-node-dialog.label", nodeName),
     component: EditVisualNode,
     state,
     confirmLabel: "edit-visual-node-dialog.btn-ok",

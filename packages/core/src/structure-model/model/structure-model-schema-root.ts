@@ -1,4 +1,4 @@
-import {StructureModelClass} from "./structure-model-class.ts";
+import { StructureModelClass } from "./structure-model-class.ts";
 
 /**
  * Root of the data-psm tree in structure model.
@@ -62,4 +62,9 @@ export class StructureModelSchemaRoot {
    * Cardinality of the root element
    */
   cardinalityMax: number | null = null;
+
+  /**
+   * Whether to enforce @context property in JSON Schema.
+   */
+  enforceJsonLdContext: "no" | "as-is" | "with-extensions" = "no";
 }

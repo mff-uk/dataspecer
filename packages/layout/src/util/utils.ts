@@ -302,7 +302,7 @@ export class PhantomElementsFactory {
   }
 
   /**
-   * @deprecated In future will be probably different way to do it
+   * @deprecated Since we abandoned the idea with generalization subgraph layouting.
    * @returns
    */
   static createUniqueGeneralizationSubgraphIdentifier(): string {
