@@ -1,6 +1,10 @@
 import { ViewportPortal } from "@xyflow/react";
 import type { AlignmentController, LineEndPointsForOrthogonal } from "./alignment-controller-v2";
 
+/**
+ * Handles rendering of the horizontal and vertical line used for node alignment helper.
+ * That is when user is dragging node.
+ */
 export const AlignmentComponent = (controller: AlignmentController) => {
   return (
     <>

@@ -72,7 +72,8 @@ class RdfLoaderContext {
   }
 
   private addByType(subject: N3.Quad_Subject, type: N3.Quad_Object): void {
-    if (DSV.ConceptualModel.equals(type)) {
+    if (DSV.ApplicationProfileV1.equals(type)
+      || DSV.ApplicationProfile.equals(type)) {
       this.conceptualModels.push(subject);
     } else if (DSV.ClassProfile.equals(type)) {
       this.classProfiles.push(subject);

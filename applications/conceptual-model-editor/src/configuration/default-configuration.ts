@@ -14,6 +14,7 @@ const PREFIXES = {
   "http://www.w3.org/ns/dx/prof/": "prof",
   "https://w3id.org/dsv-dap#": "dsv-dap",
   "https://w3id.org/dsv#": "dsv",
+  "http://www.w3.org/2004/02/skos/core#": "skos",
 };
 
 /**

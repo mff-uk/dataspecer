@@ -32,6 +32,7 @@ import { executeDataPsmSetInstancesHaveIdentity } from "./data-psm-set-instances
 import { executeDataPsmSetInstancesSpecifyTypes } from "./data-psm-set-instances-specify-type.ts";
 import { executeDataPsmSetInterpretation } from "./data-psm-set-interpretation-executor.ts";
 import { executeDataPsmSetIsClosed } from "./data-psm-set-is-closed-executor.ts";
+import { executeDataPsmSetJsonEnforceContext } from "./data-psm-set-json-enforce-context-executor.ts";
 import { executeDataPsmSetJsonLdDefinedPrefixes } from "./data-psm-set-json-ld-defined-prefixes-executor.ts";
 import { executeDataPsmSetJsonLdTypeMapping } from "./data-psm-set-json-ld-type-mapping-executor.ts";
 import { executeDataPsmSetJsonSchemaPrefixesInIriRegex } from "./data-psm-set-json-schema-prefixes-in-iri-regex-executor.ts";
@@ -179,6 +180,11 @@ export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.DataPsmSetIsClosed.is,
     executeDataPsmSetIsClosed,
     Operations.DataPsmSetIsClosed.TYPE
+  ),
+  CoreOperationExecutor.create(
+    Operations.DataPsmSetJsonEnforceContext.is,
+    executeDataPsmSetJsonEnforceContext,
+    Operations.DataPsmSetJsonEnforceContext.TYPE
   ),
   CoreOperationExecutor.create(
     Operations.DataPsmSetEmptyAsComplex.is,

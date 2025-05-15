@@ -24,7 +24,7 @@ export const exportPackageResource = asyncHandler(async (request: express.Reques
   const buffer = await exporter.doExport(query.iri);
 
   const resource = await resourceModel.getResource(query.iri);
-  const filename = getName(resource?.userMetadata?.label, "backup") + ".zip";
+  const filename = getName(resource?.userMetadata?.label, "package") + "-backup.zip";
   response.type("application/zip").attachment(filename).send(buffer);
 });
 

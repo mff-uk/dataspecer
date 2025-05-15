@@ -1,7 +1,7 @@
 import { DataSpecificationWithMetadata, DataSpecificationWithStores } from "@dataspecer/backend-utils/interfaces";
 import { StoreDescriptor } from "@dataspecer/backend-utils/store-descriptor";
 import { CoreResourceReader } from "@dataspecer/core/core/core-reader";
-import { ReadOnlyFederatedStore } from "@dataspecer/core/core/index";
+import { LanguageString, ReadOnlyFederatedStore } from "@dataspecer/core/core/index";
 import { DataSpecification } from "@dataspecer/core/data-specification/model/data-specification";
 import { InputStream } from "@dataspecer/core/io/stream/input-stream";
 import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
@@ -22,6 +22,10 @@ type FullDataSpecification = DataSpecification & DataSpecificationWithMetadata &
 
 interface DataSpecifications {
   [key: string]: FullDataSpecification;
+}
+
+function getName(name: LanguageString | undefined, defaultName: string) {
+  return name?.["cs"] || name?.["en"] || defaultName;
 }
 
 export const generate = asyncHandler(async (request: express.Request, response: express.Response) => {
@@ -135,7 +139,8 @@ export const getZip = asyncHandler(async (request: express.Request, response: ex
   await generateArtifacts(query.iri, zip);
 
   // Send zip file
-  response.type("application/zip").send(await zip.save());
+  const filename = getName(resource?.userMetadata?.label, "export") + ".zip";
+  response.type("application/zip").attachment(filename).send(await zip.save());
   return;
 });
 

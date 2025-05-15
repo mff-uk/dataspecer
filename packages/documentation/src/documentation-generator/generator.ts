@@ -73,6 +73,9 @@ const PREFIX_MAP: Record<string, string> = {
   "http://www.w3.org/2006/time#": "time",
   "http://www.w3.org/2006/vcard/ns#": "vcard",
   "http://www.w3.org/2001/XMLSchema#": "xsd",
+  "http://www.w3.org/ns/dx/prof/": "prof",
+  "https://w3id.org/dsv-dap#": "dsv-dap",
+  "https://w3id.org/dsv#": "dsv",
 };
 
 export type DocumentationGeneratorInputModel = {
@@ -168,6 +171,14 @@ export async function generateDocumentation(
     label: inputModel.label,
     locallyDefinedSemanticEntity: sortedSemanticModel,
     locallyDefinedSemanticEntityByTags,
+
+    semanticEntitiesByType: {
+      classes: sortedSemanticModel.filter(entity => isSemanticModelClass(entity)),
+      classProfiles: sortedSemanticModel.filter(entity => isSemanticModelClassProfile(entity)),
+      relationships: sortedSemanticModel.filter(entity => isSemanticModelRelationship(entity)),
+      relationshipProfiles: sortedSemanticModel.filter(entity => isSemanticModelRelationshipProfile(entity)),
+    },
+
     dsv: inputModel.dsv,
 
     // The goal of the given documentation

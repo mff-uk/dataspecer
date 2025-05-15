@@ -36,6 +36,7 @@ import { JSON_SCHEMA } from "./json-schema-vocabulary.ts";
 import { JsonConfiguration } from "../configuration.ts";
 import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
 import { JsonStructureModelClass } from "../json-structure-model/structure-model-class.ts";
+import { JSON_LD_GENERATOR } from "../json-ld/json-ld-generator.ts";
 
 interface Context {
   /**
@@ -115,6 +116,42 @@ export function structureModelToJsonSchema(
     object.properties[configuration.jsonRootCardinalityObjectKey] = array;
     object.required.push(configuration.jsonRootCardinalityObjectKey);
     result.root = object;
+  }
+
+  const jsonLd = specification.artefacts.find(a => a.generator === JSON_LD_GENERATOR);
+  // We MUST use public URL as it is for data
+  const jsonLdLink = jsonLd ? jsonLd?.publicUrl : null; // pathRelative(artefact.publicUrl, jsonLd?.publicUrl)
+
+  // Add @context required property
+  if (model.roots[0].enforceJsonLdContext !== "no" && jsonLdLink) {
+    const contextProperty = new JsonSchemaCustomType(model.roots[0].enforceJsonLdContext === "as-is" ? {
+      const: jsonLdLink
+    } : {
+      oneOf: [
+        {
+          "const": jsonLdLink
+        },
+        {
+          "type": "array",
+          "contains": {
+            "const": jsonLdLink
+          },
+          "items": {
+            "type": "string",
+            "format": "iri"
+          }
+        }
+      ]
+    });
+
+    if (result.root instanceof JsonSchemaObject) {
+      // Insert in the correct order
+      result.root.required.unshift("@context");
+      result.root.properties = {
+        "@context": contextProperty,
+        ...result.root.properties,
+      };
+    }
   }
 
   return result;

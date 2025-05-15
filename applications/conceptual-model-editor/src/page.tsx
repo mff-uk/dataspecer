@@ -35,7 +35,7 @@ import { ActionsContextProvider } from "./action/actions-react-binding";
 import { OptionsContextProvider } from "./configuration/options";
 
 import { migrateVisualModelFromV0 } from "./dataspecer/visual-model/visual-model-v0-to-v1";
-import { ExplorationContextProvider } from "./diagram/features/highlighting/exploration/context/highlighting-exploration-mode";
+import { ExplorationContextProvider } from "./context/highlighting-exploration-mode";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { createDefaultWritableVisualModel } from "./dataspecer/visual-model/visual-model-factory";
 import { VerticalSplitter } from "./components/vertical-splitter";

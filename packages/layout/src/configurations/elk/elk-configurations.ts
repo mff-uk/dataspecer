@@ -149,7 +149,7 @@ export class ElkStressProfileLayoutConfiguration extends StressConfiguration<Use
             advanced_settings: {},
             run_layered_after: false,
             run_node_overlap_removal_after: true,
-            interactive: true
+            interactive: false
         };
     }
 
@@ -270,7 +270,7 @@ export class ElkSporeOverlapConfiguration extends DefaultAlgorithmConfiguration<
     static getDefaultUserConfiguration(): UserGivenAlgorithmConfigurationOverlapRemoval {
         return {
             layout_alg: "elk_overlapRemoval",
-            min_distance_between_nodes: 0,
+            min_distance_between_nodes: 200,
             advanced_settings: {},
             run_layered_after: false,
             run_node_overlap_removal_after: false,
