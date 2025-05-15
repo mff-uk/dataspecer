@@ -6,13 +6,14 @@ import { UseDiagramType } from "../diagram/diagram-hook";
 import { configuration, createLogger } from "../application";
 import { ReactflowDimensionsConstantEstimator, XY, placePositionOnGrid } from "@dataspecer/layout";
 import { Position, VisualGroup, VisualModel, WritableVisualModel, isVisualNode, isVisualGroup, isVisualRelationship, VisualDiagramNode, VisualNode, isVisualDiagramNode, VisualEntity } from "@dataspecer/core-v2/visual-model";
-import { DiagramNodeTypes, Edge, EdgeType, Node } from "../diagram";
+import { DiagramNodeTypes, Edge, EdgeType } from "../diagram";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { ModelGraphContextType } from "../context/model-context";
 import { ClassesContextType } from "../context/classes-context";
 import { ExtensionType, VisibilityFilter, extendSelectionAction } from "./extend-selection-action";
 import { Selections } from "./filter-selection-action";
 import { isSemanticModelAttribute, SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { addToRecordArray } from "@/utilities/functional";
 import { isSemanticModelAttributeProfile } from "@/dataspecer/semantic-model";
 import { getDomainAndRange } from "@/util/relationship-utils";
 import { isSemanticModelAttributeUsage, SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
@@ -287,6 +288,59 @@ export function findTopLevelGroupInVisualModel(
 }
 
 /**
+ * Returns all visual diagram node mappings in the given model. We are mapping classes to parent visual diagram nodes.
+ * That is for each diagram node all the nodes and diagram nodes contained in it are returned.
+ * To be exact the {@link classToVisualDiagramNodeMappingRaw} in result returns for each class
+ * all the possible parent visual diagram nodes it is part of.
+ * It also contains the mappings of visual diagram nodes to its parent visual diagram node.
+ * So keys are both visual and semantic identifiers, but it is simpler to use, if we have it all in one map.
+ * The {@link existingVisualDiagramNodes} returns the diagram nodes stored in given {@link visualModel}
+ * @returns The {@link classToVisualDiagramNodeMapping} contains the mapped visual diagram nodes together with the amount,
+ * {@link classToVisualDiagramNodeMappingRaw} just contains all the visual diagram nodes
+ *  (possibly multiple times if it the class is present in it more than once)
+ */
+export function getVisualDiagramNodeMappingsByRepresented(
+  availableVisualModels: VisualModel[],
+  visualModel: VisualModel
+): {
+  existingVisualDiagramNodes: Record<string, VisualDiagramNode>,
+  classToVisualDiagramNodeMapping: Record<string, Record<string, number>>,
+  classToVisualDiagramNodeMappingRaw: Record<string, string[]>
+ } {
+  const existingVisualDiagramNodes: Record<string, VisualDiagramNode> = {};
+  const classToVisualDiagramNodeMappingRaw: Record<string, string[]> = {};
+  for (const [identifier, visualEntity] of visualModel.getVisualEntities()) {
+    if (isVisualDiagramNode(visualEntity)) {
+      existingVisualDiagramNodes[identifier] = visualEntity;
+      const containedNodes = getClassesAndDiagramNodesModelsFromVisualModelRecursively(
+        availableVisualModels, visualEntity.representedVisualModel);
+      for (const containedNode of containedNodes) {
+        addToRecordArray(containedNode, identifier, classToVisualDiagramNodeMappingRaw);
+      }
+    }
+  }
+
+  const classToVisualDiagramNodeMapping: Record<string, Record<string, number>> = {};
+  for (const [cclass, diagramNodes] of Object.entries(classToVisualDiagramNodeMappingRaw)) {
+    for (const diagramNode of diagramNodes) {
+      if (classToVisualDiagramNodeMapping[cclass] === undefined) {
+        classToVisualDiagramNodeMapping[cclass] = {};
+      }
+      if (classToVisualDiagramNodeMapping[cclass][diagramNode] === undefined) {
+        classToVisualDiagramNodeMapping[cclass][diagramNode] = 0;
+      }
+      classToVisualDiagramNodeMapping[cclass][diagramNode]++;
+    }
+  }
+
+  return {
+    existingVisualDiagramNodes,
+    classToVisualDiagramNodeMapping,
+    classToVisualDiagramNodeMappingRaw,
+  };
+}
+
+/**
  * @returns Returns the mapping of all kind of nodes to group to which they belong in given {@link visualModel}.
  */
 export function getGroupMappings(visualModel: VisualModel) {
@@ -446,11 +500,50 @@ export type VisualEdgeEndPoint = VisualDiagramNode | VisualNode;
  * Currently that is either {@link VisualNode} or node representing diagram ({@link VisualDiagramNode}).
  */
 export function isVisualEdgeEnd(what: VisualEntity): what is VisualEdgeEndPoint {
-    return isVisualNode(what) || isVisualDiagramNode(what);
+  return isVisualNode(what) || isVisualDiagramNode(what);
 }
 
 /**
- * @returns Maximum possible visual content (attributes) of node, that is all relevant values existing in semantic model.
+ * @returns The semantic identifiers of the nodes in visual model.
+ *          BUT it is important to note that links of visual diagram nodes are followed.
+ *          The reason for this is quite simple - we can not work with visual identifiers
+ *          from different models and since visual diagram nodes are visual entities without
+ *          semantic counter-part, returning semantic identifiers is the only logical solution.
+ *          The visual diagram nodes are also contained in the output - those have the represented model's identifier
+ */
+export function getClassesAndDiagramNodesModelsFromVisualModelRecursively(
+  availableVisualModels: VisualModel[],
+  visualModel: string,
+) {
+  return getClassesAndDiagramNodesFromVisualModelInternal(
+    availableVisualModels, visualModel, []);
+}
+
+function getClassesAndDiagramNodesFromVisualModelInternal(
+  availableVisualModels: VisualModel[],
+  visualModel: string,
+  result: string[],
+) {
+  const linkedVisualmodel = availableVisualModels.find(availableVisualModel => visualModel === availableVisualModel.getIdentifier());
+  if(linkedVisualmodel !== undefined) {
+    for (const [_, visualEntity] of linkedVisualmodel.getVisualEntities()) {
+      if(isVisualNode(visualEntity)) {
+        result.push(visualEntity.representedEntity);
+      }
+      else if(isVisualDiagramNode(visualEntity)) {
+        result.push(visualEntity.representedVisualModel);
+        getClassesAndDiagramNodesFromVisualModelInternal(availableVisualModels, visualEntity.representedVisualModel, result);
+      }
+    }
+  }
+
+  return result;
+}
+
+
+/**
+ * @returns Maximum possible visual content (attributes) of node representing {@link entity},
+ *  that means all relevant attributes existing in semantic model.
  */
 export function getVisualNodeContentBasedOnExistingEntities(
   classes: ClassesContextType,

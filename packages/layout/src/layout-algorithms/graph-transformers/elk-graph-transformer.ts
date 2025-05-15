@@ -1,4 +1,4 @@
-import { isVisualProfileRelationship, isVisualRelationship, Position, VisualNode, VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
+import { isVisualDiagramNode, isVisualProfileRelationship, isVisualRelationship, Position, VisualNode, VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
 import { ElkConfiguration } from "../../configurations/elk/elk-configurations.ts";
 import { VisualNodeComplete } from "../../graph/representation/node.ts";
 import { GraphTransformer } from "./graph-transformer-interface.ts";
@@ -199,13 +199,14 @@ export class ElkGraphTransformer implements GraphTransformer {
             }
         });
 
-        console.warn("Positions after performing anchor shift");
-        console.warn(JSON.stringify(Object.values(visualEntities).filter(DefaultGraph.isVisualNodeComplete).map(n => [n.coreVisualNode.representedEntity, n.coreVisualNode.position])));
-
-
         return Object.fromEntries(visualEntities.map(visualEntity => {
             if(DefaultGraph.isVisualNodeComplete(visualEntity)) {
-                return [visualEntity.coreVisualNode.representedEntity, visualEntity.coreVisualNode];
+                if(isVisualDiagramNode(visualEntity.coreVisualNode)) {
+                    return [visualEntity.coreVisualNode.representedVisualModel, visualEntity.coreVisualNode];
+                }
+                else {
+                    return [visualEntity.coreVisualNode.representedEntity, visualEntity.coreVisualNode];
+                }
             }
             else if(isVisualRelationship(visualEntity)) {
                 return [visualEntity.representedRelationship, visualEntity];
