@@ -107,15 +107,16 @@ test("Remove ends and the relationship", () => {
 test("Remove end of many edges", () => {
   const {
     visualModel,
-    model,
+    firstModel,
     graph,
     classesContext
-  } = ActionsTestSuite.prepareModelsWithSemanticData(4);
+  } = ActionsTestSuite.prepareModelsWithSemanticData(
+    4, TestedSemanticConnectionType.Association);
 
   ActionsTestSuite.createNewVisualRelationshipsForTestingFromSemanticEnds(
-    visualModel, model.getId(), "0", "1", "relationshipId1");
+    visualModel, firstModel.getId(), "0", "1", "relationshipId1");
   ActionsTestSuite.createNewVisualRelationshipsForTestingFromSemanticEnds(
-    visualModel, model.getId(), "1", "2", "relationshipId2");
+    visualModel, firstModel.getId(), "1", "2", "relationshipId2");
   expect(visualModel.getVisualEntitiesForRepresented("relationshipId1").length).toBe(1);
   expect(visualModel.getVisualEntitiesForRepresented("relationshipId2").length).toBe(1);
   //
