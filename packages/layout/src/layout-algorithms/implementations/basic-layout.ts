@@ -1,8 +1,8 @@
 import { ConfigurationsContainer } from "../../configurations/configurations-container.ts";
 import { Graph, MainGraph, } from "../../graph/representation/graph.ts";
 import _ from "lodash";
-import { VisualNode } from "@dataspecer/core-v2/visual-model";
 import { LayoutAlgorithm } from "../layout-algorithms-interfaces.ts";
+import { AllowedVisualsForNodes } from "../../graph/representation/node.ts";
 
 
 /**
@@ -11,7 +11,7 @@ import { LayoutAlgorithm } from "../layout-algorithms-interfaces.ts";
 export async function doRandomLayoutAdvancedFromGraph(graph: Graph): Promise<MainGraph> {
     const classNodes = Object.values(graph.nodes).filter(node => !node.isDummy);
     classNodes.forEach(classNode => {
-        let visualNode: VisualNode;
+        let visualNode: AllowedVisualsForNodes;
         if(classNode?.completeVisualNode?.isAnchored === true) {
             visualNode = classNode.completeVisualNode.coreVisualNode;
         }

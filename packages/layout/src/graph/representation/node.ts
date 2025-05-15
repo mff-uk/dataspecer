@@ -1,4 +1,4 @@
-import { VISUAL_NODE_TYPE, VisualModel, VisualNode } from "@dataspecer/core-v2/visual-model";
+import { VISUAL_NODE_TYPE, VisualDiagramNode, VisualModel, VisualNode } from "@dataspecer/core-v2/visual-model";
 import { addToRecordArray, createIdentifier, placePositionOnGrid } from "../../util/utils.ts";
 import { Graph, MainGraph } from "./graph.ts";
 import { SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
@@ -7,7 +7,7 @@ import { ExplicitAnchors, VisualEntitiesWithOutsiders, XY } from "../../index.ts
 import { isEntityWithIdentifierAnchored } from "../../explicit-anchors.ts";
 import { Edge } from "./edge.ts";
 
-export type AllowedVisualsForNodes = VisualNode;
+export type AllowedVisualsForNodes = VisualNode | VisualDiagramNode;
 
 /**
  * Represents visual node as in the cme visual model, but with couple of additional fields -
@@ -17,14 +17,14 @@ export type AllowedVisualsForNodes = VisualNode;
  * which are not (yet) part of the visual model. In case when we didn't have any visual model on input, this property can be safely ignored. (It is always false.)
  */
 export class VisualNodeComplete {
-    coreVisualNode: VisualNode;
+    coreVisualNode: AllowedVisualsForNodes;
     width: number;
     height: number;
     isAnchored: boolean;
     isOutsider: boolean;
 
     constructor(
-        coreVisualNode: VisualNode,
+        coreVisualNode: AllowedVisualsForNodes,
         width: number,
         height: number,
         useCopyOfCoreVisualNode: boolean,
@@ -181,7 +181,7 @@ export interface Node {
      */
     setSourceGraph(sourceGraph: Graph) : void;
 
-    convertToDataspecerRepresentation(): VisualNode | null;
+    convertToDataspecerRepresentation(): AllowedVisualsForNodes | null;
 
 }
 
@@ -300,7 +300,7 @@ export class DefaultNode implements Node {
       return this.attributes;
   }
 
-  convertToDataspecerRepresentation(): VisualNode | null {
+  convertToDataspecerRepresentation(): AllowedVisualsForNodes | null {
       return this.completeVisualNode?.coreVisualNode ?? null;
   }
 
