@@ -12,6 +12,11 @@ import { VisualModelData } from "@dataspecer/core-v2/visual-model";
 import { ModelCompositionConfiguration, ModelCompositionConfigurationApplicationProfile, ModelCompositionConfigurationCache, ModelCompositionConfigurationLegacy, ModelCompositionConfigurationMerge } from "./configuration";
 import { getProvidedSourceSemanticModel } from "./source-semantic-model/adapter";
 
+// todo until colors are properly generated from model metadata
+
+const DEFAULT_COLOR = "#4998f9";
+const DEFAULT_VOCABULARY_COLOR = "#f9aa49";
+
 function mergeIfNecessary(models: SemanticModelAggregator[]): SemanticModelAggregator {
   if (models.length === 1) {
     return models[0];
@@ -114,7 +119,7 @@ export class SemanticModelAggregatorBuilder {
       let result: SemanticModelAggregator;
       if (profile) {
         result = new ApplicationProfileAggregator(profile, mergeModel);
-        (result as ApplicationProfileAggregator).thisVocabularyChain["color"] = this.modelData[profile.getId() as string]?.color;
+        (result as ApplicationProfileAggregator).thisVocabularyChain["color"] = this.modelData[profile.getId() as string]?.color ?? DEFAULT_VOCABULARY_COLOR;
         result = mergeIfNecessary([result, mergeModel]);
       } else {
         result = mergeModel;
@@ -148,11 +153,11 @@ export class SemanticModelAggregatorBuilder {
       if (model.modelMetadata?.["caches"]) { // Some models may not have metadata
         const cimAdapter = await getProvidedSourceSemanticModel(model.modelMetadata["caches"], this.specificationId);
         const aggregator = new ExternalModelWithCacheAggregator(model, cimAdapter);
-        aggregator.thisVocabularyChain["color"] = this.modelData[configuration]?.color;
+        aggregator.thisVocabularyChain["color"] = this.modelData[configuration]?.color ?? DEFAULT_VOCABULARY_COLOR;
         return aggregator;
       } else {
         const aggregator = new VocabularyAggregator(this.knownModels[configuration]);
-        aggregator.thisVocabularyChain["color"] = this.modelData[configuration]?.color;
+        aggregator.thisVocabularyChain["color"] = this.modelData[configuration]?.color ?? DEFAULT_VOCABULARY_COLOR;
         return aggregator;
       }
     } else if (configuration.modelType === "application-profile") {
@@ -161,7 +166,7 @@ export class SemanticModelAggregatorBuilder {
       this.usedModels.add(model);
       const profiles = await this.buildRecursive(profileConfig.profiles);
       const aggregator = new ApplicationProfileAggregator(model, profiles, true).setCanAddEntities(profileConfig.canAddEntities ?? true).setCanModify(profileConfig.canModify ?? true);
-      aggregator.thisVocabularyChain["color"] = this.modelData[profileConfig.model as string]?.color;
+      aggregator.thisVocabularyChain["color"] = this.modelData[profileConfig.model as string]?.color ?? DEFAULT_COLOR;
       return aggregator;
     } else if (configuration.modelType === "merge") {
       const mergeConfig = configuration as ModelCompositionConfigurationMerge;
