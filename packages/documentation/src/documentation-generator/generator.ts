@@ -103,7 +103,7 @@ export async function generateDocumentation(
   const models = structuredClone(inputModel.models);
 
   // Primary semantic model
-  const semanticModel = {} as Entities
+  const semanticModel = {} as Record<string, Entity & {aggregation?: Entity, aggregationParents?: Entity[]}>;
   for (const model of models) {
     if (model.isPrimary) {
       Object.assign(semanticModel, model.entities);
@@ -130,8 +130,8 @@ export async function generateDocumentation(
   }
 
   const sortedSemanticModel = Object.values(semanticModel).sort((a, b) => {
-    const aLang = getLabel(a, configuration.language);
-    const bLang = getLabel(b, configuration.language);
+    const aLang = getLabel(a.aggregation, configuration.language);
+    const bLang = getLabel(b.aggregation, configuration.language);
     return aLang.localeCompare(bLang);
   });
 
