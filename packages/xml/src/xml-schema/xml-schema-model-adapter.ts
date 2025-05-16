@@ -626,7 +626,7 @@ class XmlSchemaAdapter {
     const isType = data instanceof StructureModelProperty;
     const generateAnnotation = (isElement && this.options.generateElementAnnotations) || (isType && this.options.generateTypeAnnotations);
 
-    return !data.iris && data.iris.length > 0 && Object.values(data?.humanLabel ?? {}).length === 0 && Object.values(data?.humanDescription ?? {}).length === 0
+    return !(data.iris && data.iris.length > 0) && Object.values(data?.humanLabel ?? {}).length === 0 && Object.values(data?.humanDescription ?? {}).length === 0
       ? null
       : {
           modelReference: this.options.generateSawsdl ? data.iris : null,
