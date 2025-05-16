@@ -160,7 +160,8 @@ test("Test change attribute order - change multi", () => {
     addSemanticAttributeToVisualModelAction(notificationMockup, visualModel, "0", newAttribute.identifier, true);
     attributes.push(newAttribute.identifier);
   }
-  expect((visualModel.getVisualEntitiesForRepresented("0")![0] as VisualNode).content.length).toEqual(expectedAttributeCount);
+  expect((visualModel.getVisualEntitiesForRepresented("0")![0] as VisualNode).content.length)
+    .toEqual(expectedAttributeCount);
   for(let i = 0; i < expectedAttributeCount; i++) {
     expect((visualModel.getVisualEntitiesForRepresented("0")![0] as VisualNode).content[i]).toBe(attributes[i]);
   }

@@ -19,15 +19,15 @@ import {
 test("Test creating visual diagram node from existing visual model", () => {
   const {
     visualModel,
-    firstModel: model,
+    firstModel,
     graph
   } = ActionsTestSuite.prepareModelsWithSemanticData(0, TestedSemanticConnectionType.Association);
   const diagram = ActionsTestSuite.createTestDiagram();
 
   // Prepare data
   const referencedVisualModel = createDefaultVisualModelFactory().createNewWritableVisualModelSync();
-  ActionsTestSuite.createNewVisualNodeForTesting(referencedVisualModel, model.getId(), "2");
-  ActionsTestSuite.createNewVisualNodeForTesting(referencedVisualModel, model.getId(), "3");
+  ActionsTestSuite.createNewVisualNodeForTesting(referencedVisualModel, firstModel.getId(), "2");
+  ActionsTestSuite.createNewVisualNodeForTesting(referencedVisualModel, firstModel.getId(), "3");
   graph.aggregator.addModel(referencedVisualModel);
 
   // Perform action

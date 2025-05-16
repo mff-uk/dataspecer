@@ -1,10 +1,10 @@
 import { expect, test } from "vitest";
+import { createDefaultVisualModelFactory, VisualGroup, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { ActionsTestSuite, notificationMockup, TestedSemanticConnectionType } from "./test/actions-test-suite";
 import { addGroupToVisualModelAction } from "./add-group-to-visual-model";
-import { createDefaultVisualModelFactory, VisualGroup, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { removeTopLevelGroupFromVisualModelAction } from "./remove-group-from-visual-model";
-import { removePartOfGroupContentAction } from "./remove-part-of-group-content";
 import { removeFromVisualModelByRepresentedAction } from "./remove-from-visual-model-by-represented";
+import { removePartOfGroupContentAction } from "./remove-part-of-group-content";
 
 test("Test dissolving top level groups", () => {
   const {

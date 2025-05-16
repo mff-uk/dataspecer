@@ -1,5 +1,6 @@
 /**
- * Tests {@link removeFromVisualModelByVisualAction} and interaction with {@link createVisualEdgeEndpointDuplicateAction}.
+ * Tests {@link removeFromVisualModelByVisualAction} and interaction with
+ * {@link createVisualEdgeEndpointDuplicateAction}.
  */
 
 import { expect, test } from "vitest";

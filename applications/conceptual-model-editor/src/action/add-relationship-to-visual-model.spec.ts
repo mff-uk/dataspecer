@@ -9,19 +9,32 @@
 import { expect, test } from "vitest";
 import { EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { createDefaultVisualModelFactory, VisualRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import {
+  createDefaultVisualModelFactory,
+  VisualRelationship,
+  WritableVisualModel
+} from "@dataspecer/core-v2/visual-model";
 
 import { notificationMockup } from "./test/actions-test-suite";
-import { CreatedEntityOperationResult, createGeneralization, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
+import {
+  CreatedEntityOperationResult,
+  createGeneralization,
+  createRelationship
+} from "@dataspecer/core-v2/semantic-model/operations";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { ModelGraphContextType } from "../context/model-context";
 import { SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { SetStateAction } from "react";
 import { createVisualEdgeEndpointDuplicateAction } from "./create-visual-edge-endpoint-duplicate";
-import { SEMANTIC_MODEL_GENERALIZATION, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+  SEMANTIC_MODEL_GENERALIZATION,
+  SemanticModelGeneralization
+} from "@dataspecer/core-v2/semantic-model/concepts";
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { ActionsTestSuite } from "./test/actions-test-suite";
-import { addVisualRelationshipsWithSpecifiedVisualEnds } from "../dataspecer/visual-model/operation/add-visual-relationships";
+import {
+  addVisualRelationshipsWithSpecifiedVisualEnds
+} from "../dataspecer/visual-model/operation/add-visual-relationships";
 import { semanticModelMapToCmeSemanticModel } from "../dataspecer/cme-model/adapter/";
 import { CmeSpecialization } from "../dataspecer/cme-model/model";
 
@@ -141,13 +154,13 @@ function testCreatedNodeDuplicateAndCreateRelationshipAfter(
   expect(relationship.visualTarget).toBe(visualTarget.identifier);
 }
 
-test("Create node duplicate and after that create relationship from the original node without specifying visual ends -" +
-  " it should create all the edges - association", () => {
+test("Create node duplicate and after that create relationship from the original node without specifying visual ends" +
+  " - it should create all the edges - association", () => {
   testCreateNodeDuplicateAndCreateRelationshipAfterWithoutSpecifyingEnds(RelationshipToTestType.Association);
 });
 
-test("Create node duplicate and after that create relationship from the original node without specifying visual ends -" +
-  " it should create all the edges - generalization", () => {
+test("Create node duplicate and after that create relationship from the original node without specifying visual ends" +
+  " - it should create all the edges - generalization", () => {
   testCreateNodeDuplicateAndCreateRelationshipAfterWithoutSpecifyingEnds(RelationshipToTestType.Generalization);
 });
 
@@ -244,13 +257,17 @@ function testCreateLoopAndDuplicateAfter(
   expect(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[0].identifier).length).toBe(2);
 }
 
-test("Create node duplicate and after that create relationship from the original node to the duplicate - association", () => {
-  testCreateNodeDuplicateAndLoopAfter(RelationshipToTestType.Association);
-});
+test(
+  "Create node duplicate and after that create relationship from the original node to the duplicate - association",
+  () => {
+    testCreateNodeDuplicateAndLoopAfter(RelationshipToTestType.Association);
+  });
 
-test("Create node duplicate and after that create relationship from the original node to the duplicate - generalization", () => {
-  testCreateNodeDuplicateAndLoopAfter(RelationshipToTestType.Generalization);
-});
+test(
+  "Create node duplicate and after that create relationship from the original node to the duplicate - generalization",
+  () => {
+    testCreateNodeDuplicateAndLoopAfter(RelationshipToTestType.Generalization);
+  });
 
 function testCreateNodeDuplicateAndLoopAfter(
   relationshipToTestType: RelationshipToTestType,
@@ -389,7 +406,9 @@ const prepareVisualModelWithFourNodes = () => {
   aggregator.addModel(model);
   aggregator.addModel(visualModel);
   const aggregatorView = aggregator.getView();
-  const visualModels: Map<string, WritableVisualModel> = new Map(Object.entries({ [visualModel.getIdentifier()]: visualModel }));
+  const visualModels: Map<string, WritableVisualModel> = new Map(Object.entries({
+    [visualModel.getIdentifier()]: visualModel
+  }));
 
   const graph: ModelGraphContextType = {
     aggregator,
@@ -419,7 +438,11 @@ const prepareVisualModelWithFourNodes = () => {
   };
 }
 
-const createNewVisualNodeForTesting = (visualModel: WritableVisualModel, model: string, semanticIdentifierAsNumber: number) => {
+const createNewVisualNodeForTesting = (
+  visualModel: WritableVisualModel,
+  model: string,
+  semanticIdentifierAsNumber: number
+) => {
   const visualId = visualModel.addVisualNode({
     representedEntity: semanticIdentifierAsNumber.toString(),
     model,

@@ -13,7 +13,11 @@ import {
   getRemovedAndAdded,
   getSelections
 } from "./utilities";
-import { isSemanticModelClass, SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+  isSemanticModelClass,
+  SemanticModelClass,
+  SemanticModelRelationship
+} from "@dataspecer/core-v2/semantic-model/concepts";
 import { addGroupToVisualModelAction } from "./add-group-to-visual-model";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { DiagramActions, DiagramCallbacks, Edge, Node } from "../diagram";

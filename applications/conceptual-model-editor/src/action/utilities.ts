@@ -552,7 +552,6 @@ function getClassesAndDiagramNodesFromVisualModelInternal(
   return result;
 }
 
-
 /**
  * @returns Maximum possible visual content (attributes) of node representing {@link entity},
  *  that means all relevant attributes existing in semantic model.

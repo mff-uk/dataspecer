@@ -157,12 +157,12 @@ const CatalogItem = (props: {
           🗑
         </button>
       )}
-      {extraButtonsForItem && extraButtonsForItem.map(({content, callback}, index) =>
+      {extraButtonsForItem && extraButtonsForItem.map(({ content, callback }, index) =>
         (<button key={`button-dropdown-catalog-${value}-${index}-special`}
-                  id={`button-dropdown-catalog-${value}-${index}-special`}
-                  className="cursor-pointer"
-                  data-menu="catalog"
-                  onClick={callback}>
+          id={`button-dropdown-catalog-${value}-${index}-special`}
+          className="cursor-pointer"
+          data-menu="catalog"
+          onClick={callback}>
           {content}
         </button>))
       }

@@ -272,6 +272,7 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
       </NodeToolbar>
     </>);
 }
+
 function RelationshipItem(props: {
   options: DiagramOptions,
   data: NodeRelationshipItem,

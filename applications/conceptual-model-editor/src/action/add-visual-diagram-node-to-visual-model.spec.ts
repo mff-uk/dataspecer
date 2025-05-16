@@ -4,7 +4,13 @@
  */
 
 import { expect, test } from "vitest";
-import { isVisualDiagramNode, isWritableVisualModel, VisualDiagramNode, VisualRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import {
+  isVisualDiagramNode,
+  isWritableVisualModel,
+  VisualDiagramNode,
+  VisualRelationship,
+  WritableVisualModel
+} from "@dataspecer/core-v2/visual-model";
 
 import { notificationMockup, TestedSemanticConnectionType } from "./test/actions-test-suite";
 import { ActionsTestSuite } from "./test/actions-test-suite";

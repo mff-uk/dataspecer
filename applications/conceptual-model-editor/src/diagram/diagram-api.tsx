@@ -1,5 +1,5 @@
 import { AlignmentHorizontalPosition, AlignmentVerticalPosition } from "@/action/align-nodes";
-import { Node, Edge, Group, GroupWithContent, Position, ViewportDimensions, Waypoint, VisualModelDiagramNode, DiagramNodeTypes } from "./diagram-model";
+import { Node, Edge, Group, GroupWithContent, Position, ViewportDimensions, Waypoint, DiagramNodeTypes, VisualModelDiagramNode } from "./diagram-model";
 
 interface GroupActions {
 
@@ -208,7 +208,7 @@ export interface DiagramActions extends
    * @param sourceNode is the node on which the user clicked the button.
    * @param canvasPosition is the canvas position where the menu will appear.
    */
-  openAlignmentMenu(sourceNode: Node, canvasPosition: Position): void
+  openAlignmentMenu(sourceNode: DiagramNodeTypes, canvasPosition: Position): void
 
   /**
    * Opens menu on given {@link canvasPosition}.
@@ -406,7 +406,7 @@ interface DiagramSelection {
    * @param source is the last selected node
    * @param canvasPosition is the position on canvas, where should be the list of actions shown.
    */
-  onOpenAlignmentMenu: (source: Node, canvasPosition: Position) => void;
+  onOpenAlignmentMenu: (source: DiagramNodeTypes, canvasPosition: Position) => void;
 
   /**
    * This method is called when user wants to layout selection.
@@ -457,16 +457,6 @@ interface DiagramSelection {
   onDeleteSelection: () => void;
 
   /**
-   * Aligns selected nodes horizontally, the actual alignment type is given by {@link alignmentHorizontalPosition}.
-   */
-  onAlignSelectionHorizontally: (alignmentHorizontalPosition: AlignmentHorizontalPosition) => void;
-
-  /**
-   * Aligns selected nodes vertically, the actual alignment type is given by {@link alignmentVerticalPosition}.
-   */
-  onAlignSelectionVertically: (alignmentVerticalPosition: AlignmentVerticalPosition) => void;
-
-  /*
    * This method is called when user wants to create new visual diagram node from selection.
    * That is the selection is put into new visual model and new node is created which represents the created model.
    */
@@ -507,6 +497,15 @@ interface VisualModelDiagramNodes {
    */
   onHideVisualModelDiagramNode: (visualModelDiagramNode: VisualModelDiagramNode) => void;
 
+  /**
+   * Aligns selected nodes horizontally, the actual alignment type is given by {@link alignmentHorizontalPosition}.
+   */
+  onAlignSelectionHorizontally: (alignmentHorizontalPosition: AlignmentHorizontalPosition) => void;
+
+  /**
+   * Aligns selected nodes vertically, the actual alignment type is given by {@link alignmentVerticalPosition}.
+   */
+  onAlignSelectionVertically: (alignmentVerticalPosition: AlignmentVerticalPosition) => void;
 }
 
 /**

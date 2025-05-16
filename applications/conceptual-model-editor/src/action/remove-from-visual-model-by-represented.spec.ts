@@ -1,5 +1,5 @@
 /**
- * Tests {@link removeFromVisualModelByRepresentedAction} and interaction with {@link createVisualEdgeEndpointDuplicateAction}.
+ * Tests {@link removeFromVisualModelAction} and interaction with {@link createNodeDuplicateAction}.
  */
 
 import { expect, test } from "vitest";
@@ -12,7 +12,7 @@ test("Remove relationship", () => {
     visualModel,
     firstModel,
     graph,
-    classesContext
+    classesContext,
   } = ActionsTestSuite.prepareModelsWithSemanticData(4, TestedSemanticConnectionType.Association);
 
   const visualRelationship = ActionsTestSuite.createNewVisualRelationshipsForTestingFromSemanticEnds(
@@ -33,7 +33,7 @@ test("Remove relationship end ", () => {
     visualModel,
     firstModel,
     graph,
-    classesContext
+    classesContext,
   } = ActionsTestSuite.prepareModelsWithSemanticData(4, TestedSemanticConnectionType.Association);
 
   const nodeToRemove = visualModel.getVisualEntitiesForRepresented("0")[0];
@@ -56,7 +56,7 @@ test("Remove relationship ends at the same time", () => {
     visualModel,
     firstModel,
     graph,
-    classesContext
+    classesContext,
   } = ActionsTestSuite.prepareModelsWithSemanticData(
     4, TestedSemanticConnectionType.Association);
 
@@ -82,7 +82,7 @@ test("Remove ends and the relationship", () => {
     visualModel,
     firstModel,
     graph,
-    classesContext
+   classesContext ,
   } = ActionsTestSuite.prepareModelsWithSemanticData(
     4, TestedSemanticConnectionType.Association);
 
@@ -135,7 +135,7 @@ test("Remove node duplicate", () => {
     visualModel,
     firstModel,
     graph,
-    classesContext
+    classesContext,
   } = ActionsTestSuite.prepareModelsWithSemanticData(
     4, TestedSemanticConnectionType.Association);
 

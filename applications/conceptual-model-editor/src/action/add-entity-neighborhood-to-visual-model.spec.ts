@@ -150,7 +150,8 @@ test("Test relationship neighborhood - add one relationship multiple times - on 
   }
 });
 
-test("Test relationship neighborhood - add two relationships which are not sharing node - on fully connected graph on 4 nodes", async () => {
+test("Test relationship neighborhood - add two relationships which are not sharing node - " +
+  "on fully connected graph on 4 nodes", async () => {
   const {
     classesContext,
     graph,
@@ -191,7 +192,8 @@ test("Test relationship neighborhood - add two relationships which are not shari
   expect(secondVisualEntities.length).toBe(6);
 });
 
-test("Test relationship neighborhood - add two relationships which are sharing node - on fully connected graph on 4 nodes", async () => {
+test("Test relationship neighborhood - add two relationships which are sharing node - " +
+  "on fully connected graph on 4 nodes", async () => {
   const {
     classesContext,
     graph,
