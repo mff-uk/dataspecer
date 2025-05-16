@@ -40,7 +40,7 @@ import { SetPimDatatype } from "../../../operations/set-pim-datatype";
 import { SetRegex } from "../../../operations/set-regex";
 import { SetTechnicalLabel } from "../../../operations/set-technical-label";
 import { knownDatatypes } from "../../../utils/known-datatypes";
-import { Cardinality, CardinalitySelector, cardinalityFromPim, cardinalityFromPsm } from "../../helper/cardinality-selector";
+import { Cardinality, CardinalitySelector, cardinalityFromPim, cardinalityFromPsm, defaultCardinality } from "../../helper/cardinality-selector";
 import { DatatypeSelector, DatatypeSelectorValueType, getIriFromDatatypeSelectorValue } from "../../helper/datatype-selector";
 import { RegexField } from "../../helper/regex-field";
 import { useSaveHandler } from "../../helper/save-handler";
@@ -244,32 +244,32 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
     // endregion regex and examples
 
-    const [cardinality, setCardinality] = useState<Cardinality | null>(null);
+    const [psmCardinality, setPsmCardinality] = useState<Cardinality | null>(null);
+    const [semanticCardinality, setSemanticCardinality] = useState<Cardinality>(defaultCardinality);
+    const usesSemanticCardinality = (isAttribute || isAssociationEnd) && isInterpreted;
+
+    const effectiveCardinality = psmCardinality ?? semanticCardinality ?? defaultCardinality;
+
+    const storedPsmCardinality = (isAttribute || isAssociationEnd || isContainer) ? (isInterpreted ? cardinalityFromPsm(resource as DataPsmAttribute | DataPsmAssociationEnd) : (cardinalityFromPsm(resource as DataPsmAttribute | DataPsmAssociationEnd) ?? defaultCardinality)) : defaultCardinality;
 
     useEffect(() => {
         if (isAttribute || isAssociationEnd || isContainer) {
             if (isInterpreted) {
-                setCardinality(cardinalityFromPim(semanticRelationshipEnd));
+                setSemanticCardinality(cardinalityFromPim(semanticRelationshipEnd));
+                setPsmCardinality(cardinalityFromPsm(resource as DataPsmAttribute | DataPsmAssociationEnd));
             } else {
-                setCardinality(cardinalityFromPsm(resource as DataPsmAttribute | DataPsmAssociationEnd));
+                setPsmCardinality(storedPsmCardinality);
             }
         }
     }, [semanticRelationshipEnd, isAttribute, isAssociationEnd, isInterpreted]);
 
-    const saveCardinalityPim = useCallback(
-        async () => (isAttribute || isAssociationEnd) && pimResource && cardinality && await store.executeComplexOperation(new SetCardinality(pimResource.id as string, semanticRelationshipEndIndex, cardinality.cardinalityMin, cardinality.cardinalityMax)),
-        [semanticRelationshipEndIndex, cardinality, isAttribute, isAssociationEnd, store, pimResource]
-    );
-    const saveCardinalityPsm = useCallback(
-        async () => (isAttribute || isAssociationEnd || isContainer) && resource && cardinality && await store.executeComplexOperation(new SetCardinalityPsm(resource.iri as string, cardinality.cardinalityMin, cardinality.cardinalityMax)),
-        [isAttribute, isAssociationEnd, isContainer, store, resource, cardinality]
-    );
-    useSaveHandler(
-        isInterpreted ?
-            (isAttribute || isAssociationEnd) && !isEqual(cardinality, cardinalityFromPim(semanticRelationshipEnd)) :
-            (isAttribute || isAssociationEnd || isContainer) && !isEqual(cardinality, cardinalityFromPsm(resource as DataPsmAttribute | DataPsmAssociationEnd)),
-        isInterpreted ? saveCardinalityPim : saveCardinalityPsm,
-    );
+    const saveCardinalityPim =
+        async () => (isAttribute || isAssociationEnd) && pimResource && await store.executeComplexOperation(new SetCardinality(pimResource.id as string, semanticRelationshipEndIndex, semanticCardinality.cardinalityMin, semanticCardinality.cardinalityMax));
+    const saveCardinalityPsm =
+        async () => (isAttribute || isAssociationEnd || isContainer) && resource && await store.executeComplexOperation(new SetCardinalityPsm(resource.iri as string, psmCardinality));
+
+    useSaveHandler(usesSemanticCardinality && !isEqual(semanticCardinality, cardinalityFromPim(semanticRelationshipEnd)), saveCardinalityPim);
+    useSaveHandler((isAttribute || isAssociationEnd || isContainer) && !isEqual(psmCardinality, storedPsmCardinality), saveCardinalityPsm);
 
     // region xml is attribute
 
@@ -513,7 +513,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
                     {t('title cardinality')}
                 </Typography>
 
-                {cardinality && <CardinalitySelector value={cardinality} onChange={setCardinality} disabled={pimReadOnly} />}
+                {psmCardinality && <CardinalitySelector value={psmCardinality} onChange={setPsmCardinality} />}
             </Box>
         </>}
 
@@ -529,7 +529,16 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
                         {t('title cardinality')}
                     </Typography>
 
-                    {cardinality && <CardinalitySelector value={cardinality} onChange={setCardinality} disabled={pimReadOnly} />}
+                    <CardinalitySelector value={psmCardinality} onChange={setPsmCardinality} inherit={usesSemanticCardinality} />
+
+                    {usesSemanticCardinality && <Card sx={{background: "#00000020"}}><CardContent>
+                        <Typography variant="subtitle1" component="h2">
+                            {t('title cardinality semantic')}
+                        </Typography>
+
+                        <CardinalitySelector value={semanticCardinality} onChange={setSemanticCardinality} disabled={pimReadOnly} color="default" />
+                    </CardContent></Card>}
+
                 </Box>
             }
 
@@ -552,7 +561,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
                     <Alert severity="info">{t('dematerialization.help')}</Alert>
                     <Alert severity={
                         isClassClosed ? (
-                            (cardinality?.cardinalityMax ?? 2) > 1 ? "error" : "success"
+                            (effectiveCardinality?.cardinalityMax ?? 2) > 1 ? "error" : "success"
                         ): "info"
                     }>{t('dematerialization.cardinality restriction')}</Alert>
 

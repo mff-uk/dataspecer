@@ -29,7 +29,7 @@ export const DataPsmAttributeItem: React.FC<{iri: string} & RowSlots> = memo((pr
       <Datatype iri={dataPsmAttribute.dataPsmDatatype} sx={sxStyles.type} />
     </>}
 
-    {pimAttribute && (" " + getCardinalityFromResource(pimAttribute))}
+    {pimAttribute && (" " + getCardinalityFromResource(dataPsmAttribute, pimAttribute))}
   </>;
 
   const startRow = props.startRow ? [...props.startRow, thisStartRow] : [thisStartRow];

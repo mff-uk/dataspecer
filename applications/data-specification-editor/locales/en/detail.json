@@ -7,6 +7,7 @@
   "cardinality custom": "custom",
   "cardinality custom title": "Custom cardinality",
   "cardinality infinity": "infinity",
+  "cardinality unset": "without change",
   "class-closed": {
     "help": "Specifies whether additional properties that are not defined in the schema can be used in the data. If no, then these extra undefined properties are forbidden.",
     "implicit": "default value",
@@ -115,6 +116,7 @@
   "title association": "Association",
   "title attribute": "Attribute",
   "title cardinality": "Cardinality",
+  "title cardinality semantic": "Cardinality at the application profile level",
   "title checkbox xml attribute": "Use as XML attribute",
   "title class": "Class",
   "title data type": "Data type",

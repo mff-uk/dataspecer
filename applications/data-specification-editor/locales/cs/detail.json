@@ -7,6 +7,7 @@
   "cardinality custom": "vlastní",
   "cardinality custom title": "Vlastní kardinalita",
   "cardinality infinity": "nekonečno",
+  "cardinality unset": "bez změny",
   "class-closed": {
     "help": "Určuje, zda v datech můžou být použity další vlastnosti, které nejsou v schématu definovány. Pokud ne, pak tyto nadbytečné nedefinované vlastnosti jsou zakázány.",
     "implicit": "výchozí hodnota",
@@ -117,6 +118,7 @@
   "title association": "Asociace",
   "title attribute": "Atribut",
   "title cardinality": "Kardinalita",
+  "title cardinality semantic": "Kardinalita na úrovni aplikačního profilu",
   "title checkbox xml attribute": "Použít jako XML atribut",
   "title class": "Třída",
   "title data type": "Datový typ",
