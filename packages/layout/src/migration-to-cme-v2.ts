@@ -1,6 +1,5 @@
 import { ModelVisualInformation, VisualEntity } from "@dataspecer/core-v2/visual-model";
 
-// TODO RadStr: Maybe put away the isOutsider
 // Newly the actual mapping in cme-v2 is using the id of visual entity as key
 type VisualEntityIdentifier = string;
 export type LayoutedVisualEntity = {

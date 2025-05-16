@@ -217,7 +217,6 @@ export class DefaultGraph implements Graph {
         const height = botRight.y - topLeft.y;
         visualNodeRepresentingGraph.position = { ...topLeft, anchored: null };
         this.completeVisualNode = new VisualNodeComplete(visualNodeRepresentingGraph, width, height, false, false);
-        console.info("this.completeVisualNode representing graph", {cvn: {...this.completeVisualNode}});
     }
 
     private createNewVisualNodeForGraphBasedOnContainedNodes() {
@@ -264,15 +263,9 @@ export class DefaultGraph implements Graph {
         const areInputModelsExtractedModels = (inputModels as ExtractedModels).entities && (inputModels as ExtractedModels).generalizations;
         const extractedModels = areInputModelsExtractedModels ? (inputModels as ExtractedModels) : extractModelObjects(inputModels as Map<string, EntityModel>);
 
-
-        console.info("extractedModels");
-        console.info(extractedModels);
-
         this.createGraphNodes(entitiesToLayout, visualModel, extractedModels, explicitAnchors);
         this.createGraphEdges(entitiesToLayout, visualModel, extractedModels);
         this.createGraphGroups(entitiesToLayout, visualModel, extractedModels);
-
-        console.info("THIS GRAPH:", this);
     }
 
     private createGraphNodes(
@@ -402,7 +395,6 @@ export class DefaultGraph implements Graph {
             )
             .map(relationshipBundle => relationshipBundle.semanticRelationship);
 
-        console.info("relationships", {relationships});
         relationships.forEach((relationship) => {
             const { domain, range } = getDomainAndRange(relationship);
             const semanticStart = domain.concept;
@@ -615,12 +607,7 @@ export class DefaultGraph implements Graph {
             return generalizationSubgraphNonFlattened.flat();
         });
 
-        // TODO RadStr: 1 + 3 Debug prints
-        console.log("Generated subgraphs:");
-        console.log(subgraphs);
-        console.log(generalizationSubgraphs);
         generalizationSubgraphs = generalizationSubgraphs.map(subgraph => subgraph.filter(node => node !== undefined));
-        console.log(generalizationSubgraphs);
 
 
         let createdSubgraphs: Array<Graph> = [];
@@ -697,11 +684,9 @@ export class DefaultGraph implements Graph {
     insertSubgraphToGraph(subgraph: Graph, nodesInSubgraph: Array<EdgeEndPoint>, shouldSplitEdges: boolean): void {
         // Repair the old graph by substituting the nodes by the newly created subgraph
         this.replaceNodesInOriginalGraphWithTheSubgraph(subgraph, nodesInSubgraph);
-        console.log("After changeNodesInOriginalGraph");
         if(shouldSplitEdges) {
             // Repair edges by splitting them into two parts
             this.splitEdgesGoingBeyondSubgraph(subgraph, nodesInSubgraph);
-            console.log("After repairEdgesInOriginalGraph");
         }
     }
 
@@ -730,16 +715,11 @@ export class DefaultGraph implements Graph {
      * @param edgeEnd is either "sources" or "targets", if it is sources then it repairs edges going out of subgraph, "targets" then going in
      */
     private splitEdgesGoingBeyondSubgraphInternal(subgraph: Graph, changedNodes: Array<EdgeEndPoint>, edgeEnd: "sources" | "targets") {
-        console.log("START OF repairEdgesGoingBeyondSubgraphInternal");
-        console.log(subgraph.mainGraph);
-
         const edgesGoingBeyond: Edge[] = [];
 
         const nodesInsideSubgraph = changedNodes.concat(subgraph);
         if(edgeEnd === "sources") {
             changedNodes.forEach(node => {
-                console.info("sources");
-                console.info([...node.getAllOutgoingEdges()]);
                 for(const edge of node.getAllOutgoingEdges()) {
                     if(nodesInsideSubgraph.find(changedNode => changedNode.id === edge.end.id) === undefined) {
                         edgesGoingBeyond.push(edge);
@@ -749,8 +729,6 @@ export class DefaultGraph implements Graph {
         }
         else if(edgeEnd === "targets") {
             changedNodes.forEach(node => {
-                console.info("targets");
-                console.info([...node.getAllOutgoingEdges()]);
                 for(const edge of node.getAllIncomingEdges()) {
                     if(nodesInsideSubgraph.find(changedNode => changedNode.id === edge.start.id) === undefined) {
                         edgesGoingBeyond.push(edge);
@@ -758,9 +736,6 @@ export class DefaultGraph implements Graph {
                 }
             });
         }
-
-        console.log("BEFORE GOING TO splitEdgeIntoTwo");
-        console.log(edgesGoingBeyond);
 
         edgesGoingBeyond.forEach(e => this.splitEdgeIntoTwo(e, subgraph));
     }

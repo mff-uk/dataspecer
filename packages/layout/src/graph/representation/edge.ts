@@ -114,20 +114,9 @@ export class DefaultEdge implements Edge {
         }
 
         const reverseEdgeToAddKey: IncomingEdgeType = convertOutgoingEdgeTypeToIncoming(edgeToAddKey);
-        console.log("Adding Edge to graph", {allNodes: graph.mainGraph.allNodes, visualEdge, sourceIdentifier, targetIdentifier});
-    //    console.log(graph);
-    //    console.log(edge);
-    //    console.log(source);
-    //    console.log(targetIdentifier);
-    //    console.log(edgeToAddKey);
-    //    console.log(visualModel);
-
         const mainGraph = graph.mainGraph;
         const source = mainGraph.findNodeInAllNodes(sourceIdentifier);
         const target = mainGraph.findNodeInAllNodes(targetIdentifier);
-
-        // console.log("targetNode");
-        // console.log(targetNode);
 
         if(source === undefined) {
             console.warn("The source node for edge does not exists");
@@ -172,8 +161,6 @@ export class DefaultEdge implements Edge {
         end: EdgeEndPoint,
         sourceModelIdentifier: string | null,
     ) {
-        console.info("CREATING EDGE", this);
-
         this.sourceGraph = sourceGraph;
         this.isDummy = false;
         this.sourceModelIdentifier = sourceModelIdentifier;
