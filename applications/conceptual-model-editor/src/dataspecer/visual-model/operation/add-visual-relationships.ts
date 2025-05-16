@@ -1,4 +1,4 @@
-import { isVisualNode, Position, VisualEntity, Waypoint, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualNode, isVisualRelationship, Position, VisualEntity, Waypoint, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { DataspecerError } from "../../dataspecer-error";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
 
@@ -20,8 +20,19 @@ export function addVisualRelationshipsWithSpecifiedVisualEnds(
     throw new DataspecerError("Source or target are not in the visual model.");
   }
 
+  const existingVisualRelationships = visualModel.getVisualEntitiesForRepresented(represented)
+    .filter(isVisualRelationship);
+
   for(const visualSource of visualSources) {
     for(const visualTarget of visualTargets) {
+      const alreadyExists = existingVisualRelationships
+        .find(visualRelationship =>
+          visualRelationship.visualSource === visualSource.identifier &&
+          visualRelationship.visualTarget === visualTarget.identifier) !== undefined;
+      if (alreadyExists) {
+        continue;
+      }
+
       const waypoints: Waypoint[] = [];
       if (visualSource === visualTarget && isVisualNode(visualSource)) {
         const position = visualSource.position;

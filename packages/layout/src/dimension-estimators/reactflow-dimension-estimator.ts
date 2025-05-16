@@ -87,7 +87,11 @@ function getPreferredName(name: LanguageString): string {
   // Just "hack" it, this is only estimator anyways. If we want exact estimation
   // we would also have to passed in the currently used language in cme or from wherever it is called.
   // and the computation of sizes would have to be much more rigorous.
-  let firstAvailableName: string = name?.en ?? name?.cs ?? name?.cz;
+  if (name === undefined || name === null) {
+    return "";
+  }
+
+  let firstAvailableName: string = name.en ?? name.cs ?? name.cz;
   if(firstAvailableName === undefined) {
     const possibleNames = Object.values(name);
     firstAvailableName = possibleNames?.[0] ?? "";
