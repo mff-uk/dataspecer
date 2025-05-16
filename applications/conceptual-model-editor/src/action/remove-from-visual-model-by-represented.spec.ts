@@ -1,5 +1,5 @@
 /**
- * Tests {@link removeFromVisualModelAction} and interaction with {@link createNodeDuplicateAction}.
+ * Tests {@link removeFromVisualModelByRepresentedAction} and interaction with {@link createVisualEdgeEndpointDuplicateAction}.
  */
 
 import { expect, test } from "vitest";
@@ -10,14 +10,17 @@ import { createVisualEdgeEndpointDuplicateAction } from "./create-visual-edge-en
 test("Remove relationship", () => {
   const {
     visualModel,
-    firstModel
+    firstModel,
+    graph,
+    classesContext
   } = ActionsTestSuite.prepareModelsWithSemanticData(4, TestedSemanticConnectionType.Association);
 
   const visualRelationship = ActionsTestSuite.createNewVisualRelationshipsForTestingFromSemanticEnds(
     visualModel, firstModel.getId(), "0", "1", "relationshipSemanticIdentifier");
   expect(visualModel.getVisualEntity(visualRelationship)).not.toBeNull();
   //
-  removeFromVisualModelByRepresentedAction(notificationMockup, visualModel, ["relationshipSemanticIdentifier"]);
+  removeFromVisualModelByRepresentedAction(
+    notificationMockup, graph, classesContext, visualModel, ["relationshipSemanticIdentifier"]);
   expect(visualModel.getVisualEntity(visualRelationship)).toBeNull();
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(1);
   expect(visualModel.getVisualEntitiesForRepresented("1").length).toBe(1);
@@ -28,7 +31,9 @@ test("Remove relationship", () => {
 test("Remove relationship end ", () => {
   const {
     visualModel,
-    firstModel
+    firstModel,
+    graph,
+    classesContext
   } = ActionsTestSuite.prepareModelsWithSemanticData(4, TestedSemanticConnectionType.Association);
 
   const nodeToRemove = visualModel.getVisualEntitiesForRepresented("0")[0];
@@ -36,7 +41,8 @@ test("Remove relationship end ", () => {
     visualModel, firstModel.getId(), "0", "1");
   expect(visualModel.getVisualEntity(visualRelationship)).not.toBeNull();
   //
-  removeFromVisualModelByRepresentedAction(notificationMockup, visualModel, ["0"]);
+  removeFromVisualModelByRepresentedAction(
+    notificationMockup, graph, classesContext, visualModel, ["0"]);
   expect(visualModel.getVisualEntity(visualRelationship)).toBeNull();
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(0);
   expect(visualModel.getVisualEntity(nodeToRemove.identifier)).toBeNull();
@@ -48,7 +54,9 @@ test("Remove relationship end ", () => {
 test("Remove relationship ends at the same time", () => {
   const {
     visualModel,
-    firstModel
+    firstModel,
+    graph,
+    classesContext
   } = ActionsTestSuite.prepareModelsWithSemanticData(
     4, TestedSemanticConnectionType.Association);
 
@@ -58,7 +66,8 @@ test("Remove relationship ends at the same time", () => {
     visualModel, firstModel.getId(), "0", "1");
   expect(visualModel.getVisualEntity(visualRelationship)).not.toBeNull();
   //
-  removeFromVisualModelByRepresentedAction(notificationMockup, visualModel, ["0", "1"]);
+  removeFromVisualModelByRepresentedAction(
+    notificationMockup, graph, classesContext, visualModel, ["0", "1"]);
   expect(visualModel.getVisualEntity(visualRelationship)).toBeNull();
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(0);
   expect(visualModel.getVisualEntity(sourceNodeToRemove.identifier)).toBeNull();
@@ -71,7 +80,9 @@ test("Remove relationship ends at the same time", () => {
 test("Remove ends and the relationship", () => {
   const {
     visualModel,
-    firstModel
+    firstModel,
+    graph,
+    classesContext
   } = ActionsTestSuite.prepareModelsWithSemanticData(
     4, TestedSemanticConnectionType.Association);
 
@@ -81,7 +92,8 @@ test("Remove ends and the relationship", () => {
     visualModel, firstModel.getId(), "0", "1", "relationshipId");
   expect(visualModel.getVisualEntity(visualRelationship)).not.toBeNull();
   expect(visualModel.getVisualEntitiesForRepresented("relationshipId").length).toBe(1);
-  removeFromVisualModelByRepresentedAction(notificationMockup, visualModel, ["0", "1", "relationshipId"]);
+  removeFromVisualModelByRepresentedAction(
+    notificationMockup, graph, classesContext, visualModel, ["0", "1", "relationshipId"]);
   expect(visualModel.getVisualEntity(visualRelationship)).toBeNull();
   expect(visualModel.getVisualEntitiesForRepresented("relationshipId").length).toBe(0);
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(0);
@@ -92,10 +104,38 @@ test("Remove ends and the relationship", () => {
   expect(visualModel.getVisualEntitiesForRepresented("3").length).toBe(1);
 });
 
+test("Remove end of many edges", () => {
+  const {
+    visualModel,
+    firstModel,
+    graph,
+    classesContext
+  } = ActionsTestSuite.prepareModelsWithSemanticData(
+    4, TestedSemanticConnectionType.Association);
+
+  ActionsTestSuite.createNewVisualRelationshipsForTestingFromSemanticEnds(
+    visualModel, firstModel.getId(), "0", "1", "relationshipId1");
+  ActionsTestSuite.createNewVisualRelationshipsForTestingFromSemanticEnds(
+    visualModel, firstModel.getId(), "1", "2", "relationshipId2");
+  expect(visualModel.getVisualEntitiesForRepresented("relationshipId1").length).toBe(1);
+  expect(visualModel.getVisualEntitiesForRepresented("relationshipId2").length).toBe(1);
+  //
+  removeFromVisualModelByRepresentedAction(
+    notificationMockup, graph, classesContext, visualModel, ["1"]);
+  expect(visualModel.getVisualEntitiesForRepresented("relationshipId1").length).toBe(0);
+  expect(visualModel.getVisualEntitiesForRepresented("relationshipId2").length).toBe(0);
+  expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(1);
+  expect(visualModel.getVisualEntitiesForRepresented("1").length).toBe(0);
+  expect(visualModel.getVisualEntitiesForRepresented("2").length).toBe(1);
+  expect(visualModel.getVisualEntitiesForRepresented("3").length).toBe(1);
+});
+
 test("Remove node duplicate", () => {
   const {
     visualModel,
-    firstModel
+    firstModel,
+    graph,
+    classesContext
   } = ActionsTestSuite.prepareModelsWithSemanticData(
     4, TestedSemanticConnectionType.Association);
 
@@ -108,7 +148,8 @@ test("Remove node duplicate", () => {
   expect(visualModel.getVisualEntitiesForRepresented("relationshipId").length).toBe(2);
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(2);
   //
-  removeFromVisualModelByRepresentedAction(notificationMockup, visualModel, ["0"]);
+  removeFromVisualModelByRepresentedAction(
+    notificationMockup, graph, classesContext, visualModel, ["0"]);
   expect(visualModel.getVisualEntitiesForRepresented("relationshipId").length).toBe(0);
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(0);
   expect(visualModel.getVisualEntitiesForRepresented("1").length).toBe(1);

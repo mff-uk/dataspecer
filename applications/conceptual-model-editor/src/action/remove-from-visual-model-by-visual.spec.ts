@@ -100,7 +100,9 @@ test("Remove ends and the relationship", () => {
 test("Remove end of many edges", () => {
   const {
     visualModel,
-    firstModel
+    firstModel,
+    graph,
+    classesContext,
   } = ActionsTestSuite.prepareModelsWithSemanticData(
     4, TestedSemanticConnectionType.Association);
 
@@ -111,7 +113,8 @@ test("Remove end of many edges", () => {
   expect(visualModel.getVisualEntitiesForRepresented("relationshipId1").length).toBe(1);
   expect(visualModel.getVisualEntitiesForRepresented("relationshipId2").length).toBe(1);
   //
-  removeFromVisualModelByRepresentedAction(notificationMockup, visualModel, ["1"]);
+  removeFromVisualModelByRepresentedAction(
+    notificationMockup, graph, classesContext, visualModel, ["1"]);
   expect(visualModel.getVisualEntitiesForRepresented("relationshipId1").length).toBe(0);
   expect(visualModel.getVisualEntitiesForRepresented("relationshipId2").length).toBe(0);
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(1);
