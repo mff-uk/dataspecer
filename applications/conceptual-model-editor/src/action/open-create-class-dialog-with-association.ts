@@ -8,7 +8,6 @@ import { Options } from "../application";
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { Position } from "../diagram";
-import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { ClassDialogState } from "../dialog/class/edit-class-dialog-state";
 import { createNewAssociationDialogState } from "../dialog/association/edit-association-dialog-state";
 import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
@@ -16,8 +15,11 @@ import { associationDialogStateToNewCmeRelationship } from "../dialog/associatio
 import { CmeReference } from "../dataspecer/cme-model/model";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 
-// TODO RadStr: 2 Actions - split into 2 files later
-
+/**
+ * Opens dialog which on confirm creates class,
+ * which is connected to node ({@link nodeIdentifier}) by association with default parameters.
+ * Direction is decided by {@link isCreatedClassTarget}
+ */
 export function openCreateClassDialogAndCreateAssociationAction(
   cmeExecutor: CmeModelOperationExecutor,
   notifications: UseNotificationServiceWriterType,
@@ -109,61 +111,5 @@ function createAssociationToCreatedClass(
     [], state.specializations);
 
   addSemanticRelationshipToVisualModelAction(
-    notifications, graph, visualModel, result.identifier, result.model);
-}
-
-export function openCreateClassDialogAndCreateGeneralizationAction(
-  cmeExecutor: CmeModelOperationExecutor,
-  notifications: UseNotificationServiceWriterType,
-  dialogs: DialogApiContextType,
-  classes: ClassesContextType,
-  options: Options,
-  graph: ModelGraphContextType,
-  diagram: UseDiagramType,
-  visualModel: WritableVisualModel,
-  nodeIdentifier: string,
-  isCreatedClassParent: boolean,
-  positionToPlaceClassOn: Position,
-) {
-  const onConfirm = (createdClassData: CmeReference) => {
-    createGeneralizationToCreatedClass(
-      cmeExecutor, notifications, graph,
-      visualModel, nodeIdentifier, isCreatedClassParent, createdClassData);
-  }
-
-  // TODO RadStr: Action in action
-  openCreateClassDialogWithModelDerivedFromClassAction(
-    cmeExecutor, notifications, graph, dialogs, classes, options,
-    diagram, visualModel, nodeIdentifier, positionToPlaceClassOn, onConfirm);
-}
-
-function createGeneralizationToCreatedClass(
-  cmeExecutor: CmeModelOperationExecutor,
-  notifications: UseNotificationServiceWriterType,
-  graph: ModelGraphContextType,
-  visualModel: WritableVisualModel,
-  nodeIdentifier: string,
-  isCreatedClassParent: boolean,
-  createdClassData: CmeReference,
-) {
-  const node = visualModel.getVisualEntity(nodeIdentifier);
-  if (node === null) {
-    notifications.error("Source node of the drag event is not in visual model");
-    return;
-  }
-  if (!isVisualNode(node)) {
-    notifications.error("Source node of the drag event is not a node");
-    return;
-  }
-  const sourceClassIdentifier = node.representedEntity;
-
-  const result = cmeExecutor.createGeneralization({
-    model: createdClassData.model,
-    iri: null,
-    childIdentifier: isCreatedClassParent ? sourceClassIdentifier : createdClassData.identifier,
-    parentIdentifier: isCreatedClassParent ? createdClassData.identifier : sourceClassIdentifier,
-  });
-
-  addSemanticGeneralizationToVisualModelAction(
     notifications, graph, visualModel, result.identifier, result.model);
 }

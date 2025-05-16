@@ -7,6 +7,9 @@ import {
   EditVisualModelDialogState,
 } from "../dialog/visual-model/create-visual-model";
 
+/**
+ * Open dialog to edit visual model information.
+ */
 export function openEditVisualModelDialogAction(
   options: Options,
   dialogs: DialogApiContextType,

@@ -1,6 +1,9 @@
 import { isVisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 
+/**
+ * Put {@link attributeIdentifier} to given {@link position} on given {@link nodeIdentifier}.
+ */
 export function setAttributePositionAction(
   notifications: UseNotificationServiceWriterType,
   visualModel: WritableVisualModel,

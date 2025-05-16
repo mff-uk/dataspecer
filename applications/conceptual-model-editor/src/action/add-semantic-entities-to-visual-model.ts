@@ -3,7 +3,11 @@ import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { sourceModelOfEntity } from "../util/model-utils";
-import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+  isSemanticModelClass,
+  isSemanticModelGeneralization,
+  isSemanticModelRelationship
+} from "@dataspecer/core-v2/semantic-model/concepts";
 import { addSemanticClassToVisualModelAction } from "./add-class-to-visual-model";
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
@@ -13,7 +17,10 @@ import { Entity, EntityModel } from "@dataspecer/core-v2";
 import { ClassesContextType } from "../context/classes-context";
 import { XY } from "@dataspecer/layout";
 import { findPositionForNewNodesUsingLayouting } from "./layout-visual-model";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  isSemanticModelClassProfile,
+  isSemanticModelRelationshipProfile
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 export type EntityToAddToVisualModel = {
     /**
