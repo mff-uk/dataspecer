@@ -97,7 +97,7 @@ export const DataPsmSchemaCard: React.FC<{ iri: string; onClose: () => void }> =
       async () =>
         resource &&
         (await store.executeComplexOperation(
-          new SetCardinalityPsm(iri, cardinality.cardinalityMin, cardinality.cardinalityMax)
+          new SetCardinalityPsm(iri, cardinality)
         )),
       [resource, iri, store, cardinality]
     )
