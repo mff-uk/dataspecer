@@ -1,4 +1,4 @@
-import { isVisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { placeCoordinateOnGrid, XY } from "@dataspecer/layout";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
@@ -10,7 +10,8 @@ import {
   getDimensionValue,
   getOtherCoordinate,
   getRelevantDimensionForCoordinate,
-  getTopLeftPosition
+  getTopLeftPosition,
+  isVisualEdgeEnd
 } from "./utilities";
 
 type AlignmentPosition = AlignmentHorizontalPosition | AlignmentVerticalPosition;
@@ -39,7 +40,7 @@ function alignGeneral(
 ) {
   const nodes = [...visualModel.getVisualEntities().values()]
     .filter(entity => identifiers.includes(entity.identifier))
-    .filter(isVisualNode);
+    .filter(isVisualEdgeEnd);
 
   const coordinateToKeep = getOtherCoordinate(coordinateToChange);
   const dimensionForChangeCoordinate = getRelevantDimensionForCoordinate(coordinateToChange);
