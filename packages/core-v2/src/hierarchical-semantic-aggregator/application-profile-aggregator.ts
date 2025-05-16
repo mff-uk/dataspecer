@@ -601,7 +601,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
 
     const isAttribute = isSemanticModelRelationPrimitive(entity.aggregatedEntity);
     const conceptId = sourceEntity.aggregatedEntity.ends[direction ? 1 : 0]!.concept;
-    const classProfileId = isAttribute ? conceptId : this.createClassProfile([conceptId!]).aggregatedEntity.id;
+    const classProfileId = isAttribute ? conceptId : this.createOrReuseClassProfile([conceptId!]).aggregatedEntity.id;
 
     // Create the relationship
     if (direction) {
@@ -651,6 +651,25 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
     const { id } = this.profile.executeOperation(operation) as CreatedEntityOperationResult;
 
     return this.entities[id] as LocalEntityWrapped<SemanticModelRelationship>;
+  }
+
+  /**
+   * This function tries to reuse the first class that suits the given profiling.
+   */
+  private createOrReuseClassProfile(profiling: string[]): LocalEntityWrapped<SemanticModelClassProfile & SemanticModelClass> {
+    const suitableClassProfile = Object.values(this.entities).find(entity => {
+      if (!isSemanticModelClassProfile(entity.aggregatedEntity)) {
+        return false;
+      }
+      const thisProfiling = entity.aggregatedEntity.profiling;
+      return thisProfiling.length === profiling.length && thisProfiling.every(p => profiling.includes(p));
+    });
+
+    if (suitableClassProfile) {
+      return suitableClassProfile as LocalEntityWrapped<SemanticModelClassProfile & SemanticModelClass>;
+    }
+
+    return this.createClassProfile(profiling);
   }
 
   private createClassProfile(profiling: string[]): LocalEntityWrapped<SemanticModelClassProfile & SemanticModelClass> {
