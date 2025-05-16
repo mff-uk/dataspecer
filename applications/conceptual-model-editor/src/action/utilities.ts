@@ -447,7 +447,7 @@ type BoundingBoxInfo = {
 */
 export const getBoundingBoxInfo = (
   diagram: UseDiagramType,
-  nodes: VisualNode[]
+  nodes: VisualEdgeEndPoint[]
 ): BoundingBoxInfo => {
   const topLeft = getTopLeftPosition(nodes);
   const botRight = getBotRightPosition(diagram, nodes);
