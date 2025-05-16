@@ -43,21 +43,12 @@ export class ElkLayeredConfiguration extends LayeredConfiguration implements Elk
         super(userGivenConfiguration, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.algorithmName = "elk_layered";
 
-        console.log("elkData in LayeredConfiguration");
-        console.log(_.cloneDeep(this.elkData));
-
         // Hardcoded defaults
         this.elkData["elk.edgeRouting"] = "SPLINES";
         this.elkData["spacing.edgeEdge"] = "10";
         this.elkData["org.eclipse.elk.spacing.nodeSelfLoop"] = "150";
 
         modifyElkDataObject(this.userGivenConfiguration, this.elkData);
-
-        console.log("elkData in ElkLayeredConfiguration");
-        console.log(_.cloneDeep(this.elkData));
-        // TODO: DEBUG
-        // console.log(this.data);
-        // console.log(this.elkData);
     }
 
     addAdvancedSettingsToUnderlyingData(advancedSettings: object) {
@@ -158,7 +149,7 @@ export class ElkStressProfileLayoutConfiguration extends StressConfiguration<Use
             advanced_settings: {},
             run_layered_after: false,
             run_node_overlap_removal_after: true,
-            interactive: true
+            interactive: false
         };
     }
 
@@ -182,13 +173,6 @@ export class ElkStressProfileLayoutConfiguration extends StressConfiguration<Use
 
     elkData: LayoutOptions = {};
 }
-
-
-
-// TODO: For now just extend AlgorithmConfiguration, don't make separate general class for Force algorithms as in case of stress,
-// because right now I am slightly confused what actually is the mapping between the physical based algorithms (d3 = Stress + Force + more)
-// but I can extend only one of them, I guess that I could create combination, but still it doesn't seem correct 1:1 mapping and the Elk force has
-// the option to set the physical model in configuration, which D3 doesn't have
 
 /**
  * Stores configuration for elk force algorithm
@@ -217,14 +201,13 @@ export class ElkForceConfiguration extends DefaultAlgorithmConfiguration<UserGiv
         this.algorithmName = "elk_force";
         modifyElkDataObject(this.userGivenConfiguration, this.elkData);
 
-        // TODO: For now - hardcoded
+        // Hardcoded ... we have decided to not use force algorithm anyways
         if(this.elkData["org.eclipse.elk.force.model"] === "EADES") {
             this.elkData["org.eclipse.elk.force.repulsion"] = "25.0";
         }
         else {
             this.elkData["elk.force.temperature"] = "0.1";
         }
-        // TODO: For now
         // Random seed == 0 means that the seed is chosen randomly. Seed sets the initial position of nodes
         this.elkData["org.eclipse.elk.randomSeed"] = "0";
     }
@@ -287,7 +270,7 @@ export class ElkSporeOverlapConfiguration extends DefaultAlgorithmConfiguration<
     static getDefaultUserConfiguration(): UserGivenAlgorithmConfigurationOverlapRemoval {
         return {
             layout_alg: "elk_overlapRemoval",
-            min_distance_between_nodes: 0,
+            min_distance_between_nodes: 200,
             advanced_settings: {},
             run_layered_after: false,
             run_node_overlap_removal_after: false,

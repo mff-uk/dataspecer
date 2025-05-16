@@ -259,3 +259,4 @@ export const VISUAL_VIEW_TYPE = "visual-view";
 export function isVisualView(what: Entity): what is VisualView {
     return what.type.includes(VISUAL_VIEW_TYPE);
 }
+

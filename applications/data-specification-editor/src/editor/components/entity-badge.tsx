@@ -10,8 +10,9 @@ export function ExternalEntityBadge(props: ExternalEntityBadgeProps) {
       marginLeft: ".5rem",
       // @ts-ignore
       background: props.entity.vocabularyChain[0].color ?? "#4998f9",
-      padding: ".2rem .5rem",
-      borderRadius: "4px"
+      padding: ".1rem .3rem",
+      borderRadius: "4px",
+      display: "inline-block",
     }}>
       {/* @ts-ignore */}
       {props.entity.vocabularyChain[0].name}

@@ -61,6 +61,10 @@ export const ViewManagement = () => {
         onValueSelected={(value) => handleViewSelected(value)}
         onValueEdit={(value) => actions.openEditVisualModelDialog(value)}
         onValueDeleted={(value) => handleViewDeleted(value)}
+        extraCatalogItems={[{
+          content: "📦",
+          callback: (value: string) => actions.addVisualDiagramNodeForExistingModelToVisualModel(value)
+        }]}
       />
       <button className="ml-2 white" onClick={handleCreateNewView} title="Create a new view">
         <AddIcon />

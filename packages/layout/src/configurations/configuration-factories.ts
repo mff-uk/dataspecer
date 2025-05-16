@@ -236,9 +236,6 @@ export class ConfigurationFactory {
         const configurationsContainer = new ConfigurationsContainer(
             layoutActionsBeforeMainRun, layoutActions, (userGivenConfigurations.main[userGivenConfigurations.chosenMainAlgorithm] as any).number_of_new_algorithm_runs ?? 1);
 
-        console.info("config", userGivenConfigurations);
-        console.info("layoutActions", layoutActions);
-
         return configurationsContainer
     }
 }
@@ -275,10 +272,7 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversionA
         graphConversionConfiguration: LayoutClustersAction,
         graph: MainGraph
     ): Promise<MainGraph> => {
-        console.info("graphConversionConfiguration.data.clusterifyAction.data.clusters", graphConversionConfiguration.data.clusterifyAction.data.clusters);
-
         const visualEdgesWithWaypoints: (VisualRelationship | VisualProfileRelationship)[] = [];
-
         const clusterPositionsWhenLayoutingLayered: Record<string, XY> = {};
 
         for (const [cluster, edgesInCluster] of Object.entries(graphConversionConfiguration.data.clusterifyAction.data.clusters)) {
@@ -300,19 +294,8 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversionA
             const edgesInClusterCurrentVersion = edgesInCluster.map(edge => graph.findEdgeInAllEdges(edge.id)).filter(edge => edge !== null);
             for(const edgeInCluster of edgesInClusterCurrentVersion) {
                 edgeInCluster.isConsideredInLayout = true;
-                // TODO: Debug prints
-                if(edgeInCluster?.semanticEntityRepresentingEdge?.id === "http://spdx.org/rdf/terms#externalRef") {
-                    console.info("cluster edge http://spdx.org/rdf/terms#externalRef", edgesInClusterCurrentVersion);
-                }
-                if(edgeInCluster?.semanticEntityRepresentingEdge?.id === "http://spdx.org/rdf/terms#referenceCategory") {
-                    console.info("cluster edge http://spdx.org/rdf/terms#referenceCategory", edgesInClusterCurrentVersion);
-                }
             }
             GraphAlgorithms.pointAllEdgesFromRoot(cluster, edgesInClusterCurrentVersion);
-
-            // TODO: Debug prints
-            console.log("edgesInClusterCurrentVersion", {...edgesInClusterCurrentVersion});
-
 
             const clusterRoot = graph.findNodeInAllNodes(cluster);
             const clusterRootPositionBeforeLayout = { ...clusterRoot.completeVisualNode.coreVisualNode.position };
@@ -331,9 +314,6 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversionA
                 populatedSectorsAscending[0][1] === populatedSectorsAscending[1][1]) {
                 leastPopulatedSector = populatedSectorsAscending[1][0];
             }
-
-            // TODO RadStr: Debug print
-            console.info("sectorPopulations", clusterRoot?.semanticEntityRepresentingNode?.iri, leastPopulatedSector, sectorPopulations);
 
             const configuration = getDefaultUserGivenAlgorithmConfigurationsFull();
             configuration.main.elk_layered.alg_direction = leastPopulatedSector as Direction;

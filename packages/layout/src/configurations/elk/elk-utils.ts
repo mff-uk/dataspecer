@@ -109,7 +109,4 @@ export function modifyElkDataObject(data: object, elkData: LayoutOptions): void 
     if(data['layout_alg'] !== undefined) {
         elkData[CONFIG_TO_ELK_CONFIG_MAP['layout_alg'][0]] = ALGORITHM_TO_ELK_ALGORITHM_MAP[data['layout_alg']];
     }
-
-    console.log("elkData");
-    console.log(elkData);
 }

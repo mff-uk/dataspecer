@@ -20,6 +20,10 @@ import { createNewAssociationProfileDialogState } from "@/dialog/association-pro
 import { Language } from "@/configuration";
 import { associationProfileDialogStateToNewCmeRelationshipProfileWithOverridenEnds } from "@/dialog/association-profile/edit-association-profile-dialog-state-adapter";
 
+/**
+ * Creates default profiles of given {@link semanticClassesToProfile} and {@link semanticRelationshipsToProfile}.
+ * The exact behavior is described here: https://github.com/mff-uk/dataspecer/pull/1201
+ */
 export async function createDefaultProfilesAction(
   cmeExecutor: CmeModelOperationExecutor,
   notifications: UseNotificationServiceWriterType,

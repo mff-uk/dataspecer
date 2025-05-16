@@ -1,5 +1,10 @@
 import { DialogProps, DialogWrapper } from "../dialog-api";
-import { CreateFilterSelectionControllerType, SelectionFilterState, createFilterSelectionState, useFilterSelectionController } from "./filter-selection-dialog-controller";
+import {
+  CreateFilterSelectionControllerType,
+  SelectionFilterState,
+  createFilterSelectionState,
+  useFilterSelectionController
+} from "./filter-selection-dialog-controller";
 import { Selections, SelectionsWithIdInfo } from "../../action/filter-selection-action";
 import { t } from "../../application";
 

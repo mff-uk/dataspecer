@@ -44,21 +44,24 @@ export class SetCardinality implements ComplexOperation {
   }
 }
 
+interface Cardinality {
+    cardinalityMin: number,
+    cardinalityMax: number | null,
+}
+
 /**
  * Operation that will set the cardinality of a PSM element.
  * It should eventually replace SetCardinality.
  */
 export class SetCardinalityPsm implements ComplexOperation {
   private readonly entityId: string;
-  private readonly min: number;
-  private readonly max: number;
+  private readonly cardinality: Cardinality | null;
 
   private store!: FederatedObservableStore;
 
-  constructor(entityId: string, min: number, max: number | null) {
+  constructor(entityId: string, cardinality: Cardinality | null) {
     this.entityId = entityId;
-    this.min = min;
-    this.max = max;
+    this.cardinality = cardinality;
   }
 
   setStore(store: FederatedObservableStore) {
@@ -70,7 +73,7 @@ export class SetCardinalityPsm implements ComplexOperation {
 
     const operation = new DataPsmSetCardinality();
     operation.entityId = this.entityId;
-    operation.dataPsmCardinality = [this.min, this.max];
+    operation.dataPsmCardinality = this.cardinality ? [this.cardinality.cardinalityMin, this.cardinality.cardinalityMax] : null;
 
     await this.store.applyOperation(schema, operation);
   }

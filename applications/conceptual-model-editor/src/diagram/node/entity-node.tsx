@@ -5,7 +5,6 @@ import {
   type NodeProps,
   NodeToolbar,
   Position,
-  useReactFlow,
 } from "@xyflow/react";
 
 import {
@@ -24,6 +23,7 @@ import { DiagramContext, NodeMenuType } from "../diagram-controller";
 
 import "./entity-node.css";
 import { t } from "../../application";
+import { SelectionMenu } from "./selection-menu";
 
 // We can select zoom option and hide content when zoom is on given threshold.
 // const zoomSelector = (state: ReactFlowState) => state.transform[2] >= 0.9;
@@ -62,6 +62,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
   const hideIri = data.options.labelVisual === LabelVisual.Iri;
   const label = prepareLabel(data.options, data);
   const mainColor = prepareColor(data);
+  const isSingleNodeSelected = context?.getShownNodeMenuType() === NodeMenuType.SingleNodeMenu;
 
   return (
     <>
@@ -92,7 +93,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
                   <RelationshipItem
                     options={data.options}
                     data={item}
-                    showToolbar={props.selected}
+                    showToolbar={props.selected && isSingleNodeSelected}
                     onEdit={editItem}
                     onMoveUp={moveItemUp}
                     onMoveDown={moveItemDown}
@@ -271,47 +272,6 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
       </NodeToolbar>
     </>);
 }
-
-function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
-  const context = useContext(DiagramContext);
-  const reactFlow = useReactFlow();
-  const shouldShowMenu = context?.getNodeWithMenu() === props.id;
-
-  if (!shouldShowMenu) {
-    return null;
-  }
-
-  const onOpenSelectionActionsMenu = (event: React.MouseEvent) => {
-    const absoluteFlowPosition = reactFlow.screenToFlowPosition({ x: event.clientX, y: event.clientY });
-    context?.callbacks().onShowSelectionActionsMenu(props.data, absoluteFlowPosition);
-  }
-  const onLayoutSelection = () => context?.callbacks().onLayoutSelection();
-  const onCreateGroup = () => {
-    context?.callbacks().onCreateGroup();
-  };
-  const onShowExpandSelection = () => context?.callbacks().onShowExpandSelection();
-  const onShowFilterSelection = () => context?.callbacks().onShowFilterSelection();
-
-  return (<>
-    <NodeToolbar isVisible={shouldShowMenu} position={Position.Top} className="flex gap-2 entity-node-menu" >
-      <button onClick={onOpenSelectionActionsMenu} title={t("selection-action-button")}>🎬</button>
-      &nbsp;
-      <button onClick={onLayoutSelection} title={t("selection-layout-button")} disabled>🔀</button>
-      &nbsp;
-    </NodeToolbar>
-    <NodeToolbar isVisible={shouldShowMenu} position={Position.Right} className="flex gap-2 entity-node-menu" >
-      <button onClick={onCreateGroup} title={t("selection-group-button")}>⛓️</button>
-    </NodeToolbar>
-    <NodeToolbar isVisible={shouldShowMenu} position={Position.Bottom} className="flex gap-2 entity-node-menu" >
-      <button onClick={onShowExpandSelection} title={t("selection-extend-button")} >📈</button>
-      &nbsp;
-      <button onClick={onShowFilterSelection} title={t("selection-filter-button")} >📉</button>
-      &nbsp;
-    </NodeToolbar>
-  </>
-  );
-}
-
 function RelationshipItem(props: {
   options: DiagramOptions,
   data: NodeRelationshipItem,

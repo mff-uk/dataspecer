@@ -5,15 +5,19 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { configuration, createLogger } from "../application";
 import { ReactflowDimensionsConstantEstimator, XY, placePositionOnGrid } from "@dataspecer/layout";
-import { Position, VisualGroup, VisualModel, WritableVisualModel, isVisualNode, isVisualGroup, isVisualRelationship, VisualNode } from "@dataspecer/core-v2/visual-model";
-import { Edge, EdgeType, Node } from "../diagram";
+import { Position, VisualGroup, VisualModel, WritableVisualModel, isVisualNode, isVisualGroup, isVisualRelationship, VisualDiagramNode, VisualNode, isVisualDiagramNode, VisualEntity } from "@dataspecer/core-v2/visual-model";
+import { DiagramNodeTypes, Edge, EdgeType } from "../diagram";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { ModelGraphContextType } from "../context/model-context";
 import { ClassesContextType } from "../context/classes-context";
 import { ExtensionType, VisibilityFilter, extendSelectionAction } from "./extend-selection-action";
 import { Selections } from "./filter-selection-action";
-import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelAttributeUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelAttribute, SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { addToRecordArray } from "@/utilities/functional";
+import { isSemanticModelAttributeProfile } from "@/dataspecer/semantic-model";
+import { getDomainAndRange } from "@/util/relationship-utils";
+import { isSemanticModelAttributeUsage, SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 const LOG = createLogger(import.meta.url);
 
@@ -44,13 +48,13 @@ export function convertToEntitiesToDeleteType(
   return entitiesToDelete;
 }
 
-export function checkIfIsAttributeOrAttributeProfile(
+export function isAttributeOrAttributeProfile(
   entityIdentifier: string,
   allModels: Map<string, EntityModel>,
   sourceModelIdentifier: string
-) {
+): boolean {
   const entity = allModels.get(sourceModelIdentifier)?.getEntities()?.[entityIdentifier] ?? null;
-  const isAttributeOrAttributeProfile = isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity);
+  const isAttributeOrAttributeProfile = isSemanticModelAttribute(entity) || isSemanticModelAttributeProfile(entity);
   return isAttributeOrAttributeProfile;
 }
 
@@ -113,6 +117,7 @@ export function setSelectionsInDiagram(selectionsToSetWith: Selections, diagram:
 
 /**
  * @returns Current selection in diagram, which has data formatted based on function arguments.
+ * The nodes representing visual models have visual identifier of the represented model as an external identifier.
  */
 export function getSelections(
   diagram: UseDiagramType,
@@ -141,11 +146,14 @@ export function getSelections(
 
 function getMapFunctionToExtractIdentifier(shouldGetVisualIdentifiers: boolean) {
   return shouldGetVisualIdentifiers ?
-    ((entity: Node | Edge) => entity.identifier) :
-    ((entity: Node | Edge) => entity.externalIdentifier);
+    ((entity: DiagramNodeTypes | Edge) => entity.identifier) :
+    ((entity: DiagramNodeTypes | Edge) => entity.externalIdentifier);
 }
 
-export function extractIdentifiers(arrayToExtractFrom: Node[] | Edge[], shouldGetVisualIdentifiers: boolean) {
+export function extractIdentifiers(
+  arrayToExtractFrom: DiagramNodeTypes[] | Edge[],
+  shouldGetVisualIdentifiers: boolean
+) {
   const identifierMap = getMapFunctionToExtractIdentifier(shouldGetVisualIdentifiers);
   return arrayToExtractFrom.map(identifierMap);
 }
@@ -168,16 +176,16 @@ type ComputedPositionForNodePlacement = {
 /**
  * @returns The barycenter of nodes associated to {@link classToFindAssociationsFor} and boolean variable saying if the position was explicitly put to middle of viewport.
  */
-export const computeRelatedAssociationsBarycenterAction = async (
+export const computeRelatedAssociationsBarycenterAction = (
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   visualModel: WritableVisualModel,
   diagram: UseDiagramType,
   classesContext: ClassesContextType,
   classToFindAssociationsFor: string,
-): Promise<ComputedPositionForNodePlacement> => {
-  const associatedClasses: string[] = (await findAssociatedClassesAndClassProfiles(
-    notifications, graph, classesContext, classToFindAssociationsFor)).selectionExtension.nodeSelection;
+): ComputedPositionForNodePlacement => {
+  const associatedClasses: string[] = findAssociatedClassesAndClassProfiles(
+    notifications, graph, classesContext, classToFindAssociationsFor).selectionExtension.nodeSelection;
   const associatedPositions = associatedClasses.flatMap(associatedNodeIdentifier => {
     const visualEntities = visualModel.getVisualEntitiesForRepresented(associatedNodeIdentifier);
     if(visualEntities.length === 0) {
@@ -230,18 +238,18 @@ const computeBarycenter = (positions: Position[], diagram: UseDiagramType): Comp
   };
 };
 
-const findAssociatedClassesAndClassProfiles = async (
+const findAssociatedClassesAndClassProfiles = (
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   classesContext: ClassesContextType,
   classToFindAssociationsFor: string
 ) => {
   // Is synchronous for this case
-  const selection = await extendSelectionAction(notifications, graph, classesContext,
+  const selection = extendSelectionAction(notifications, graph, classesContext,
     { areIdentifiersFromVisualModel: false, identifiers: [classToFindAssociationsFor] },
     [ExtensionType.Association, ExtensionType.Generalization,
       ExtensionType.ClassProfile, ExtensionType.ProfileEdge],
-    VisibilityFilter.OnlyVisibleNodes, false, null);
+    VisibilityFilter.OnlyVisibleNodes, null);
   return selection;
 }
 
@@ -267,7 +275,7 @@ export function findTopLevelGroup<T>(
 
 /**
  * Finds the top level group for given {@link identifier}, which represents any kind of node
- * (node, group, super(diagram) node). We are looking for top level group in the given {@link visualModel}
+ * (node, group, visual diagram node). We are looking for top level group in the given {@link visualModel}
  * @returns The identifier of the top level group or null, if the input node identified by {@link identifier} isn't part of any group.
  */
 export function findTopLevelGroupInVisualModel(
@@ -277,6 +285,59 @@ export function findTopLevelGroupInVisualModel(
   const { existingGroups, nodeToGroupMapping } = getGroupMappings(visualModel);
   const topLevelGroup = findTopLevelGroup(identifier, existingGroups, nodeToGroupMapping);
   return topLevelGroup;
+}
+
+/**
+ * Returns all visual diagram node mappings in the given model. We are mapping classes to parent visual diagram nodes.
+ * That is for each diagram node all the nodes and diagram nodes contained in it are returned.
+ * To be exact the {@link classToVisualDiagramNodeMappingRaw} in result returns for each class
+ * all the possible parent visual diagram nodes it is part of.
+ * It also contains the mappings of visual diagram nodes to its parent visual diagram node.
+ * So keys are both visual and semantic identifiers, but it is simpler to use, if we have it all in one map.
+ * The {@link existingVisualDiagramNodes} returns the diagram nodes stored in given {@link visualModel}
+ * @returns The {@link classToVisualDiagramNodeMapping} contains the mapped visual diagram nodes together with the amount,
+ * {@link classToVisualDiagramNodeMappingRaw} just contains all the visual diagram nodes
+ *  (possibly multiple times if it the class is present in it more than once)
+ */
+export function getVisualDiagramNodeMappingsByRepresented(
+  availableVisualModels: VisualModel[],
+  visualModel: VisualModel
+): {
+  existingVisualDiagramNodes: Record<string, VisualDiagramNode>,
+  classToVisualDiagramNodeMapping: Record<string, Record<string, number>>,
+  classToVisualDiagramNodeMappingRaw: Record<string, string[]>
+ } {
+  const existingVisualDiagramNodes: Record<string, VisualDiagramNode> = {};
+  const classToVisualDiagramNodeMappingRaw: Record<string, string[]> = {};
+  for (const [identifier, visualEntity] of visualModel.getVisualEntities()) {
+    if (isVisualDiagramNode(visualEntity)) {
+      existingVisualDiagramNodes[identifier] = visualEntity;
+      const containedNodes = getClassesAndDiagramNodesModelsFromVisualModelRecursively(
+        availableVisualModels, visualEntity.representedVisualModel);
+      for (const containedNode of containedNodes) {
+        addToRecordArray(containedNode, identifier, classToVisualDiagramNodeMappingRaw);
+      }
+    }
+  }
+
+  const classToVisualDiagramNodeMapping: Record<string, Record<string, number>> = {};
+  for (const [cclass, diagramNodes] of Object.entries(classToVisualDiagramNodeMappingRaw)) {
+    for (const diagramNode of diagramNodes) {
+      if (classToVisualDiagramNodeMapping[cclass] === undefined) {
+        classToVisualDiagramNodeMapping[cclass] = {};
+      }
+      if (classToVisualDiagramNodeMapping[cclass][diagramNode] === undefined) {
+        classToVisualDiagramNodeMapping[cclass][diagramNode] = 0;
+      }
+      classToVisualDiagramNodeMapping[cclass][diagramNode]++;
+    }
+  }
+
+  return {
+    existingVisualDiagramNodes,
+    classToVisualDiagramNodeMapping,
+    classToVisualDiagramNodeMappingRaw,
+  };
 }
 
 /**
@@ -331,7 +392,7 @@ export function getRemovedAndAdded<T>(previousValues: T[], nextValues: T[]) {
  * @returns Returns top left position of bounding box created by given {@link nodes}.
  * If the given array is empty, returns large number.
  */
-export const getTopLeftPosition = (nodes: VisualNode[]) => {
+export const getTopLeftPosition = (nodes: VisualEdgeEndPoint[]) => {
   const topLeft = { x: 10000000, y: 10000000 };
   nodes.forEach(node => {
     if(node.position.x < topLeft.x) {
@@ -352,7 +413,7 @@ export const getTopLeftPosition = (nodes: VisualNode[]) => {
 */
 export const getBotRightPosition = (
   diagram: UseDiagramType,
-  nodes: VisualNode[]
+  nodes: VisualEdgeEndPoint[]
 ) => {
   const botRight = { x: -10000000, y: -10000000 };
   nodes.forEach(node => {
@@ -431,3 +492,103 @@ export type Coordinate = "x" | "y";
 export const getOtherCoordinate = (coordinate: Coordinate): Coordinate => {
   return coordinate === "x" ? "y" : "x";
 };
+
+/**
+ * Checks if we can reach the {@link visualModelToAddTo} from {@link addedVisualModel}
+ */
+export function doesAddingVisualModelCauseSelfReference(
+  availableVisualModels: VisualModel[],
+  visualModelToAddTo: VisualModel,
+  addedVisualModel: string,
+) {
+  const classesInVisualModel = getClassesAndDiagramNodesModelsFromVisualModelRecursively(
+    availableVisualModels, addedVisualModel);
+  return classesInVisualModel.includes(visualModelToAddTo.getIdentifier());
+}
+
+export type VisualEdgeEndPoint = VisualDiagramNode | VisualNode;
+/**
+ * @returns True if the given {@link what} is visual entity, which can be visual end of edge.
+ * Currently that is either {@link VisualNode} or node representing diagram ({@link VisualDiagramNode}).
+ */
+export function isVisualEdgeEnd(what: VisualEntity): what is VisualEdgeEndPoint {
+  return isVisualNode(what) || isVisualDiagramNode(what);
+}
+
+/**
+ * @returns The semantic identifiers of the nodes in visual model.
+ *          BUT it is important to note that links of visual diagram nodes are followed.
+ *          The reason for this is quite simple - we can not work with visual identifiers
+ *          from different models and since visual diagram nodes are visual entities without
+ *          semantic counter-part, returning semantic identifiers is the only logical solution.
+ *          The visual diagram nodes are also contained in the output - those have the represented model's identifier
+ */
+export function getClassesAndDiagramNodesModelsFromVisualModelRecursively(
+  availableVisualModels: VisualModel[],
+  visualModel: string,
+) {
+  return getClassesAndDiagramNodesFromVisualModelInternal(
+    availableVisualModels, visualModel, []);
+}
+
+function getClassesAndDiagramNodesFromVisualModelInternal(
+  availableVisualModels: VisualModel[],
+  visualModel: string,
+  result: string[],
+) {
+  const linkedVisualmodel = availableVisualModels.find(availableVisualModel => visualModel === availableVisualModel.getIdentifier());
+  if(linkedVisualmodel !== undefined) {
+    for (const [_, visualEntity] of linkedVisualmodel.getVisualEntities()) {
+      if(isVisualNode(visualEntity)) {
+        result.push(visualEntity.representedEntity);
+      }
+      else if(isVisualDiagramNode(visualEntity)) {
+        result.push(visualEntity.representedVisualModel);
+        getClassesAndDiagramNodesFromVisualModelInternal(availableVisualModels, visualEntity.representedVisualModel, result);
+      }
+    }
+  }
+
+  return result;
+}
+
+
+/**
+ * @returns Maximum possible visual content (attributes) of node representing {@link entity},
+ *  that means all relevant attributes existing in semantic model.
+ */
+export function getVisualNodeContentBasedOnExistingEntities(
+  classes: ClassesContextType,
+  entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelClassProfile,
+): string[] {
+  const nodeContent: string[] = [];
+  const attributes = classes.relationships.filter(isSemanticModelAttribute);
+  const attributesUsages = classes.usages.filter(isSemanticModelAttributeUsage);
+  const attributesProfiles = classes.relationshipProfiles.filter(isSemanticModelAttributeProfile);
+
+  const nodeAttributes = attributes
+    .filter(isSemanticModelAttribute)
+    .filter((attr) => getDomainAndRange(attr).domain?.concept === entity.id);
+
+  const nodeAttributeUsages = attributesUsages
+    .filter(isSemanticModelAttributeUsage)
+    .filter((attr) => getDomainAndRange(attr).domain?.concept === entity.id);
+
+  const nodeAttributeProfiles = attributesProfiles
+    .filter(isSemanticModelAttributeProfile)
+    .filter((attr) => getDomainAndRange(attr).domain?.concept === entity.id);
+
+  for (const attribute of nodeAttributes) {
+    nodeContent.push(attribute.id);
+  }
+
+  for (const attributeUsage of nodeAttributeUsages) {
+    nodeContent.push(attributeUsage.id);
+  }
+
+  for (const attributeProfile of nodeAttributeProfiles) {
+    nodeContent.push(attributeProfile.id);
+  }
+
+  return nodeContent;
+}

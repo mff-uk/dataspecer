@@ -7,6 +7,7 @@
   "cardinality custom": "vlastní",
   "cardinality custom title": "Vlastní kardinalita",
   "cardinality infinity": "nekonečno",
+  "cardinality unset": "bez změny",
   "class-closed": {
     "help": "Určuje, zda v datech můžou být použity další vlastnosti, které nejsou v schématu definovány. Pokud ne, pak tyto nadbytečné nedefinované vlastnosti jsou zakázány.",
     "implicit": "výchozí hodnota",
@@ -55,6 +56,15 @@
     "use key value for lang string": "Použít formát JSON-LD language map."
   },
   "JSON attributes": "JSON specifické atributy",
+  "JSON enforce @context": {
+    "help": "Touto volbou lze vynutit přítomnost @context vlastnosti v JSON datech aby bylo možné data interpretovat jako JSON-LD. Volba \"Ano ale s rozšířeními\" vynutí přítomnost kontextu generovaného Dataspecerem, ale umožní přidat další. ",
+    "option": {
+      "as-is": "Ano",
+      "no": "Ne",
+      "with-extensions": "Ano ale s rozšířeními"
+    },
+    "title": "Vynucení @context vlastnosti"
+  },
   "JSON-LD IRI prefixes": "Prefixy použité v JSON-LD kontextu a schématech",
   "JSON-LD IRI prefixes help": "V tabulce níže lze nastavit často používané prefixy pro IRI použitá v JSON-LD kontextu a tím i pro IRI jež jsou použita v JSON Schématech.",
   "JSON-LD type mapping": "Mapování typů na specifické popisky",
@@ -108,6 +118,7 @@
   "title association": "Asociace",
   "title attribute": "Atribut",
   "title cardinality": "Kardinalita",
+  "title cardinality semantic": "Kardinalita na úrovni aplikačního profilu",
   "title checkbox xml attribute": "Použít jako XML atribut",
   "title class": "Třída",
   "title data type": "Datový typ",

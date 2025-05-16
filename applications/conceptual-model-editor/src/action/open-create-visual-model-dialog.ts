@@ -9,6 +9,11 @@ import { createVisualModelDialog } from "@/dialog/visual-model/create-visual-mod
 import { changeVisualModelAction } from "./change-visual-model";
 import { createEditVisualModelDialogState, EditVisualModelDialogState } from "../dialog/visual-model/create-visual-model";
 
+/**
+ * Opens dialog, which on confirm creates visual model, which will contain all the {@link nodes} and {@link edges}.
+ * Note that only the edges going between the list of nodes will be in the created visual model.
+ * @param shouldSwitchToCreatedModel if set to true then the view is changed to the created visual model.
+ */
 export function openCreateVisualModelDialogAction(
   notifications: UseNotificationServiceWriterType,
   options: Options,

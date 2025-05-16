@@ -146,9 +146,6 @@ export class GraphAlgorithms {
         result[name] = cluster;
       }
 
-      // TODO RadStr: Debug
-      console.info("Object.keys(result).length", Object.keys(result).length, result);
-      console.info("Object.keys(result).length", clusters, uniqueClusters);
       return result;
     }
 
@@ -222,8 +219,6 @@ export class GraphAlgorithms {
           clusterRootsToComponentsMap[node] = componentsForNode;
         }
       }
-      // TODO RadStr: Debug
-      console.info("Components", components);
       const graphComponentsToExtendClustersWith = GraphAlgorithms.findComponentsToExtendClustersWith(graph, clusterRootsToComponentsMap, sortedClusters, 3);
       GraphAlgorithms.extendClustersWithLoops(graphComponentsToExtendClustersWith.leafComponents);
       const biggestClusters = sortedClusters.splice(0, Math.min(sortedClusters.length, clusterCount ?? sortedClusters.length));
@@ -233,9 +228,6 @@ export class GraphAlgorithms {
         result[name] = cluster;
       }
 
-      // TODO RadStr: Debug
-      console.info("Object.keys(result).length", Object.keys(result).length, result);
-      console.info("Object.keys(result).length", clusters, uniqueClusters);
       return result;
     }
 
@@ -342,10 +334,7 @@ export class GraphAlgorithms {
 
 
       const leafComponents: LeafGraphComponent[] = [];
-      // TODO RadStr: DEBUG console print + we newly allow non-loop components
-      console.info("LOOP COMPONENTS", {componentsToClusterRootsMap, nodesInExtensionComponents, extensionComponentToClusterRootMap: leafComponentToClusterRootMap, components: clusterRootsToComponentsMap});
       for(const [extensionComponent, nodesInExtensionComponent] of Object.entries(nodesInExtensionComponents)) {
-        console.info("IN LOOP COMPONENT");
         const componentToExtendClustersWith = GraphAlgorithms.findAllEdgesInComponent(graph, nodesInExtensionComponent, maxComponentDepth);
         const clusterRootForThisComponent = leafComponentToClusterRootMap[extensionComponent];
         const clusterRoot = graph.findNodeInAllNodes(clusterRootForThisComponent);
@@ -412,8 +401,6 @@ export class GraphAlgorithms {
       allClusterRoots: EdgeEndPoint[],
       clusters: [string, Edge[]][]
     ) {
-      console.info("concatGraphComponents", {clusters, allClusterRoots, nodesToComponentsMap, leafComponentsData});
-
       // Without the cluster roots
       const componentContents: Record<number, string[]> = {};
       for (const [node, components] of Object.entries(nodesToComponentsMap)) {
@@ -436,8 +423,6 @@ export class GraphAlgorithms {
           currentChain, clusterRootForLeaf, Number(leafComponent), allClusterRoots,
           leafComponentsData.componentsToClusterRootsMap, nodesToComponentsMap,
           alreadyProcessedComponents, leafComponentsData.leafComponentToClusterRootMap);
-        // TODO: DEBUG
-        console.info("currentChain", currentChain.map(node => node?.[0]?.semanticEntityRepresentingNode?.iri));
 
         let previousClusterRoot: Node | null = null;
         let previousClusterEdges: Edge[] = null;
@@ -471,13 +456,9 @@ export class GraphAlgorithms {
           }
 
           previousClusterRoot = node;
-          // TODO RadStr: Debug
-          console.info("clusters", {...clusters});
-          console.info("clusters", node.id);
           const [_cluster, edgesInCluster] = clusters.find(([id, edgesInCluster]) => id === node.id);
           if(componentContents[component] !== undefined) {
             const edges = GraphAlgorithms.findAllEdgesInComponent(graph, componentContents[component], 30);
-            console.info("clusters", {edges, edgesConnectingPreviousClusterRootToThisComponent}, componentContents);
             edgesInCluster.push(...Object.values(edges.edges));
 
             const edgesGoingToComponentFromRoot = GraphAlgorithms.getEdgesGoingFromClusterRootToCandidates(
@@ -498,14 +479,11 @@ export class GraphAlgorithms {
       }
 
       for(const componentToMerge of [...new Set(componentsToBeMergedToParent)]) {
-        console.info("Shrinking clusters", {componentToMerge, mergeParents});
         if(mergeParents.includes(componentToMerge)) {
-          console.info("Trying to remove some merge parent");   // TODO: Remove the debug print ... just for now
           continue;
         }
         const index = clusters.findIndex(([id, _edges]) => id === componentToMerge);
         if(index === -1) {
-          console.error("Shrinking non-existing cluster");    // TODO RadStr: Debug
           continue;
         }
         clusters.splice(index, 1);
@@ -514,7 +492,6 @@ export class GraphAlgorithms {
       for(const cluster of clusters) {
         cluster[1] = [...new Set(cluster[1])]
       }
-      console.info("Resulting clusters", clusters, componentsToBeMergedToParent);
     }
 
 
@@ -550,11 +527,8 @@ export class GraphAlgorithms {
         currentlyProcessedClusterRoot, allClusterRoots)
         .map(root => [root, -1] as [string, number]);
       chain.push([currentlyProcessedClusterRoot, currentComponent]);
-      // TODO RadStr: Debug
-      console.info("clusterRootsForComponent.concat(directlyConnectedClusterRoots))", nextRootCandidatesWithComponent.concat(directlyConnectedClusterRoots).length, nextRootCandidatesWithComponent, directlyConnectedClusterRoots);
       const connectedClusterRoots = nextRootCandidatesWithComponent.concat(directlyConnectedClusterRoots);
       if(connectedClusterRoots.length !== 1) {
-        console.info("RETURN");     // TODO RadStr: Debug
         return;
       }
 
@@ -593,17 +567,13 @@ export class GraphAlgorithms {
 
     static findDirectlyConnectedClusterRoots(sourceNode: Node, clusterRoots: EdgeEndPoint[]): string[] {
       const directlyConnectedClusterRoots: string[] = [];
-      // TODO: 3 Debug prints
-      console.info("findDirectlyConnectedClusterRoots", {sourceNode, clusterRoots});
       for(const edge of sourceNode.getAllOutgoingUniqueEdges()) {
         if(clusterRoots.includes(edge.end)) {
-          console.info("INCLUDES", {clusterRoots, end: edge.end});
           directlyConnectedClusterRoots.push(edge.end.id);
         }
       }
       for(const edge of sourceNode.getAllIncomingUniqueEdges()) {
         if(clusterRoots.includes(edge.start)) {
-          console.info("INCLUDES", {clusterRoots, start: edge.start});
           directlyConnectedClusterRoots.push(edge.start.id);
         }
       }
@@ -623,7 +593,7 @@ export class GraphAlgorithms {
         .map(identifier => graph.findNodeInAllNodes(identifier))
         .filter(node => node !== null);
       if(nodesInComponent.length === 0) {
-        console.error("For some unknow reason component is empty");
+        console.error("For some unknown reason component is empty");
         return null;
       }
       const alreadyVisitedNodes: Record<string, true> = {};
@@ -736,10 +706,8 @@ export class GraphAlgorithms {
             visitedEdges.add(edge.id);
             if(edge.end.id !== targetNode) {
               edge.reverseInLayout = true;
-              console.info("REVERSING");
             }
             else {
-              console.info("NOT REVERSING");
               edge.reverseInLayout = false;
             }
           }
@@ -1074,9 +1042,6 @@ export class GraphAlgorithms {
             result.push(u);
 
     const articulationPoints = result.map(index => graph.allNodes[index]);
-
-    console.info("articulations", adjList, articulationPoints);
-
 
     if (articulationPoints.length === 0)
         return articulationPoints;

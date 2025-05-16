@@ -30,6 +30,7 @@ export * from "./data-psm-set-instances-specify-types.ts";
 export * from "./data-psm-set-interpretation.ts";
 export * from "./data-psm-set-is-closed.ts";
 export * from "./data-psm-set-empty-as-complex.ts";
+export * from "./data-psm-set-json-enforce-context.ts";
 export * from "./data-psm-set-json-ld-defined-prefixes.ts";
 export * from "./data-psm-set-json-ld-type-mapping.ts";
 export * from "./data-psm-set-json-schema-prefixes-in-iri-regex.ts";

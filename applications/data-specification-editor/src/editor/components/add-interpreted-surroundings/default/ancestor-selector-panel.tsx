@@ -13,6 +13,7 @@ import { LanguageStringFallback, LanguageStringText } from "../../helper/Languag
 import { LoadingDialog } from "../../helper/LoadingDialog";
 import { SlovnikGovCzGlossary } from "../../slovnik.gov.cz/SlovnikGovCzGlossary";
 import { ExternalEntityWrapped } from "@dataspecer/core-v2/hierarchical-semantic-aggregator";
+import { ExternalEntityBadge } from "../../entity-badge";
 
 interface AncestorSelectorPanelParameters {
     forSemanticClassId: string,
@@ -74,7 +75,7 @@ export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = 
                     <Tooltip open={(ancestor.aggregatedEntity.description && Object.values(ancestor.aggregatedEntity.description).some(s => s.length > 0)) ? undefined : false} title={<LanguageStringText from={ancestor.aggregatedEntity.description} />} placement="left" key={ancestor.aggregatedEntity.iri}>
                         <ListItem button selected={ancestor.aggregatedEntity.iri === (selectedAncestorCimIri ?? forSemanticClassId)} onClick={() => ancestor.aggregatedEntity.id && selectAncestorCimIri(ancestor.aggregatedEntity.id)}>
                             <ListItemText
-                                primary={<LanguageStringFallback from={ancestor.aggregatedEntity.name} fallback={<i>unnamed</i>} />}
+                                primary={<><LanguageStringFallback from={ancestor.aggregatedEntity.name} fallback={<i>unnamed</i>} /><ExternalEntityBadge entity={ancestor} /></>}
                                 secondary={<SlovnikGovCzGlossary cimResourceIri={ancestor.aggregatedEntity.iri as string}/>}
                             />
                            <IconButton size="small" onClick={(event) => {ClassDetailDialog.open({iri: ancestor.aggregatedEntity.iri as string}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>

@@ -20,5 +20,9 @@ export async function executeDataPsmSetCardinality(
     dataPsmCardinality: operation.dataPsmCardinality,
   };
 
+  if (operation.dataPsmCardinality === null) {
+    delete modifiedEntity.dataPsmCardinality;
+  }
+
   return CoreExecutorResult.createSuccess([], [modifiedEntity]);
 }

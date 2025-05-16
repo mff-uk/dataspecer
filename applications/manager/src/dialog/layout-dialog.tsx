@@ -13,6 +13,11 @@ import LayeredAlgorithmDirectionDropdown from "./direction-graphic-combobox/reac
 type MainType = "main";
 type MainOrGeneralType = MainType | "general";
 
+// TODO RadStr: Kinda deprecated, as a normal user you should use the dialog in CME
+//              It works, but it uses the old implementation of dialog
+//              CME uses different types of dialog and it is different component,
+//              so it would be hard to share it somehow
+//              ... To be honest I am not sure if anyone even used layouting from manager
 export const useConfigDialog = () => {
   const [config, setConfig] = useState<UserGivenAlgorithmConfigurations>(getDefaultUserGivenAlgorithmConfigurationsFull());
 
@@ -132,7 +137,6 @@ export const useConfigDialog = () => {
         {config?.[props.stateField].elk_force?.["min_distance_between_nodes"]}
 
       </div>
-      {/* TODO RadStr: Copy paste from force algorithm */}
       <div className="flex flex-row">
         <label htmlFor="range-iteration-count">Number of runs (may take several seconds for high numbers):</label>
       </div>
@@ -201,7 +205,6 @@ export const useConfigDialog = () => {
         ></input>
         {config?.[props.stateField]?.elk_stress_advanced_using_clusters?.["stress_edge_len"]}
       </div>
-      {/* TODO RadStr: Copy paste from force algorithm */}
       <div className="flex flex-row">
         <label htmlFor="range-iteration-count">Number of runs (may take several seconds for high numbers):</label>
       </div>
@@ -234,7 +237,6 @@ export const useConfigDialog = () => {
         ></input>
         {config?.[props.stateField]?.elk_stress?.["stress_edge_len"]}
       </div>
-      {/* TODO RadStr: Copy paste from force algorithm */}
       <div className="flex flex-row">
         <label htmlFor="range-iteration-count">Number of runs (may take several seconds for high numbers):</label>
       </div>
@@ -369,7 +371,6 @@ export const useConfigDialog = () => {
         ></input>
         {config?.[props.stateField]?.automatic?.["min_distance_between_nodes"]}
       </div>
-      {/* TODO RadStr: Copy paste from force algorithm */}
       <div className="flex flex-row">
         <label htmlFor="range-iteration-count">Number of runs (may take several seconds for high numbers):</label>
       </div>

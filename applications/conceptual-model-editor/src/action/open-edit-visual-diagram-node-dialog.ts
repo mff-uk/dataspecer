@@ -7,6 +7,9 @@ import { VisualModelDiagramNode } from "../diagram";
 import { createEditVisualDiagramNodeDialog, createEditVisualDiagramNodeDialogState } from "@/dialog/visual-model/visual-diagram-node/edit-visual-diagram-node/create-edit-visual-diagram-node-dialog";
 import { EditVisualDiagramNodeDialogState } from "@/dialog/visual-model/visual-diagram-node/edit-visual-diagram-node/edit-visual-diagram-node-dialog-controller";
 
+/**
+ * Open model to edit information about visual diagram node.
+ */
 export function openEditVisualDiagramNodeDialogAction(
   notifications: UseNotificationServiceWriterType,
   options: Options,

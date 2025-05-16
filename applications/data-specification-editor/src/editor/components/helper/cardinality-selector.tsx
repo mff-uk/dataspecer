@@ -17,13 +17,29 @@ enum PredefinedCardinality {
     c_1_infinity = '1..*',
     c_0_1 = '0..1',
     c_1 = '1',
+    unset = 'unset',
 }
 
-interface CardinalitySelectorProps {
+type CardinalitySelectorProps = {
+    disabled?: boolean;
+    color?: React.ComponentProps<typeof Radio>["color"];
+} & ({
     value: Cardinality,
     onChange: (value: Cardinality) => void;
-    disabled?: boolean;
-}
+
+    /**
+     * Whether it is allowed to inherit the cardinality from the parent.
+     */
+    inherit?: false;
+} | {
+    value: Cardinality | null,
+    onChange: (value: Cardinality | null) => void;
+
+    /**
+     * Whether it is allowed to inherit the cardinality from the parent.
+     */
+    inherit: true;
+});
 
 export function cardinalityFromPim(pimResource: {
     cardinality?: [number, number | null],
@@ -34,14 +50,21 @@ export function cardinalityFromPim(pimResource: {
     };
 }
 
-export function cardinalityFromPsm(entity: DataPsmAttribute | DataPsmAssociationEnd): Cardinality {
-    return {
-        cardinalityMin: entity.dataPsmCardinality?.[0] ?? 0,
-        cardinalityMax: entity.dataPsmCardinality?.[1] ?? null,
-    };
+/**
+ * Returns PSM cardinality or null if not set.
+ */
+export function cardinalityFromPsm(entity: DataPsmAttribute | DataPsmAssociationEnd): Cardinality | null {
+    if (entity.dataPsmCardinality) {
+        return {
+            cardinalityMin: entity.dataPsmCardinality[0] ?? 0,
+            cardinalityMax: entity.dataPsmCardinality[1] ?? null,
+        };
+    } else {
+        return null;
+    }
 }
 
-const predefinedCardinalityToValue: {[key in PredefinedCardinality]: Cardinality} = {
+const predefinedCardinalityToValue: {[key in PredefinedCardinality]: Cardinality | null} = {
     [PredefinedCardinality.c_0_infinity]: {
         cardinalityMin: 0,
         cardinalityMax: null,
@@ -58,6 +81,12 @@ const predefinedCardinalityToValue: {[key in PredefinedCardinality]: Cardinality
         cardinalityMin: 1,
         cardinalityMax: 1,
     },
+    [PredefinedCardinality.unset]: null,
+};
+
+export const defaultCardinality: Cardinality = {
+    cardinalityMin: 0,
+    cardinalityMax: null,
 };
 
 const CustomCardinalityDialog: React.FC<DialogParameters & {
@@ -66,9 +95,12 @@ const CustomCardinalityDialog: React.FC<DialogParameters & {
 }> = dialog({maxWidth: "xs", fullWidth: true}, ({onConfirm, defaultValue, close}) => {
     const {t} = useTranslation("detail");
 
-    const [cardinalityMin, setCardinalityMin] = React.useState<string>(String(defaultValue.cardinalityMin));
-    const [cardinalityMax, setCardinalityMax] = React.useState<string>(defaultValue.cardinalityMax === null ? "1" : String(defaultValue.cardinalityMax));
-    const [infinity, setInfinity] = React.useState<boolean>(defaultValue.cardinalityMax === null);
+    const defaultMin = defaultValue?.cardinalityMin ?? 0;
+    const defaultMax = defaultValue?.cardinalityMax ?? null;
+
+    const [cardinalityMin, setCardinalityMin] = React.useState<string>(String(defaultMin));
+    const [cardinalityMax, setCardinalityMax] = React.useState<string>(defaultMax === null ? "1" : String(defaultMax));
+    const [infinity, setInfinity] = React.useState<boolean>(defaultMax === null);
 
     const min = parseInt(cardinalityMin);
     const max = infinity ? null : parseInt(cardinalityMax);
@@ -134,7 +166,10 @@ const CustomCardinalityDialog: React.FC<DialogParameters & {
     </>
 });
 
-function cardinalityToKnown(cardinality: Cardinality): PredefinedCardinality | null {
+function cardinalityToKnown(cardinality: Cardinality | null): PredefinedCardinality | null {
+    if (!cardinality) {
+        return PredefinedCardinality.unset;
+    }
     if (cardinality.cardinalityMin === 0 && cardinality.cardinalityMax === null) {
         return PredefinedCardinality.c_0_infinity;
     }
@@ -150,7 +185,7 @@ function cardinalityToKnown(cardinality: Cardinality): PredefinedCardinality | n
     return null
 }
 
-export const CardinalitySelector: React.FC<CardinalitySelectorProps> = ({value, onChange, disabled}) => {
+export const CardinalitySelector: React.FC<CardinalitySelectorProps> = ({value, onChange, disabled, inherit, color}) => {
     const {t} = useTranslation("detail");
 
     const selectedRadio = cardinalityToKnown(value) ?? "custom";
@@ -177,11 +212,12 @@ export const CardinalitySelector: React.FC<CardinalitySelectorProps> = ({value, 
             onChange={handleChange}
             sx={{display: "flex", flexDirection: "row"}}
         >
-            <FormControlLabel disabled={disabled} value={PredefinedCardinality.c_0_infinity} control={<Radio />} label="0..*" />
-            <FormControlLabel disabled={disabled} value={PredefinedCardinality.c_1_infinity} control={<Radio />} label="1..*" />
-            <FormControlLabel disabled={disabled} value={PredefinedCardinality.c_0_1} control={<Radio />} label="0..1" />
-            <FormControlLabel disabled={disabled} value={PredefinedCardinality.c_1} control={<Radio />} label="1" />
-            {customIsUnique && <FormControlLabel disabled={disabled} value={"custom"} control={<Radio />} label={custom.cardinalityMin + ".." + (custom.cardinalityMax ?? "*")} />}
+            {inherit && <FormControlLabel disabled={disabled} value={PredefinedCardinality.unset} control={<Radio color={color} />} label={t("cardinality unset") as string} />}
+            <FormControlLabel disabled={disabled} value={PredefinedCardinality.c_0_infinity} control={<Radio color={color} />} label="0..*" />
+            <FormControlLabel disabled={disabled} value={PredefinedCardinality.c_1_infinity} control={<Radio color={color} />} label="1..*" />
+            <FormControlLabel disabled={disabled} value={PredefinedCardinality.c_0_1} control={<Radio color={color} />} label="0..1" />
+            <FormControlLabel disabled={disabled} value={PredefinedCardinality.c_1} control={<Radio color={color} />} label="1" />
+            {customIsUnique && <FormControlLabel disabled={disabled} value={"custom"} control={<Radio color={color} />} label={custom.cardinalityMin + ".." + (custom.cardinalityMax ?? "*")} />}
         </RadioGroup>
         <FormControlLabel disabled={disabled} value={"sdf"} control={<Radio onClick={() => CustomDialog.open({})} checked={false} />} label={t("cardinality custom") as string} />
 

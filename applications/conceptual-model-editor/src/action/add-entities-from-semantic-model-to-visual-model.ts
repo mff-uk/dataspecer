@@ -2,19 +2,38 @@ import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { getSelectionForWholeSemanticModel } from "./extend-selection-action";
-import { EntityToAddToVisualModel, addSemanticEntitiesToVisualModelAction } from "./add-semantic-entities-to-visual-model";
+import {
+  EntityToAddToVisualModel,
+  addSemanticEntitiesToVisualModelAction
+} from "./add-semantic-entities-to-visual-model";
 import { ClassesContextType } from "../context/classes-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { EntityModel } from "@dataspecer/core-v2";
-import { isSemanticModelAttribute, isSemanticModelClass, isSemanticModelRelationship, SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelClassProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { isSemanticModelAttributeUsage, isSemanticModelClassUsage, SemanticModelClassUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+  isSemanticModelAttribute,
+  isSemanticModelClass,
+  isSemanticModelRelationship,
+  SemanticModelClass,
+  SemanticModelRelationship
+} from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+  isSemanticModelClassProfile,
+  SemanticModelClassProfile,
+  SemanticModelRelationshipProfile
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  isSemanticModelAttributeUsage,
+  isSemanticModelClassUsage,
+  SemanticModelClassUsage,
+  SemanticModelRelationshipUsage
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
 import { getDomainAndRange } from "../util/relationship-utils";
 import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
 
 /**
- * Adds entities from given semantic model identified by {@link semanticModelIdentifier} to currently active visual model.
+ * Adds entities from given semantic model identified by
+ * {@link semanticModelIdentifier} to currently active visual model.
  */
 export const addEntitiesFromSemanticModelToVisualModelAction = async (
   notifications: UseNotificationServiceWriterType,
@@ -33,7 +52,8 @@ export const addEntitiesFromSemanticModelToVisualModelAction = async (
     position: null,
   }));
 
-  entitiesToAddToVisualModel.push(...entitiesFromSemanticModel.edgeSelection.map(edge => ({ identifier: edge, position: null })));
+  entitiesToAddToVisualModel.push(
+    ...entitiesFromSemanticModel.edgeSelection.map(edge => ({ identifier: edge, position: null })));
   // Find those which are not already on canvas.
   entitiesToAddToVisualModel = entitiesToAddToVisualModel
     .filter(entity => !visualModel.hasVisualEntityForRepresented(entity.identifier));
@@ -46,7 +66,8 @@ export const addEntitiesFromSemanticModelToVisualModelAction = async (
                       isSemanticModelClassProfile(entity) ||
                       isSemanticModelClassUsage(entity));
 
-  await addSemanticEntitiesToVisualModelAction(notifications, classesContext, graph, visualModel, diagram, entitiesToAddToVisualModel);
+  await addSemanticEntitiesToVisualModelAction(
+    notifications, classesContext, graph, visualModel, diagram, entitiesToAddToVisualModel);
 
   addHiddenAttributesForExistingClassesAndClassProfiles(
     notifications, classesContext, visualModel, classesPresentOnCanvas);
