@@ -19,7 +19,7 @@ import {
 test("Test creating visual diagram node from existing visual model", () => {
   const {
     visualModel,
-    model,
+    firstModel: model,
     graph
   } = ActionsTestSuite.prepareModelsWithSemanticData(0, TestedSemanticConnectionType.Association);
   const diagram = ActionsTestSuite.createTestDiagram();

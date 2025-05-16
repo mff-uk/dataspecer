@@ -1,4 +1,10 @@
-import { CreateExtendSelectionControllerType, ExtendSelectionState, ExtensionCheckboxData, createExtendSelectionState, useExtendSelectionController } from "./extend-selection-dialog-controller";
+import {
+  CreateExtendSelectionControllerType,
+  ExtendSelectionState,
+  ExtensionCheckboxData,
+  createExtendSelectionState,
+  useExtendSelectionController
+} from "./extend-selection-dialog-controller";
 import { DialogProps, DialogWrapper } from "../dialog-api";
 import { Selections } from "../../action/filter-selection-action";
 import { t } from "../../application";

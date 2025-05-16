@@ -1,6 +1,12 @@
 import { EntityModel } from "@dataspecer/core-v2";
 import { sourceModelOfEntity } from "../util/model-utils";
-import { ClassesContextEntities, VisibilityFilter, getSemanticClassIdentifier, getSemanticEdgeIdentifier, isEntityInVisualModel } from "./extend-selection-action";
+import {
+  ClassesContextEntities,
+  VisibilityFilter,
+  getSemanticClassIdentifier,
+  getSemanticEdgeIdentifier,
+  isEntityInVisualModel
+} from "./extend-selection-action";
 import { ClassesContextType } from "../context/classes-context";
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { ModelGraphContextType } from "../context/model-context";
@@ -20,7 +26,8 @@ export enum SelectionFilter {
 /**
  * Appends to {@link filteredNodeSelection} the classes from {@link nodeSelection} passing filter
  * and into {@link filteredEdgeSelection} the edges from {@link edgeSelection} passing filter.
- * Note that filter is usually either for nodes or for edges. So usually either {@link filteredNodeSelection} or {@link filteredEdgeSelection} is kept unchanged.
+ * Note that filter is usually either for nodes or for edges.
+ * So usually either {@link filteredNodeSelection} or {@link filteredEdgeSelection} is kept unchanged.
  */
 type SelectionFilterMethod = (
     nodeSelection: string[],
@@ -44,7 +51,8 @@ export type SelectionsWithIdInfo = Selections & {areVisualModelIdentifiers: bool
 
 /**
  *
- * @returns Filtered nodeSelection and edgeSelection stored inside {@link selections} based on {@link filters} and {@link visibilityFilter} and {@link semanticModelFilter}
+ * @returns Filtered nodeSelection and edgeSelection stored inside {@link selections} based on {@link filters} and
+ *  {@link visibilityFilter} and {@link semanticModelFilter}
  */
 export function filterSelectionAction(
   notifications: UseNotificationServiceWriterType,
@@ -69,7 +77,9 @@ export function filterSelectionAction(
   const contextEntities: ClassesContextEntities = classesContext;
 
   const activeVisualModel = graph.aggregatorView.getActiveVisualModel();
-  if((visibilityFilter === VisibilityFilter.OnlyNonVisible || visibilityFilter === VisibilityFilter.OnlyVisible) && activeVisualModel === null) {
+
+  if((visibilityFilter === VisibilityFilter.OnlyNonVisible || visibilityFilter === VisibilityFilter.OnlyVisible) &&
+        activeVisualModel === null) {
     notifications.error("No active visual model, can't filter based on visual model.");
     return {
       nodeSelection: [...selections.nodeSelection],
@@ -117,8 +127,9 @@ export function filterSelectionAction(
 //
 
 /**
- * @returns The {@link selectionToFilter} after the filtering, concatenated with the {@link selectionToBaseOutputOn}, but that selection itself isn't changed.
- * The returned array is new instance without duplicates.
+ * @returns The {@link selectionToFilter} after the filtering,
+ *  concatenated with the {@link selectionToBaseOutputOn}, but that selection itself isn't changed.
+ *  The returned array is new instance without duplicates.
  */
 function filterBasedOnAllowedSemanticModels(
   selectionToFilter: string[],
@@ -148,7 +159,7 @@ function filterBasedOnAllowedSemanticModels(
     }
   });
 
-  // Use "Set" to remove duplicates (as in https://stackoverflow.com/questions/9229645/remove-duplicate-values-from-js-array)
+  // Use "Set" to remove duplicates (https://stackoverflow.com/questions/9229645/remove-duplicate-values-from-js-array)
   return [...new Set(entitiesPassingFilter.concat(selectionToBaseOutputOn))];
 }
 
@@ -202,7 +213,8 @@ function classFilter(
   visualModel: VisualModel | null
 ): void {
   nodeSelection.map(selectedClassId => {
-    const selectedClassSemanticId = getSemanticClassIdentifier(selectedClassId, areVisualModelIdentifiers, visualModel);
+    const selectedClassSemanticId = getSemanticClassIdentifier(
+      selectedClassId, areVisualModelIdentifiers, visualModel);
     if(contextEntities.classes.findIndex(cclass => cclass.id === selectedClassSemanticId) >= 0) {
       filteredNodeSelection.push(selectedClassId);
     }
@@ -219,7 +231,8 @@ function profileClassFilter(
   visualModel: VisualModel | null
 ): void {
   nodeSelection.map(selectedClassId => {
-    const selectedClassSemanticId = getSemanticClassIdentifier(selectedClassId, areVisualModelIdentifiers, visualModel);
+    const selectedClassSemanticId = getSemanticClassIdentifier(
+      selectedClassId, areVisualModelIdentifiers, visualModel);
     if(contextEntities.classProfiles.findIndex(profile => profile.id === selectedClassSemanticId) >= 0) {
       filteredNodeSelection.push(selectedClassId);
     }
@@ -244,7 +257,8 @@ function relatioshipFilter(
   visualModel: VisualModel | null
 ): void {
   edgeSelection.map(selectedEdgeId => {
-    const selectedEdgeSemanticId = getSemanticEdgeIdentifier(selectedEdgeId, areVisualModelIdentifiers, visualModel);
+    const selectedEdgeSemanticId = getSemanticEdgeIdentifier(
+      selectedEdgeId, areVisualModelIdentifiers, visualModel);
     if(contextEntities.relationships.findIndex(relationship => relationship.id === selectedEdgeSemanticId) >= 0) {
       filteredEdgeSelection.push(selectedEdgeId);
     }
@@ -280,7 +294,9 @@ function generalizationFilter(
 ): void {
   edgeSelection.map(selectedEdgeId => {
     const selectedEdgeSemanticId = getSemanticEdgeIdentifier(selectedEdgeId, areVisualModelIdentifiers, visualModel);
-    if(contextEntities.generalizations.findIndex(generalization => generalization.id === selectedEdgeSemanticId) >= 0) {
+    const isGeneralization = contextEntities.generalizations
+      .findIndex(generalization => generalization.id === selectedEdgeSemanticId) >= 0;
+    if(isGeneralization) {
       filteredEdgeSelection.push(selectedEdgeId);
     }
   });
