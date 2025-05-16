@@ -66,6 +66,7 @@ import { asMandatoryLevel, selectDomainAndRange } from "./dataspecer/cme-model/a
 
 import "./visualization.css";
 import { isInMemorySemanticModel } from "./utilities/model";
+import { validateVisualModel } from "./visualization-validation";
 
 const LOG = createLogger(import.meta.url);
 
@@ -137,6 +138,7 @@ export const Visualization = () => {
   // Update canvas content on view change.
   useEffect(() => {
     console.log("[VISUALIZATION] Something has changed, recreating diagram visual.", activeVisualModel);
+    validateVisualModel(actions, activeVisualModel, aggregatorView, classesContext, graph.models);
     onChangeVisualModel(
       extendedOptions, activeVisualModel, actions.diagram, aggregatorView,
       classesContext, graph);
