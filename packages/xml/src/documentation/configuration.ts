@@ -105,12 +105,12 @@ export const defaultXmlPartials: Record<string, string> = {
   v souboru <a href="{{{structureModel.artifact.xml-schema.relativePath}}}"><code>{{structureModel.artifact.xml-schema.relativePath}}</code></a>.
 </p>
 
-{{#xmlSchema.targetNamespace}}
+{{#if xmlSchema.targetNamespace}}
   <dl>
     <dt>Definováno v namespace</dt>
-    <dd><code>{{.}}</code> (preferovaný prefix: <code>{{@root.xmlSchema.targetNamespacePrefix}}</code>)</dd>
+    <dd><code>{{xmlSchema.targetNamespace}}</code> (preferovaný prefix: <code>{{xmlSchema.targetNamespacePrefix}}</code>)</dd>
   </dl>
-{{/xmlSchema.targetNamespace}}
+{{/if}}
 
 <section>
 <h4>Importy</h4>
@@ -128,7 +128,7 @@ export const defaultXmlPartials: Record<string, string> = {
       </tr>
     </thead>
     <tbody>
-      {{#imports}}
+      {{#each imports}}
         <tr>
           {{#if prefix}}
             <td><code></code>{{prefix}}</code></td>
@@ -139,7 +139,7 @@ export const defaultXmlPartials: Record<string, string> = {
           <td><a href="{{schemaLocation}}">{{schemaLocation}}</a></td>
           <td>{{#documentation}}<a href="{{link}}">{{translate semanticModel.humanLabel}}</a>{{/documentation}}</td>
         </tr>
-      {{/imports}}
+      {{/each}}
     </tbody>
   </table>
 {{else}}

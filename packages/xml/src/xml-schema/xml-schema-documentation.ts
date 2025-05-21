@@ -330,7 +330,7 @@ class XmlSchemaDocumentationGenerator {
       const model = imp.model;
       const schema = model?.roots[0].classes[0].structureSchema;
       imports.push({
-        prefix: this.xmlSchema.namespaces[imp.namespace],
+        prefix: this.xmlSchema.namespaces.find(ns => ns.namespace === imp.namespace)?.prefix,
         namespace: imp.namespace,
         schemaLocation: imp.schemaLocation,
         documentation: schema ? classSpecificationArtifact(schema) : null,
