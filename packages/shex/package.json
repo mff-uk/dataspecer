@@ -13,6 +13,7 @@
     "@dataspecer/core": "*",
     "@rdfjs/parser-n3": "^2.0.1",
     "@shexjs/neighborhood-rdfjs": "^1.0.0-alpha.29",
+    "@shexjs/parser": "^1.0.0-alpha.28",
     "@shexjs/validator": "^1.0.0-alpha.29",
     "json-schema-faker": "^0.5.3",
     "jsonld": "^8.3.1",
