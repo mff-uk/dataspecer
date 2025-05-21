@@ -4,7 +4,7 @@
 // and hopefully, one day, be able to integrate it with the specification.
 //
 
-import { DSV_CLASS_ROLE } from "./vocabulary.ts";
+import { DSV_CLASS_ROLE, SKOS } from "./vocabulary.ts";
 
 export type LanguageString = { [language: string]: string };
 
@@ -67,6 +67,12 @@ export interface Profile {
   externalDocumentationUrl: string | null;
 
 }
+
+export const DSV_REUSE_LABEL = SKOS.prefLabel.id;
+
+export const DSV_REUSE_DESCRIPTION = SKOS.definition.id;
+
+export const DSV_REUSE_USAGE_NOTE = SKOS.scopeNote.id;
 
 // @lc-identifier dsv:PropertyValueReuse
 export interface PropertyValueReuse {

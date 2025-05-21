@@ -1,5 +1,8 @@
 export type { EntityListContainer } from "./entity-model.ts";
 
+// Export the data model.
+export * from "./dsv-model.ts";
+
 // Conversion from list of Semantic entities to DSV and back.
 export { createContext, entityListContainerToDsvModel as entityListContainerToConceptualModel } from "./entity-model-to-dsv.ts";
 export { conceptualModelToEntityListContainer } from "./dsv-to-entity-model.ts";
