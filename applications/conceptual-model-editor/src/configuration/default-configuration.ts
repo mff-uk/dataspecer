@@ -15,6 +15,11 @@ const PREFIXES = {
   "https://w3id.org/dsv-dap#": "dsv-dap",
   "https://w3id.org/dsv#": "dsv",
   "http://www.w3.org/2004/02/skos/core#": "skos",
+  "https://mff-uk.github.io/specifications/dcat-dap/#": "dcat-dap",
+  "https://mff-uk.github.io/specifications/dcat-ap/#": "dcat-ap",
+  "https://ofn.gov.cz/dcat-ap-cz/draft/#": "dcat-ap-cz",
+  "https://ofn.gov.cz/dcat-ap-cz-360-2023/draft/#": "dcat-ap-cz-360-2023",
+  "https://slovník.gov.cz/veřejný-sektor/pojem/": "V-SGoV",
 };
 
 /**
