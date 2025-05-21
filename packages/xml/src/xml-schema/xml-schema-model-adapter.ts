@@ -13,7 +13,6 @@ import { structureModelAddDefaultValues } from "@dataspecer/core/structure-model
 import { OFN, XSD, XSD_PREFIX } from "@dataspecer/core/well-known";
 import { DefaultXmlConfiguration, XmlConfiguration, XmlConfigurator } from "../configuration.ts";
 import { commonXmlNamespace, commonXmlPrefix, iriElementName, langStringName, QName, simpleTypeMapQName } from "../conventions.ts";
-import { XML_COMMON_SCHEMA_GENERATOR } from "../xml-common-schema/index.ts";
 import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties.ts";
 import { XmlStructureModel as StructureModel, XmlStructureModel } from "../xml-structure-model/model/xml-structure-model.ts";
 import {
@@ -27,8 +26,6 @@ import {
   xmlSchemaComplexContentIsElement,
   xmlSchemaComplexContentIsItem,
   XmlSchemaComplexContentItem,
-  XmlSchemaComplexExtension,
-  XmlSchemaComplexItem,
   XmlSchemaComplexSequence,
   XmlSchemaComplexType,
   XmlSchemaElement,
@@ -174,7 +171,18 @@ class XmlSchemaAdapter {
     namespaceKind satisfies never;
   }
 
-  private getIriElement(required: boolean): XmlSchemaComplexContentElement {
+  /**
+   * Returns <iri> element for given class or null if the element should be skipped.
+   */
+  private getIriElement(forStructureModelClass: StructureModelClass): XmlSchemaComplexContentElement | null {
+    let skipIri = false;
+    skipIri ||= forStructureModelClass.instancesHaveIdentity === "NEVER";
+    skipIri ||= (forStructureModelClass.iris === null || forStructureModelClass.iris.length === 0);
+
+    if (skipIri) {
+      return null;
+    }
+
     // Todo implement configuration for this.
     const useIriFromExternalXsd = false;
 
@@ -182,9 +190,24 @@ class XmlSchemaAdapter {
       this.getAndImportHelperNamespace("common", true);
     }
 
+    const type = forStructureModelClass.regex ? {
+      name: null,
+      annotation: null,
+      simpleDefinition: {
+        xsType: "restriction",
+        base: [this.getAndImportHelperNamespace("xsd", true), "anyURI"],
+        pattern: forStructureModelClass.regex,
+        contents: [],
+      } as XmlSchemaSimpleItem,
+    } as XmlSchemaSimpleType : {
+      entityType: "type",
+      name: [this.getAndImportHelperNamespace("xsd", true), "anyURI"],
+      annotation: null,
+    } satisfies XmlSchemaType;
+
     return {
-      cardinalityMin: required ? 1 : 0,
-      effectiveCardinalityMin: required ? 1 : 0,
+      cardinalityMin: forStructureModelClass.instancesHaveIdentity === "ALWAYS" ? 1 : 0,
+      effectiveCardinalityMin: forStructureModelClass.instancesHaveIdentity === "ALWAYS" ? 1 : 0,
       cardinalityMax: 1,
       effectiveCardinalityMax: 1,
       semanticRelationToParentElement: null,
@@ -192,11 +215,7 @@ class XmlSchemaAdapter {
         entityType: "element",
         name: iriElementName,
         annotation: null,
-        type: useIriFromExternalXsd ? null : {
-          entityType: "type",
-          name: [this.getAndImportHelperNamespace("xsd", true), "anyURI"],
-          annotation: null,
-        } satisfies XmlSchemaType,
+        type: useIriFromExternalXsd ? null : type,
       } satisfies XmlSchemaElement,
     };
   };
@@ -403,15 +422,14 @@ class XmlSchemaAdapter {
         annotation: this.getAnnotation(cls),
       } satisfies XmlSchemaType;
     } else {
-      let skipIri = false;
-      skipIri ||= cls.instancesHaveIdentity === "NEVER";
-      skipIri ||= (cls.iris === null || cls.iris.length === 0);
-
       let complexDefinition = await this.propertiesToComplexSequence(cls.properties, "sequence");
 
       // Inject IRI into the sequence as hardcoded first element
-      if (!skipIri && complexDefinition) {
-        complexDefinition.contents = [this.getIriElement(cls.instancesHaveIdentity === "ALWAYS"), ...complexDefinition.contents];
+      if (complexDefinition) {
+        const iriElement = this.getIriElement(cls);
+        if (iriElement) {
+          complexDefinition.contents = [iriElement, ...complexDefinition.contents];
+        }
       }
 
       const type = {
@@ -651,7 +669,7 @@ class XmlSchemaAdapter {
         return langStringType;
       }
 
-      if (dataTypes[0].regex && [OFN.string, XSD.anyURI, OFN.url].includes(dataTypes[0].dataType)) {
+      if (dataTypes[0].regex && [XSD.string, XSD.anyURI, XSD.anyURI].includes(dataTypes[0].dataType)) {
         // todo: check whether regex is shown
         return {
           name: null,
