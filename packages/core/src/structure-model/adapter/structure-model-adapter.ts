@@ -258,11 +258,13 @@ class StructureModelAdapter {
     const semanticRelationship = await this.reader.readResource(
       associationEndData.dataPsmInterpretation
     ) as unknown as ExtendedSemanticModelRelationship | null;
-    const end = semanticRelationship?.ends[1] ?? null; // todo
+    const isReverse = associationEndData.dataPsmIsReverse === true;
+    const end = semanticRelationship?.ends[isReverse ? 0 : 1] ?? null;
     if (end === null) {
       model.cardinalityMin = 0;
       model.cardinalityMax = null;
     } else if (isSemanticModelRelationship(semanticRelationship)) {
+      // todo: Investigate why we handle this here, this should be done in transformation.
       model.cardinalityMin = end.cardinality?.[0] ?? 0;
       model.cardinalityMax = end.cardinality?.[1] ?? null;
     } else {
