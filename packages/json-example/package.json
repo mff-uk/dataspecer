@@ -11,8 +11,6 @@
   "dependencies": {
     "@dataspecer/core": "*",
     "@dataspecer/json": "*",
-    "@dataspecer/shacl": "*",
-    "fs": "^0.0.1-security",
     "json-schema-faker": "^0.5.4"
   },
   "devDependencies": {

@@ -9,9 +9,7 @@
   },
   "main": "lib/index.js",
   "dependencies": {
-    "@dataspecer/core": "*",
-    "js-string-escape": "^1.0.1",
-    "n3": "^1.25.1"
+    "@dataspecer/core": "*"
   },
   "devDependencies": {
     "rimraf": "^6.0.1",

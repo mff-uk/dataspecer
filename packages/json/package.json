@@ -17,8 +17,7 @@
   },
   "dependencies": {
     "@dataspecer/core": "*",
-    "@dataspecer/core-v2": "*",
-    "@dataspecer/documentation": "*"
+    "@dataspecer/core-v2": "*"
   },
   "devDependencies": {
     "rimraf": "^6.0.1",

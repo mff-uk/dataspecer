@@ -12,8 +12,7 @@
   },
   "dependencies": {
     "@dataspecer/core": "*",
-    "openapi-types": "^12.1.3",
-    "yaml": "^2.3.4"
+    "openapi-types": "^12.1.3"
   },
   "devDependencies": {
     "rimraf": "^6.0.1",

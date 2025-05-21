@@ -44,8 +44,6 @@
     "@dataspecer/core": "*",
     "@dataspecer/rdfs-adapter": "*",
     "@dataspecer/sgov-adapter": "*",
-    "handlebars": "^4.7.8",
-    "handlebars-async-helpers": "^1.0.6",
     "n3": "~1.25.1"
   },
   "devDependencies": {

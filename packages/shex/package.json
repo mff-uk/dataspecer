@@ -11,25 +11,14 @@
   "main": "lib/index.js",
   "dependencies": {
     "@dataspecer/core": "*",
-    "@dataspecer/json": "*",
-    "@rdfjs/parser-jsonld": "^2.1.0",
     "@rdfjs/parser-n3": "^2.0.1",
-    "@rdfjs/serializer-turtle": "^1.1.1",
-    "@shexjs/loader": "^1.0.0-alpha.28",
-    "node-fetch": "^3.3.2",
     "@shexjs/neighborhood-rdfjs": "^1.0.0-alpha.29",
     "@shexjs/validator": "^1.0.0-alpha.29",
-    "cuid": "^3.0.0",
-    "faker": "^6.6.6",
-    "fs": "^0.0.1-security",
     "json-schema-faker": "^0.5.3",
     "jsonld": "^8.3.1",
     "md5": "^2.3.0",
     "n3": "^1.25.1",
-    "path": "^0.12.7",
-    "rdf-ext": "^2.2.0",
-    "shex": "^1.0.0-alpha.29",
-    "turtle-validator": "^1.1.1"
+    "rdf-ext": "^2.2.0"
   },
   "devDependencies": {
     "@types/n3": "^1.24.2",
