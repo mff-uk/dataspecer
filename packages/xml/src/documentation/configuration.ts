@@ -65,7 +65,7 @@ export const defaultXmlPartials: Record<string, string> = {
         {{#if (equals name.[1] "langString")}}
           Obsahem elementue je <i>Řetězec s označením jazyka</i>.
         {{else}}
-          Obsahem elementu je typ <a href="{{xml-href name}}"><code>{{xml-qname name}}</code></a>.
+          Obsahem elementu je typ <a href="{{xml-href .}}"><code>{{xml-qname name}}</code></a>.
         {{/if}}
       </dd>
     {{/if}}

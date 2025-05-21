@@ -21,6 +21,7 @@ import { NEW_DOC_GENERATOR } from "./xml-schema-generator.ts";
 import { getMustacheView } from "@dataspecer/documentation";
 import { HandlebarsAdapter } from "../../../handlebars-adapter/lib/interface.js";
 import { MAIN_XML_PARTIAL } from "../documentation/index.ts";
+import { StructureModelClass } from "@dataspecer/core/structure-model/model/structure-model-class";
 
 /**
  * Recursively traverses the complex content container and returns all elements.
@@ -216,9 +217,12 @@ class XmlSchemaDocumentationGenerator {
       if (!element) {
         return "";
       }
+
+      const structureModelEntity: StructureModelClass | undefined = (typeof element === "object" && !Array.isArray(element)) ? element.annotation?.structureModelEntity : undefined;
+
       // Use structure to link to other documentation of structure model
-      if (options.hash.structure) {
-        const specification = Object.values(this.context.specifications).find(specification => specification.psms.includes(options.hash.structure));
+      if (structureModelEntity?.isReferenced) {
+        const specification = Object.values(this.context.specifications).find(specification => specification.psms.includes(structureModelEntity.structureSchema));
         const artefact = specification.artefacts.find(artefact => artefact.generator === NEW_DOC_GENERATOR);
         const path = pathRelative(this.artefact.publicUrl, artefact.publicUrl, true);
         return path + "#" + this.getElementUniqueId(element, options.hash.type);

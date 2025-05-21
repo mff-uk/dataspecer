@@ -338,7 +338,7 @@ class XmlSchemaAdapter {
       return {
         entityType: "type",
         name: referencedClass,
-        annotation: null,
+        annotation: this.getAnnotation(choices[0] as StructureModelClass),
       } satisfies XmlSchemaType;
     }
 
@@ -625,10 +625,7 @@ class XmlSchemaAdapter {
     const isElement = data instanceof StructureModelClass;
     const isType = data instanceof StructureModelProperty;
     const generateAnnotation = (isElement && this.options.generateElementAnnotations) || (isType && this.options.generateTypeAnnotations);
-
-    return !(data.iris && data.iris.length > 0) && Object.values(data?.humanLabel ?? {}).length === 0 && Object.values(data?.humanDescription ?? {}).length === 0
-      ? null
-      : {
+    return {
           modelReference: this.options.generateSawsdl ? data.iris : null,
           metaTitle: generateAnnotation ? data.humanLabel : null,
           metaDescription: generateAnnotation ? data.humanDescription : null,
