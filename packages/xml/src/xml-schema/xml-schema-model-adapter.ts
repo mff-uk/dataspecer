@@ -174,7 +174,7 @@ class XmlSchemaAdapter {
     namespaceKind satisfies never;
   }
 
-  private getIriElement(): XmlSchemaComplexContentElement {
+  private getIriElement(required: boolean): XmlSchemaComplexContentElement {
     // Todo implement configuration for this.
     const useIriFromExternalXsd = false;
 
@@ -183,8 +183,8 @@ class XmlSchemaAdapter {
     }
 
     return {
-      cardinalityMin: 0,
-      effectiveCardinalityMin: 0,
+      cardinalityMin: required ? 1 : 0,
+      effectiveCardinalityMin: required ? 1 : 0,
       cardinalityMax: 1,
       effectiveCardinalityMax: 1,
       semanticRelationToParentElement: null,
@@ -411,7 +411,7 @@ class XmlSchemaAdapter {
 
       // Inject IRI into the sequence as hardcoded first element
       if (!skipIri && complexDefinition) {
-        complexDefinition.contents = [this.getIriElement(), ...complexDefinition.contents];
+        complexDefinition.contents = [this.getIriElement(cls.instancesHaveIdentity === "ALWAYS"), ...complexDefinition.contents];
       }
 
       const type = {
