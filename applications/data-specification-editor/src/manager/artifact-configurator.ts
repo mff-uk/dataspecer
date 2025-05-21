@@ -57,7 +57,7 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
       const respec = new DataSpecificationDocumentation();
       respec.iri = `${dataSpecificationIri}#respec`;
       respec.generator = "https://schemas.dataspecer.com/generator/template-artifact";
-      const respecFileName = dataSpecificationConfiguration.renameArtifacts?.[respec.generator] ?? "documentation.html";
+      const respecFileName = dataSpecificationConfiguration.renameArtifacts?.[respec.generator] ?? "en/index.html";
       respec.outputPath = `${dataSpecificationName}/${respecFileName}`;
       respec.publicUrl = `${this.baseURL}/${respecFileName}`;
       respec.artefacts = artifacts.map(a => a.iri);

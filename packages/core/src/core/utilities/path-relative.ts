@@ -40,6 +40,8 @@ export function pathRelative(from: string, to: string, useAbsoluteIfHttp: boolea
 
 
 function stripIndex(path: string): string {
+    // todo, some web servers may not support stripping index.html
+    return path;
     if (path.endsWith("/index.html")) {
         return path.slice(0, - ("/index.html".length) + 1);
     }
