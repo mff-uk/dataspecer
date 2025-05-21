@@ -231,6 +231,19 @@ export async function generateDocumentation(
   };
 
   data['semanticEntity'] =  function(input: string, options: Handlebars.HelperOptions) {
+    // todo #1261
+    if (input === "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/text") {
+      const text = {
+        id: "https://ofn.gov.cz/základní-datové-typy/2020-07-01/#text",
+        iri: "https://ofn.gov.cz/základní-datové-typy/2020-07-01/#text",
+        name: {
+          [configuration.language]: "Text",
+        },
+      } as any;
+      text.aggregation = text;
+      return options.fn(text);
+    }
+
     let entity: SemanticModelEntity | null = null;
     for (const model of models) {
       if (Object.hasOwn(model.entities, input)) {
@@ -272,6 +285,11 @@ export async function generateDocumentation(
    * Generates link for the given entity.
    */
   data['href'] =  function(input: string, options: Handlebars.HelperOptions) {
+    // todo #1261
+    if (input === "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/text") {
+      return "https://ofn.gov.cz/základní-datové-typy/2020-07-01/#text";
+    }
+
     // todo: handle external links
 
     let inModel: ModelDescription | null = null;
