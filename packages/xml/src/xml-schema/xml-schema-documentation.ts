@@ -224,7 +224,7 @@ class XmlSchemaDocumentationGenerator {
       if (structureModelEntity?.isReferenced) {
         const specification = Object.values(this.context.specifications).find(specification => specification.psms.includes(structureModelEntity.structureSchema));
         const artefact = specification.artefacts.find(artefact => artefact.generator === NEW_DOC_GENERATOR);
-        const path = pathRelative(this.documentationArtifact.publicUrl, artefact.publicUrl, true);
+        const path = pathRelative(this.documentationArtifact.publicUrl, artefact.publicUrl, artefact !== this.documentationArtifact);
         return path + "#" + this.getElementUniqueId(element, options.hash.type);
       }
 
