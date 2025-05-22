@@ -30,7 +30,7 @@ export const commonXmlSchema =
 /**
  * Name of the element containing the IRI of an instance.
  */
-export const iriElementName: QName = [commonXmlPrefix, "iri"];
+export const iriElementName: QName = [null, "iri"];
 
  /**
  * Map from datatype URIs to QNames.

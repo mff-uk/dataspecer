@@ -32,7 +32,7 @@ function traverseXmlSchemaComplexContainer(container: XmlSchemaComplexContainer,
     // It can be element or item
     if (xmlSchemaComplexContentIsElement(content)) {
       const element = content.element;
-      const skipElement = element.name[0] === "c" && element.name[1] === "iri";
+      const skipElement = false; //element.name[0] === "c" && element.name[1] === "iri";
       if (!skipElement) {
         elements.push(element);
         // @ts-ignore
