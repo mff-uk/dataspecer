@@ -32,7 +32,7 @@ function traverseXmlSchemaComplexContainer(container: XmlSchemaComplexContainer,
     // It can be element or item
     if (xmlSchemaComplexContentIsElement(content)) {
       const element = content.element;
-      const skipElement = element.name[0] === "c" && element.name[1] === "iri";
+      const skipElement = false; //element.name[0] === "c" && element.name[1] === "iri";
       if (!skipElement) {
         elements.push(element);
         // @ts-ignore
@@ -224,7 +224,7 @@ class XmlSchemaDocumentationGenerator {
       if (structureModelEntity?.isReferenced) {
         const specification = Object.values(this.context.specifications).find(specification => specification.psms.includes(structureModelEntity.structureSchema));
         const artefact = specification.artefacts.find(artefact => artefact.generator === NEW_DOC_GENERATOR);
-        const path = pathRelative(this.documentationArtifact.publicUrl, artefact.publicUrl, true);
+        const path = pathRelative(this.documentationArtifact.publicUrl, artefact.publicUrl, artefact !== this.documentationArtifact);
         return path + "#" + this.getElementUniqueId(element, options.hash.type);
       }
 

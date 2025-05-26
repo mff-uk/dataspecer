@@ -412,7 +412,7 @@ export const defaultConfiguration: DocumentationConfiguration = {
         </tr>
       {{/if}}
         {{#artifacts}}
-        <tr><td>{{title}}</td><td><a href="{{{relativePath}}}">{{{relativePath}}}</a></td></tr>
+        <tr><td>{{title}}</td><td><a href="{{{relativePath}}}">{{relativePathAsText}}</a></td></tr>
         {{/artifacts}}
     </tbody>
   </table>

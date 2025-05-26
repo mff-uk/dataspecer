@@ -13,6 +13,10 @@ import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/pr
 // JSON-LD version
 const VERSION = 1.1;
 
+type prefixesType = {
+  [prefix: string]: string;
+}
+
 function tryPrefix(iri: string, prefixes: Record<string, string>): string {
   const prefix = Object.entries(prefixes).sort(
     (a, b) => b[1].length - a[1].length
@@ -83,19 +87,20 @@ export class JsonLdAdapter {
   }
 
   public generate = async () => {
-    const result = this.getContext();
+    const prefixes = {
+      // Pre-defined prefixes due to used data types
+      // This is a bit dangerous, because the actual data can use this prefix as well, which may lead to different schema needed.
+      "xsd": "http://www.w3.org/2001/XMLSchema#",
+
+      ...this.model.jsonLdDefinedPrefixes
+    } satisfies prefixesType;
+
+    const result = this.getContext(prefixes);
     const context = result["@context"];
 
     if (this.model.roots.length > 1) {
       console.warn("JSON-LD generator: Multiple schema roots not supported.");
     }
-
-    const prefixes = {
-      // Pre-defined prefixes
-      "xsd": "http://www.w3.org/2001/XMLSchema#",
-
-      ...this.model.jsonLdDefinedPrefixes
-    };
 
     const customTypeNames = this.model.jsonLdTypeMapping;
 
@@ -262,13 +267,13 @@ export class JsonLdAdapter {
     }
   }
 
-  protected getContext(): object {
+  protected getContext(prefixes: prefixesType): object {
     const context = {
       "@version": VERSION,
 
       //"rootcontainer": "@graph", // todo add support for root containers
 
-      ...getPrefixesForContext(this.model.jsonLdDefinedPrefixes)
+      ...getPrefixesForContext(prefixes)
     };
 
     if (this.configuration.jsonIdKeyAlias) {
