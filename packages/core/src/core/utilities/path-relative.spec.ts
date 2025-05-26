@@ -2,8 +2,8 @@ import {pathRelative} from "./path-relative.ts";
 
 describe("pathRelative() util function", () => {
     test("absolute filesystem paths", () => {
-        expect(pathRelative("/a/b/c", "/a/b/c")).toBe("./c");
-        expect(pathRelative("/a/b/c/", "/a/b/c/")).toBe("./");
+        expect(pathRelative("/a/b/c", "/a/b/c")).toBe(""); // empty as exactly the same
+        expect(pathRelative("/a/b/c/", "/a/b/c/")).toBe(""); // empty as exactly the same
         expect(pathRelative("/a/b/c", "/a/b/d")).toBe("./d");
         expect(pathRelative("/a/b/c", "/a/x")).toBe("../x");
         expect(pathRelative("/a/b/c", "/a/x/y")).toBe("../x/y");
