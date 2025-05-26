@@ -1,106 +1,115 @@
-# see https://github.com/sstenchlak/schema-generator/issues/9
-DEFINE sql:signal-void-variables 0
-
 PREFIX z: <https://slovník.gov.cz/základní/pojem/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 
 CONSTRUCT {
-    ?inwardsRelation a z:typ-vztahu ;
-        rdfs:domain ?domainElement ;
-        rdfs:range %NODE% ;
-        skos:prefLabel ?inwardsRelationLabel ;
-        skos:definition ?inwardsRelationDefinition ;
-        skos:inScheme ?inwardsRelationGlossary ;
-        rdfs:subPropertyOf ?parentRelation ;
-        <__domain_cardinality> ?domain_cardinality ;
-        <__range_cardinality> ?range_cardinality .
+  ?inwardsRelation a z:typ-vztahu ;
+    rdfs:domain ?domainElement ;
+    rdfs:range %NODE% ;
+    skos:prefLabel ?inwardsRelationLabel ;
+    skos:definition ?inwardsRelationDefinition ;
+    skos:inScheme ?inwardsRelationGlossary ;
+    <__domain_cardinality> ?domain_cardinality ;
+    <__range_cardinality> ?range_cardinality .
 
-    ?domain_cardinality owl:maxQualifiedCardinality ?domain_max ;
-        owl:minQualifiedCardinality ?domain_min .
+  ?domain_cardinality owl:maxQualifiedCardinality ?domain_max ;
+    owl:minQualifiedCardinality ?domain_min .
 
-    ?range_cardinality owl:maxQualifiedCardinality ?range_max ;
-        owl:minQualifiedCardinality ?range_min .
+  ?range_cardinality owl:maxQualifiedCardinality ?range_max ;
+    owl:minQualifiedCardinality ?range_min .
 
-    ?domainElement a z:typ-objektu ;
-        rdfs:subClassOf ?ancestor ;
-        skos:prefLabel ?domainLabel ;
-        skos:definition ?domainDefinition ;
-        skos:inScheme ?domainGlossary .
+  ?domainElement a z:typ-objektu ;
+    #rdfs:subClassOf ?ancestor ;
+    skos:prefLabel ?domainLabel ;
+    skos:definition ?domainDefinition ;
+    skos:inScheme ?domainGlossary .
 } WHERE {
-    ?inwardsRelation a z:typ-vztahu ;
+  # subquery
+  {
+    SELECT DISTINCT
+      ?inwardsRelation
+      ?domainElement
+      ?inwardsRelationLabel
+      ?inwardsRelationGlossary
+      ?domainLabel
+      ?domainGlossary
+      ?inwardsRelationDefinition
+      ?domainDefinition
+      ?domain_cardinality
+      ?range_cardinality
+    WHERE {
+      ?inwardsRelation a z:typ-vztahu ;
         skos:prefLabel ?inwardsRelationLabel ;
         skos:inScheme ?inwardsRelationGlossary .
 
-    {
+      {
         ?inwardsRelation rdfs:subClassOf [
-            owl:allValuesFrom %NODE% ;
-            owl:onProperty z:má-vztažený-prvek-2
+          owl:allValuesFrom %NODE% ;
+          owl:onProperty z:má-vztažený-prvek-2
         ] .
-    }
+      }
 
-    {
+      {
         ?inwardsRelation rdfs:subClassOf [
-            owl:allValuesFrom ?domainElement ;
-            owl:onProperty z:má-vztažený-prvek-1
+          owl:allValuesFrom ?domainElement ;
+          owl:onProperty z:má-vztažený-prvek-1
         ] .
-    }
+      }
 
-    OPTIONAL { ?inwardsRelation skos:definition ?inwardsRelationDefinition }
-    OPTIONAL { ?inwardsRelation skos:scopeNote ?inwardsRelationDefinition }
+      OPTIONAL { ?inwardsRelation skos:definition ?inwardsRelationDefinition }
+      OPTIONAL { ?inwardsRelation skos:scopeNote ?inwardsRelationDefinition }
 
-    ?domainElement skos:prefLabel ?domainLabel ;
+      ?domainElement skos:prefLabel ?domainLabel ;
         skos:inScheme ?domainGlossary .
 
-    OPTIONAL { ?domainElement skos:definition ?domainDefinition }
-    OPTIONAL { ?domainElement skos:scopeNote ?domainDefinition }
+      OPTIONAL { ?domainElement skos:definition ?domainDefinition }
+      OPTIONAL { ?domainElement skos:scopeNote ?domainDefinition }
 
-    # Cardinalities START
-        OPTIONAL {
-            ?domainElement rdfs:subClassOf [
-                a owl:Restriction ;
-                owl:onProperty [
-                    owl:inverseOf <https://slovník.gov.cz/základní/pojem/má-vztažený-prvek-1>
-                ];
-                owl:onClass ?inwardsRelation ;
-                owl:minQualifiedCardinality ?range_min
-            ] .
-        }
-        OPTIONAL {
-            ?domainElement rdfs:subClassOf [
-                a owl:Restriction ;
-                owl:onProperty [
-                    owl:inverseOf <https://slovník.gov.cz/základní/pojem/má-vztažený-prvek-1>
-                ];
-                owl:onClass ?inwardsRelation ;
-                owl:maxQualifiedCardinality ?range_max
-            ] .
-        }
-        OPTIONAL {
-            %NODE% rdfs:subClassOf [
-                a owl:Restriction ;
-                owl:onProperty [
-                    owl:inverseOf <https://slovník.gov.cz/základní/pojem/má-vztažený-prvek-2>
-                ];
-                owl:onClass ?inwardsRelation ;
-                owl:minQualifiedCardinality ?domain_min
-            ] .
-        }
-        OPTIONAL {
-            %NODE% rdfs:subClassOf [
-                a owl:Restriction ;
-                owl:onProperty [
-                    owl:inverseOf <https://slovník.gov.cz/základní/pojem/má-vztažený-prvek-2>
-                ];
-                owl:onClass ?inwardsRelation ;
-                owl:maxQualifiedCardinality ?domain_max
-            ] .
-        }
+      BIND(IRI(CONCAT(STR(?inwardsRelation), '#domain-cardinality')) as ?domain_cardinality)
+      BIND(IRI(CONCAT(STR(?inwardsRelation), '#range-cardinality')) as ?range_cardinality)
+    }
+  }
 
-        #{BIND(BNODE() as ?domain_cardinality)} # Not working under Virtuoso@7
-        #{BIND(BNODE() as ?range_cardinality)}
-        BIND(IRI(CONCAT(STR(?inwardsRelation), '#domain-cardinality')) as ?domain_cardinality)
-        BIND(IRI(CONCAT(STR(?inwardsRelation), '#range-cardinality')) as ?range_cardinality)
-    # Cardinalities END
+  OPTIONAL {
+    %NODE% rdfs:subClassOf [
+      a owl:Restriction ;
+      owl:onProperty [
+        owl:inverseOf <https://slovník.gov.cz/základní/pojem/má-vztažený-prvek-2>
+      ];
+      owl:onClass ?inwardsRelation ;
+      owl:minQualifiedCardinality ?domain_min
+    ] .
+  }
+  OPTIONAL {
+    %NODE% rdfs:subClassOf [
+      a owl:Restriction ;
+      owl:onProperty [
+        owl:inverseOf <https://slovník.gov.cz/základní/pojem/má-vztažený-prvek-2>
+      ];
+      owl:onClass ?inwardsRelation ;
+      owl:maxQualifiedCardinality ?domain_max
+    ] .
+  }
+
+  OPTIONAL {
+    ?domainElement rdfs:subClassOf [
+      a owl:Restriction ;
+      owl:onProperty [
+        owl:inverseOf <https://slovník.gov.cz/základní/pojem/má-vztažený-prvek-1>
+      ];
+      owl:onClass ?inwardsRelation ;
+      owl:minQualifiedCardinality ?range_min
+    ] .
+  }
+  OPTIONAL {
+    ?domainElement rdfs:subClassOf [
+      a owl:Restriction ;
+      owl:onProperty [
+        owl:inverseOf <https://slovník.gov.cz/základní/pojem/má-vztažený-prvek-1>
+      ];
+      owl:onClass ?inwardsRelation ;
+      owl:maxQualifiedCardinality ?range_max
+    ] .
+  }
 }
