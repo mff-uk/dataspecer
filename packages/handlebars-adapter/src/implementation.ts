@@ -206,15 +206,16 @@ export class RichHandlebarsAdapter extends BaseHandlebarsAdapter {
       const options = arguments[arguments.length - 1];
       const args = Array.prototype.slice.call(arguments, 0, arguments.length - 1);
       if (definitions[options.name]) {
+        const thisCopy = (typeof this !== "string") ? { ...this } : this;
         const [argNames, func] = definitions[options.name]!;
-        if (typeof this !== "string") {
-          this.args = args;
+        if (typeof thisCopy !== "string") {
+          thisCopy.args = args;
 
           for (let i = 0; i < args.length && i < argNames.length; i++) {
-            this[argNames[i]!] = args[i];
+            thisCopy[argNames[i]!] = args[i];
           }
         }
-        return new Handlebars.SafeString(func(this));
+        return new Handlebars.SafeString(func(thisCopy));
       }
     });
   }
