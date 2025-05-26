@@ -166,35 +166,24 @@ class XmlSchemaDocumentationGenerator {
     this.adapter = adapter;
   }
 
-  private getElementUniqueId(element: XmlSchemaElement | XmlSchemaType | QName | string, type: string | undefined, forceNamespace?: string): string {
-    if (!type && typeof element === "object" && !Array.isArray(element)) {
-      if (element.entityType === "element") {
-        type = "element";
-      } else {
-        type = "type";
+  private getElementUniqueId(element: XmlSchemaElement | XmlSchemaType, forceNamespace?: string): string {
+    const isElementNotType = element.entityType === "element";
+    const type = isElementNotType ? "element" : "type";
+
+    let additionalPrefix = "";
+    if (element.name[1] === "iri") {
+      // @ts-ignore
+      const parentElement = element.parentEntityInDocumentation as XmlSchemaElement | XmlSchemaType;
+      if (parentElement) {
+        additionalPrefix = this.getElementUniqueId(parentElement) + "-";
       }
-    }
-    if (!type) {
-      type = "type";
     }
 
     const fns = forceNamespace ? `${forceNamespace}:` : "";
 
-    if (typeof element === "string") {
-      return type + "-" + fns + element;
-    } else if (Array.isArray(element)) {
-      const ns = element[0] ? `${element[0]}:` : fns;
-      return `${type}-${ns}${element[1]}`;
-    } else {
-      const name = (element as XmlSchemaElement).name ?? (element as XmlSchemaType).name;
-
-      if (typeof name === "string") {
-        return type + "-" + fns + name;
-      }
-
-      const ns = name[0] ? `${name[0]}:` : fns;
-      return `${type}-${ns}${name[1]}`;
-    }
+    const name = element.name;
+    const ns = name[0] ? `${name[0]}:` : fns;
+    return `${additionalPrefix}${type}-${ns}${name[1]}`;
   }
 
   async generateToObject(): Promise<object> {
@@ -205,43 +194,58 @@ class XmlSchemaDocumentationGenerator {
       prefixToNamespace[prefix] = namespace;
     }
 
-    result["xml-id-anchor"] = (element: XmlSchemaElement | XmlSchemaType | QName | string, options: any) => {
-      const name = (element as XmlSchemaElement).name ?? (element as XmlSchemaType).name ?? element as QName ?? [null, element as string];
+    /**
+     * Generates a local anchor tag (string that does not start with a hash) for element or type.
+     */
+    result["xml-id-anchor"] = (element: XmlSchemaElement | XmlSchemaType) => {
+      const name = element.name;
       if (name[0] === null && this.xmlSchema.targetNamespacePrefix) {
-        return this.getElementUniqueId(element, options.hash.type, this.xmlSchema.targetNamespacePrefix);
+        return this.getElementUniqueId(element, this.xmlSchema.targetNamespacePrefix);
       }
 
-      return this.getElementUniqueId(element, options.hash.type);
+      return this.getElementUniqueId(element);
     };
-    result["xml-href"] = (element: XmlSchemaElement | XmlSchemaType | QName | string, options: any) => {
-      if (!element) {
-        return "";
+
+    /**
+     * Generates a URL to the definition for the given element or type (./some-path#local-href).
+     * The definition may be located in another file.
+     */
+    result["xml-href"] = (element: XmlSchemaElement | XmlSchemaType) => {
+      if (element?.name?.[1] === "iri") {
+        console.warn("xml-href", element);
+      } else {
+        console.log("xml-href", element);
       }
 
-      const structureModelEntity: StructureModelClass | undefined = (typeof element === "object" && !Array.isArray(element)) ? element.annotation?.structureModelEntity : undefined;
+      if (!element) {
+        throw new Error("Element or type is required to generate href in xml-href helper.");
+      }
+
+      const structureModelEntity: StructureModelClass = element.annotation?.structureModelEntity;
 
       // Use structure to link to other documentation of structure model
       if (structureModelEntity?.isReferenced) {
         const specification = Object.values(this.context.specifications).find(specification => specification.psms.includes(structureModelEntity.structureSchema));
         const artefact = specification.artefacts.find(artefact => artefact.generator === NEW_DOC_GENERATOR);
         const path = pathRelative(this.documentationArtifact.publicUrl, artefact.publicUrl, artefact !== this.documentationArtifact);
-        return path + "#" + this.getElementUniqueId(element, options.hash.type);
+        return path + "#" + this.getElementUniqueId(element);
       }
 
-      const possibleOutsideReferenceName = (element as XmlSchemaElement).name ?? (element as XmlSchemaType).name ?? element as QName ?? [null, element as string];
-
-      if (possibleOutsideReferenceName[1] === "langString") {
+      if (element["specialType"] === "langString") {
         return "";
       }
+
+      const possibleOutsideReferenceName = element.name;
+
 
       if (possibleOutsideReferenceName[0] !== null && this.xmlSchema.targetNamespacePrefix !== possibleOutsideReferenceName[0]) {
         // This is link to an external element
         return prefixToNamespace[possibleOutsideReferenceName[0]] + possibleOutsideReferenceName[1];
       }
       if (possibleOutsideReferenceName[0] === null && this.xmlSchema.targetNamespacePrefix) {
-        return "#" + this.getElementUniqueId(element, options.hash.type, this.xmlSchema.targetNamespacePrefix);
+        return "#" + this.getElementUniqueId(element, this.xmlSchema.targetNamespacePrefix);
       }
-      return "#" + this.getElementUniqueId(element, options.hash.type);
+      return "#" + this.getElementUniqueId(element);
     };
 
     result["get-semantic-class"] = (annotation: XmlSchemaAnnotation | null, options: any) => {
