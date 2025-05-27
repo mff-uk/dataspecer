@@ -260,7 +260,37 @@ export async function generateDocumentation(
     return entity ? options.fn(entity) : options.inverse(input);
   };
 
+  function getExternalDocumentationUrl(entity: SemanticModelEntity): string | null {
+    if (isSemanticModelClass(entity) || isSemanticModelClassProfile(entity)) {
+      return entity.externalDocumentationUrl || null;
+    }
+
+    if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipProfile(entity)) {
+      const end = entity.ends.find(end => end.externalDocumentationUrl);
+      return end ? end.externalDocumentationUrl : null;
+    }
+
+    return null;
+  }
+
+  function getHashPart(url: string | null): string | null {
+    if (!url) {
+      return null;
+    }
+    const hashIndex = url.indexOf("#");
+    if (hashIndex === -1) {
+      return null;
+    }
+    return url.substring(hashIndex + 1) || null;
+  }
+
   function getAnchorForLocalEntity(entity: SemanticModelEntity): string | null {
+    const externalDocumentationUrl = getExternalDocumentationUrl(entity);
+    const hashPart = getHashPart(externalDocumentationUrl);
+    if (hashPart) {
+      return hashPart;
+    }
+
     if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipProfile(entity)) {
       // @ts-ignore
       const {ok, translation} = getTranslation(entity.aggregation.ends[1].name, [configuration.language]);
@@ -282,51 +312,55 @@ export async function generateDocumentation(
   }
 
   /**
-   * Generates link for the given entity.
+   * Generates link for the given entity by entity ID, not IRI.
+   * @todo Split to class-like and relationship-like links.
    */
-  data['href'] =  function(input: string, options: Handlebars.HelperOptions) {
+  data['href'] =  function(entityId: string, options: Handlebars.HelperOptions) {
     // todo #1261
-    if (input === "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/text") {
+    if (entityId === "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/text") {
       return "https://ofn.gov.cz/základní-datové-typy/2020-07-01/#text";
     }
 
-    // todo: handle external links
-
     let inModel: ModelDescription | null = null;
     for (const model of models) {
-      if (Object.hasOwn(model.entities, input)) {
+      if (Object.hasOwn(model.entities, entityId)) {
         inModel = model;
         break;
       }
       // Hotfix because AP usage links to IRI not to ID
       // todo inspect
-      const entity = Object.values(model.entities).find(entity => entity.iri === input ||
-        ((isSemanticModelRelationship(entity) || isSemanticModelRelationshipProfile(entity)) && entity.ends.some(end => end.iri === input))
+      const entity = Object.values(model.entities).find(entity => entity.iri === entityId ||
+        ((isSemanticModelRelationship(entity) || isSemanticModelRelationshipProfile(entity)) && entity.ends.some(end => end.iri === entityId))
       );
       if (entity) {
         inModel = model;
-        input = entity.id;
+        entityId = entity.id;
         break;
       }
     }
-    const entity = inModel?.entities[input];
+    const entity = inModel?.entities[entityId];
 
     if (inModel && entity) {
       if (inModel.isPrimary) {
-        const anchor = getAnchorForLocalEntity(entity);
-        return "#" + anchor;
+        return "#" + getAnchorForLocalEntity(entity);
       } else {
+        let externalDocumentationUrl = getExternalDocumentationUrl(entity);
+        const isRelative = externalDocumentationUrl?.startsWith("#");
+
+        if (externalDocumentationUrl && !isRelative) {
+          return externalDocumentationUrl;
+        }
         if (inModel.documentationUrl) {
           const anchor = getAnchorForLocalEntity(entity);
           return inModel.documentationUrl + "#" + anchor;
         } else {
-          return input;
+          return entityId;
         }
       }
     }
 
-    // Last option
-    return input;
+    // Last option, use internal ID with hope that it is actually IRI.
+    return entityId;
   };
 
   /**
