@@ -1,100 +1,105 @@
-# see https://github.com/sstenchlak/schema-generator/issues/8
-DEFINE sql:signal-void-variables 0
-
 PREFIX z: <https://slovník.gov.cz/základní/pojem/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 
 CONSTRUCT {
-    ?attribute a z:typ-vlastnosti ;
-        rdfs:domain %NODE% ;
-        skos:prefLabel ?attributeLabel ;
-        skos:definition ?attributeDefinition ;
-        skos:inScheme ?attributeGlossary ;
-        owl:maxQualifiedCardinality ?max ;
-        owl:minQualifiedCardinality ?min .
+  ?attribute a z:typ-vlastnosti ;
+    rdfs:domain %NODE% ;
+    skos:prefLabel ?attributeLabel ;
+    skos:definition ?attributeDefinition ;
+    skos:inScheme ?attributeGlossary ;
+    owl:maxQualifiedCardinality ?max ;
+    owl:minQualifiedCardinality ?min .
 } WHERE {
-    # (1) both directions START
+  {
+    SELECT DISTINCT
+      ?attribute
+      ?attributeLabel
+      ?attributeGlossary
+    WHERE {
+      # (1) both directions START
         {
-            ?attribute rdfs:subClassOf [
-                owl:allValuesFrom %NODE% ;
-                owl:onProperty z:je-vlastností
-            ] .
+          ?attribute rdfs:subClassOf [
+            owl:allValuesFrom %NODE% ;
+            owl:onProperty z:je-vlastností
+          ] .
         } UNION {
-            %NODE% rdfs:subClassOf [
-                owl:allValuesFrom  ?attribute ;
-                owl:onProperty z:má-vlastnost
-            ] .
+          %NODE% rdfs:subClassOf [
+            owl:allValuesFrom  ?attribute ;
+            owl:onProperty z:má-vlastnost
+          ] .
         }
-    # (1) both directions END
+      # (1) both directions END
 
-    ?attribute a z:typ-vlastnosti ;
+      ?attribute a z:typ-vlastnosti ;
         skos:prefLabel ?attributeLabel ;
         skos:inScheme ?attributeGlossary .
 
-    # (3) ignore complex CIM attributes START
+      # (3) ignore complex CIM attributes START
         OPTIONAL {
-            SELECT ?attribute (COUNT(*) AS ?count)
-            WHERE {
-                {
-                    ?restriction rdfs:subClassOf [
-                        owl:allValuesFrom ?attribute ;
-                        owl:onProperty z:je-vlastností
-                    ]
-                } UNION {
-                    ?attribute rdfs:subClassOf [
-                        owl:allValuesFrom [] ;
-                        owl:onProperty z:má-vlastnost
-                    ] .
-                }
+          SELECT ?attribute (COUNT(*) AS ?count)
+          WHERE {
+            {
+              ?restriction rdfs:subClassOf [
+                owl:allValuesFrom ?attribute ;
+                owl:onProperty z:je-vlastností
+              ]
+            } UNION {
+              ?attribute rdfs:subClassOf [
+                owl:allValuesFrom [] ;
+                owl:onProperty z:má-vlastnost
+              ] .
             }
+          }
         }
         FILTER(BOUND(?count)=false)
-    # (3) ignore complex CIM attributes END
+      # (3) ignore complex CIM attributes END
+    }
+  }
 
-    # Cardinalities START
+  # Cardinalities START
     OPTIONAL {
-         %NODE% rdfs:subClassOf [
-             a owl:Restriction ;
-             owl:onProperty <https://slovník.gov.cz/základní/pojem/má-vlastnost> ;
-             owl:onClass ?attribute ;
-             owl:maxQualifiedCardinality ?max
-         ] .
-     }
-
-    OPTIONAL {
-         %NODE% rdfs:subClassOf [
-             a owl:Restriction ;
-             owl:onProperty <https://slovník.gov.cz/základní/pojem/má-vlastnost> ;
-             owl:onClass ?attribute ;
-             owl:minQualifiedCardinality ?min
-         ] .
+      %NODE% rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty <https://slovník.gov.cz/základní/pojem/má-vlastnost> ;
+        owl:onClass ?attribute ;
+        owl:maxQualifiedCardinality ?max
+      ] .
     }
 
     OPTIONAL {
-        %NODE% rdfs:subClassOf [
-            a owl:Restriction ;
-            owl:onProperty [
-              owl:inverseOf <https://slovník.gov.cz/základní/pojem/je-vlastností>
-            ] ;
-            owl:onClass ?attribute ;
-            owl:maxQualifiedCardinality ?max
-        ] .
+      %NODE% rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty <https://slovník.gov.cz/základní/pojem/má-vlastnost> ;
+        owl:onClass ?attribute ;
+        owl:minQualifiedCardinality ?min
+      ] .
     }
 
     OPTIONAL {
-        %NODE% rdfs:subClassOf [
-            a owl:Restriction ;
-            owl:onProperty [
-              owl:inverseOf <https://slovník.gov.cz/základní/pojem/je-vlastností>
-            ] ;
-            owl:onClass ?attribute ;
-            owl:minQualifiedCardinality ?min
-        ] .
+      %NODE% rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty [
+          owl:inverseOf <https://slovník.gov.cz/základní/pojem/je-vlastností>
+        ] ;
+        owl:onClass ?attribute ;
+        owl:maxQualifiedCardinality ?max
+      ] .
     }
-    # Cardinalities END
 
-    OPTIONAL { ?attribute skos:definition ?attributeDefinition }
-    OPTIONAL { ?attribute skos:scopeNote ?attributeDefinition }
+    OPTIONAL {
+      %NODE% rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty [
+          owl:inverseOf <https://slovník.gov.cz/základní/pojem/je-vlastností>
+        ] ;
+        owl:onClass ?attribute ;
+        owl:minQualifiedCardinality ?min
+      ] .
+    }
+  # Cardinalities END
+
+  OPTIONAL { ?attribute skos:definition ?attributeDefinition }
+  OPTIONAL { ?attribute skos:scopeNote ?attributeDefinition }
 }

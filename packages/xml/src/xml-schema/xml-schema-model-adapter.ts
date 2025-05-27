@@ -33,6 +33,7 @@ import {
   XmlSchemaLangStringType,
   XmlSchemaNamespaceDefinition,
   XmlSchemaSimpleItem,
+  XmlSchemaSimpleItemRestriction,
   XmlSchemaSimpleType,
   XmlSchemaType,
   xmlSchemaTypeIsComplex,
@@ -191,6 +192,7 @@ class XmlSchemaAdapter {
     }
 
     const type = forStructureModelClass.regex ? {
+      entityType: "type",
       name: null,
       annotation: null,
       simpleDefinition: {
@@ -198,8 +200,8 @@ class XmlSchemaAdapter {
         base: [this.getAndImportHelperNamespace("xsd", true), "anyURI"],
         pattern: forStructureModelClass.regex,
         contents: [],
-      } as XmlSchemaSimpleItem,
-    } as XmlSchemaSimpleType : {
+      } as XmlSchemaSimpleItemRestriction,
+      } satisfies XmlSchemaSimpleType : {
       entityType: "type",
       name: [this.getAndImportHelperNamespace("xsd", true), "anyURI"],
       annotation: null,
@@ -217,7 +219,7 @@ class XmlSchemaAdapter {
         annotation: null,
         type: useIriFromExternalXsd ? null : type,
       } satisfies XmlSchemaElement,
-    };
+    } satisfies XmlSchemaComplexContentElement;
   };
 
   /**

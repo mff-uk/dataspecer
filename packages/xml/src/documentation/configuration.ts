@@ -28,21 +28,13 @@ export const defaultXmlPartials: Record<string, string> = {
           element <a href="{{xml-href element}}"><code>&lt;{{element.name.[1]}}&gt;</code></a> [{{cardinalityMin}}..{{#if cardinalityMax}}{{cardinalityMax}}{{else}}*{{/if}}]
         {{/if}}
         {{#item}}
-          {{#if (equals xsType "group")}}
-            skupina
-            {{#if referencesStructure}}
-              referencující
-            {{/if}}
-            <a href="{{xml-href name type="element" structure=referencesStructure}}"><code>{{xml-qname name}}</code></a> [{{../cardinalityMin}}..{{#if ../cardinalityMax}}{{../cardinalityMax}}{{else}}*{{/if}}]
+          {{#if (or (equals xsType "sequence") (equals xsType "choice") )}}
+            {{#if (equals xsType "sequence")}}sekvence{{/if}}{{#if (equals xsType "choice")}}výběr jednoho prvku{{/if}} [{{../cardinalityMin}}..{{#if ../cardinalityMax}}{{../cardinalityMax}}{{else}}*{{/if}}]
+            <ul>
+              {{xml-schema-complex-content contents}}
+            </ul>
             {{else}}
-            {{#if (or (equals xsType "sequence") (equals xsType "choice") )}}
-              {{#if (equals xsType "sequence")}}sekvence{{/if}}{{#if (equals xsType "choice")}}výběr jednoho prvku{{/if}} [{{../cardinalityMin}}..{{#if ../cardinalityMax}}{{../cardinalityMax}}{{else}}*{{/if}}]
-              <ul>
-                {{xml-schema-complex-content contents}}
-              </ul>
-              {{else}}
-                {{xml-type}} [{{../cardinalityMin}}..{{#if ../cardinalityMax}}{{../cardinalityMax}}{{else}}*{{/if}}]
-            {{/if}}
+              {{xml-type}} [{{../cardinalityMin}}..{{#if ../cardinalityMax}}{{../cardinalityMax}}{{else}}*{{/if}}]
           {{/if}}
         {{/item}}
       </li>
@@ -154,10 +146,6 @@ export const defaultXmlPartials: Record<string, string> = {
       <li> element <a href="{{xml-href .}}"><code>{{xml-qname name}}</code></a></li>
     {{/xmlSchema.elements}}
 
-    {{#xmlSchema.groups}}
-      <li> skupina <a href="{{xml-href .}}"><code>{{name}}</code></a></li>
-    {{/xmlSchema.groups}}
-
     {{#xmlSchema.types}}
       <li> {{#if complexDefinition}}komplexní{{/if}}{{#if simpleDefinition}}jednoduchý{{/if}} typ <a href="{{xml-href .}}"><code>{{xml-qname name}}</code></a></li>
     {{/xmlSchema.types}}
@@ -234,16 +222,6 @@ export const defaultXmlPartials: Record<string, string> = {
 </section>
 {{#linkedChildElements}}{{xml-non-root-element .}}{{/linkedChildElements}}
 {{/rootElements}}
-
-{{#rootGroups}}
-<section id="{{xml-id-anchor .}}">
-  <h4>Kořenová skupina {{#if name}}<code>{{name}}</code>{{else}}bez pojmenování{{/if}}</h4>
-  <dl>
-    {{xml-complex-definition definition}}
-  </dl>
-</section>
-{{#linkedChildElements}}{{xml-non-root-element .}}{{/linkedChildElements}}
-{{/rootGroups}}
 
 {{#rootTypes}}
 <section id="{{xml-id-anchor .}}">
