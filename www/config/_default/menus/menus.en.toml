@@ -10,6 +10,11 @@
   weight = 10
 
 [[main]]
+  name = "Roadmap"
+  url = "/roadmap/"
+  weight = 15
+
+[[main]]
   name = "Demo"
   weight = 20
   url = "/demo/"
