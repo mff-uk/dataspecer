@@ -1,8 +1,6 @@
 
 type IRI = string;
 
-type URL = string;
-
 export type LanguageString = { [language: string]: string };
 
 export interface StructureModel {
@@ -67,8 +65,9 @@ export interface StructureProperty extends StructureTerm {
    */
   predicates: IRI[];
 
-  domain: IRI;
-
+  /**
+   * Range value must be of all given types.
+   */
   range: IRI[];
 
   rangeCardinality: {

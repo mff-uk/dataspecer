@@ -15,38 +15,49 @@ export function createShaclForProfile(
   topProfileModel: ProfileModel,
 ): ShaclModel {
 
-  // Prepare Lightweight OWL.
-  const owl = semanticModels.map(
-    item => semanticModelToLightweightOwl(item, { idDefinedBy: "" }));
+  // Prepare Lightweight OWL models.
+  const owl = semanticModelToLightweightOwl(
+    [], semanticModels, { baseIri: "", idDefinedBy: "" });
+  console.log("OWL\n", JSON.stringify(owl, null, 2));
 
-  // Prepare Data Specification Vocabulary.
+  // Prepare Data Specification Vocabulary (DSW).
+  // We need a DSV for each model, as we need to be able to see
+  // the full hierarchy.
 
   const semanticList = semanticModels.map(model => ({
-    baseIri: "",
+    baseIri: (model as any).getBaseIri === undefined ? "" : (model as any).getBaseIri(),
     entities: Object.values(model.getEntities()),
   }));
 
   const profileList = profileModels.map(model => ({
-    baseIri: "",
+    baseIri: (model as any).getBaseIri === undefined ? "" : (model as any).getBaseIri(),
     entities: Object.values(model.getEntities()),
   }));
 
-  const context = createContext([...semanticList, ...profileList]);
+  const context = createContext([
+    ...semanticList,
+    ...profileList,
+  ]);
+
   const dsv = profileList.map(
     item => entityListContainerToConceptualModel("", item, context));
 
-  // Prepare structure model.
   const topDsv = entityListContainerToConceptualModel("", {
-    baseIri: "",
+    baseIri: (topProfileModel as any).getBaseIri === undefined ? "" : (topProfileModel as any).getBaseIri(),
     entities: Object.values(topProfileModel.getEntities()),
   }, context);
 
-  const inclusionFilter = topDsv.profiles.map(item => item.iri);
-  const structure = createStructureModel(
-    owl, dsv, identifier => inclusionFilter.includes(identifier));
+  // console.log("DSV ", JSON.stringify(dsv.map(item => item.profiles).flat(), null, 2));
 
-  // console.log("Structure model:");
-  // console.log(JSON.stringify(structure, null, 2));
+  // Prepare structure model.
+  const inclusionFilter = topDsv.profiles.map(item => item.iri);
+  // console.log("FILTER ", JSON.stringify(inclusionFilter, null, 2));
+
+  const structure = createStructureModel(
+    owl,
+    { iri: "", profiles: dsv.map(item => item.profiles).flat() },
+    identifier => inclusionFilter.includes(identifier));
+  // console.log("STRUCTURE ", JSON.stringify(structure, null, 2));
 
   // Prepare SHACL model.
   const result: ShaclModel = {
@@ -61,12 +72,14 @@ export function createShaclForProfile(
   // For each entity we build a property shapes.
   for (const entity of structure.classes) {
     const propertyShapes = buildPropertyShapes(
-      classMap, entity.properties, entity.iri);
+      classMap, entity.properties,
+      result.iri + encodeURI(entity.iri));
     // We need shape for every type.
     for (const type of entity.types) {
       result.members.push({
-        // TODO We need to incorporate type somehow ..
-        iri: result.iri + encodeURI(type),
+        // TODO Incorporate type into the IRI.
+        iri: result.iri + encodeURI(entity.iri) + "#" + encodeURI(type),
+        seeAlso: entity.iri,
         targetClass: type,
         closed: false,
         propertyShapes,
@@ -87,9 +100,7 @@ export function createShaclForProfile(
   }
 
   // SHACL model
-
-  // console.log("SHACL model:");
-  // console.log(JSON.stringify(result, null, 2));
+  // console.log("SHACL ",JSON.stringify(result, null, 2));
 
   return result;
 }
@@ -108,7 +119,7 @@ function buildPropertyShapes(
         if (isPrimitive && !isComplex) {
           // Primitive is simple, we have just one value.
           result.push({
-            iri: range, // TODO
+            iri: baseUrl + "#" + encodeURI(range), // TODO
             seeAlso: property.iri,
             description: property.usageNote,
             name: property.name,
@@ -128,7 +139,7 @@ function buildPropertyShapes(
           }
           for (const type of structureClass.types) {
             result.push({
-              iri: range, // TODO
+              iri: baseUrl + "#" + encodeURI(range), // TODO
               seeAlso: property.iri,
               description: property.usageNote,
               name: property.name,

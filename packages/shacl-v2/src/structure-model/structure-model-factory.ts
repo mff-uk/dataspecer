@@ -28,7 +28,7 @@ import { isComplexType, isPrimitiveType } from "@dataspecer/core-v2/semantic-mod
 interface Resolvable<Type extends { iri: string }> {
 
   /**
-   * Dependencies that must be resolved before this.
+   * Dependencies that must be resolved before this instance can be resolved.
    */
   dependencies: string[];
 
@@ -43,59 +43,38 @@ interface Resolvable<Type extends { iri: string }> {
 
 type ResolvableClass = Resolvable<StructureClass>;
 
-type ResolvableProperty = Resolvable<StructureProperty>;
+type ResolvableProperty = Resolvable<StructureProperty> & {
+
+  /**
+   * We keep domain here, before we can add {@link StructureProperty}
+   * to {@link StructureClass}.
+   */
+  domain: string;
+
+};
 
 export function createStructureModel(
-  owlOntologies: OwlOntology[],
-  dsvModels: DsvModel[],
+  owl: OwlOntology,
+  dsv: DsvModel,
   classFilter: (identifier: string) => boolean,
 ): StructureModel {
-
+  // We add information from OWL and DSV.
   const classesMap: { [iri: string]: ResolvableClass } = {};
-
   const propertyMap: { [iri: string]: ResolvableProperty } = {};
+  addClassesFromOwl(owl, classesMap);
+  addPropertiesFromOwl(owl, propertyMap);
+  addFromDsv(classesMap, propertyMap, dsv);
 
-  // Start with OWL.
-  for (const owl of owlOntologies) {
-    owl.classes.forEach(item => {
-      const next = owlClassToResolvableClass(item);
-      const prev = classesMap[next.value.iri];
-      classesMap[next.value.iri] = prev === undefined ?
-        next : mergeResolvableClassToExisting(prev, next);
-    });
-    owl.properties.forEach(item => {
-      const next = owlPropertyToResolvableProperty(item);
-      const prev = propertyMap[next.value.iri];
-      propertyMap[next.value.iri] = prev === undefined ?
-        next :
-        mergeResolvablePropertyToExisting(prev, next);
-    });
-  }
+  // console.log("createStructureModel",
+  //   "\nClass\n", JSON.stringify(classesMap, null, 2),
+  //   "\nProperty\n", JSON.stringify(propertyMap, null, 2));
 
-  // Continue with DSV.
-  for (const dsv of dsvModels) {
-    dsv.profiles.forEach(item => {
-      const next = dsvClassProfileToResolvableClass(item);
-      const prev = classesMap[next.value.iri];
-      classesMap[next.value.iri] = prev === undefined ?
-        next : mergeResolvableClassToExisting(prev, next);
-      // In DSV the properties are stored under profiles.
-      item.properties.forEach(property => {
-        const nextProperty = dsvPropertyProfileToResolvableProperty(item, property);
-        const prevProperty = propertyMap[nextProperty.value.iri];
-        propertyMap[nextProperty.value.iri] = prevProperty === undefined ?
-          nextProperty :
-          mergeResolvablePropertyToExisting(prevProperty, nextProperty);
-      });
-    });
-  }
-
-  // Now we go and try to resolve what we can.
+  // Now we try to resolve all we can.
   while (true) {
     const hasClassesChanged = executeResolveIteration(
-      classesMap, resolveResolvableClass);
+      classesMap, propertyMap, classesMap, resolveResolvableClass);
     const hasPropertiesChanged = executeResolveIteration(
-      propertyMap, resolveResolvableProperty);
+      classesMap, propertyMap, propertyMap, resolveResolvableProperty);
     // Terminate when there is no change.
     if (!hasClassesChanged && !hasPropertiesChanged) {
       break;
@@ -103,21 +82,36 @@ export function createStructureModel(
   }
 
   // Select the result.
-
   const classes = Object.values(classesMap)
     .filter(item => classFilter(item.value.iri))
     .map(item => item.value);
 
-  // Add properties to classes.
+  // Add properties to classes based on their domain.
   classes.forEach(classItem => {
     classItem.properties = Object.values(propertyMap)
-      .filter(item => item.value.domain == classItem.iri)
+      .filter(item => item.domain == classItem.iri)
       .map(item => item.value);
   });
+
+  // console.log("Structure\n", JSON.stringify(classes, null, 2));
 
   return {
     classes,
   };
+}
+
+function addClassesFromOwl(
+  owl: OwlOntology,
+  classesMap: { [iri: string]: ResolvableClass },
+): void {
+
+  owl.classes.forEach(item => {
+    const next = owlClassToResolvableClass(item);
+    const prev = classesMap[next.value.iri];
+    classesMap[next.value.iri] = prev === undefined ?
+      next : mergeResolvableClassToExisting(prev, next);
+  });
+
 }
 
 function owlClassToResolvableClass(
@@ -167,6 +161,20 @@ function mergeArrayAsUniq<T>(left: T[], right: T[]): T[] {
   return Array.from(new Set([...left, ...right]));
 }
 
+function addPropertiesFromOwl(
+  owl: OwlOntology,
+  propertyMap: { [iri: string]: ResolvableProperty },
+): void {
+
+  owl.properties.forEach(item => {
+    const next = owlPropertyToResolvableProperty(item);
+    const prev = propertyMap[next.value.iri];
+    propertyMap[next.value.iri] = prev === undefined ?
+      next :
+      mergeResolvablePropertyToExisting(prev, next);
+  });
+}
+
 function owlPropertyToResolvableProperty(
   value: OwlProperty,
 ): ResolvableProperty {
@@ -180,6 +188,7 @@ function owlPropertyToResolvableProperty(
   }
   return {
     dependencies: [],
+    domain: value.domain,
     isResolved: true,
     value: {
       iri: value.iri,
@@ -191,7 +200,6 @@ function owlPropertyToResolvableProperty(
       // StructureProperty
       type,
       predicates: [value.iri],
-      domain: value.domain,
       range: [value.range],
       rangeCardinality: {
         min: null,
@@ -209,6 +217,7 @@ function mergeResolvablePropertyToExisting(
   return {
     dependencies: [...prev.dependencies, ...next.dependencies],
     isResolved: prev.isResolved && next.isResolved,
+    domain: prev.domain ?? next.domain,
     value: {
       iri: prevValue.iri,
       name: prevValue.name ?? nextValue.name,
@@ -221,7 +230,6 @@ function mergeResolvablePropertyToExisting(
       type: prevValue.type === nextValue.type
         ? prevValue.type : StructurePropertyType.Undecidable,
       predicates: [...prevValue.predicates, ...nextValue.predicates],
-      domain: prevValue.domain ?? nextValue.domain,
       range: prevValue.range ?? nextValue.range,
       rangeCardinality: mergeCardinalities(
         prevValue.rangeCardinality, nextValue.rangeCardinality),
@@ -253,6 +261,29 @@ function mergeCardinalities(
   }
 
   return { min, max };
+}
+
+function addFromDsv(
+  classesMap: { [iri: string]: ResolvableClass },
+  propertyMap: { [iri: string]: ResolvableProperty },
+  dsv: DsvModel,
+): void {
+  dsv.profiles.forEach(item => {
+    const next = dsvClassProfileToResolvableClass(item);
+    const prev = classesMap[next.value.iri];
+    classesMap[next.value.iri] = prev === undefined ?
+      next : mergeResolvableClassToExisting(prev, next);
+    // In DSV the properties are stored under profiles.
+    item.properties.forEach(property => {
+      const nextProperty = dsvPropertyProfileToResolvableProperty(
+        item, property);
+
+      const prevProperty = propertyMap[nextProperty.value.iri];
+      propertyMap[nextProperty.value.iri] = prevProperty === undefined ?
+        nextProperty :
+        mergeResolvablePropertyToExisting(prevProperty, nextProperty);
+    });
+  });
 }
 
 function dsvClassProfileToResolvableClass(
@@ -301,7 +332,13 @@ function dsvPropertyProfileToResolvableProperty(
     range = value.rangeDataTypeIri;
   }
   return {
-    dependencies: [...value.profileOfIri, ...value.profiledPropertyIri],
+    dependencies: [
+      ...value.profileOfIri,
+      ...value.profiledPropertyIri,
+      owner.iri,
+      ...range,
+    ],
+    domain: owner.iri,
     isResolved: false,
     value: {
       iri: value.iri,
@@ -313,7 +350,6 @@ function dsvPropertyProfileToResolvableProperty(
       // StructureProperty
       type,
       predicates: [],
-      domain: owner.iri,
       range,
       rangeCardinality: dsvCardinality(value.cardinality),
     },
@@ -356,36 +392,49 @@ function executeResolveIteration<Type extends {
   isResolved: boolean,
   dependencies: string[],
 }>(
-  itemMap: { [iri: string]: Type },
-  resolve: (toResolve: Type, dependencies: Type[]) => void,
+  classDependencies: { [iri: string]: ResolvableClass },
+  propertyDependencies: { [iri: string]: ResolvableProperty },
+  mapToResolve: { [iri: string]: Type },
+  resolve: (
+    classDependencies: ResolvableClass[],
+    propertyDependencies: ResolvableProperty[],
+    toResolve: Type,
+  ) => void,
 ): boolean {
   let hasChanged = false;
-  for (const item of Object.values(itemMap)) {
+  for (const item of Object.values(mapToResolve)) {
     if (item.isResolved) {
       continue;
     }
-    const dependencies = item.dependencies
-      .map(identifier => itemMap[identifier])
+    const itemClassDependencies = item.dependencies
+      .map(identifier => classDependencies[identifier])
       .filter(item => item !== undefined);
-    const allDependenciesResolved = dependencies
-      .every(item => item.isResolved);
-    if (!allDependenciesResolved) {
+    if (itemClassDependencies.some(item => !item.isResolved)) {
       continue;
     }
-    resolve(item, dependencies);
+
+    const itemPropertyDependencies = item.dependencies
+      .map(identifier => propertyDependencies[identifier])
+      .filter(item => item !== undefined);
+    if (itemPropertyDependencies.some(item => !item.isResolved)) {
+      continue;
+    }
+
+    resolve(itemClassDependencies, itemPropertyDependencies, item);
     hasChanged = true;
   }
   return hasChanged;
 }
 
 function resolveResolvableClass(
+  classDependencies: ResolvableClass[],
+  _propertyDependencies: ResolvableProperty[],
   toResolve: ResolvableClass,
-  dependencies: ResolvableClass[],
 ): void {
   toResolve.isResolved = true;
   const value = toResolve.value;
   //
-  for (const { value: next } of dependencies) {
+  for (const { value: next } of classDependencies) {
     if (value.nameSource === next.iri) {
       value.name = next.name;
     }
@@ -398,13 +447,25 @@ function resolveResolvableClass(
 }
 
 function resolveResolvableProperty(
+  classDependencies: ResolvableClass[],
+  propertyDependencies: ResolvableProperty[],
   toResolve: ResolvableProperty,
-  dependencies: ResolvableProperty[],
 ): void {
   toResolve.isResolved = true;
   const value = toResolve.value;
-  //
-  for (const { value: next } of dependencies) {
+  // We do not update domain, we keep it original.
+  // Update range to types of resolved classes.
+  const initialRange = value.range;
+  value.range = classDependencies
+    .filter(item => value.range.includes(item.value.iri))
+    .map(item => item.value.types)
+    .flat();
+  if (value.range.length !== initialRange.length) {
+    console.warn(
+      "Range mismatch!", initialRange, "->", value.range,
+      "\n", toResolve)
+  }
+  for (const { value: next } of propertyDependencies) {
     if (value.nameSource === next.iri) {
       value.name = next.name;
     }

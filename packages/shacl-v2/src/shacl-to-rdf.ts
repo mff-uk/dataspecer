@@ -57,8 +57,11 @@ class ShaclModelWriter {
   }
 
   writeShaclModel(): void {
+    // We first write member predicates and then the rest.
     for (const member of this.model.members) {
       this.writer.addIri(this.model.iri, RDFS.member, member.iri);
+    }
+    for (const member of this.model.members) {
       this.writeNodeShape(member);
     }
   }
@@ -66,6 +69,7 @@ class ShaclModelWriter {
   writeNodeShape(shape: ShaclNodeShape): void {
     const iri = shape.iri;
     this.writer.addType(iri, SHACL.NodeShape);
+    this.writer.addIri(iri, RDFS.seeAlso, shape.seeAlso);
     this.writer.addLiteral(iri, SHACL.closed, shape.closed);
     this.writer.addIri(iri, SHACL.targetClass, shape.targetClass);
     for (const propertyShape of shape.propertyShapes) {

@@ -120,10 +120,10 @@ function prettyPrintTurtle(turtle: string): string {
   const lines = turtle.split(/\r?\n|\r|\n/g);
   const linesNext = [];
   for (const line of lines) {
-    if (line.startsWith("<")) {
+    linesNext.push(line);
+    if (line.startsWith(" ") && line.endsWith(".")) {
       linesNext.push("");
     }
-    linesNext.push(line);
   }
   return linesNext.join("\n");
 }

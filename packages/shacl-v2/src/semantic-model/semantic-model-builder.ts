@@ -8,18 +8,10 @@ import {
   SEMANTIC_MODEL_RELATIONSHIP,
   SemanticModelRelationshipEnd,
 } from "./semantic-model.ts";
+import { createReadOnlyInMemoryEntityModel } from "../entity-model/index.ts";
+import { createReadOnlyInMemorySemanticModel } from "./semantic-model-factory.ts";
 
 type LanguageString = { [language: string]: string };
-
-interface SemanticModelProperty {
-
-  iri: string;
-
-  name: LanguageString;
-
-  externalDocumentationUrl: string | null;
-
-}
 
 export interface SemanticModelBuilder {
 
@@ -31,6 +23,9 @@ export interface SemanticModelBuilder {
     value?: Partial<SemanticModelRelationship>,
   ): SemanticRelationshipBuilder;
 
+  /**
+   * Alternative to {@link relationship}.
+   */
   property(
     value?: Partial<SemanticModelProperty>,
   ): SemanticRelationshipBuilder;
@@ -43,32 +38,54 @@ export interface SemanticModelBuilder {
 
 }
 
+export interface SemanticClassBuilder extends Identifiable {
+
+  /**
+   * Create a relation with this class as the domain.
+   */
+  property(value: {
+    iri?: string,
+    name?: LanguageString,
+    range: Identifiable,
+  }): SemanticRelationshipBuilder;
+
+  build(): SemanticModelClass;
+
+}
+
 interface Identifiable {
 
   identifier: string;
 
 }
 
-export interface SemanticClassBuilder extends Identifiable {
+export interface SemanticRelationshipBuilder extends Identifiable {
+
+  domain(value: Identifiable): SemanticRelationshipBuilder;
+
+  range(value: Identifiable): SemanticRelationshipBuilder;
+
+  build(): SemanticModelRelationship;
 
 }
 
-export interface SemanticRelationshipBuilder extends Identifiable {
+interface SemanticModelProperty {
 
-  domain(value: SemanticClassBuilder): SemanticRelationshipBuilder;
+  iri: string;
 
-  range(value: SemanticClassBuilder): SemanticRelationshipBuilder;
+  name: LanguageString;
+
+  externalDocumentationUrl: string | null;
 
 }
 
 export interface SemanticGeneralizationBuilder extends Identifiable {
 
-  generalization<
-    Type extends SemanticClassBuilder | SemanticRelationshipBuilder
-  >(
-    parent: Type,
-    child: Type,
+  generalization<Type extends SemanticClassBuilder | SemanticRelationshipBuilder>(
+    parent: Type, child: Type,
   ): SemanticRelationshipBuilder;
+
+  build(): SemanticModelGeneralization;
 
 }
 
@@ -101,7 +118,7 @@ class DefaultSemanticModelBuilder implements SemanticModelBuilder {
       iri: this.baseUrl + (value?.iri ?? `class#${this.counter}`),
     };
     this.entities[identifier] = entity;
-    return new DefaultSemanticClassBuilder(entity);
+    return new DefaultSemanticClassBuilder(this, entity);
   }
 
   nextIdentifier() {
@@ -155,17 +172,43 @@ class DefaultSemanticModelBuilder implements SemanticModelBuilder {
   }
 
   build(): SemanticModel {
-    return new DefaultSemanticModel(this.entities);
+    return createReadOnlyInMemorySemanticModel(
+      this.baseUrl,
+      createReadOnlyInMemoryEntityModel(this.baseUrl, this.entities),
+    );
   }
 
 }
 
 class DefaultSemanticClassBuilder implements SemanticClassBuilder {
 
+  readonly model: DefaultSemanticModelBuilder;
+
   readonly identifier: string;
 
-  constructor(entity: SemanticModelClass) {
+  readonly entity: SemanticModelClass;
+
+  constructor(model: DefaultSemanticModelBuilder, entity: SemanticModelClass) {
+    this.model = model;
     this.identifier = entity.id;
+    this.entity = entity;
+  }
+
+  property(value: {
+    iri?: string;
+    name?: LanguageString;
+    range: Identifiable;
+  }): SemanticRelationshipBuilder {
+    return this.model.property({
+      iri: value.iri,
+      name: value.name,
+    })
+      .domain(this)
+      .range(value.range);
+  }
+
+  build(): SemanticModelClass {
+    return this.entity;
   }
 
 }
@@ -188,44 +231,18 @@ class DefaultSemanticRelationshipBuilder
     this.rangeEnd = entity.ends[1];
   }
 
-  domain(value: SemanticClassBuilder): SemanticRelationshipBuilder {
+  domain(value: Identifiable): SemanticRelationshipBuilder {
     this.domainEnd.concept = value.identifier;
     return this;
   }
 
-  range(value: SemanticClassBuilder): SemanticRelationshipBuilder {
+  range(value: Identifiable): SemanticRelationshipBuilder {
     this.rangeEnd.concept = value.identifier;
     return this;
   }
 
-}
-
-class DefaultSemanticModel implements SemanticModel {
-
-  entities: Record<string, Entity>;
-
-  constructor(entities: Record<string, Entity>) {
-    this.entities = entities;
-  }
-
-  getEntities(): Entities {
-    return this.entities;
-  }
-
-  subscribeToChanges(): () => void {
-    throw new Error("Method not implemented.");
-  }
-
-  getId(): string {
-    throw new Error("Method not implemented.");
-  }
-
-  getAlias(): string | null {
-    throw new Error("Method not implemented.");
-  }
-
-  setAlias(alias: string | null): void {
-    throw new Error("Method not implemented.");
+  build(): SemanticModelRelationship {
+    return this.entity;
   }
 
 }

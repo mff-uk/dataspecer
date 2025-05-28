@@ -1,4 +1,4 @@
-import { EntityModel } from "@dataspecer/core-v2";
+import { EntityModel } from "../entity-model/index.ts";
 
 export {
   SEMANTIC_MODEL_CLASS_PROFILE,

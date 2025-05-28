@@ -1,4 +1,4 @@
-import { EntityModel } from "@dataspecer/core-v2";
+import { EntityModel } from "../entity-model/index.ts";
 
 export {
   SEMANTIC_MODEL_CLASS,
@@ -19,4 +19,11 @@ export {
   type SemanticModelGeneralization,
 } from "@dataspecer/core-v2/semantic-model/concepts"
 
-export type SemanticModel = EntityModel;
+/**
+ * We remove soon to be deprecated methods.
+ */
+export interface SemanticModel extends EntityModel {
+
+  getBaseIri(): string;
+
+};

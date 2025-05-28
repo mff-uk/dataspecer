@@ -59,15 +59,25 @@ interface Identifiable {
 
 export interface ProfileClassBuilder extends Identifiable {
 
+  profile(entity: Identifiable): ProfileClassBuilder;
+
   reuseName(entity: Identifiable): ProfileClassBuilder;
 
   reuseDescription(entity: Identifiable): ProfileClassBuilder;
 
   reuseUsageNote(entity: Identifiable): ProfileClassBuilder;
 
+  optional(): ProfileClassBuilder;
+
+  recommended(): ProfileClassBuilder;
+
+  mandatory(): ProfileClassBuilder;
+
 }
 
 export interface ProfileRelationshipBuilder extends Identifiable {
+
+  profile(entity: Identifiable): ProfileRelationshipBuilder;
 
   reuseName(entity: Identifiable): ProfileRelationshipBuilder;
 
@@ -78,6 +88,12 @@ export interface ProfileRelationshipBuilder extends Identifiable {
   domain(value: ProfileClassBuilder): ProfileRelationshipBuilder;
 
   range(value: ProfileClassBuilder): ProfileRelationshipBuilder;
+
+  optional(): ProfileClassBuilder;
+
+  recommended(): ProfileClassBuilder;
+
+  mandatory(): ProfileClassBuilder;
 
 }
 
@@ -200,6 +216,12 @@ class DefaultProfileModelBuilder implements ProfileModelBuilder {
 
 }
 
+enum ProfileTags {
+  "mandatory" = "https://w3id.org/dsv/requirement-level#mandatory",
+  "optional" = "https://w3id.org/dsv/requirement-level#optional",
+  "recommended" = "https://w3id.org/dsv/requirement-level#recommended",
+}
+
 class DefaultProfileClassBuilder implements ProfileClassBuilder {
 
   readonly identifier: string;
@@ -211,6 +233,11 @@ class DefaultProfileClassBuilder implements ProfileClassBuilder {
     this.entity = entity;
   }
 
+  profile(entity: Identifiable): ProfileClassBuilder {
+    this.updateProfiling(entity.identifier);
+    return this;
+  }
+
   reuseName(entity: Identifiable): ProfileClassBuilder {
     this.entity.nameFromProfiled = entity.identifier;
     this.updateProfiling(entity.identifier);
@@ -218,10 +245,7 @@ class DefaultProfileClassBuilder implements ProfileClassBuilder {
   }
 
   private updateProfiling(identifier: string) {
-    if (this.entity.profiling.includes(identifier)) {
-      return;
-    }
-    this.entity.profiling.push(identifier);
+    addToArray(identifier, this.entity.profiling);
   }
 
   reuseDescription(entity: Identifiable): ProfileClassBuilder {
@@ -236,6 +260,31 @@ class DefaultProfileClassBuilder implements ProfileClassBuilder {
     return this;
   }
 
+  optional(): ProfileClassBuilder {
+    addToArray(ProfileTags.optional, this.entity.tags);
+    return this;
+  }
+
+  recommended(): ProfileClassBuilder {
+    addToArray(ProfileTags.recommended, this.entity.tags);
+    return this;
+  }
+
+  mandatory(): ProfileClassBuilder {
+    addToArray(ProfileTags.mandatory, this.entity.tags);
+    return this;
+  }
+
+}
+
+/**
+ * If given value is not in the given array, push it to the end.
+ */
+function addToArray<T>(value: T, items: T[]) {
+  if (items.includes(value)) {
+    return;
+  }
+  items.push(value);
 }
 
 class DefaultProfileRelationshipBuilder
@@ -256,6 +305,11 @@ class DefaultProfileRelationshipBuilder
     this.rangeEnd = entity.ends[1];
   }
 
+  profile(entity: Identifiable): ProfileRelationshipBuilder {
+    this.updateProfiling(entity.identifier);
+    return this;
+  }
+
   reuseName(entity: Identifiable): ProfileRelationshipBuilder {
     this.rangeEnd.nameFromProfiled = entity.identifier;
     this.updateProfiling(entity.identifier);
@@ -263,10 +317,7 @@ class DefaultProfileRelationshipBuilder
   }
 
   private updateProfiling(identifier: string) {
-    if (this.rangeEnd.profiling.includes(identifier)) {
-      return;
-    }
-    this.rangeEnd.profiling.push(identifier);
+    addToArray(identifier, this.rangeEnd.profiling);
   }
 
   reuseDescription(entity: Identifiable): ProfileRelationshipBuilder {
@@ -288,6 +339,21 @@ class DefaultProfileRelationshipBuilder
 
   range(value: ProfileClassBuilder): ProfileRelationshipBuilder {
     this.rangeEnd.concept = value.identifier;
+    return this;
+  }
+
+  optional(): ProfileRelationshipBuilder {
+    addToArray(ProfileTags.optional, this.rangeEnd.tags);
+    return this;
+  }
+
+  recommended(): ProfileRelationshipBuilder {
+    addToArray(ProfileTags.recommended, this.rangeEnd.tags);
+    return this;
+  }
+
+  mandatory(): ProfileRelationshipBuilder {
+    addToArray(ProfileTags.mandatory, this.rangeEnd.tags);
     return this;
   }
 

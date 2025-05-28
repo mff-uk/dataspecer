@@ -32,6 +32,11 @@ export interface ShaclNodeShape {
   iri: Node;
 
   /**
+   * @lc-identifier rdfs:seeAlso
+   */
+  seeAlso: string;
+
+  /**
    * @lc-identifier shacl:closed
    */
   closed: boolean | null;

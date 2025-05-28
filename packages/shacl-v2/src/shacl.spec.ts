@@ -3,80 +3,184 @@ import { createDefaultSemanticModelBuilder } from "./semantic-model/semantic-mod
 import { createDefaultProfileModelBuilder } from "./profile-model/profile-model-builder.ts";
 import { createShaclForProfile } from "./shacl.ts";
 import { shaclToRdf } from "./shacl-to-rdf.ts";
+import { SemanticModel } from "./semantic-model/semantic-model.ts";
+import { createReadOnlyInMemoryEntityModel } from "./entity-model/index.ts";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { createReadOnlyInMemorySemanticModel } from "./semantic-model/semantic-model-factory.ts";
 
 describe("createShaclForProfile", () => {
 
-  test("Default test.", async () => {
+  const xsd = createDefaultSemanticModelBuilder(
+    "http://www.w3.org/2001/XMLSchema#");
 
-    // DCAT
-    const dcat = createDefaultSemanticModelBuilder(
-      "http://www.w3.org/ns/dcat#");
-    const dcatCatalog = dcat.class({
-      iri: "Catalog",
-      name: { "en": "Catalog" },
+  const xsdString = xsd.class({ iri: "string" });
+
+  const xsdProfile = createDefaultProfileModelBuilder(
+    "http://example.com/xsdProfile#");
+
+  const xsdStringProfile = xsdProfile.class({ iri: "string" })
+    .profile(xsdString);
+
+  test.skip("Implementation test I.", async () => {
+
+    // Vocabulary
+
+    const vocabulary = createDefaultSemanticModelBuilder(
+      "http://example.com/vocabulary#");
+
+    const object = vocabulary.class({ iri: "object" });
+
+    const human = vocabulary.class({ iri: "human" });
+
+    const name = human.property({
+      iri: "name",
+      name: { "en": "name" },
+      range: xsdString,
     });
 
-    // FOAF
-    const foaf = createDefaultSemanticModelBuilder(
-      "http://xmlns.com/foaf/0.1/");
-    const foafHomepage = foaf.property({
-      iri: "homepage",
-      name: { "en": "homepage" },
-      externalDocumentationUrl:
-        "https://semiceu.github.io/DCAT-AP/releases/3.0.0#Catalogue.homepage",
-    });
-    const foafDocument = foaf.class({
-      iri: "Document",
-      name: { "en": "Document" },
+    const has = human.property({
+      iri: "has",
+      name: { "en": "has" },
+      range: object,
     });
 
-    // DCAT-DEFAULT
-    const dap = createDefaultProfileModelBuilder(
-      "https://mff-uk.github.io/specifications/dcat-dap/#");
-    const dapCatalog = dap.class({
-      iri: "Catalog",
-      usageNote: { "en": "A Web-based data catalog ..." },
-    }).reuseName(dcatCatalog);
-    const dapDocument = dap.class({
-      iri: "Document",
-    }).reuseName(foafDocument);
-    const dapHomepage = dap.property({
-      iri: "Catalog.homepage",
-      usageNote: { "en": "foaf:homepage is an inverse functional property" },
-    }).reuseName(foafHomepage)
-      .domain(dapCatalog).range(dapDocument);
+    // Profile
 
-    // DCAT-AP
-    const ap = createDefaultProfileModelBuilder(
-      "https://mff-uk.github.io/specifications/dcat-ap/#");
-    const apCatalog = ap.class({
-      iri: "Catalogue",
-    }).reuseName(dapCatalog).reuseUsageNote(dapCatalog);
-    const apDocument = ap.class({
-      iri: "Document",
-    }).reuseName(dapDocument);
-    ap.property({
-      iri: "Catalogue.homepage",
-      cardinality: [0, 1],
-    }).reuseName(dapHomepage).reuseUsageNote(dapHomepage)
-      .domain(apCatalog).range(apDocument);
+    const profile = createDefaultProfileModelBuilder(
+      "http://example.com/profile#");
 
-    // This should copy or reference all rules for "apCatalog".
-    const apMyCatalog = ap.class({
-      iri: "MyCatalog",
-      name: {"en": "My Catalog"},
-    });
-    ap.generalization(apCatalog, apMyCatalog);
+    const objectProfile = profile.class({ iri: "object" })
+      .reuseName(object);
+
+    const humanProfile = profile.class({ iri: "human" })
+      .reuseName(human);
+
+    profile.property({ iri: "name" })
+      .reuseName(name)
+      .domain(humanProfile)
+      .range(xsdStringProfile);
+
+    profile.property({ iri: "has" })
+      .reuseName(has)
+      .domain(humanProfile)
+      .range(objectProfile);
+
+    // Prepare SHACL
 
     const shacl = createShaclForProfile(
-      [dcat.build(), foaf.build()],
-      [dap.build(), ap.build()],
-      ap.build());
+      [xsd.build(), vocabulary.build()],
+      [xsdProfile.build()],
+      profile.build());
 
-    console.log(await shaclToRdf(shacl, {}));
+    //
 
-    // <https://semiceu.github.io/DCAT-AP/releases/3.0.0/shacl/dcat-ap-SHACL.ttl#dcat:CatalogShape>
-    //  shacl:targetClass dcat:Catalog .
+    expect(shacl.members.length).toBe(2);
+
+    expect(shacl.members[0]!.targetClass)
+      .toStrictEqual("http://example.com/vocabulary#object");
+
+    const humanShape = shacl.members[1]!;
+    expect(humanShape.targetClass)
+      .toStrictEqual("http://example.com/vocabulary#human");
+
+    expect(humanShape.propertyShapes.length).toBe(1);
+
+    const hasShape = humanShape.propertyShapes[0]!;
+    expect(hasShape.seeAlso)
+      .toStrictEqual("http://example.com/profile#name");
+    expect(hasShape.datatype)
+      .toStrictEqual("http://www.w3.org/2001/XMLSchema#string");
+
+    // console.log(await shaclToRdf(shacl, {}));
+  });
+
+  test("Implementation test II.", async () => {
+    const entities = {
+      "qrd5yim41smb6nx2r2": {
+        "iri": "Citizen",
+        "name": { "en": "Citizen" },
+        "description": {},
+        "externalDocumentationUrl": null,
+        "id": "qrd5yim41smb6nx2r2",
+        "type": ["class"],
+      },
+      "jrn5jfw8rt9mb6nxmyd": {
+        "ends": [{
+          "iri": null,
+          "name": {},
+          "description": {},
+          "concept": "qrd5yim41smb6nx2r2",
+          "externalDocumentationUrl": null
+        }, {
+          "name": { "en": "name" },
+          "description": {},
+          "concept": "http://www.w3.org/2000/01/rdf-schema#Literal",
+          "iri": "name",
+          "externalDocumentationUrl": ""
+        }],
+        "id": "jrn5jfw8rt9mb6nxmyd",
+        "type": ["relationship"],
+        "iri": null,
+        "name": {},
+        "description": {}
+      }, "1fhzbd9vmycmb7rmuqz": {
+        "iri": "Citizen",
+        "profiling": ["qrd5yim41smb6nx2r2"],
+        "name": { "en": "Citizen" },
+        "nameFromProfiled": "qrd5yim41smb6nx2r2",
+        "description": {},
+        "descriptionFromProfiled": "qrd5yim41smb6nx2r2",
+        "usageNote": {},
+        "usageNoteFromProfiled": null,
+        "externalDocumentationUrl": null,
+        "tags": [],
+        "id": "1fhzbd9vmycmb7rmuqz",
+        "type": ["class-profile"]
+      }, "vjtwpvl3q9mb7rnje4": {
+        "ends": [{
+          "name": null,
+          "nameFromProfiled": null,
+          "description": null,
+          "descriptionFromProfiled": null,
+          "iri": null,
+          "cardinality": null,
+          "usageNote": null,
+          "usageNoteFromProfiled": null,
+          "profiling": [],
+          "externalDocumentationUrl": null,
+          "tags": [],
+          "concept": "1fhzbd9vmycmb7rmuqz"
+        }, {
+          "name": { "": "Undefined" },
+          "nameFromProfiled": "jrn5jfw8rt9mb6nxmyd",
+          "description": {},
+          "descriptionFromProfiled": "jrn5jfw8rt9mb6nxmyd",
+          "iri": "Citizen.",
+          "cardinality": null,
+          "usageNote": {},
+          "usageNoteFromProfiled": null,
+          "profiling": ["jrn5jfw8rt9mb6nxmyd"],
+          "externalDocumentationUrl": null,
+          "tags": [],
+          "concept": "http://www.w3.org/2000/01/rdf-schema#Literal"
+        }],
+        "id": "vjtwpvl3q9mb7rnje4",
+        "type": ["relationship-profile"]
+      }
+    };
+
+    const model = createReadOnlyInMemorySemanticModel(
+      "https://example/",
+      createReadOnlyInMemoryEntityModel("example-model", entities));
+
+    const shacl = createShaclForProfile([model], [model], model);
+
   });
 
 });
+
+// tak idealne zacit nejakym casem bez opakovani trid a bez vicenasobnyho profilovani
+
+// mit tam ty 4 typy kardinalit vlastnosti
+
+// zohlednit recommended, pokud je nastaven, a udelat warning pokud neni hodnota

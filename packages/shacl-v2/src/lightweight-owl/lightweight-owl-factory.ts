@@ -1,31 +1,62 @@
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship, SemanticModel } from "../semantic-model/index.ts";
-import { OwlOntology, OwlClass, OwlProperty, IRI, OwlPropertyType } from "./lightweight-owl-model.ts";
-import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
-import { isComplexType, isPrimitiveType } from "@dataspecer/core-v2/semantic-model/datatypes";
+import {
+  isSemanticModelClass,
+  isSemanticModelGeneralization,
+  isSemanticModelRelationship,
+  SemanticModel,
+} from "../semantic-model/index.ts";
+import {
+  OwlOntology,
+  OwlClass,
+  OwlProperty,
+  IRI,
+  OwlPropertyType,
+} from "./lightweight-owl-model.ts";
+import {
+  getDomainAndRange,
+} from "@dataspecer/core-v2/semantic-model/relationship-utils";
+import {
+  isComplexType,
+  isPrimitiveType,
+} from "@dataspecer/core-v2/semantic-model/datatypes";
+import {
+  InMemorySemanticModel,
+} from "@dataspecer/core-v2/semantic-model/in-memory";
 
 const OWL_THING = "http://www.w3.org/2002/07/owl#Thing";
 
-export function semanticModelToLightweightOwl(
-  semanticModel: SemanticModel,
-  context: {
-    idDefinedBy: string,
-  }
-): OwlOntology {
-  const baseIri = semanticModel instanceof InMemorySemanticModel
-    ? semanticModel.getBaseIri() : "";
+interface Context {
 
+  idDefinedBy: string;
+
+  baseIri: string;
+
+}
+
+/**
+ * The {@link referenceSemanticModels} should contain all entities referenced
+ * from, but absent in, {@link semanticModels}.
+ *
+ * When multiple {@link SemanticModel} contain the same entity,
+ * the last version of the entity is used.
+ */
+export function semanticModelToLightweightOwl(
+  referenceSemanticModels: SemanticModel[],
+  semanticModels: SemanticModel[],
+  context: Context,
+): OwlOntology {
   // We start by processing classes as they are referenced from
   // properties and generalizations.
   const { classes, classMapId } = prepareOwlClasses(
-    semanticModel, baseIri, context.idDefinedBy);
+    referenceSemanticModels, semanticModels, context);
 
   // Next we load relationships.
   const { properties, propertyMapId } = prepareOwlProperties(
-    semanticModel, baseIri, context.idDefinedBy);
+    referenceSemanticModels, semanticModels, context, classMapId);
 
   // Last we load generalizations.
-  loadGeneralizations(semanticModel, classMapId, propertyMapId);
+  for (const semanticModel of semanticModels) {
+    loadGeneralizationsInto(semanticModel, classMapId, propertyMapId);
+  }
 
   return {
     classes,
@@ -34,15 +65,49 @@ export function semanticModelToLightweightOwl(
 }
 
 function prepareOwlClasses(
-  semanticModel: SemanticModel,
-  baseIri: string,
-  idDefinedBy: string,
+  referenceSemanticModels: SemanticModel[],
+  semanticModels: SemanticModel[],
+  context: Context,
 ): {
   classes: OwlClass[],
   classMapId: { [identifier: string]: OwlClass },
 } {
-  const classes: OwlClass[] = [];
+  // First we add data from referenced models.
   const classMapId: { [identifier: string]: OwlClass } = {};
+  for (const model of referenceSemanticModels) {
+    const baseIri = selectBaseIri(model, context);
+    loadOwlClassesInto(
+      model, context.idDefinedBy, baseIri, [], classMapId);
+  }
+
+  // Next we add from other models, here we also store classes to result.
+  const classes: OwlClass[] = [];
+  for (const model of semanticModels) {
+    const baseIri = selectBaseIri(model, context);
+    loadOwlClassesInto(
+      model, context.idDefinedBy, baseIri, classes, classMapId);
+  }
+
+  return { classes, classMapId };
+}
+
+function selectBaseIri(model: SemanticModel, context: Context): string {
+  if (model instanceof InMemorySemanticModel) {
+    return model.getBaseIri();
+  }
+  if ((model as any).getBaseIri !== undefined) {
+    return (model as any).getBaseIri();
+  }
+  return context.baseIri;
+}
+
+function loadOwlClassesInto(
+  semanticModel: SemanticModel,
+  idDefinedBy: string,
+  baseIri: string,
+  classes: OwlClass[],
+  classMapId: { [identifier: string]: OwlClass },
+): void {
   for (const entity of Object.values(semanticModel.getEntities())) {
     if (!isSemanticModelClass(entity)) {
       continue;
@@ -57,19 +122,58 @@ function prepareOwlClasses(
     classes.push(newClass);
     classMapId[entity.id] = newClass;
   }
-  return { classes, classMapId };
 }
 
 function prepareOwlProperties(
-  semanticModel: SemanticModel,
-  baseIri: string,
-  idDefinedBy: string,
+  referenceSemanticModels: SemanticModel[],
+  semanticModels: SemanticModel[],
+  context: Context,
+  classMapId: { [identifier: string]: OwlClass },
 ): {
   properties: OwlProperty[],
   propertyMapId: { [identifier: string]: OwlProperty },
 } {
-  const properties: OwlProperty[] = [];
+  // First we add data from referenced models.
   const propertyMapId: { [identifier: string]: OwlProperty } = {};
+  for (const model of referenceSemanticModels) {
+    const baseIri = selectBaseIri(model, context);
+    loadOwlPropertiesInto(
+      model, context.idDefinedBy, baseIri, classMapId, [], propertyMapId);
+  }
+
+  // Next we add from other models, here we also store classes to result.
+  const properties: OwlProperty[] = [];
+  for (const model of semanticModels) {
+    const baseIri = selectBaseIri(model, context);
+    loadOwlPropertiesInto(
+      model, context.idDefinedBy, baseIri, classMapId, properties,
+      propertyMapId);
+  }
+
+  return { properties, propertyMapId };
+}
+
+
+function loadOwlPropertiesInto(
+  semanticModel: SemanticModel,
+  idDefinedBy: string,
+  baseIri: string,
+  classMapId: { [identifier: string]: OwlClass },
+  properties: OwlProperty[],
+  propertyMapId: { [identifier: string]: OwlProperty },
+): void {
+
+  /**
+   * Retrieve and return IRI of identified entity.
+   */
+  const resolveIri = (identifier: string | null | undefined): string => {
+    if (identifier === null || identifier === undefined) {
+      return OWL_THING;
+    }
+    const owlClass = classMapId[identifier];
+    return owlClass?.iri ?? identifier ?? OWL_THING;
+  };
+
   for (const entity of Object.values(semanticModel.getEntities())) {
     if (!isSemanticModelRelationship(entity)) {
       continue;
@@ -78,21 +182,20 @@ function prepareOwlProperties(
     const domainEnd = ends?.domain;
     const rangeEnd = ends?.range;
     const iri = baseIri + (rangeEnd?.iri ?? entity.iri ?? entity.id);
-    const range = rangeEnd?.concept ?? OWL_THING;
+    const range = resolveIri(rangeEnd?.concept);
     const newProperty: OwlProperty = {
       iri,
       name: rangeEnd?.name ?? {},
       description: rangeEnd?.description ?? {},
       isDefinedBy: idDefinedBy,
       subPropertyOf: [],
-      domain: domainEnd?.concept ?? OWL_THING,
+      domain: resolveIri(domainEnd?.concept),
       range,
       type: determineType(range),
     };
     properties.push(newProperty);
     propertyMapId[entity.id] = newProperty;
   }
-  return { properties, propertyMapId };
 }
 
 function determineType(range: IRI): OwlPropertyType | null {
@@ -108,7 +211,7 @@ function determineType(range: IRI): OwlPropertyType | null {
   }
 }
 
-function loadGeneralizations(
+function loadGeneralizationsInto(
   semanticModel: SemanticModel,
   classMapId: { [identifier: string]: OwlClass },
   propertyMapId: { [identifier: string]: OwlProperty },
