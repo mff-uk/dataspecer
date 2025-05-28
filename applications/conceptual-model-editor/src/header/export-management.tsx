@@ -3,7 +3,7 @@ import { generate } from "@dataspecer/core-v2/semantic-model/lightweight-owl";
 import type { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
 import { BackendPackageService } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
-import type { EntityModel } from "@dataspecer/core-v2/entity-model";
+import { InMemoryEntityModel, type Entities, type Entity, type EntityModel } from "@dataspecer/core-v2/entity-model";
 import type { VisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { type ExportedConfigurationType, modelsToWorkspaceString, useLocalStorage } from "../features/export/export-utils";
 import { useModelGraphContext } from "../context/model-context";
@@ -15,6 +15,7 @@ import { useQueryParamsContext } from "../context/query-params-context";
 import * as DataSpecificationVocabulary from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
 import { isInMemorySemanticModel } from "../utilities/model";
 import { createShaclForProfile, shaclToRdf } from "@dataspecer/shacl-v2";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 
 export const ExportManagement = () => {
   const { aggregator, aggregatorView, models, visualModels, setAggregatorView, replaceModels } =
@@ -160,11 +161,11 @@ export const ExportManagement = () => {
     const profileModels = [...models.values()];
     const topProfileModel = profileModels[0];
 
-    console.log({semanticModels, profileModels, topProfileModel});
+    console.log({ semanticModels, profileModels, topProfileModel });
 
     const shacl = createShaclForProfile(
-      semanticModels, profileModels, topProfileModel);
-    console.log("SHACL model:", shacl);
+      semanticModels.map(model => new SemanticModelWrap(model)),
+      profileModels, topProfileModel);
 
     shaclToRdf(shacl, {
       prettyPrint: true,
@@ -195,3 +196,46 @@ export const ExportManagement = () => {
     </div>
   );
 };
+
+class SemanticModelWrap implements EntityModel {
+
+  readonly baseIri: string;
+
+  readonly model: EntityModel;
+
+  constructor(model: EntityModel) {
+    if (model instanceof InMemorySemanticModel) {
+      this.baseIri = model.getBaseIri();
+    } else {
+      this.baseIri = "";
+    }
+    this.model = model;
+  }
+
+  getEntities(): Entities {
+    return this.model.getEntities();
+  }
+
+  subscribeToChanges(
+    callback: (updated: Record<string, Entity>, removed: string[]) => void,
+  ): () => void {
+    return this.model.subscribeToChanges(callback);
+  }
+
+  getId(): string {
+    return this.model.getId();
+  }
+
+  getAlias(): string | null {
+    return this.model.getAlias();
+  }
+
+  setAlias(alias: string | null): void {
+    return this.model.setAlias(alias);
+  }
+
+  getBaseIri(): string {
+    return this.baseIri;
+  }
+
+}
