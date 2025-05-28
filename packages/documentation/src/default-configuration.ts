@@ -272,7 +272,7 @@ export const defaultConfiguration: DocumentationConfiguration = {
     <p>{{#iflng "cs"}}Zpětné asociace{{lng}}Backwards associations{{/iflng}}</p>
     <ul>
       {{#each backwardsRelationships}}
-        <li><a href="{{{href id}}}"></a></li>
+        <li>{{#iflng "cs"}}z domény{{lng}}from domain{{/iflng}} <a href="{{{href ends.0.concept}}}"></a> → <a href="{{{href id}}}"></a></li>
       {{/each}}
     </ul>
   {{/if}}
