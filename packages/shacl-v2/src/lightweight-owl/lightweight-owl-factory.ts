@@ -230,7 +230,7 @@ function loadGeneralizationsInto(
     const propertyChild = propertyMapId[entity.child];
     if (propertyChild !== undefined) {
       const parent = propertyMapId[entity.parent]?.iri ?? entity.parent;
-      classChild.subClassOf.push(parent);
+      propertyChild.subClassOf.push(parent);
     }
   }
 }
