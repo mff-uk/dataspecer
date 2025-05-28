@@ -222,13 +222,13 @@ function loadGeneralizationsInto(
     }
     // We can have generalization of a class ...
     const classChild = classMapId[entity.child];
-    if (classChild !== null) {
+    if (classChild !== undefined) {
       const parent = classMapId[entity.parent]?.iri ?? entity.parent;
       classChild.subClassOf.push(parent);
     }
     // or a property.
     const propertyChild = propertyMapId[entity.child];
-    if (propertyChild !== null) {
+    if (propertyChild !== undefined) {
       const parent = propertyMapId[entity.parent]?.iri ?? entity.parent;
       classChild.subClassOf.push(parent);
     }
