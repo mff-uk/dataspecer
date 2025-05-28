@@ -16,6 +16,7 @@
     "@dataspecer/core": "*",
     "@dataspecer/core-v2": "^0.0.0",
     "@dataspecer/layout": "0.0.0",
+    "@dataspecer/shacl-v2": "^0.0.0",
     "@eslint/js": "^9.23.0",
     "@hello-pangea/dnd": "18.0.1",
     "@radix-ui/react-slot": "^1.1.2",

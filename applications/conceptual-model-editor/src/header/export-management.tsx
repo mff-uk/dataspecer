@@ -14,6 +14,7 @@ import { ExportButton } from "../components/management/buttons/export-button";
 import { useQueryParamsContext } from "../context/query-params-context";
 import * as DataSpecificationVocabulary from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
 import { isInMemorySemanticModel } from "../utilities/model";
+import { createShaclForProfile, shaclToRdf } from "@dataspecer/shacl-v2";
 
 export const ExportManagement = () => {
   const { aggregator, aggregatorView, models, visualModels, setAggregatorView, replaceModels } =
@@ -154,6 +155,26 @@ export const ExportManagement = () => {
       .catch(console.error);
   };
 
+  const handleGenerateProfileShacl = () => {
+    const semanticModels = [...models.values()];
+    const profileModels = [...models.values()];
+    const topProfileModel = profileModels[0];
+
+    console.log({semanticModels, profileModels, topProfileModel});
+
+    const shacl = createShaclForProfile(
+      semanticModels, profileModels, topProfileModel);
+    console.log("SHACL model:", shacl);
+
+    shaclToRdf(shacl, {
+      prettyPrint: true,
+    }).then(shaclAsRdf => {
+      console.log(shaclAsRdf);
+      const date = Date.now();
+      download(shaclAsRdf, `shacl-profile-${date}.ttl`, "text/plain");
+    });
+  };
+
   return (
     <div className="my-auto mr-2 flex flex-row">
       <ExportButton title="Open workspace from configuration file" onClick={handleLoadWorkspaceFromJson}>
@@ -167,6 +188,9 @@ export const ExportManagement = () => {
       </ExportButton>
       <ExportButton title="Generate DSV (application profile)" onClick={handleGenerateDataSpecificationVocabulary}>
         💾dsv
+      </ExportButton>
+      <ExportButton title="Generate SHACL for profile" onClick={handleGenerateProfileShacl}>
+        💾shacl
       </ExportButton>
     </div>
   );
