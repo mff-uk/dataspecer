@@ -10,7 +10,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
-import { findAnyWritableModelFromRawInput } from "../cme-model/cme-model-utilities";
+import { findAnyWritableModelFromRawInput } from "../dataspecer/cme-model/cme-model-utilities";
 import { CmeSemanticModel } from "../dataspecer/cme-model";
 import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 import { ClassProfileDialogState, createNewProfileClassDialogState } from "../dialog/class-profile/edit-class-profile-dialog-state";
