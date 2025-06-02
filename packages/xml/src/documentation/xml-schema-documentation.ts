@@ -13,15 +13,15 @@ import {
   XmlSchemaElement,
   XmlSchemaType,
   xmlSchemaTypeIsComplex,
-} from "./xml-schema-model.ts";
+} from "../xml-schema/xml-schema-model.ts";
 import { ArtefactGeneratorContext } from "@dataspecer/core/generator/artefact-generator-context";
 import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
-import { QName } from "../conventions.ts";
-import { NEW_DOC_GENERATOR } from "./xml-schema-generator.ts";
+import { NEW_DOC_GENERATOR } from "../xml-schema/xml-schema-generator.ts";
 import { getMustacheView } from "@dataspecer/documentation";
 import { HandlebarsAdapter } from "../../../handlebars-adapter/lib/interface.js";
-import { MAIN_XML_PARTIAL } from "../documentation/index.ts";
+import { MAIN_XML_PARTIAL } from "./index.ts";
 import { StructureModelClass } from "@dataspecer/core/structure-model/model/structure-model-class";
+import { internalMergeDocumentationConfigurations } from "@dataspecer/documentation/configuration";
 
 /**
  * Recursively traverses the complex content container and returns all elements.
@@ -113,30 +113,7 @@ function traverseXmlSchemaComplexItem(complexItem: XmlSchemaComplexItem, path: (
   return elements;
 }
 
-export function generateDocumentation(
-  documentationArtifact: DataSpecificationArtefact,
-  xmlSchema: XmlSchema,
-  conceptualModel: ConceptualModel,
-  context: ArtefactGeneratorContext,
-  artefact: DataSpecificationArtefact,
-  specification: DataSpecification,
-  partial: (template: string) => string,
-  adapter: HandlebarsAdapter,
-): Promise<object> {
-  const generator = new XmlSchemaDocumentationGenerator(
-    documentationArtifact,
-    xmlSchema,
-    conceptualModel,
-    context,
-    artefact,
-    specification,
-    partial,
-    adapter,
-  );
-  return generator.generateToObject();
-}
-
-class XmlSchemaDocumentationGenerator {
+export class XmlSchemaDocumentationGenerator {
   private documentationArtifact: DataSpecificationArtefact;
   private xmlSchema: XmlSchema;
   private conceptualModel: ConceptualModel;
@@ -166,24 +143,36 @@ class XmlSchemaDocumentationGenerator {
     this.adapter = adapter;
   }
 
-  private getElementUniqueId(element: XmlSchemaElement | XmlSchemaType, forceNamespace?: string): string {
+  /**
+   * For given element or type, that is either local or in the external schema,
+   * it returns a unique, human-readable ID that can be used in the
+   * documentation as an anchor.
+   */
+  private getElementUniqueId(element: XmlSchemaElement | XmlSchemaType): string {
     const isElementNotType = element.entityType === "element";
     const type = isElementNotType ? "element" : "type";
 
-    let additionalPrefix = "";
-    if (element.name[1] === "iri") {
-      // @ts-ignore
-      const parentElement = element.parentEntityInDocumentation as XmlSchemaElement | XmlSchemaType;
-      if (parentElement) {
-        additionalPrefix = this.getElementUniqueId(parentElement) + "-";
-      }
+    const parentChain = [element];
+    let parentChainElementLookup = element;
+    // @ts-ignore
+    while (parentChainElementLookup = parentChainElementLookup.parentEntityInDocumentation as XmlSchemaElement | XmlSchemaType) {
+      parentChain.unshift(parentChainElementLookup);
     }
 
-    const fns = forceNamespace ? `${forceNamespace}:` : "";
+    let forceNamespacePrefix = "";
+    if (this.xmlSchema.targetNamespacePrefix && element.name[0] === null) {
+      forceNamespacePrefix = this.xmlSchema.targetNamespacePrefix + ":";
+    }
 
-    const name = element.name;
-    const ns = name[0] ? `${name[0]}:` : fns;
-    return `${additionalPrefix}${type}-${ns}${name[1]}`;
+    let id = type;
+
+    for (const parent of parentChain) {
+      const name = parent.name;
+      const ns = name[0] ? `${name[0]}:` : forceNamespacePrefix;
+      id += `-${ns}${name[1]}`;
+    }
+
+    return id;
   }
 
   async generateToObject(): Promise<object> {
@@ -198,11 +187,6 @@ class XmlSchemaDocumentationGenerator {
      * Generates a local anchor tag (string that does not start with a hash) for element or type.
      */
     result["xml-id-anchor"] = (element: XmlSchemaElement | XmlSchemaType) => {
-      const name = element.name;
-      if (name[0] === null && this.xmlSchema.targetNamespacePrefix) {
-        return this.getElementUniqueId(element, this.xmlSchema.targetNamespacePrefix);
-      }
-
       return this.getElementUniqueId(element);
     };
 
@@ -242,9 +226,7 @@ class XmlSchemaDocumentationGenerator {
         // This is link to an external element
         return prefixToNamespace[possibleOutsideReferenceName[0]] + possibleOutsideReferenceName[1];
       }
-      if (possibleOutsideReferenceName[0] === null && this.xmlSchema.targetNamespacePrefix) {
-        return "#" + this.getElementUniqueId(element, this.xmlSchema.targetNamespacePrefix);
-      }
+
       return "#" + this.getElementUniqueId(element);
     };
 

@@ -8,11 +8,11 @@ import { ArtefactGenerator, ArtefactGeneratorContext } from "@dataspecer/core/ge
 import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
 import { defaultStructureTransformations, structureModelTransformCodelists, transformStructureModel } from "@dataspecer/core/structure-model/transformation";
 import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties.ts";
-import { generateDocumentation } from "./xml-schema-documentation.ts";
 import { structureModelToXmlSchema } from "./xml-schema-model-adapter.ts";
 import { XML_SCHEMA } from "./xml-schema-vocabulary.ts";
 import { writeXmlSchema } from "./xml-schema-writer.ts";
 import { HandlebarsAdapter } from "../../../handlebars-adapter/lib/interface.js";
+import { XmlSchemaDocumentationGenerator } from "../documentation/xml-schema-documentation.ts";
 
 export const NEW_DOC_GENERATOR = "https://schemas.dataspecer.com/generator/template-artifact";
 
@@ -92,8 +92,10 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
       };
       const {xmlSchema, conceptualModel} = await this.generateToObject(context, artefact, specification);
 
-      const generatedDocumentation = await generateDocumentation(documentationArtefact, xmlSchema, conceptualModel, context, artefact, specification, partial, adapter);
-      return generatedDocumentation;
+      const generator = new XmlSchemaDocumentationGenerator(
+        documentationArtefact, xmlSchema, conceptualModel, context, artefact, specification, partial, adapter
+      );
+      return generator.generateToObject();
     }
     return null;
   }
