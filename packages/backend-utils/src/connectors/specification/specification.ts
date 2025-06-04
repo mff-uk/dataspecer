@@ -171,24 +171,6 @@ export class StructureEditorBackendService extends BackendPackageService {
     await this.setResourceJsonData(dataSpecificationId, model);
   }
 
-  /**
-   * @deprecated
-   */
-  public async updateLocalSemanticModelIds(dataSpecificationId: string, localSemanticModelIds: string[]): Promise<void> {
-    const model = await this.getResourceJsonData(dataSpecificationId) as any ?? {};
-    model.localSemanticModelIds = localSemanticModelIds;
-    await this.setResourceJsonData(dataSpecificationId, model);
-  }
-
-  /**
-   * @deprecated
-   */
-  public async updateSourceSemanticModelIds(dataSpecificationId: string, sourceSemanticModelIds: string[]): Promise<void> {
-    const model = await this.getResourceJsonData(dataSpecificationId) as any ?? {};
-    model.sourceSemanticModelIds = sourceSemanticModelIds;
-    await this.setResourceJsonData(dataSpecificationId, model);
-  }
-
   public async updateDefaultModelCompositionConfiguration(dataSpecificationId: string, modelCompositionConfiguration: any): Promise<void> {
     const model = await this.getResourceJsonData(dataSpecificationId) as any ?? {};
     model.modelCompositionConfiguration = modelCompositionConfiguration;
@@ -238,44 +220,6 @@ export class StructureEditorBackendService extends BackendPackageService {
       entityModels.push(model);
     }
     return entityModels;
-  }
-
-  // FROM LEGACY CONNECTOR
-
-  public async doGarbageCollection(dataSpecificationIri: string): Promise<object | false> {
-    const data = await fetch(this.backendUrl + "/data-specification/garbage-collection", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        dataSpecificationIri: dataSpecificationIri,
-      }),
-    });
-
-    if (data.status !== 200) {
-      throw new Error("Garbage collection failed");
-    }
-
-    return await data.json() as object;
-  }
-
-  public async doConsistencyFix(dataSpecificationIri: string): Promise<object | false> {
-    const data = await fetch(this.backendUrl + "/data-specification/consistency-fix", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        dataSpecificationIri: dataSpecificationIri,
-      }),
-    });
-
-    if (data.status !== 200) {
-      throw new Error("Consistency fix failed");
-    }
-
-    return await data.json() as object;
   }
 
   /**
@@ -343,23 +287,6 @@ export class StructureEditorBackendService extends BackendPackageService {
     return this.getDataSpecification(pckg.iri);
   }
 
-  public async cloneDataSpecification(dataSpecificationIri: string, metadata: {label?: LanguageString, tags?: string[]}): Promise<DataSpecification & Package> {
-    await this.copyRecursively(dataSpecificationIri, this.packageRoot, metadata);
-    return this.getDataSpecification(dataSpecificationIri);
-  }
-
-  public async deleteDataSpecification(dataSpecificationIri: string): Promise<void> {
-    await fetch(this.backendUrl + "/data-specification", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        dataSpecificationIri: dataSpecificationIri,
-      }),
-    });
-  }
-
   public async createDataStructure(dataSpecificationIri: string): Promise<{
     dataSpecification: DataSpecification & Package,
     createdPsmSchemaIri: string,
@@ -392,30 +319,4 @@ export class StructureEditorBackendService extends BackendPackageService {
     };
   }
 
-  public async deleteDataStructure(dataSpecificationIri: string, dataPsmSchemaIri: string): Promise<void> {
-    await fetch(this.backendUrl + "/data-specification/data-psm", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        dataSpecificationIri,
-        dataPsmSchemaIri,
-      }),
-    });
-  }
-
-  public async importSpecifications(dataSpecifications: Record<string, object>, specificationsToImport: Record<string, string>, store: Record<string, CoreResource>): Promise<void> {
-    await fetch(this.backendUrl + "/import", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        dataSpecifications,
-        specificationsToImport,
-        store,
-      }),
-    });
-  }
 }

@@ -10,10 +10,10 @@ export async function migratePR419() {
     const dataStructures = await prisma.$queryRaw`SELECT * FROM DataStructure` as any[];
     const reuses = await prisma.$queryRaw`SELECT * FROM _DataSpecificationReuse` as any[];
     prisma.$disconnect();
-    
+
     const storeModel = new LocalStoreModel("./database/stores");
     const adapter = new ResourceModel(storeModel, prisma);
-    
+
     if (await adapter.getPackage(ROOT_PACKAGE_FOR_V1)) {
         if (process.argv[3] !== "--force") {
             throw new Error("Root package for model v1 already exists. Use --force to overwrite. Aborting.");
@@ -24,7 +24,7 @@ export async function migratePR419() {
     }
 
     await createV1RootModel(adapter);
-    
+
     for (const dataSpecification of dataSpecifications) {
         console.log(`Migrating data specification ${dataSpecification.id}`);
         try {
@@ -34,27 +34,27 @@ export async function migratePR419() {
             const pim = JSON.parse(pimBuffer!.toString());
             const label = pim.resources[dataSpecification.pimSchema].pimHumanLabel;
             const description = pim.resources[dataSpecification.pimSchema].pimHumanDescription;
-            
+
             // Data specification
             await adapter.createPackage(ROOT_PACKAGE_FOR_V1, dataSpecification.id, {
                 label,
                 description,
                 tags: JSON.parse(dataSpecification.tags)
             });
-            
+
             // Package metadata
             const packageStore = await adapter.getOrCreateResourceModelStore(dataSpecification.id);
             await packageStore.setJson({
                 dataStructuresImportPackages: reuses.filter(r => r.A === dataSpecification.id).map(r => r.B),
             });
-            
+
             // Generator configuration
             {
                 await adapter.createResource(dataSpecification.id, dataSpecification.id + "/default-generator-configuration", V1.GENERATOR_CONFIGURATION, {});
                 const store = await adapter.getOrCreateResourceModelStore(dataSpecification.id + "/default-generator-configuration");
                 await store.setString(dataSpecification.artifactsConfiguration);
             }
-            
+
             // CIM
             {
                 await adapter.createResource(dataSpecification.id, dataSpecification.id + "/cim", V1.CIM, {});
@@ -63,11 +63,11 @@ export async function migratePR419() {
                     models: JSON.parse(dataSpecification.cimAdapters),
                 });
             }
-            
+
             // PIM
             await adapter.createResource(dataSpecification.id, dataSpecification.pimSchema, V1.PIM, {});
             await adapter.assignExistingStoreToResource(dataSpecification.pimSchema, dataSpecification.storeId);
-            
+
             // PSM
             const structures = dataStructures.filter(ds => ds.belongsToDataSpecificationId === dataSpecification.id);
             for (const structure of structures) {
@@ -75,7 +75,7 @@ export async function migratePR419() {
                 const psm = JSON.parse(psmBuffer!.toString());
                 const label = psm.resources[structure.psmSchema].dataPsmHumanLabel;
                 const description = psm.resources[structure.psmSchema].dataPsmHumanDescription;
-                
+
                 await adapter.createResource(dataSpecification.id, structure.psmSchema, V1.PSM, {
                     label,
                     description,

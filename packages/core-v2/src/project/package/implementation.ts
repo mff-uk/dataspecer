@@ -2,7 +2,7 @@ import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
 import { EntityModel } from "../../entity-model/index.ts";
 import { HttpEntityModel } from "../../entity-model/http-entity-model.ts";
 import { LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL } from "../../model/known-models.ts";
-import { createPimModel, createRdfsModel, createSgovModel } from "../../semantic-model/simplified/index.ts";
+import { createRdfsModel, createSgovModel } from "../../semantic-model/simplified/index.ts";
 import { createInMemorySemanticModel } from "../../semantic-model/simplified/in-memory-semantic-model.ts";
 import { createVisualModel } from "../../semantic-model/simplified/visual-model.ts";
 import { PimStoreWrapper } from "../../semantic-model/v1-adapters/index.ts";
@@ -333,13 +333,6 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
             if (modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/sgov") {
                 const model = createSgovModel("https://slovník.gov.cz/sparql", this.httpFetch);
                 await model.unserializeModel(modelDescriptor);
-                constructedEntityModels.push(model);
-            } else if (modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/pim") {
-                const model = await createPimModel(
-                    modelDescriptor.backendUrl,
-                    modelDescriptor.dataSpecificationIri,
-                    this.httpFetch
-                );
                 constructedEntityModels.push(model);
             } else if (modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/rdfs") {
                 const model = await createRdfsModel(modelDescriptor.urls, this.httpFetch);

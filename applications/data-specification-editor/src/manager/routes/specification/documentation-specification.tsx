@@ -202,21 +202,10 @@ export const DocumentationSpecification = memo(() => {
             <LoadingButton onClick={() => generateZip(configuration.id, true)} loading={zipLoading !== false}>
               {t("generate zip file with relative paths")}
             </LoadingButton>
-            <Button variant="contained" href={import.meta.env.VITE_BACKEND + "/generate?iri=" + encodeURIComponent(dataSpecificationIri)}>
-              Generate sample application
-            </Button>
           </Box>
         ))}
 
       <ConceptualModelTargets />
-
-      {/* <Typography variant="h5" component="div" gutterBottom sx={{mt: 5}}>
-            Advanced
-        </Typography>
-
-        <GarbageCollection dataSpecificationIri={dataSpecificationIri} />
-        <ConsistencyFix dataSpecificationIri={dataSpecificationIri} />
-        <UpdatePim dataSpecificationIri={dataSpecificationIri} /> */}
 
       <RedirectDialog isOpen={redirecting} />
       <DeleteForm.Component />

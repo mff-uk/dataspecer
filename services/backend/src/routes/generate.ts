@@ -1,27 +1,24 @@
-import { DataSpecificationWithMetadata, DataSpecificationWithStores } from "@dataspecer/backend-utils/interfaces";
 import { StoreDescriptor } from "@dataspecer/backend-utils/store-descriptor";
 import { CoreResourceReader } from "@dataspecer/core/core/core-reader";
 import { LanguageString, ReadOnlyFederatedStore } from "@dataspecer/core/core/index";
-import { DataSpecification } from "@dataspecer/core/data-specification/model/data-specification";
+import { httpFetch } from "@dataspecer/core/io/fetch/fetch-nodejs";
 import { InputStream } from "@dataspecer/core/io/stream/input-stream";
 import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
+import { generateSpecification } from "@dataspecer/specification";
 import express from "express";
 import { z } from "zod";
 import configuration from "../configuration.ts";
 import { DefaultArtifactBuilder } from "../generate/default-artifact-builder.ts";
 import { ZipStreamDictionary } from "../generate/zip-stream-dictionary.ts";
-import { dataSpecificationModel, resourceModel, storeModel } from "../main.ts";
-import { LocalStore } from "../models/local-store.ts";
+import { resourceModel, storeModel } from "../main.ts";
 import { LocalStoreDescriptor } from "../models/local-store-descriptor.ts";
+import { LocalStore } from "../models/local-store.ts";
 import { asyncHandler } from "../utils/async-handler.ts";
-import { generateSpecification } from "@dataspecer/specification";
 import { BackendModelRepository } from "../utils/model-repository.ts";
-import { httpFetch } from "@dataspecer/core/io/fetch/fetch-nodejs";
 
-type FullDataSpecification = DataSpecification & DataSpecificationWithMetadata & DataSpecificationWithStores;
 
 interface DataSpecifications {
-  [key: string]: FullDataSpecification;
+  [key: string]: any;
 }
 
 function getName(name: LanguageString | undefined, defaultName: string) {
@@ -41,9 +38,10 @@ export const generate = asyncHandler(async (request: express.Request, response: 
     return;
   }
 
+
   const packagesToGenerate = [query.iri];
   const defaultConfiguration = configuration.configuration;
-  const dataSpecifications = Object.fromEntries((await dataSpecificationModel.getAllDataSpecifications()).map((s) => [s.iri, s])) as Record<string, FullDataSpecification>;
+  const dataSpecifications = [] as any; //Object.fromEntries((await dataSpecificationModel.getAllDataSpecifications()).map((s) => [s.iri, s])) as Record<string, FullDataSpecification>;
 
   const gatheredDataSpecifications: DataSpecifications = {};
   const toProcessDataSpecification = [...packagesToGenerate];
@@ -51,7 +49,7 @@ export const generate = asyncHandler(async (request: express.Request, response: 
   for (let i = 0; i < toProcessDataSpecification.length; i++) {
     const dataSpecification = dataSpecifications[toProcessDataSpecification[i]];
     gatheredDataSpecifications[dataSpecification.iri as string] = dataSpecification;
-    dataSpecification.importsDataSpecifications.forEach((importedDataSpecificationIri) => {
+    dataSpecification.importsDataSpecifications.forEach((importedDataSpecificationIri: any) => {
       if (!toProcessDataSpecification.includes(importedDataSpecificationIri)) {
         toProcessDataSpecification.push(importedDataSpecificationIri);
       }
