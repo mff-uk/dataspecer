@@ -334,6 +334,10 @@ export function createEditBaseEntityProfileDialogState
       .filter(item => item.identifier !== entity.identifier));
   sortRepresentatives(language, availableSpecializations);
 
+  const availableProfiles = sanitizeDuplicitiesInRepresentativeLabels(
+    allModels, allProfiles);
+  sortRepresentatives(language, availableProfiles);
+
   return {
     language,
     // Model
@@ -347,8 +351,7 @@ export function createEditBaseEntityProfileDialogState
     isIriRelative: isRelativeIri(iri),
     iriValidation: validationNoProblem(),
     // Profile
-    availableProfiles: sanitizeDuplicitiesInRepresentativeLabels(
-      allModels, allProfiles),
+    availableProfiles,
     profiles,
     noProfile,
     // Name
