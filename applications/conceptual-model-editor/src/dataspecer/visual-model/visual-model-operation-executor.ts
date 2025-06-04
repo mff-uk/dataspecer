@@ -6,6 +6,7 @@ import { deleteEntityModel } from "./operation/delete-entity-model";
 import { updateVisualNodeProfiles } from "./operation/update-visual-node-profiles";
 import { addVisualRelationshipsForRepresented, addVisualRelationshipsWithSpecifiedVisualEnds } from "./operation/add-visual-relationships";
 import { CmeReference } from "../cme-model/model";
+import { deleteVisualEntity } from "./operation/delete-visual-entity";
 
 export interface VisualModelOperationExecutor {
 
@@ -71,7 +72,6 @@ export interface VisualModelOperationExecutor {
   ): void;
 
   /**
-    @param represented The profiled entity.
    * @throws DataspecerError
    */
   updateProfile(
@@ -81,6 +81,13 @@ export interface VisualModelOperationExecutor {
   ): void;
 
   /**
+   * Delete all visual entities representing given reference.
+   *
+   * @throws DataspecerError
+   */
+  deleteEntity(represented: CmeReference): void;
+
+  /**
    * @throws DataspecerError
    */
   deleteModel(model: ModelDsIdentifier): void;
@@ -88,7 +95,7 @@ export interface VisualModelOperationExecutor {
 }
 
 class DefaultVisualModelOperationExecutor
-implements VisualModelOperationExecutor {
+  implements VisualModelOperationExecutor {
 
   private visualModel: WritableVisualModel;
 
@@ -171,6 +178,10 @@ implements VisualModelOperationExecutor {
     updateVisualNodeProfiles(this.visualModel, represented, previous, next);
   }
 
+  deleteEntity(represented: CmeReference): void {
+    deleteVisualEntity(this.visualModel, represented);
+  }
+
   deleteModel(model: ModelDsIdentifier): void {
     deleteEntityModel(this.visualModel, model);
   }
@@ -189,6 +200,6 @@ function convertIdentifiersToVisualEntities(
 
 export function createVisualModelOperationExecutor(
   visualModel: WritableVisualModel,
-) {
+): VisualModelOperationExecutor {
   return new DefaultVisualModelOperationExecutor(visualModel);
 }

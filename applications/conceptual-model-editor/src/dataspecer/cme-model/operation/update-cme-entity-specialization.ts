@@ -1,6 +1,6 @@
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { createGeneralization, deleteEntity, Operation } from "@dataspecer/core-v2/semantic-model/operations";
-import { CmeReference, CmeSpecialization, isCmeReferenceEqual, isCmeSpecialization, NewCmeSpecialization } from "../model";
+import { CreatedEntityOperationResult, createGeneralization, deleteEntity, Operation } from "@dataspecer/core-v2/semantic-model/operations";
+import { CmeGeneralization, CmeReference, CmeSpecialization, isCmeReferenceEqual, isCmeSpecialization, NewCmeSpecialization } from "../model";
 import { createLogger } from "../../../application";
 
 const LOG = createLogger(import.meta.url);
@@ -17,9 +17,13 @@ export function updateCmeSpecialization(
   entity: CmeReference,
   previous: (NewCmeSpecialization | CmeSpecialization)[],
   next: (NewCmeSpecialization | CmeSpecialization)[],
-): void {
+): {
+  created: CmeGeneralization[],
+  removed: CmeReference[],
+} {
   const operations: Operation[] = [];
   const nextGeneralizations: CmeReference[] = [];
+  const created: CmeGeneralization[] = [];
   // Create new.
   for (const item of next) {
     if (isCmeSpecialization(item)) {
@@ -33,9 +37,22 @@ export function updateCmeSpecialization(
       parent: item.specializationOf.identifier,
       child: entity.identifier,
     }));
+    // Prepare result.
+    created.push({
+      identifier: "",
+      model: writeModel.getId(),
+      iri: item.iri,
+      parentIdentifier: item.specializationOf.identifier,
+      childIdentifier: entity.identifier,
+    });
   }
-  writeModel.executeOperations(operations);
+  const result = writeModel.executeOperations(operations);
+  result.forEach((item, index) => {
+    const createResult = item as CreatedEntityOperationResult;
+    created[index].identifier = createResult.id;
+  });
   // Remove old that are not part of next.
+  const removed: CmeReference[] = [];
   for (const item of previous) {
     if (!isCmeSpecialization(item)) {
       // Not sure how this happened, we just ignore it.
@@ -57,5 +74,10 @@ export function updateCmeSpecialization(
       continue;
     }
     model.executeOperation(deleteEntity(item.generalization.identifier));
+    removed.push({
+      model: model.getId(),
+      identifier: item.generalization.identifier,
+    });
   }
+  return { created, removed };
 }

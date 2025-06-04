@@ -4,6 +4,7 @@ import { InvalidState } from "../../application/error";
 import {
   CmeClass,
   CmeClassProfile,
+  CmeGeneralization,
   CmeReference,
   CmeRelationship,
   CmeRelationshipProfile,
@@ -105,7 +106,6 @@ export interface CmeModelOperationExecutor {
   /**
    * Update specializations for given entity to match the desired next state.
    *
-   * @param writeModel Model to create new entities into.
    * @throws {InvalidState}
    * @throws {DataspecerError}
    */
@@ -113,7 +113,11 @@ export interface CmeModelOperationExecutor {
     entity: CmeReference,
     writeModel: ModelDsIdentifier,
     previous: (NewCmeSpecialization | CmeSpecialization)[],
-    next: (NewCmeSpecialization | CmeSpecialization)[]): void;
+    next: (NewCmeSpecialization | CmeSpecialization)[],
+  ): {
+    created: CmeGeneralization[],
+    removed: CmeReference[],
+  };
 
   // Relationship profile
 
@@ -246,11 +250,15 @@ class DefaultCmeModelOperationExecutor implements CmeModelOperationExecutor {
     entity: CmeReference,
     writeModel: ModelDsIdentifier,
     previous: (NewCmeSpecialization | CmeSpecialization)[],
-    next: (NewCmeSpecialization | CmeSpecialization)[]): void {
+    next: (NewCmeSpecialization | CmeSpecialization)[],
+  ): {
+    created: CmeGeneralization[],
+    removed: CmeReference[],
+  } {
     LOG.trace("DefaultCmeModelOperationExecutor.updateSpecialization",
       { entity, writeModel, previous, next });
     const model = this.findModel(writeModel);
-    updateCmeSpecialization(this.models, model, entity, previous, next);
+    return updateCmeSpecialization(this.models, model, entity, previous, next);
   }
 
   // Relationship profile

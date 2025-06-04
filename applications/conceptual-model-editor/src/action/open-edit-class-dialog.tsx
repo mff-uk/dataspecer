@@ -1,5 +1,5 @@
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { VisualModel } from "@dataspecer/core-v2/visual-model";
+import { isWritableVisualModel, VisualModel } from "@dataspecer/core-v2/visual-model";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 
 import { DialogApiContextType } from "../dialog/dialog-service";
@@ -10,6 +10,7 @@ import { ClassDialogState, createEditClassDialogState } from "../dialog/class/ed
 import { createEditClassDialog } from "../dialog/class/edit-class-dialog";
 import { classDialogStateToNewCmeClass } from "../dialog/class/edit-class-dialog-state-adapter";
 import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
+import { createVisualModelOperationExecutor } from "../dataspecer/visual-model/visual-model-operation-executor";
 
 export function openEditClassDialogAction(
   cmeExecutor: CmeModelOperationExecutor,
@@ -29,10 +30,20 @@ export function openEditClassDialogAction(
       identifier: entity.id,
       ...classDialogStateToNewCmeClass(state),
     });
-    cmeExecutor.updateSpecialization(
+
+    const { created, removed } = cmeExecutor.updateSpecialization(
       { identifier: entity.id, model: model.getId() },
       state.model.identifier,
       initialState.specializations, state.specializations);
+
+    if (isWritableVisualModel(visualModel)) {
+      const visualExecutor = createVisualModelOperationExecutor(visualModel);
+      removed.forEach(item => visualExecutor.deleteEntity(item));
+      created.forEach(item => {
+        visualExecutor.addGeneralization(
+          item, item.childIdentifier, item.parentIdentifier);
+      });
+    }
   };
 
   dialogs.openDialog(createEditClassDialog(initialState, onConfirm));
