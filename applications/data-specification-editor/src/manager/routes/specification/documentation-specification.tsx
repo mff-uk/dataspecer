@@ -1,4 +1,3 @@
-import { DataSpecification } from "@dataspecer/backend-utils/connectors/specification";
 import { DataSpecificationConfiguration, DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
 import AddIcon from "@mui/icons-material/Add";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -9,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { BackendConnectorContext, DefaultConfigurationContext } from "../../../application";
 import { LanguageStringText } from "../../../editor/components/helper/LanguageStringComponents";
-import { provideConfiguration } from "../../../editor/configuration/provided-configuration";
+import { modelRepository, provideConfiguration } from "../../../editor/configuration/provided-configuration";
 import { useDialog } from "../../../editor/dialog";
 import { ConfigureArtifacts } from "../../artifacts/configuration/configure-artifacts";
 import { ConfigureButton } from "../../artifacts/configuration/configure-button";
@@ -22,10 +21,10 @@ import { ConceptualModelTargets } from "./conceptual-model-targets";
 import { CopyIri } from "./copy-iri";
 import { DataStructureBox } from "./data-structure-row";
 import { GeneratingDialog } from "./generating-dialog";
-import { ModifySpecification } from "./modify-specification";
 import { RedirectDialog } from "./redirect-dialog";
 import { ReuseDataSpecifications } from "./reuse-data-specifications";
 import { AllSpecificationsContext, SpecificationContext } from "./specification";
+import { loadDataSpecifications } from "@dataspecer/specification/specification";
 
 export const DocumentationSpecification = memo(() => {
   const { t } = useTranslation("ui");
@@ -57,23 +56,8 @@ export const DocumentationSpecification = memo(() => {
     setGenerateState([]);
     setGenerateDialogOpen(true);
 
-    // Gather all data specifications
-
-    // We know, that the current data specification must be present
-    let gatheredDataSpecifications: Record<string, DataSpecification> = {};
-
-    const toProcessDataSpecification = [dataSpecificationIri as string];
-    for (let i = 0; i < toProcessDataSpecification.length; i++) {
-      const dataSpecification = await backendConnector.getDataSpecification(toProcessDataSpecification[i]);
-      gatheredDataSpecifications[dataSpecification.id as string] = dataSpecification;
-      dataSpecification.importsDataSpecificationIds.forEach((importedDataSpecificationId) => {
-        if (!toProcessDataSpecification.includes(importedDataSpecificationId)) {
-          toProcessDataSpecification.push(importedDataSpecificationId);
-        }
-      });
-      // @ts-ignore
-      dataSpecification.artefactConfiguration = await backendConnector.getArtifactConfiguration(dataSpecification.artifactConfigurations[0].id);
-    }
+    // Gather all data specifications that are needed for the generation
+    let gatheredDataSpecifications = await loadDataSpecifications(dataSpecificationIri as string, modelRepository);
 
     // Override base urls to null
     if (overrideBasePathsToNull) {
@@ -113,7 +97,6 @@ export const DocumentationSpecification = memo(() => {
         <div style={{ display: "flex", gap: "1rem" }}>
           <ConfigureButton />
           <CopyIri iri={dataSpecificationIri} />
-          <ModifySpecification />
         </div>
       </Box>
       <SpecificationTags specification={specification} />

@@ -11,7 +11,8 @@
     ".": "./lib/index.js",
     "./documentation": "./lib/documentation/index.js",
     "./dsv": "./lib/dsv/index.js",
-    "./model-repository": "./lib/model-repository/index.js"
+    "./model-repository": "./lib/model-repository/index.js",
+    "./specification": "./lib/specification/index.js"
   },
   "dependencies": {
     "@dataspecer/core": "*",

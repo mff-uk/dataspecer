@@ -1,8 +1,10 @@
 import { DataSpecification } from "@dataspecer/backend-utils/connectors/specification";
 import { BaseResource, Package } from "@dataspecer/core-v2/project";
+import { getDataSpecification } from "@dataspecer/specification/specification";
 import { createContext, FC, useContext, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { BackendConnectorContext } from "../../../application";
+import { modelRepository } from "../../../editor/configuration/provided-configuration";
 import { DocumentationSpecification } from "./documentation-specification";
 
 export const SpecificationContext = createContext<[DataSpecification & Package, (update: DataSpecification & Package) => void]>(null);
@@ -23,8 +25,14 @@ export const Specification: FC = () => {
   const updateSpecification = contextForSpecificationContext[1];
 
   useEffect(() => {
-    connector.getDataSpecification(dataSpecificationIri as string).then((s) => updateSpecification(s));
-  }, [connector, dataSpecificationIri, updateSpecification]);
+    (async () => {
+      const model = await modelRepository.getModelById(dataSpecificationIri as string);
+      const packageModel = await model?.asPackageModel();
+      const dataSpecification = packageModel ? await getDataSpecification(packageModel) : undefined;
+      updateSpecification(dataSpecification);
+
+    })();
+  }, [dataSpecificationIri, updateSpecification]);
 
   const [allSpecifications, setAllSpecifications] = useState<Record<string, BaseResource>>(null);
   useEffect(() => {

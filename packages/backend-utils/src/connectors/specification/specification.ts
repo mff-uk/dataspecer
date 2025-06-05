@@ -105,6 +105,7 @@ export class StructureEditorBackendService extends BackendPackageService {
   /**
    * Returns extended information for given package that is being interpreted as Data Specification.
    * @param dataSpecificationId ID of the package that is being interpreted as Data Specification.
+   * @deprecated
    */
   public async getDataSpecification(dataSpecificationId: string): Promise<DataSpecification & Package> {
     const pckg = await this.getPackage(dataSpecificationId)!;
@@ -175,13 +176,6 @@ export class StructureEditorBackendService extends BackendPackageService {
     const model = await this.getResourceJsonData(dataSpecificationId) as any ?? {};
     model.modelCompositionConfiguration = modelCompositionConfiguration;
     await this.setResourceJsonData(dataSpecificationId, model);
-  }
-
-  public async updateSpecificationMetadata(dataSpecificationId: string, metadata: {label?: LanguageString, tags?: string[]}): Promise<DataSpecification & Package> {
-    await this.updatePackage(dataSpecificationId, {
-      userMetadata: metadata,
-    });
-    return this.getDataSpecification(dataSpecificationId);
   }
 
   public async getArtifactConfiguration(artifactConfigurationId: string): Promise<unknown> {

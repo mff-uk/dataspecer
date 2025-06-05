@@ -1,19 +1,22 @@
 import { DataSpecification, StructureEditorBackendService } from "@dataspecer/backend-utils/connectors/specification";
 import { HttpSynchronizedStore } from "@dataspecer/backend-utils/stores";
 import { Entities, Entity, EntityModel } from "@dataspecer/core-v2";
+import { SemanticModelAggregator } from "@dataspecer/core-v2/hierarchical-semantic-aggregator";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { CoreResourceReader, MemoryStore } from "@dataspecer/core/core/index";
 import { dataPsmExecutors } from "@dataspecer/core/data-psm/data-psm-executors";
 import { DataPsmCreateSchema } from "@dataspecer/core/data-psm/operation/data-psm-create-schema";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
+import { loadDataSpecifications } from "@dataspecer/specification/specification";
 import { ClientConfigurator, DefaultClientConfiguration } from "../../configuration";
+import { FrontendModelRepository } from "../../manager/utils/model-repository";
 import { OperationContext } from "../operations/context/operation-context";
-import { SemanticModelAggregator } from "@dataspecer/core-v2/hierarchical-semantic-aggregator";
 import { Configuration, ModelCompositionConfiguration } from "./configuration";
 import { SemanticModelAggregatorBuilder } from "./semantic-model-aggregator-builder";
 
 export const backendPackageService = new StructureEditorBackendService(import.meta.env.VITE_BACKEND as string, httpFetch, "http://dataspecer.com/packages/local-root");
+export const modelRepository = new FrontendModelRepository(backendPackageService);
 
 class SemanticModelAggregatorUnwrapped implements EntityModel {
   aggregator: SemanticModelAggregator;
@@ -47,7 +50,8 @@ class SemanticModelAggregatorUnwrapped implements EntityModel {
 }
 
 /**
- * Based on the package iri and schema iri provides the full configuration.
+ * Based on the package iri and schema iri provides the full configuration which
+ * includes everything needed to work with the specification.
  */
 export async function provideConfiguration(dataSpecificationIri: string | null, dataPsmSchemaIri: string | null): Promise<Configuration> {
   const store = new FederatedObservableStore();
@@ -56,7 +60,7 @@ export async function provideConfiguration(dataSpecificationIri: string | null, 
   let semanticModelAggregator: SemanticModelAggregator;
 
   if (dataSpecificationIri) {
-    specifications = await loadDataSpecifications(dataSpecificationIri);
+    specifications = await loadDataSpecifications(dataSpecificationIri, modelRepository);
 
     for (const specification of Object.values(specifications)) {
       const { semanticModel, psmStores, usedSemanticModels } = await getStoresFromSpecification(specification);
@@ -141,27 +145,6 @@ export async function provideConfiguration(dataSpecificationIri: string | null, 
     // new cim + pim
     semanticModelAggregator,
   };
-}
-
-async function loadDataSpecifications(dataSpecificationIri: string): Promise<Record<string, DataSpecification>> {
-  const dataSpecificationIrisToLoad = [dataSpecificationIri];
-  const dataSpecifications: { [iri: string]: DataSpecification } = {};
-
-  for (let i = 0; i < dataSpecificationIrisToLoad.length; i++) {
-    const dataSpecificationIri = dataSpecificationIrisToLoad[i];
-    // const dataSpecification = await connector.readDataSpecification(dataSpecificationIri);
-    const dataSpecification = await backendPackageService.getDataSpecification(dataSpecificationIri);
-    if (dataSpecification) {
-      dataSpecifications[dataSpecificationIri] = dataSpecification;
-      dataSpecification.importsDataSpecificationIds.forEach((importIri) => {
-        if (!dataSpecificationIrisToLoad.includes(importIri)) {
-          dataSpecificationIrisToLoad.push(importIri);
-        }
-      });
-    }
-  }
-
-  return dataSpecifications;
 }
 
 async function getStoresFromSpecification(specification: DataSpecification) {
