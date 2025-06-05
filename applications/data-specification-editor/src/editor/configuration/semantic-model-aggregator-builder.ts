@@ -9,7 +9,7 @@ import { BackendPackageService } from "@dataspecer/core-v2/project";
 import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { VisualModelData } from "@dataspecer/core-v2/visual-model";
-import { ModelCompositionConfiguration, ModelCompositionConfigurationApplicationProfile, ModelCompositionConfigurationCache, ModelCompositionConfigurationLegacy, ModelCompositionConfigurationMerge } from "./configuration";
+import { ModelCompositionConfiguration, ModelCompositionConfigurationApplicationProfile, ModelCompositionConfigurationMerge } from "./configuration";
 import { getProvidedSourceSemanticModel } from "./source-semantic-model/adapter";
 
 // todo until colors are properly generated from model metadata
@@ -151,7 +151,7 @@ export class SemanticModelAggregatorBuilder {
       const model = this.knownModels[configuration];
       this.usedModels.add(model);
       if (model.modelMetadata?.["caches"]) { // Some models may not have metadata
-        const cimAdapter = await getProvidedSourceSemanticModel(model.modelMetadata["caches"], this.specificationId);
+        const cimAdapter = await getProvidedSourceSemanticModel(model.modelMetadata["caches"]);
         const aggregator = new ExternalModelWithCacheAggregator(model, cimAdapter);
         aggregator.thisVocabularyChain["color"] = this.modelData[configuration]?.color ?? DEFAULT_VOCABULARY_COLOR;
         return aggregator;
@@ -179,18 +179,6 @@ export class SemanticModelAggregatorBuilder {
       } else {
         const models = await Promise.all(mergeConfig.models.map((model) => this.buildRecursive(model.model)));
         return new MergeAggregator(models);
-      }
-    } else if (configuration.modelType === "cache") {
-      const cacheConfig = configuration as ModelCompositionConfigurationCache;
-      if (typeof cacheConfig.caches === "object" && cacheConfig.caches.modelType === "legacy") {
-        const legacyConfig = cacheConfig.caches as ModelCompositionConfigurationLegacy;
-
-        const cimAdapter = await getProvidedSourceSemanticModel(legacyConfig.configuration, null);
-        const cache = this.knownModels[cacheConfig.model as string];
-        this.usedModels.add(cache);
-        return new ExternalModelWithCacheAggregator(cache, cimAdapter);
-      } else {
-        throw new Error("Unsupported model type for semantic model aggregator builder.");
       }
     } else {
       console.error(configuration);
