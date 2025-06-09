@@ -21,6 +21,16 @@ export type DiagramOptions = {
 
 }
 
+export function defaultDiagramOptions(): DiagramOptions {
+  return {
+    labelVisual: LabelVisual.Entity,
+    entityMainColor: EntityColor.Entity,
+    profileOfVisual: ProfileOfVisual.Entity,
+    displayRangeDetail: true,
+    displayRelationshipProfileArchetype: true,
+  };
+}
+
 export enum LabelVisual {
   /**
    * Use entity's IRI.

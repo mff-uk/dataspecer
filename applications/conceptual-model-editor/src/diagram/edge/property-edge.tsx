@@ -10,7 +10,7 @@ import {
 
 import { createLogger } from "../../application/";
 
-import { DiagramOptions, EdgeType, EntityColor, LabelVisual, type Edge as ApiEdge } from "../diagram-model";
+import { defaultDiagramOptions, DiagramOptions, EdgeType, EntityColor, LabelVisual, ProfileOfVisual, type Edge as ApiEdge } from "../diagram-model";
 import { DiagramContext } from "../diagram-controller";
 import { createSvgPath, createOrthogonalWaypoints, findLabelPosition } from "./edge-utilities";
 import { Waypoints } from "./waypoints";
@@ -54,14 +54,8 @@ export const PropertyEdge = (props: EdgeProps<Edge<ApiEdge>>) => {
   const targetWaypoint = waypoints[waypoints.length - 1];
   const targetShift = getLabelTranslate(
     targetWaypoint, targetNode.position, targetNode.measured);
-    // DisplayRelationshipProfileArchetype
 
-  const labelPrefix =
-    data?.type === EdgeType.AssociationProfile
-    && data.options.displayRelationshipProfileArchetype
-      ? "<<profile>>\n"
-      : "";
-  const label = data === undefined ? props.label : prepareLabel(data.options, data);
+  const label = data === undefined ? props.label : prepareEdgeLabel(data.options, data);
 
   const style = { ...props.style };
   if (data !== undefined) {
@@ -104,7 +98,7 @@ export const PropertyEdge = (props: EdgeProps<Edge<ApiEdge>>) => {
               opacity: props.style?.opacity,
             }}
           >
-            {labelPrefix}{label}
+            {label}
           </div>
         )}
         {props.data === undefined || props.data.cardinalityTarget === null ? null : (
@@ -123,37 +117,92 @@ export const PropertyEdge = (props: EdgeProps<Edge<ApiEdge>>) => {
 
 export const PropertyEdgeName = "property-edge";
 
-function prepareLabel(
+function prepareEdgeLabel(
   options: DiagramOptions,
   data: {
     label: string | null,
     iri: string | null,
+    type: EdgeType,
+    vocabulary: { label: string | null }[],
+    profileOf: {
+      label: string;
+      iri: string | null;
+    }[] | undefined
+  },
+) {
+  return selectArchetype(options, data.type)
+    + selectEntityLabel(options, data)
+    + selectProfileLabel(options, data.profileOf ?? []);
+}
+
+function selectArchetype(options: DiagramOptions, type: EdgeType) {
+  if (!options.displayRelationshipProfileArchetype) {
+    return "";
+  }
+  switch (type) {
+    case EdgeType.AssociationProfile:
+      return "<<profile>>\n";
+    default:
+      return ""
+  }
+}
+
+function selectEntityLabel(
+  options: DiagramOptions,
+  data: {
+    label: string | null,
+    iri: string | null,
+    type: EdgeType,
     vocabulary: { label: string | null }[],
   },
 ) {
   switch (options.labelVisual) {
-  case LabelVisual.Entity:
-    return data.label;
-  case LabelVisual.Iri:
-    return data.iri;
-  case LabelVisual.VocabularyOrEntity:
-    return data.vocabulary
-      .map(item => item.label)
-      .filter(item => item !== null)
-      .join(", ");
+    case LabelVisual.Entity:
+      return data.label;
+    case LabelVisual.Iri:
+      return data.iri;
+    case LabelVisual.VocabularyOrEntity:
+      return data.vocabulary
+        .map(item => item.label)
+        .filter(item => item !== null)
+        .join(", ");
   }
+}
+
+function selectProfileLabel(
+  options: DiagramOptions,
+  profileOf: {
+    label: string;
+    iri: string | null;
+  }[],
+) {
+  let labels: (string | null)[] = [];
+  switch (options.profileOfVisual) {
+    case ProfileOfVisual.Entity:
+      labels = profileOf.map(item => item.label);
+      break;
+    case ProfileOfVisual.Iri:
+      labels = profileOf.map(item => item.iri);
+      break;
+    case ProfileOfVisual.None:
+      return;
+  }
+  if (labels.length === 0) {
+    return "";
+  }
+  return "\n(" + labels.filter(item => item !== null).join(", ") + ")";
 }
 
 function prepareColor(data: ApiEdge) {
   switch (data.options.entityMainColor) {
-  case EntityColor.Entity:
-    return data.color;
-  case EntityColor.VocabularyOrEntity:
-    if (data.vocabulary.length === 0) {
+    case EntityColor.Entity:
       return data.color;
-    }
-    // Just use the first one.
-    return data.vocabulary[0].color;
+    case EntityColor.VocabularyOrEntity:
+      if (data.vocabulary.length === 0) {
+        return data.color;
+      }
+      // Just use the first one.
+      return data.vocabulary[0].color;
   }
 }
 
