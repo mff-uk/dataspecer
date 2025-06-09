@@ -1,8 +1,4 @@
 import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import {
-  SemanticModelRelationshipUsage,
-  isSemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { getDomainAndRange } from "../util/relationship-utils";
@@ -32,7 +28,7 @@ export function addSemanticRelationshipProfileToVisualModelAction(
   const entities = graph.aggregatorView.getEntities();
   withAggregatedEntity(notifications, entities,
     entityIdentifier, modelIdentifier,
-    (item) => isSemanticModelRelationshipUsage(item) || isSemanticModelRelationshipProfile(item),
+    (item) => isSemanticModelRelationshipProfile(item),
     (entity) => {
       addSemanticRelationshipProfileToVisualModelCommand(
         notifications, visualModel, entity, modelIdentifier);
@@ -42,7 +38,7 @@ export function addSemanticRelationshipProfileToVisualModelAction(
 function addSemanticRelationshipProfileToVisualModelCommand(
   notifications: UseNotificationServiceWriterType,
   visualModel: WritableVisualModel,
-  entity: SemanticModelRelationshipUsage | SemanticModelRelationshipProfile,
+  entity: SemanticModelRelationshipProfile,
   model: string,
 ) {
   const { domain, range } = getDomainAndRange(entity);

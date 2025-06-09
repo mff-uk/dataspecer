@@ -6,13 +6,6 @@ import {
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { DataTypeURIs, isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
-import {
-  SemanticModelClassUsage,
-  SemanticModelRelationshipUsage,
-  isSemanticModelClassUsage,
-  isSemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
-
 import { configuration, createLogger, t } from "../../application";
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { CmeSemanticModel, OwlCmeSemanticModel, UnknownCmeSemanticModel } from "../../dataspecer/cme-model";
@@ -189,42 +182,6 @@ export function findVocabularyForModel(
   return vocabulary ?? null;
 };
 
-export function representClassUsages(
-  aggregations: Record<string, AggregatedEntityWrapper>,
-  models: EntityModel[],
-  vocabularies: CmeSemanticModel[],
-  classes: SemanticModelClassUsage[],
-): EntityRepresentative[] {
-  const result: EntityRepresentative[] = [];
-  for (const item of classes) {
-    const entity = aggregations[item.id]?.aggregatedEntity;
-    if (entity === undefined) {
-      LOG.invalidEntity(item.id, "Missing entity aggregation.");
-      continue;
-    }
-    if (!isSemanticModelClassUsage(entity)) {
-      LOG.invalidEntity(item.id, "Aggregation of a class is not a class.");
-      continue;
-    }
-    const vocabulary = findOwnerVocabulary(models, vocabularies, item.id);
-    if (vocabulary === null) {
-      continue;
-    }
-    result.push({
-      identifier: item.id,
-      iri: item.iri,
-      model: vocabulary.identifier,
-      name: entity.name ?? {},
-      label: entity.name ?? {},
-      description: entity.description ?? {},
-      profileOfIdentifiers: [entity.usageOf],
-      usageNote: entity.usageNote,
-      isProfile: true,
-    });
-  }
-  return result;
-}
-
 export function representClassProfiles(
   aggregations: Record<string, AggregatedEntityWrapper>,
   models: EntityModel[],
@@ -276,8 +233,6 @@ export function listClassToProfiles(
 
   return [
     ...representClasses(models, vocabularies, classesContext.classes),
-    ...representClassUsages(entities, models, vocabularies,
-      classesContext.usages.filter(item => isSemanticModelClassUsage(item))),
     ...representClassProfiles(entities, models, vocabularies,
       classesContext.classProfiles),
   ];
@@ -317,8 +272,6 @@ export function listRelationshipProfileDomains(
 
   return [
     representOwlThing(),
-    ...representClassUsages(entities, models, vocabularies,
-      classesContext.usages.filter(item => isSemanticModelClassUsage(item))),
     ...representClassProfiles(entities, models, vocabularies,
       classesContext.classProfiles),
   ]
@@ -389,53 +342,6 @@ export function representRelationships(
       range: range.concept ?? defaultRange,
       rangeCardinality: representCardinality(range.cardinality),
       isProfile: false,
-    });
-  }
-  return result;
-}
-
-export function representRelationshipUsages(
-  aggregations: Record<string, AggregatedEntityWrapper>,
-  models: EntityModel[],
-  vocabularies: CmeSemanticModel[],
-  relationships: SemanticModelRelationshipUsage[],
-  defaultDomain: string,
-  defaultRange: string,
-): RelationshipRepresentative[] {
-  const result: RelationshipRepresentative[] = [];
-  for (const item of relationships) {
-    const entity = aggregations[item.id]?.aggregatedEntity;
-    if (entity === undefined) {
-      LOG.invalidEntity(item.id, "Missing entity aggregation.");
-      continue;
-    }
-    if (!isSemanticModelRelationshipUsage(entity)) {
-      LOG.invalidEntity(item.id, "Invalid aggregation.");
-      continue;
-    }
-    const vocabulary = findOwnerVocabulary(models, vocabularies, item.id);
-    if (vocabulary === null) {
-      continue;
-    }
-    const { domain, range } = getDomainAndRange(entity);
-    if (domain === null || range === null) {
-      LOG.invalidEntity(item.id, "Missing ends for relationship usage.");
-      continue;
-    }
-    result.push({
-      identifier: item.id,
-      iri: item.iri,
-      model: vocabulary.identifier,
-      name: range.name ?? {},
-      label: range.name ?? {},
-      description: range.description ?? {},
-      profileOfIdentifiers: [entity.usageOf],
-      usageNote: range.usageNote,
-      domain: domain.concept ?? defaultDomain,
-      domainCardinality: representCardinality(domain.cardinality),
-      range: range.concept ?? defaultRange,
-      rangeCardinality: representCardinality(range.cardinality),
-      isProfile: true,
     });
   }
   return result;

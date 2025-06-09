@@ -6,24 +6,15 @@ import {
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
   isVisualNode,
-  isVisualProfileRelationship,
   isVisualRelationship,
   VisualModel,
   VisualNode,
-  VisualProfileRelationship,
   VisualRelationship,
   WritableVisualModel,
 } from "@dataspecer/core-v2/visual-model";
-import {
-  isSemanticModelAttributeUsage,
-  isSemanticModelClassUsage,
-  isSemanticModelRelationshipUsage,
-  SemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { getDomainAndRange, getDomainAndRangeConcepts } from "../../util/relationship-utils";
 import { createLogger } from "../../application";
-import { EntityDsIdentifier } from "../entity-model";
 import {
   isSemanticModelRelationshipProfile,
   SemanticModelRelationshipProfile,
@@ -56,7 +47,7 @@ export function updateVisualAttributesBasedOnSemanticChanges(
 
 function getDomainNodes(
   visualModel: VisualModel,
-  entity: SemanticModelRelationship | SemanticModelRelationshipUsage | SemanticModelRelationshipProfile
+  entity: SemanticModelRelationship | SemanticModelRelationshipProfile,
 ): VisualNode[] {
   let domainConcept;
   if (isSemanticModelAttribute(entity)) {
@@ -78,7 +69,7 @@ function getDomainNodes(
     return [];
   }
 
-  // This should be fine, since if we there is some incosistency
+  // This should be fine, since if we there is some inconsistency
   // (that is first entity is VisualNode, rest is something else)
   // then we have much bigger issue somewhere else.
   return nodes as VisualNode[];
@@ -89,8 +80,7 @@ function handleDeletionOfSemanticAttribute(
   deletedEntity: Entity | null
 ) {
   const isAttributeOrAttributeProfile = isSemanticModelAttribute(deletedEntity) ||
-    isSemanticModelAttributeProfile(deletedEntity) ||
-    isSemanticModelAttributeUsage(deletedEntity);
+    isSemanticModelAttributeProfile(deletedEntity);
   if (isAttributeOrAttributeProfile) {
     const nodes = getDomainNodes(visualModel, deletedEntity);
 
@@ -106,15 +96,15 @@ function handleUpdateOfSemanticAttribute(
   previousEntity: Entity | null,
   nextEntity: Entity | null,
 ) {
-  const isAttributeOrAttributeProfile = isSemanticModelAttribute(nextEntity) ||
-    isSemanticModelAttributeProfile(nextEntity) ||
-    isSemanticModelAttributeUsage(nextEntity);
+  const isAttributeOrAttributeProfile =
+    isSemanticModelAttribute(nextEntity)
+    || isSemanticModelAttributeProfile(nextEntity);
   if (!isAttributeOrAttributeProfile) {
     return;
   }
-  const wasAttributeOrAttributeProfile = isSemanticModelAttribute(previousEntity) ||
-    isSemanticModelAttributeProfile(previousEntity) ||
-    isSemanticModelAttributeUsage(previousEntity);
+  const wasAttributeOrAttributeProfile =
+    isSemanticModelAttribute(previousEntity)
+    || isSemanticModelAttributeProfile(previousEntity);
 
   if (previousEntity === null || !wasAttributeOrAttributeProfile) {
     return;
@@ -170,9 +160,6 @@ function synchronizeUpdates(
         updateVisualNode(visualModel, item, visual);
       } else if (isVisualRelationship(visual)) {
         updateVisualRelationship(visualModel, item, visual);
-      } else if (isVisualProfileRelationship(visual)) {
-        // I think that this never happens - RadStr
-        updateVisualProfileRelationship(visualModel, item, visual);
       } else {
         // We just ignore all rest.
         break;
@@ -198,9 +185,7 @@ function updateVisualRelationship(
   const entity = changed.aggregatedEntity;
 
   // The entity must be relationship or a relationship profile.
-  if (!isSemanticModelRelationship(entity)
-    && !isSemanticModelRelationshipUsage(entity)
-    && !isSemanticModelRelationshipProfile(entity)) {
+  if (!isSemanticModelRelationship(entity) && !isSemanticModelRelationshipProfile(entity)) {
     visualModel.deleteVisualEntity(visual.identifier);
     LOG.invalidEntity(
       entity?.id ?? "",
@@ -254,51 +239,6 @@ function updateVisualRelationship(
     }
   }
 
-}
-
-function updateVisualProfileRelationship(
-  visualModel: WritableVisualModel,
-  changed: AggregatedEntityWrapper,
-  visual: VisualProfileRelationship,
-): void {
-  const entity = changed.aggregatedEntity;
-  if (isSemanticModelClassUsage(entity)) {
-    updateVisualProfileRelationshipForEnds(
-      visualModel, entity.id, entity.usageOf, visual);
-  } else if (isSemanticModelRelationshipUsage(entity)) {
-    updateVisualProfileRelationshipForEnds(
-      visualModel, entity.id, entity.usageOf, visual);
-  }
-}
-
-function updateVisualProfileRelationshipForEnds(
-  visualModel: WritableVisualModel,
-  profiled: EntityDsIdentifier,
-  profile: EntityDsIdentifier,
-  visual: VisualProfileRelationship,
-): void {
-  const visualSources = visualModel.getVisualEntitiesForRepresented(profiled);
-  const visualTargets = visualModel.getVisualEntitiesForRepresented(profile);
-  if (visualSources.length === 0 || visualTargets.length === 0) {
-    visualModel.deleteVisualEntity(visual.identifier);
-    return;
-  }
-
-  for (const visualSource of visualSources) {
-    for (const visualTarget of visualTargets) {
-      if (visual.visualSource === visualSource.identifier
-        && visual.visualTarget === visualTarget.identifier) {
-        // There was no change.
-        continue;
-      }
-
-      // Update.
-      visualModel.updateVisualEntity(visual.identifier, {
-        visualSource: visualSource.identifier,
-        visualTarget: visualTarget.identifier,
-      });
-    }
-  }
 }
 
 function synchronizeRemoved(

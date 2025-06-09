@@ -5,12 +5,6 @@ import {
   isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
-  type SemanticModelClassUsage,
-  type SemanticModelRelationshipUsage,
-  isSemanticModelClassUsage,
-  isSemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import {
   isSemanticModelClassProfile,
   isSemanticModelRelationshipProfile,
   SemanticModelClassProfile,
@@ -19,23 +13,17 @@ import {
 
 export const getTheOriginalProfiledEntity = (
   resource:
-    SemanticModelClassUsage
-    | SemanticModelRelationshipUsage
-    | SemanticModelClassProfile
+    SemanticModelClassProfile
     | SemanticModelRelationshipProfile,
   sources: (
     | SemanticModelClass
     | SemanticModelRelationship
-    | SemanticModelClassUsage
-    | SemanticModelRelationshipUsage
     | SemanticModelClassProfile
     | SemanticModelRelationshipProfile
   )[]
 ): (SemanticModelClass | SemanticModelRelationship)[] => {
   let profiling: string[] = [];
-  if (isSemanticModelClassUsage(resource) || isSemanticModelRelationshipUsage(resource)) {
-    profiling = [resource.usageOf];
-  } else if (isSemanticModelClassProfile(resource)) {
+  if (isSemanticModelClassProfile(resource)) {
     profiling = resource.profiling;
   } else if (isSemanticModelRelationshipProfile(resource)) {
     resource.ends.forEach(item => profiling.push(...item.profiling));

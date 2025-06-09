@@ -8,9 +8,7 @@ import { EntityModel } from "@dataspecer/core-v2";
 import { semanticModelMapToCmeSemanticModel } from "../dataspecer/cme-model/adapter";
 import { CreatedEntityOperationResult, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { ClassesContextType } from "../context/classes-context";
 import { representRdfsLiteral } from "../dialog/utilities/dialog-utilities";
-import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
 import { ShiftAttributeDirection, shiftAttributePositionAction } from "./shift-attribute";
 import { notificationMockup } from "./test/actions-test-suite";
 import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
@@ -122,46 +120,6 @@ function createSemanticAttributeTestVariant(
   };
 }
 
-function _createSemanticAttributeUsageTestVariant(
-  models: Map<string, EntityModel>,
-  domainAttribute: string,
-  domainConceptIdentifier: string,
-  modelDsIdentifier: string,
-  attributeName: string,
-) {
-  const range = representRdfsLiteral();
-  const name = { "en": attributeName };
-  const operation = createRelationshipUsage({
-    ends: [{
-      iri: null,
-      name: {},
-      description: {},
-      concept: domainConceptIdentifier,
-      cardinality: [0, 1],
-      usageNote: null
-    }, {
-      name,
-      description: {},
-      concept: range.identifier,
-      cardinality: [0, 1],
-      iri: generateIriForName(name["en"]),
-      usageNote: null
-    }],
-    usageOf: domainAttribute
-  });
-
-  const model: InMemorySemanticModel = models.get(modelDsIdentifier) as InMemorySemanticModel;
-  const newAttribute = model.executeOperation(operation) as CreatedEntityOperationResult;
-  if (newAttribute.success === false || newAttribute.id === undefined) {
-    throw new Error("Failed in attribute creation");
-  }
-
-  return {
-    identifier: newAttribute.id,
-    model,
-  };
-}
-
 const generateIriForName = (name: string) => {
   return name + "-iri.cz";
 }
@@ -195,23 +153,6 @@ const prepareModelWithFourNodes = () => {
     cmeModels
   };
 }
-
-const _createEmptyClassesContextType = (): ClassesContextType => {
-  const classes: ClassesContextType = {
-    classes: [],
-    allowedClasses: [],
-    setAllowedClasses: function (_) { },
-    relationships: [],
-    generalizations: [],
-    usages: [],
-    sourceModelOfEntityMap: new Map(),
-    rawEntities: [],
-    classProfiles: [],
-    relationshipProfiles: []
-  };
-
-  return classes;
-};
 
 const createNewVisualNodeForTesting = (
   visualModel: WritableVisualModel,

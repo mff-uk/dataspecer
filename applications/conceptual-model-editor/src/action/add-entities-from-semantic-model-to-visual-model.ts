@@ -21,12 +21,6 @@ import {
   SemanticModelClassProfile,
   SemanticModelRelationshipProfile
 } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import {
-  isSemanticModelAttributeUsage,
-  isSemanticModelClassUsage,
-  SemanticModelClassUsage,
-  SemanticModelRelationshipUsage
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
 import { getDomainAndRange } from "../util/relationship-utils";
 import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
@@ -62,9 +56,7 @@ export const addEntitiesFromSemanticModelToVisualModelAction = async (
     .filter(identifier => visualModel.hasVisualEntityForRepresented(identifier))
     .map(identifier => classesContext.rawEntities.find(entity => entity?.id === identifier))
     .filter(entity => entity !== null && entity !== undefined)
-    .filter(entity => isSemanticModelClass(entity) ||
-                      isSemanticModelClassProfile(entity) ||
-                      isSemanticModelClassUsage(entity));
+    .filter(entity => isSemanticModelClass(entity) || isSemanticModelClassProfile(entity));
 
   await addSemanticEntitiesToVisualModelAction(
     notifications, classesContext, graph, visualModel, diagram, entitiesToAddToVisualModel);
@@ -77,15 +69,13 @@ function addHiddenAttributesForExistingClassesAndClassProfiles(
   notifications: UseNotificationServiceWriterType,
   classesContext: ClassesContextType,
   visualModel: WritableVisualModel,
-  classesPresentOnCanvas: (SemanticModelClass | SemanticModelClassProfile | SemanticModelClassUsage)[]
+  classesPresentOnCanvas: (SemanticModelClass | SemanticModelClassProfile)[]
 ): void {
   const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
-  const attributeUsages = classesContext.usages.filter(isSemanticModelAttributeUsage);
   const attributeProfiles = classesContext.relationshipProfiles.filter(isSemanticModelAttributeProfile);
 
-  const allAttributes = ([] as (SemanticModelRelationship |
-    SemanticModelRelationshipProfile |
-    SemanticModelRelationshipUsage)[]).concat(attributes).concat(attributeUsages).concat(attributeProfiles);
+  const allAttributes = ([] as (SemanticModelRelationship | SemanticModelRelationshipProfile)[])
+    .concat(attributes).concat(attributeProfiles);
 
   for (const classPresentOnCanvas of classesPresentOnCanvas) {
     for(const attribute of allAttributes) {

@@ -17,10 +17,6 @@ import { DialogColoredModelHeaderWithModelSelector } from "../../components/dial
 import { getEntityLabel } from "../../service/entity-service";
 import { configuration, t } from "../../application";
 import { DialogProps, DialogWrapper } from "../dialog-api";
-import {
-  SemanticModelClassUsage,
-  SemanticModelRelationshipEndUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { filterInMemoryModels } from "../../util/model-utils";
 import { findSourceModelOfEntity } from "../../service/model-service";
 import { generateName } from "../../util/name-utils";
@@ -32,9 +28,9 @@ export enum ConnectionType {
 
 export interface CreateConnectionState {
 
-  source: SemanticModelClass | SemanticModelClassUsage;
+  source: SemanticModelClass;
 
-  target: SemanticModelClass | SemanticModelClassUsage;
+  target: SemanticModelClass;
 
   language: string;
 
@@ -68,8 +64,8 @@ let nextOpenConnectionType = ConnectionType.Association;
 
 export const createConnectionDialog = (
   graph: ModelGraphContextType,
-  source: SemanticModelClass | SemanticModelClassUsage,
-  target: SemanticModelClass | SemanticModelClassUsage,
+  source: SemanticModelClass,
+  target: SemanticModelClass,
   language: string,
   onConfirm: (state: CreateConnectionState) => void,
 ): DialogWrapper<CreateConnectionState> => {
@@ -90,8 +86,8 @@ export const createConnectionDialog = (
 
 export function createCreateConnectionState(
   graph: ModelGraphContextType,
-  source: SemanticModelClass | SemanticModelClassUsage,
-  target: SemanticModelClass | SemanticModelClassUsage,
+  source: SemanticModelClass,
+  target: SemanticModelClass,
   language: string,
 ): CreateConnectionState {
   const models = filterInMemoryModels([...graph.models.values()]);
@@ -228,14 +224,12 @@ const AssociationSection = (props: DialogProps<CreateConnectionState>) => {
   const setDescription = (setter: (prev: LanguageString) => LanguageString) =>
     props.changeState(prev => ({ ...prev, description: setter(prev.description) }));
   const setSource = (
-    setter: (value: SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage)
-      => SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage) => {
+    setter: (value: SemanticModelRelationshipEnd) => SemanticModelRelationshipEnd) => {
     const sourceCardinality = setter({} as SemanticModelRelationshipEnd).cardinality ?? null;
     props.changeState(prev => ({ ...prev, sourceCardinality }));
   };
   const setTarget = (
-    setter: (value: SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage)
-      => SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage) => {
+    setter: (value: SemanticModelRelationshipEnd) => SemanticModelRelationshipEnd) => {
     const targetCardinality = setter({} as SemanticModelRelationshipEnd).cardinality ?? null;
     props.changeState(prev => ({ ...prev, targetCardinality }));
   };

@@ -3,10 +3,6 @@ import { ModelGraphContextType } from "../context/model-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { SemanticModelRelationship, isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
-import {
-  isSemanticModelAttributeUsage,
-  SemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ClassesContextType } from "../context/classes-context";
 import { getDomainAndRange } from "../util/relationship-utils";
 import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
@@ -72,12 +68,10 @@ export function centerViewportToVisualEntityByRepresentedAction(
  */
 export function findAttributeWithIdentifier(identifier: string, classesContext: ClassesContextType) {
   const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
-  const attributeUsages = classesContext.usages.filter(isSemanticModelAttributeUsage);
   const attributeProfiles = classesContext.relationshipProfiles.filter(isSemanticModelAttributeProfile);
 
-  const allAttributes = ([] as (SemanticModelRelationship |
-    SemanticModelRelationshipProfile |
-    SemanticModelRelationshipUsage)[]).concat(attributes).concat(attributeUsages).concat(attributeProfiles);
+  const allAttributes = ([] as (SemanticModelRelationship | SemanticModelRelationshipProfile)[])
+    .concat(attributes).concat(attributeProfiles);
 
   return allAttributes.find(attribute => attribute.id === identifier);
 }

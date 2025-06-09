@@ -17,14 +17,6 @@ import {
   getNameLanguageString,
   getUsageNoteLanguageString,
 } from "./name-utils";
-import {
-  type SemanticModelClassUsage,
-  SemanticModelRelationshipEndUsage,
-  type SemanticModelRelationshipUsage,
-  isSemanticModelAttributeUsage,
-  isSemanticModelClassUsage,
-  isSemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
 import type { Entity, EntityModel } from "@dataspecer/core-v2";
 
@@ -38,6 +30,7 @@ import {
   isSemanticModelClassProfile,
   isSemanticModelRelationshipProfile,
   SemanticModelClassProfile,
+  SemanticModelRelationshipEndProfile,
   SemanticModelRelationshipProfile,
 } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
@@ -46,8 +39,6 @@ import { dataTypeUriToName } from "../dataspecer/semantic-model/data-type";
 export type EntityDetailSupportedType =
   | SemanticModelClass
   | SemanticModelRelationship
-  | SemanticModelClassUsage
-  | SemanticModelRelationshipUsage
   | SemanticModelGeneralization
   | SemanticModelClassProfile
   | SemanticModelRelationshipProfile;
@@ -60,8 +51,6 @@ export interface EntityDetailProxy {
   specializationOf: (
     | SemanticModelClass
     | SemanticModelRelationship
-    | SemanticModelClassUsage
-    | SemanticModelRelationshipUsage
     | SemanticModelClassProfile
     | SemanticModelRelationshipProfile
     | SemanticModelClassProfile
@@ -71,40 +60,30 @@ export interface EntityDetailProxy {
   generalizationOf: (
     | SemanticModelClass
     | SemanticModelRelationship
-    | SemanticModelClassUsage
-    | SemanticModelRelationshipUsage
     | SemanticModelClassProfile
     | SemanticModelRelationshipProfile
   )[];
   profileOf: (
     | SemanticModelClass
     | SemanticModelRelationship
-    | SemanticModelClassUsage
-    | SemanticModelRelationshipUsage
     | SemanticModelClassProfile
     | SemanticModelRelationshipProfile)[];
   originalProfile: (
     | SemanticModelClass
     | SemanticModelRelationship
-    | SemanticModelClassUsage
-    | SemanticModelRelationshipUsage
     | SemanticModelClassProfile
     | SemanticModelRelationshipProfile)[];
   profiledBy: (
     | SemanticModelClass
     | SemanticModelRelationship
-    | SemanticModelClassUsage
-    | SemanticModelRelationshipUsage
     | SemanticModelClassProfile
     | SemanticModelRelationshipProfile
   )[];
   attributes: SemanticModelRelationship[];
-  attributeProfiles: (SemanticModelRelationshipUsage | SemanticModelRelationshipProfile)[];
+  attributeProfiles: (SemanticModelRelationshipProfile)[];
   domain: {
     entity:
     SemanticModelClass
-    | SemanticModelClassUsage
-    | SemanticModelRelationshipUsage
     | SemanticModelClassProfile
     | SemanticModelRelationshipProfile
     | undefined;
@@ -113,7 +92,6 @@ export interface EntityDetailProxy {
   range: {
     entity:
     SemanticModelClass
-    | SemanticModelClassUsage
     | SemanticModelClassProfile
     | undefined;
     cardinality: string | undefined;
@@ -149,7 +127,6 @@ export const createEntityProxy = (
   const {
     classes,
     relationships,
-    usages,
     classProfiles,
     relationshipProfiles,
     generalizations,
@@ -158,7 +135,7 @@ export const createEntityProxy = (
   const { models: modelsMap } = graph;
   const models = [...modelsMap.values()];
   const sourceModel = sourceModelOfEntity(viewedEntity.id, models);
-  const profileSources = [...classes, ...relationships, ...usages, ...classProfiles, ...relationshipProfiles];
+  const profileSources = [...classes, ...relationships, ...classProfiles, ...relationshipProfiles];
 
   const proxy = new Proxy(viewedEntity as unknown as EntityDetailProxy, {
     get: (_obj, property) => {
@@ -236,15 +213,12 @@ export const createEntityProxy = (
       .map((generalization) =>
         classes.find((cl) => cl.id === generalization.parent) ??
         relationships.find((re) => re.id === generalization.parent) ??
-        usages.find((p) => p.id === generalization.parent) ??
         classProfiles.find(item => item.id === generalization.parent) ??
         relationshipProfiles.find(item => item.id === generalization.parent)
       ).filter(
         (generalization): generalization is
           | SemanticModelClass
-          | SemanticModelClassUsage
           | SemanticModelRelationship
-          | SemanticModelRelationshipUsage
           | SemanticModelClassProfile
           | SemanticModelRelationshipProfile => generalization !== undefined
       );
@@ -258,23 +232,17 @@ export const createEntityProxy = (
       .map((generalization) =>
         classes.find((cl) => cl.id === generalization.child) ??
         relationships.find((re) => re.id === generalization.child) ??
-        usages.find((p) => p.id === generalization.child) ??
         classProfiles.find(item => item.id === generalization.child) ??
         relationshipProfiles.find(item => item.id === generalization.child)
       )
       .filter((generalization): generalization is
         | SemanticModelClass
-        | SemanticModelClassUsage
         | SemanticModelRelationship
-        | SemanticModelRelationshipUsage
         | SemanticModelClassProfile
         | SemanticModelRelationshipProfile => generalization !== undefined
       );
 
   const isProfileOf = () => {
-    if (isSemanticModelClassUsage(viewedEntity) || isSemanticModelRelationshipUsage(viewedEntity)) {
-      return profileSources.filter((item) => item.id === viewedEntity.usageOf);
-    }
     if (isSemanticModelClassProfile(viewedEntity)) {
       return profileSources.filter(item => viewedEntity.profiling.includes(item.id));
     }
@@ -287,10 +255,7 @@ export const createEntityProxy = (
   }
 
   const theOriginalProfiledEntity = () => {
-    if (isSemanticModelClassUsage(viewedEntity)
-      || isSemanticModelRelationshipUsage(viewedEntity)
-      || isSemanticModelClassProfile(viewedEntity)
-      || isSemanticModelRelationshipProfile(viewedEntity)) {
+    if (isSemanticModelClassProfile(viewedEntity) || isSemanticModelRelationshipProfile(viewedEntity)) {
       return getTheOriginalProfiledEntity(viewedEntity, profileSources);
     }
     return [];
@@ -298,8 +263,6 @@ export const createEntityProxy = (
 
   // We first collect identifier and then convert them to entities.
   const isProfiledBy = () => ([
-    ...usages
-      .filter((usage) => usage.usageOf === viewedEntity.id),
     ...classProfiles
       .filter(profile => profile.profiling.includes(viewedEntity.id)),
     ...relationshipProfiles
@@ -308,18 +271,10 @@ export const createEntityProxy = (
     .filter(item => item !== undefined))
 
   const ends: {
-    domain: SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage;
-    range: SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage;
+    domain: SemanticModelRelationshipEnd | SemanticModelRelationshipEndProfile;
+    range: SemanticModelRelationshipEnd | SemanticModelRelationshipEndProfile;
   } | null = (() => {
     if (isSemanticModelRelationship(viewedEntity)) {
-      const domainAndRange = getDomainAndRange(viewedEntity);
-      if (domainAndRange.domain !== null && domainAndRange.range !== null) {
-        return {
-          domain: domainAndRange.domain,
-          range: domainAndRange.range,
-        };
-      }
-    } else if (isSemanticModelRelationshipUsage(viewedEntity)) {
       const domainAndRange = getDomainAndRange(viewedEntity);
       if (domainAndRange.domain !== null && domainAndRange.range !== null) {
         return {
@@ -359,9 +314,6 @@ export const createEntityProxy = (
     .filter((item) => item.ends.at(0)?.concept === viewedEntity.id);
 
   const getAttributeProfiles = () => ([
-    ...usages
-      .filter((item) => isSemanticModelAttributeUsage(item))
-      .filter((item) => getDomainAndRange(item).domain?.concept === viewedEntity.id),
     ...relationshipProfiles
       .filter(item => isSemanticModelAttributeProfile(item))
       .filter((item) => getDomainAndRange(item).domain?.concept === viewedEntity.id),
@@ -369,22 +321,18 @@ export const createEntityProxy = (
 
   const getDomain = () => ({
     entity: classes.find(item => item.id === ends?.domain?.concept)
-      ?? usages.find(item => item.id === ends?.domain?.concept)
       ?? classProfiles.find(item => item.id === ends?.domain?.concept),
     cardinality: cardinalityToHumanLabel(ends?.domain?.cardinality),
   });
 
   const getRange = () => ({
     entity: classes.find(item => item.id === ends?.range.concept)
-      ?? usages.find(item => item.id === ends?.range?.concept)
       ?? classProfiles.find(item => item.id === ends?.range?.concept),
     cardinality: cardinalityToHumanLabel(ends?.range?.cardinality),
   });
 
   const getDataType = () => {
-    if (!(isSemanticModelAttribute(viewedEntity)
-      || isSemanticModelAttributeUsage(viewedEntity)
-      || isSemanticModelAttributeProfile(viewedEntity))) {
+    if (!(isSemanticModelAttribute(viewedEntity) || isSemanticModelAttributeProfile(viewedEntity))) {
       return null;
     }
     const concept = ends?.range.concept ?? null;
@@ -402,14 +350,10 @@ export const createEntityProxy = (
   };
 
   const canHaveAttributes =
-    () => isSemanticModelClass(viewedEntity)
-      || isSemanticModelClassUsage(viewedEntity)
-      || isSemanticModelClassProfile(viewedEntity);
+    () => isSemanticModelClass(viewedEntity) || isSemanticModelClassProfile(viewedEntity);
 
   const canHaveDomainAndRange =
-    () => isSemanticModelRelationship(viewedEntity)
-      || isSemanticModelRelationshipUsage(viewedEntity)
-      || isSemanticModelRelationshipProfile(viewedEntity);
+    () => isSemanticModelRelationship(viewedEntity) || isSemanticModelRelationshipProfile(viewedEntity);
 
   return proxy;
 };
@@ -423,12 +367,6 @@ export const getEntityTypeString = (entity: EntityDetailSupportedType | null) =>
     return "relationship (attribute)";
   } else if (isSemanticModelRelationship(entity)) {
     return "relationship";
-  } else if (isSemanticModelAttributeUsage(entity)) {
-    return "relationship profile (attribute)";
-  } else if (isSemanticModelClassUsage(entity)) {
-    return "class profile";
-  } else if (isSemanticModelRelationshipUsage(entity)) {
-    return "relationship profile";
   } else if (isSemanticModelClassProfile(entity)) {
     return "class profile";
   } else if (isSemanticModelRelationshipProfile(entity)) {

@@ -6,13 +6,6 @@ import {
   isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import {
-  type SemanticModelClassUsage,
-  type SemanticModelRelationshipUsage,
-  isSemanticModelAttributeUsage,
-  isSemanticModelClassUsage,
-  isSemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { type Entity, type EntityModel } from "@dataspecer/core-v2/entity-model";
 
@@ -32,8 +25,7 @@ import { isSemanticModelAttributeProfile } from "../../dataspecer/semantic-model
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
 
 export const RowHierarchy = (props: {
-  entity: SemanticModelClass | SemanticModelClassUsage
-  | SemanticModelRelationship | SemanticModelRelationshipUsage
+  entity: SemanticModelClass | SemanticModelRelationship
   | SemanticModelClassProfile | SemanticModelRelationshipProfile;
   handlers: {
     handleAddEntityToActiveView: (model: EntityModel, entity: Entity) => void;
@@ -49,7 +41,7 @@ export const RowHierarchy = (props: {
   onCanvas: string[];
 }) => {
   const { models, aggregatorView } = useModelGraphContext();
-  const { usages, classProfiles, relationshipProfiles, classes, allowedClasses } = useClassesContext();
+  const { classProfiles, relationshipProfiles, classes, allowedClasses } = useClassesContext();
   const { entity } = props;
 
   // We need this to get access to ends of the profile.
@@ -57,16 +49,12 @@ export const RowHierarchy = (props: {
 
   const sourceModel = sourceModelOfEntity(entity.id, [...models.values()]);
 
-  const isClassOrProfile = isSemanticModelClass(aggregatedEntity)
-    || isSemanticModelClassUsage(aggregatedEntity)
-    || isSemanticModelClassProfile(aggregatedEntity);
+  const isClassOrProfile = isSemanticModelClass(aggregatedEntity) || isSemanticModelClassProfile(aggregatedEntity);
 
   const isRelationshipOrProfile = isSemanticModelRelationship(aggregatedEntity)
-    || isSemanticModelRelationshipUsage(aggregatedEntity)
     || isSemanticModelRelationshipProfile(aggregatedEntity);
 
   const isAttributeOrAttributeProfile = isSemanticModelAttribute(aggregatedEntity) ||
-    isSemanticModelAttributeUsage(aggregatedEntity) ||
     isSemanticModelAttributeProfile(aggregatedEntity);
 
   const expansionHandler =
@@ -93,7 +81,6 @@ export const RowHierarchy = (props: {
       : null;
 
   const thisEntityProfiles = [
-    ...usages.filter(item => item.usageOf === entity.id),
     ...classProfiles.filter(item => item.profiling.includes(entity.id)),
     ...relationshipProfiles.filter(item => item.ends.find(end => end.profiling.includes(entity.id)) !== undefined),
   ];
@@ -103,7 +90,6 @@ export const RowHierarchy = (props: {
       props.handlers.handleTargeting(entity.id, entityNumberToBeCentered),
     isTargetable: props.onCanvas.includes(entity.id) ||
       isSemanticModelAttribute(entity) ||
-      isSemanticModelAttributeUsage(entity) ||
       isSemanticModelAttributeProfile(entity),
   };
 
@@ -153,9 +139,7 @@ export const RowHierarchy = (props: {
 
 function isAttributeDomainInVisualModel(
   visualModel: VisualModel | null,
-  attribute: SemanticModelRelationship
-    | SemanticModelRelationshipUsage
-    | SemanticModelRelationshipProfile,
+  attribute: SemanticModelRelationship | SemanticModelRelationshipProfile,
 ): boolean {
   if (visualModel === null) {
     return false;
@@ -178,9 +162,7 @@ function isAttributeDomainInVisualModel(
  * Return true, when both ends of a relationship are on the canvas.
  */
 const hasBothEndsInVisualModel = (
-  entity: SemanticModelRelationship
-    | SemanticModelRelationshipUsage
-    | SemanticModelRelationshipProfile,
+  entity: SemanticModelRelationship | SemanticModelRelationshipProfile,
   visualModel: VisualModel | null,
 ) => {
   if (visualModel === null) {

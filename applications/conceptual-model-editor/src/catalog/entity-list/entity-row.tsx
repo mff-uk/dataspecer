@@ -7,11 +7,6 @@ import {
   type SemanticModelRelationship,
   isSemanticModelClass,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import {
-  type SemanticModelClassUsage,
-  type SemanticModelRelationshipUsage,
-  isSemanticModelClassUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { useEntityProxy } from "../../util/detail-utils";
 import { IriLink } from "../../components/iri-link";
@@ -46,7 +41,6 @@ const TreeLikeOffset = (props: { offset?: number }) => {
 export const EntityRow = (props: {
   model: string,
   entity: SemanticModelClass | SemanticModelRelationship |
-  SemanticModelClassUsage | SemanticModelRelationshipUsage |
   SemanticModelClassProfile | SemanticModelRelationshipProfile;
   expandable: null | {
     toggleHandler: () => void;
@@ -75,7 +69,7 @@ export const EntityRow = (props: {
   const { name, iri, domain } = useEntityProxy(entity, language);
 
   const [isExpanded, setIsExpanded] = useState(expandable?.expanded());
-  const isDraggable = isSemanticModelClass(entity) || isSemanticModelClassUsage(entity);
+  const isDraggable = isSemanticModelClass(entity);
 
   const sourceModelIsLocal = sourceModel instanceof InMemorySemanticModel;
 

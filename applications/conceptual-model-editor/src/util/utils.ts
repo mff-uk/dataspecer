@@ -1,5 +1,4 @@
 import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { getDomainAndRange } from "./relationship-utils";
 import { representCardinality, representUndefinedCardinality } from "../dialog/utilities/dialog-utilities";
 import { getLocalizedStringFromLanguageString } from "./language-utils";
@@ -31,7 +30,7 @@ export function getEntityLabelToShowInDiagram(
  */
 export function createAttributeProfileLabel(
   language: string,
-  attributeProfile: SemanticModelRelationshipProfile | SemanticModelRelationshipUsage,
+  attributeProfile: SemanticModelRelationshipProfile,
 ) {
   const { range } = getDomainAndRange(attributeProfile);
   const cardinality = representCardinality(range?.cardinality);

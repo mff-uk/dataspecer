@@ -12,7 +12,6 @@ import {
   representRdfsLiteral,
   representRelationshipProfile,
   representRelationships,
-  representRelationshipUsages,
   representUndefinedAssociation,
   representUndefinedAttribute,
   representUndefinedClassProfile,
@@ -36,7 +35,6 @@ import { EntityDsIdentifier } from "../../dataspecer/entity-model";
 import { isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { InvalidState } from "../../application/error";
 import { CmeSemanticModel } from "../../dataspecer/cme-model";
-import { isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 const LOG = createLogger(import.meta.url);
 
@@ -206,9 +204,6 @@ function listAttributesToProfile(
     ...representRelationships(models, vocabularies,
       classesContext.relationships,
       owlThing.identifier, rdfsLiteral.identifier),
-    ...representRelationshipUsages(entities, models, vocabularies,
-      classesContext.usages.filter(item => isSemanticModelRelationshipUsage(item)),
-      owlThing.identifier, rdfsLiteral.identifier),
     ...representRelationshipProfile(entities, models, vocabularies,
       classesContext.relationshipProfiles)
   ].filter(isRepresentingAttribute);
@@ -221,15 +216,7 @@ function listAttributesToSpecialize(
 ) {
   const entities = graphContext.aggregatorView.getEntities();
   const models = [...graphContext.models.values()];
-
-  const owlThing = representOwlThing();
-
-  const rdfsLiteral = representRdfsLiteral();
-
   return [
-    ...representRelationshipUsages(entities, models, vocabularies,
-      classesContext.usages.filter(item => isSemanticModelRelationshipUsage(item)),
-      owlThing.identifier, rdfsLiteral.identifier),
     ...representRelationshipProfile(entities, models, vocabularies,
       classesContext.relationshipProfiles)
   ].filter(isRepresentingAttribute);

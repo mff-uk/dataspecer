@@ -1,8 +1,4 @@
 import type { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import type {
-  SemanticModelClassUsage,
-  SemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useEntityProxy } from "../util/detail-utils";
 import { useModelGraphContext } from "../context/model-context";
 import { useClassesContext } from "../context/classes-context";
@@ -20,8 +16,6 @@ export const ResourceDetailClickThrough = (props: {
   resource:
   SemanticModelClass
   | SemanticModelRelationship
-  | SemanticModelClassUsage
-  | SemanticModelRelationshipUsage
   | SemanticModelClassProfile
   | SemanticModelRelationshipProfile;
   detailDialogLanguage?: string;

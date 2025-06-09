@@ -10,7 +10,6 @@ import {
   isSemanticModelGeneralization,
   isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
 import { UseDiagramType } from "../diagram/diagram-hook";
@@ -277,9 +276,6 @@ function getAndValidateRelationshipToBeProfiled(
   const relationshipToProfile = graph.aggregatorView.getEntities()?.[entityToProfile]?.aggregatedEntity;
   if (relationshipToProfile === undefined || relationshipToProfile === null) {
     notifications.error("The entity (edge) to be profiled from selection is not present in aggregatorView");
-    return null;
-  }
-  if (isSemanticModelClassUsage(relationshipToProfile)) {    // The visual edge representing class profile
     return null;
   }
   if (isSemanticModelGeneralization(relationshipToProfile)) {

@@ -28,10 +28,6 @@ import { isSemanticModelAttribute, SemanticModelClass } from "@dataspecer/core-v
 import { addToRecordArray } from "@/utilities/functional";
 import { isSemanticModelAttributeProfile } from "@/dataspecer/semantic-model";
 import { getDomainAndRange } from "@/util/relationship-utils";
-import {
-  isSemanticModelAttributeUsage,
-  SemanticModelClassUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 const LOG = createLogger(import.meta.url);
@@ -582,19 +578,14 @@ function getClassesAndDiagramNodesFromVisualModelInternal(
  */
 export function getVisualNodeContentBasedOnExistingEntities(
   classes: ClassesContextType,
-  entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelClassProfile,
+  entity: SemanticModelClass | SemanticModelClassProfile,
 ): string[] {
   const nodeContent: string[] = [];
   const attributes = classes.relationships.filter(isSemanticModelAttribute);
-  const attributesUsages = classes.usages.filter(isSemanticModelAttributeUsage);
   const attributesProfiles = classes.relationshipProfiles.filter(isSemanticModelAttributeProfile);
 
   const nodeAttributes = attributes
     .filter(isSemanticModelAttribute)
-    .filter((attr) => getDomainAndRange(attr).domain?.concept === entity.id);
-
-  const nodeAttributeUsages = attributesUsages
-    .filter(isSemanticModelAttributeUsage)
     .filter((attr) => getDomainAndRange(attr).domain?.concept === entity.id);
 
   const nodeAttributeProfiles = attributesProfiles
@@ -603,10 +594,6 @@ export function getVisualNodeContentBasedOnExistingEntities(
 
   for (const attribute of nodeAttributes) {
     nodeContent.push(attribute.id);
-  }
-
-  for (const attributeUsage of nodeAttributeUsages) {
-    nodeContent.push(attributeUsage.id);
   }
 
   for (const attributeProfile of nodeAttributeProfiles) {

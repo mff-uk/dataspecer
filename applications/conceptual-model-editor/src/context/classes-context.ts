@@ -10,10 +10,6 @@ import {
 } from "@dataspecer/core-v2/semantic-model/operations";
 import React, { useContext } from "react";
 import type { ConnectionType } from "../util/edge-connection";
-import type {
-  SemanticModelClassUsage,
-  SemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import type { Entity } from "@dataspecer/core-v2";
 import {
   SemanticModelClassProfile,
@@ -32,8 +28,6 @@ export type ClassesContextType = {
     relationships: SemanticModelRelationship[];
 
     generalizations: SemanticModelGeneralization[];
-
-    usages: (SemanticModelClassUsage | SemanticModelRelationshipUsage)[];
 
     classProfiles: SemanticModelClassProfile[];
 

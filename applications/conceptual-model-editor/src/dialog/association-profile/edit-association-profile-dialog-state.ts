@@ -1,4 +1,3 @@
-import { isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { CmeSemanticModel } from "../../dataspecer/cme-model";
@@ -21,7 +20,6 @@ import {
   representRdfsLiteral,
   representRelationshipProfile,
   representRelationships,
-  representRelationshipUsages,
   representUndefinedAssociation,
   representUndefinedClassProfile,
   sortRepresentatives,
@@ -118,9 +116,6 @@ function listAssociationsToProfile(
     ...representRelationships(models, vocabularies,
       classesContext.relationships,
       owlThing.identifier, rdfsLiteral.identifier),
-    ...representRelationshipUsages(entities, models, vocabularies,
-      classesContext.usages.filter(item => isSemanticModelRelationshipUsage(item)),
-      owlThing.identifier, rdfsLiteral.identifier),
     ...representRelationshipProfile(entities, models, vocabularies,
       classesContext.relationshipProfiles)
   ].filter(isRepresentingAssociation);
@@ -134,14 +129,7 @@ function listAssociationsToSpecialize(
   const entities = graphContext.aggregatorView.getEntities();
   const models = [...graphContext.models.values()];
 
-  const owlThing = representOwlThing();
-
-  const rdfsLiteral = representRdfsLiteral();
-
   return [
-    ...representRelationshipUsages(entities, models, vocabularies,
-      classesContext.usages.filter(item => isSemanticModelRelationshipUsage(item)),
-      owlThing.identifier, rdfsLiteral.identifier),
     ...representRelationshipProfile(entities, models, vocabularies,
       classesContext.relationshipProfiles)
   ].filter(isRepresentingAssociation);

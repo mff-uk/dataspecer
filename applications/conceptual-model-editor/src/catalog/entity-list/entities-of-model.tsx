@@ -11,13 +11,6 @@ import {
   isSemanticModelGeneralization,
   isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import {
-  type SemanticModelClassUsage,
-  type SemanticModelRelationshipUsage,
-  isSemanticModelAttributeUsage,
-  isSemanticModelClassUsage,
-  isSemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { useClassesContext } from "../../context/classes-context";
 import { useModelGraphContext } from "../../context/model-context";
@@ -45,7 +38,6 @@ export enum EntityType {
 }
 
 type EntityTypes = SemanticModelClass | SemanticModelRelationship |
-  SemanticModelClassUsage | SemanticModelRelationshipUsage |
   SemanticModelClassProfile | SemanticModelRelationshipProfile;
 
 const DEFAULT_MODEL_COLOR = "#000069";
@@ -55,28 +47,26 @@ const DEFAULT_MODEL_COLOR = "#000069";
  */
 const getEntitiesByType = (entityType: EntityType, model: EntityModel): EntityTypes[] => {
   switch (entityType) {
-  case EntityType.Class:
-    return Object.values(model.getEntities())
-      .filter(isSemanticModelClass);
-  case EntityType.Relationship:
-    return Object.values(model.getEntities())
-      .filter(isSemanticModelRelationship)
-      .filter((entity) => !isSemanticModelAttribute(entity));
-  case EntityType.Attribute:
-    return Object.values(model.getEntities())
-      .filter(isSemanticModelAttribute);
-  case EntityType.Profile:
-    return Object.values(model.getEntities())
-      .filter(isUsageOrProfile);
+    case EntityType.Class:
+      return Object.values(model.getEntities())
+        .filter(isSemanticModelClass);
+    case EntityType.Relationship:
+      return Object.values(model.getEntities())
+        .filter(isSemanticModelRelationship)
+        .filter((entity) => !isSemanticModelAttribute(entity));
+    case EntityType.Attribute:
+      return Object.values(model.getEntities())
+        .filter(isSemanticModelAttribute);
+    case EntityType.Profile:
+      return Object.values(model.getEntities())
+        .filter(isUsageOrProfile);
   }
 };
 
 const isUsageOrProfile = (
   what: Entity | null
-): what is SemanticModelClassUsage | SemanticModelRelationshipUsage
-| SemanticModelClassProfile | SemanticModelRelationshipProfile => {
-  return isSemanticModelClassUsage(what) || isSemanticModelRelationshipUsage(what)
-    || isSemanticModelClassProfile(what) || isSemanticModelRelationshipProfile(what);
+): what is SemanticModelClassProfile | SemanticModelRelationshipProfile => {
+  return isSemanticModelClassProfile(what) || isSemanticModelRelationshipProfile(what);
 };
 
 /**
@@ -224,26 +214,15 @@ export const EntitiesOfModel = (props: {
     } else if (isSemanticModelAttributeProfile(entity)) {
       const domain = getDomainAndRange(entity).domain?.concept;
       actions.addAttributeToVisualModel(entity.id, domain ?? null);
-    } else if (isSemanticModelAttributeUsage(entity)) {
-      const domain = getDomainAndRange(entity).domain?.concept;
-      actions.addAttributeToVisualModel(entity.id, domain ?? null);
-    } else if (isSemanticModelClassUsage(entity)
-      || isSemanticModelClassProfile(entity)) {
-      actions.addClassProfileToVisualModel(model.getId(), entity.id, null);
     } else if (isSemanticModelRelationship(entity)) {
       actions.addRelationToVisualModel(model.getId(), entity.id);
-    } else if (isSemanticModelRelationshipUsage(entity)
-      || isSemanticModelRelationshipProfile(entity)) {
-      actions.addRelationProfileToVisualModel(model.getId(), entity.id);
     } else if (isSemanticModelGeneralization(entity)) {
       actions.addGeneralizationToVisualModel(model.getId(), entity.id);
     }
   };
 
   const handleDeleteFromView = (entity: Entity) => {
-    if (isSemanticModelAttribute(entity) ||
-      isSemanticModelAttributeUsage(entity) ||
-      isSemanticModelAttributeProfile(entity)) {
+    if (isSemanticModelAttribute(entity) || isSemanticModelAttributeProfile(entity)) {
       actions.removeAttributesFromVisualModel([entity.id]);
     }
     else {
@@ -339,15 +318,15 @@ function renderAddButton(actions: ActionsContextType, type: EntityType, model: E
 
   const onAdd = () => {
     switch (type) {
-    case EntityType.Class:
-      actions.openCreateClassDialog(model.getId());
-      break;
-    case EntityType.Attribute:
-      actions.openCreateAttributeDialogForModel(model.getId());
-      break;
-    case EntityType.Relationship:
-      actions.openCreateAssociationDialog(model.getId());
-      break;
+      case EntityType.Class:
+        actions.openCreateClassDialog(model.getId());
+        break;
+      case EntityType.Attribute:
+        actions.openCreateAttributeDialogForModel(model.getId());
+        break;
+      case EntityType.Relationship:
+        actions.openCreateAssociationDialog(model.getId());
+        break;
     }
   };
 

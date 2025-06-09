@@ -3,10 +3,6 @@ import {
   isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
-  isSemanticModelClassUsage,
-  isSemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import {
   isSemanticModelClassProfile,
   isSemanticModelRelationshipProfile,
 } from "@dataspecer/core-v2/semantic-model/profile/concepts";
@@ -18,15 +14,11 @@ import { getDomainAndRange } from "./relationship-utils";
 export const getNameLanguageString = (
   resource: null | Entity,
 ) => {
-  if (isSemanticModelClass(resource) || isSemanticModelClassUsage(resource)
-    || isSemanticModelClassProfile(resource)) {
+  if (isSemanticModelClass(resource) || isSemanticModelClassProfile(resource)) {
     return resource.name ?? null;
   } else if (isSemanticModelRelationship(resource)) {
     const range = getDomainAndRange(resource)?.range;
     return range?.name ?? null;
-  } else if (isSemanticModelRelationshipUsage(resource)) {
-    const range = getDomainAndRange(resource)?.range;
-    return range?.name ?? resource.name;
   } else if (isSemanticModelRelationshipProfile(resource)) {
     const range = getDomainAndRange(resource)?.range;
     return range?.name ?? null;
@@ -38,15 +30,11 @@ export const getNameLanguageString = (
 export const getDescriptionLanguageString = (
   resource: null | Entity,
 ) => {
-  if (isSemanticModelClass(resource) || isSemanticModelClassUsage(resource)
-    || isSemanticModelClassProfile(resource)) {
+  if (isSemanticModelClass(resource) || isSemanticModelClassProfile(resource)) {
     return resource.description;
   } else if (isSemanticModelRelationship(resource)) {
     const range = getDomainAndRange(resource)?.range;
     return range?.description ?? null;
-  } else if (isSemanticModelRelationshipUsage(resource)) {
-    const range = getDomainAndRange(resource)?.range;
-    return range?.description ?? resource.description;
   } else if (isSemanticModelRelationshipProfile(resource)) {
     const range = getDomainAndRange(resource)?.range;
     return range?.description ?? null;
@@ -58,11 +46,7 @@ export const getDescriptionLanguageString = (
 export const getUsageNoteLanguageString = (
   resource: null | Entity,
 ) => {
-  if (isSemanticModelClassUsage(resource)) {
-    return resource.usageNote;
-  } else if (isSemanticModelRelationshipUsage(resource)) {
-    return resource.usageNote;
-  } else if (isSemanticModelClassProfile(resource)) {
+  if (isSemanticModelClassProfile(resource)) {
     return resource.usageNote;
   } else if (isSemanticModelRelationshipProfile(resource)) {
     const range = getDomainAndRange(resource)?.range;

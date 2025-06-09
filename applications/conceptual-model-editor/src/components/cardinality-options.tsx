@@ -1,7 +1,6 @@
 import type { SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
 import { OverrideFieldCheckbox } from "./input/override-field-checkbox";
 import type { WithOverrideHandlerType } from "../util/profile-utils";
-import { SemanticModelRelationshipEndUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 const cardinalityOptionToCardinalityMap: {
     [K in CardinalityOptionType]: [number, number | null] | undefined;
@@ -60,7 +59,7 @@ type CardinalityOptionType = "unset" | "0x" | "01" | "11" | "1x" | "xx";
 export const CardinalityOptions = (props: {
     group: "source" | "target";
     defaultCard?: [number, number | null] | null;
-    setCardinality: (setter: <T = SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage>(prev: T) => T) => void;
+    setCardinality: (setter: <T = SemanticModelRelationshipEnd>(prev: T) => T) => void;
     disabled: boolean;
     onChange?: () => void;
     withOverride?: WithOverrideHandlerType;

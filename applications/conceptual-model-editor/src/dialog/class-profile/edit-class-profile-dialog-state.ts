@@ -10,7 +10,6 @@ import {
   type EntityRepresentative,
   listClassToProfiles,
   representClassProfiles,
-  representClassUsages,
   representUndefinedClass,
 } from "../utilities/dialog-utilities";
 import { EntityDsIdentifier } from "../../dataspecer/entity-model";
@@ -20,7 +19,6 @@ import { configuration, createLogger, t } from "../../application";
 import { InvalidState } from "../../application/error";
 import { isSemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { CmeSemanticModel } from "../../dataspecer/cme-model";
-import { isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { CmeClassProfileRole } from "@/dataspecer/cme-model/model";
 
 const LOG = createLogger(import.meta.url);
@@ -102,8 +100,6 @@ function listClassToSpecialize(
   const models = [...graphContext.models.values()];
 
   return [
-    ...representClassUsages(entities, models, vocabularies,
-      classesContext.usages.filter(item => isSemanticModelClassUsage(item))),
     ...representClassProfiles(entities, models, vocabularies,
       classesContext.classProfiles),
   ];

@@ -5,13 +5,6 @@ import {
 } from "@dataspecer/core-v2/semantic-model/concepts";
 
 import {
-  type SemanticModelClassUsage,
-  type SemanticModelRelationshipUsage,
-  isSemanticModelClassUsage,
-  isSemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
-
-import {
   type LanguageString,
   type SemanticModelClass,
 } from "@dataspecer/core-v2/semantic-model/concepts";
@@ -20,7 +13,7 @@ import { getDomainAndRange } from "../util/relationship-utils";
 
 import { configuration, t } from "../application/";
 
-type GetEntityLabelType = SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationshipUsage;
+type GetEntityLabelType = SemanticModelClass;
 
 /**
  * Given an entity returns a human readable label.
@@ -39,12 +32,12 @@ export function getEntityLabel(entity: GetEntityLabelType | null, language: stri
     return t("generalization-label", entity.child, entity.parent);
   }
   let name: LanguageString | null = null;
-  if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
+  if (isSemanticModelClass(entity)) {
     // This one is easy, we just use the name.
     name = entity.name;
-  } else if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
+  } else if (isSemanticModelRelationship(entity)) {
     // For relationship we need to read data from range.
-    name = getDomainAndRange(entity).range?.name ?? null;
+    name = (getDomainAndRange(entity).range as any)?.name ?? null;
   }
 
   if (name === null) {

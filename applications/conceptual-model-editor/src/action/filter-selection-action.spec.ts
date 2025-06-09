@@ -141,9 +141,6 @@ test("Test filter - Relationships - visual identifiers", () => {
     notificationMockup, graph, classesContext, inputSelection,
     filters, visibilityFilter, semanticModelFilter);
 
-  console.info(inputSelection);
-  console.info(result);
-
   expect(result.nodeSelection).toEqual([]);
   expect(result.edgeSelection).toEqual(inputEdgeSelection);
 });

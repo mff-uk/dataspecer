@@ -310,7 +310,6 @@ export class ActionsTestSuite {
       setAllowedClasses: function (_) { },
       relationships: relationshipsAsSemanticEntities,
       generalizations: generalizationsAsSemanticEntities,
-      usages: [],
       sourceModelOfEntityMap: new Map(),
       rawEntities,
       classProfiles: [],

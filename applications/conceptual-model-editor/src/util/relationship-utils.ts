@@ -5,9 +5,6 @@ import {
   isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import {
-  type SemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 export type DomainAndRange<EndType> = {
     domain: EndType | null,
@@ -75,7 +72,6 @@ export type DomainAndRangeConcepts = {
  */
 export const getDomainAndRangeConcepts = (
   relationship: SemanticModelRelationship
-  | SemanticModelRelationshipUsage
   | SemanticModelRelationshipProfile,
 ): DomainAndRangeConcepts => {
   if (isSemanticModelRelationship(relationship)) {
@@ -101,7 +97,6 @@ export const getDomainAndRangeConcepts = (
  */
 export const getSemanticConnectionEndConcepts = (
   relationship: SemanticModelRelationship
-  | SemanticModelRelationshipUsage
   | SemanticModelRelationshipProfile
   | SemanticModelGeneralization,
 ): { source: string | null, target: string | null } => {
@@ -138,7 +133,7 @@ export const cardinalityToHumanLabel = (cardinality: [number, number | null] | u
  * @param entity
  * @returns `truthy` if both ends of `entity` have an `iri`, `false` otherwise
  */
-export const bothEndsHaveAnIri = (entity: SemanticModelRelationship | SemanticModelRelationshipUsage) => {
+export const bothEndsHaveAnIri = (entity: SemanticModelRelationship) => {
   if (isSemanticModelRelationship(entity)) {
     const [first, second] = entity.ends;
     return first?.iri && first.iri.length > 0 && second?.iri && second.iri.length > 0;
@@ -146,4 +141,3 @@ export const bothEndsHaveAnIri = (entity: SemanticModelRelationship | SemanticMo
     return false;
   }
 };
-

@@ -6,11 +6,6 @@ import {
   isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import type { EntityDetailSupportedType } from "./detail-utils";
-import {
-  type SemanticModelClassUsage,
-  isSemanticModelClassUsage,
-  isSemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import type { Entity, EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import {
@@ -43,10 +38,6 @@ export const getIri = (
     iri = range?.iri ?? null;
   } else if (isSemanticModelGeneralization(entity)) {
     iri = entity.iri;
-  } else if (isSemanticModelClassUsage(entity)) {
-    iri = (entity as SemanticModelClass & SemanticModelClassUsage)?.iri ?? null;
-  } else if (isSemanticModelRelationshipUsage(entity)) {
-    iri = getDomainAndRange(entity).range?.iri ?? null;
   } else if (isSemanticModelClassProfile(entity)) {
     iri = entity.iri;
   } else if (isSemanticModelRelationshipProfile(entity)) {
@@ -98,17 +89,9 @@ export const entityWithOverriddenIri = <T extends EntityDetailSupportedType | Se
   iri: string,
   entity: T
 ): T => {
-  if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
+  if (isSemanticModelClass(entity)) {
     return { ...entity, iri: iri };
   } else if (isSemanticModelRelationship(entity)) {
-    const currentEnds = getDomainAndRange(entity);
-    if (currentEnds.rangeIndex === null || currentEnds.range === null) {
-      return entity;
-    }
-    const newEnds = entity.ends;
-    newEnds[currentEnds.rangeIndex] = { ...currentEnds.range, iri: iri };
-    return { ...entity, ends: newEnds };
-  } else if (isSemanticModelRelationshipUsage(entity)) {
     const currentEnds = getDomainAndRange(entity);
     if (currentEnds.rangeIndex === null || currentEnds.range === null) {
       return entity;

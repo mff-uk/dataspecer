@@ -10,11 +10,6 @@ import {
   isSemanticModelRelationship
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
-  SemanticModelRelationshipUsage,
-  isSemanticModelClassUsage,
-  isSemanticModelRelationshipUsage
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import {
   VisualEntity,
   VisualModel,
   isVisualNode,
@@ -949,7 +944,6 @@ export function getSelectionForWholeSemanticModel(
     const identifier = entity.id;
     if(identifier !== null) {
       const isClassOrClassProfile = isSemanticModelClass(entity) ||
-                                    isSemanticModelClassUsage(entity) ||
                                     isSemanticModelClassProfile(entity);
       if(isClassOrClassProfile) {
         result.nodeSelection.push(identifier)
@@ -962,13 +956,11 @@ export function getSelectionForWholeSemanticModel(
 
   relationshipEntities = relationshipEntities
     .filter(relationship => isSemanticModelRelationship(relationship) ||
-                            isSemanticModelRelationshipUsage(relationship) ||
                             isSemanticModelRelationshipProfile(relationship))
     .filter(relationship => checkIfBothEndsArePresent(visualModel, result.nodeSelection, relationship));
   if(shouldReturnOnlyTheProfileRelationships) {
     relationshipEntities = relationshipEntities
-      .filter(relationship => isSemanticModelRelationshipUsage(relationship) ||
-                              isSemanticModelRelationshipProfile(relationship));
+      .filter(relationship => isSemanticModelRelationshipProfile(relationship));
   }
   result.edgeSelection = relationshipEntities.map(relationship => relationship.id);
   return result;
@@ -981,7 +973,7 @@ export function getSelectionForWholeSemanticModel(
 function checkIfBothEndsArePresent(
   visualModel: VisualModel | null,
   newClasses: string[],
-  relationshipToAdd: SemanticModelRelationship | SemanticModelRelationshipProfile | SemanticModelRelationshipUsage,
+  relationshipToAdd: SemanticModelRelationship | SemanticModelRelationshipProfile,
 ): boolean {
   const areEndsPresent: [boolean, boolean] = [false, false];
   for(const cclass of newClasses) {

@@ -8,13 +8,6 @@ import {
   isSemanticModelClass,
   isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import {
-  type SemanticModelClassUsage,
-  type SemanticModelRelationshipUsage,
-  isSemanticModelAttributeUsage,
-  isSemanticModelClassUsage,
-  isSemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { IriLink } from "../../components/iri-link";
 import { sourceModelOfEntity } from "../../util/model-utils";
@@ -38,8 +31,6 @@ import { isSemanticModelAttributeProfile } from "../../dataspecer/semantic-model
 type SupportedTypes =
   | SemanticModelClass
   | SemanticModelRelationship
-  | SemanticModelClassUsage
-  | SemanticModelRelationshipUsage
   | SemanticModelGeneralization
   | SemanticModelClassProfile
   | SemanticModelRelationshipProfile;
@@ -79,14 +70,11 @@ function selectLabel(aggregatedEntity: AggregatedEntityWrapper) {
     return "detail-dialog.title.attribute";
   } else if (isSemanticModelRelationship(entity)) {
     return "detail-dialog.title.relationship";
-  } else if (isSemanticModelAttributeUsage(entity)
-    || isSemanticModelAttributeProfile(entity)) {
+  } else if (isSemanticModelAttributeProfile(entity)) {
     return "detail-dialog.title.attribute-profile";
-  } else if (isSemanticModelClassUsage(entity)
-    || isSemanticModelClassProfile(entity)) {
+  } else if (isSemanticModelClassProfile(entity)) {
     return "detail-dialog.title.class-profile";
-  } else if (isSemanticModelRelationshipUsage(entity)
-    || isSemanticModelRelationshipProfile(entity)) {
+  } else if (isSemanticModelRelationshipProfile(entity)) {
     return "detail-dialog.title.relationship-profile";
   } else {
     return "detail-dialog.title.unknown";
@@ -114,7 +102,7 @@ const EntityDetailDialog = (props: DialogProps<EntityDetailState>) => {
   const proxy = useEntityProxy(entity, language);
 
   const isRelationship = isSemanticModelRelationship(entity);
-  const isRelationshipProfile = isSemanticModelRelationshipUsage(entity);
+  const isRelationshipProfile = isSemanticModelRelationshipProfile(entity);
 
   const handleResourceClickThroughClicked = (next: SupportedTypes) => {
     props.changeState({

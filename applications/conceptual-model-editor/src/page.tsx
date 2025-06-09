@@ -22,12 +22,6 @@ import {
   isSemanticModelGeneralization,
   isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import {
-  type SemanticModelClassUsage,
-  type SemanticModelRelationshipUsage,
-  isSemanticModelClassUsage,
-  isSemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { ClassesContext } from "./context/classes-context";
 import { ModelGraphContext } from "./context/model-context";
@@ -90,7 +84,6 @@ const Page = () => {
   const [allowedClasses, setAllowedClasses] = useState<string[]>([]);
   const [relationships, setRelationships] = useState<SemanticModelRelationship[]>([]);
   const [generalizations, setGeneralizations] = useState<SemanticModelGeneralization[]>([]);
-  const [usages, setUsages] = useState<(SemanticModelClassUsage | SemanticModelRelationshipUsage)[]>([]);
   const [rawEntities, setRawEntities] = useState<(Entity | null)[]>([]);
   const [visualModels, setVisualModels] = useState(new Map<string, WritableVisualModel>());
   const [sourceModelOfEntityMap, setSourceModelOfEntityMap] = useState(new Map<string, string>());
@@ -154,7 +147,7 @@ const Page = () => {
       propagateAggregatorChangesToLocalState(
         updated, removed,
         setClasses, setRelationships,
-        setUsages, setGeneralizations, setRawEntities,
+        setGeneralizations, setRawEntities,
         setSourceModelOfEntityMap,
         setClassProfiles, setRelationshipProfiles,
         aggregatorView);
@@ -184,7 +177,6 @@ const Page = () => {
               setAllowedClasses,
               relationships,
               generalizations,
-              usages,
               sourceModelOfEntityMap,
               rawEntities,
               classProfiles,
@@ -382,7 +374,6 @@ function propagateAggregatorChangesToLocalState(
   // Local state.
   setClasses: Dispatch<SetStateAction<SemanticModelClass[]>>,
   setRelationships: Dispatch<SetStateAction<SemanticModelRelationship[]>>,
-  setUsages: Dispatch<SetStateAction<(SemanticModelClassUsage | SemanticModelRelationshipUsage)[]>>,
   setGeneralizations: Dispatch<SetStateAction<SemanticModelGeneralization[]>>,
   setRawEntities: Dispatch<SetStateAction<(Entity | null)[]>>,
   setSourceModelOfEntityMap: Dispatch<SetStateAction<Map<string, string>>>,
@@ -397,7 +388,6 @@ function propagateAggregatorChangesToLocalState(
     updatedClasses,
     updatedRelationships,
     updatedGeneralizations,
-    updatedProfiles: updatedUsages,
     updatedRawEntities,
     updatedClassProfiles,
     updatedRelationshipProfiles,
@@ -407,7 +397,6 @@ function propagateAggregatorChangesToLocalState(
         updatedClasses,
         updatedRelationships,
         updatedGeneralizations,
-        updatedProfiles,
         updatedRawEntities,
         updatedClassProfiles,
         updatedRelationshipProfiles,
@@ -420,7 +409,6 @@ function propagateAggregatorChangesToLocalState(
           updatedClasses: updatedClasses.concat(curr.aggregatedEntity),
           updatedRelationships,
           updatedGeneralizations,
-          updatedProfiles,
           updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
           updatedClassProfiles,
           updatedRelationshipProfiles,
@@ -436,7 +424,6 @@ function propagateAggregatorChangesToLocalState(
             updatedClasses,
             updatedRelationships,
             updatedGeneralizations,
-            updatedProfiles,
             updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
             updatedClassProfiles,
             updatedRelationshipProfiles,
@@ -446,19 +433,6 @@ function propagateAggregatorChangesToLocalState(
           updatedClasses,
           updatedRelationships: updatedRelationships.concat(curr.aggregatedEntity),
           updatedGeneralizations,
-          updatedProfiles,
-          updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
-          updatedClassProfiles,
-          updatedRelationshipProfiles,
-        };
-      } else if (
-        isSemanticModelClassUsage(curr.aggregatedEntity) || isSemanticModelRelationshipUsage(curr.aggregatedEntity)
-      ) {
-        return {
-          updatedClasses,
-          updatedRelationships,
-          updatedGeneralizations,
-          updatedProfiles: updatedProfiles.concat(curr.aggregatedEntity),
           updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
           updatedClassProfiles,
           updatedRelationshipProfiles,
@@ -468,7 +442,6 @@ function propagateAggregatorChangesToLocalState(
           updatedClasses,
           updatedRelationships,
           updatedGeneralizations: updatedGeneralizations.concat(curr.aggregatedEntity),
-          updatedProfiles,
           updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
           updatedClassProfiles,
           updatedRelationshipProfiles,
@@ -478,7 +451,6 @@ function propagateAggregatorChangesToLocalState(
           updatedClasses,
           updatedRelationships,
           updatedGeneralizations,
-          updatedProfiles,
           updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
           updatedClassProfiles: updatedClassProfiles.concat(curr.aggregatedEntity),
           updatedRelationshipProfiles,
@@ -488,7 +460,6 @@ function propagateAggregatorChangesToLocalState(
           updatedClasses,
           updatedRelationships,
           updatedGeneralizations,
-          updatedProfiles,
           updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
           updatedClassProfiles,
           updatedRelationshipProfiles: updatedRelationshipProfiles.concat(curr.aggregatedEntity),
@@ -502,7 +473,6 @@ function propagateAggregatorChangesToLocalState(
       updatedClasses: [] as SemanticModelClass[],
       updatedRelationships: [] as SemanticModelRelationship[],
       updatedGeneralizations: [] as SemanticModelGeneralization[],
-      updatedProfiles: [] as (SemanticModelClassUsage | SemanticModelRelationshipUsage)[],
       updatedRawEntities: [] as (Entity | null)[],
       updatedClassProfiles: [] as SemanticModelClassProfile[],
       updatedRelationshipProfiles: [] as SemanticModelRelationshipProfile[],
@@ -525,7 +495,6 @@ function propagateAggregatorChangesToLocalState(
   setClasses(prev => updateItems(prev, removedIds, updatedClasses));
   setRelationships(prev => updateItems(prev, removedIds, updatedRelationships));
   setGeneralizations(prev => updateItems(prev, removedIds, updatedGeneralizations));
-  setUsages(prev => updateItems(prev, removedIds, updatedUsages));
   setRawEntities(prev => updateItems(
     prev.filter(item => item !== null),
     removedIds,

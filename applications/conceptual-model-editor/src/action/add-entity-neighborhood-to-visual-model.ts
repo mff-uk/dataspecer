@@ -32,10 +32,6 @@ import { XY } from "@dataspecer/layout";
 import { addSemanticAttributeToVisualNodeAction } from "./add-semantic-attribute-to-visual-node";
 import { getViewportCenterForClassPlacement } from "./utilities";
 import { EntityModel } from "@dataspecer/core-v2";
-import {
-  isSemanticModelAttributeUsage,
-  SemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 /**
  * Adds entity's neighborhood to visual model. That is:
@@ -383,12 +379,10 @@ function getAllAttributesForDomainClass(
   domainClass: string
 ) {
   const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
-  const attributeUsages = classesContext.usages.filter(isSemanticModelAttributeUsage);
   const attributeProfiles = classesContext.relationshipProfiles.filter(isSemanticModelAttributeProfile);
 
-  const allAttributes = ([] as (SemanticModelRelationship |
-    SemanticModelRelationshipProfile |
-    SemanticModelRelationshipUsage)[]).concat(attributes).concat(attributeUsages).concat(attributeProfiles);
+  const allAttributes = ([] as (SemanticModelRelationship | SemanticModelRelationshipProfile )[])
+    .concat(attributes).concat(attributeProfiles);
 
   return allAttributes
     .filter(attribute => getDomainAndRangeConcepts(attribute).domain === domainClass)

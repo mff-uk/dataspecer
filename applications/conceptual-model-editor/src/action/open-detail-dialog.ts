@@ -5,11 +5,6 @@ import {
   isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
-  isSemanticModelAttributeUsage,
-  isSemanticModelClassUsage,
-  isSemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import {
   isSemanticModelClassProfile,
   isSemanticModelRelationshipProfile,
 } from "@dataspecer/core-v2/semantic-model/profile/concepts";
@@ -35,11 +30,8 @@ export function openDetailDialogAction(
   // In future we should have different dialogs based on the type, for now
   // we just fall through to a single dialog for all.
   if (isSemanticModelClass(entity)
-    || isSemanticModelClassUsage(entity)
     || isSemanticModelAttribute(entity)
-    || isSemanticModelAttributeUsage(entity)
     || isSemanticModelRelationship(entity)
-    || isSemanticModelRelationshipUsage(entity)
     || isSemanticModelGeneralization(entity)
     || isSemanticModelClassProfile(entity)
     || isSemanticModelRelationshipProfile(entity)

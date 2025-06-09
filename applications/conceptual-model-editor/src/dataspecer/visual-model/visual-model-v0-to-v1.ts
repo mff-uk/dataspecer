@@ -12,12 +12,9 @@ import {
   isSemanticModelGeneralization,
   isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import {
-  isSemanticModelClassUsage,
-  isSemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { findSourceModelOfEntity } from "../../service/model-service";
 import { getDomainAndRangeConcepts } from "../../util/relationship-utils";
+import { isSemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 /**
  * Given visual model in version 0 performs migration to version 1, changing content of the model.
@@ -65,22 +62,22 @@ function migrateVisualNode(
   const representedEntity = represented.aggregatedEntity;
   if (isSemanticModelClass(representedEntity)) {
     // This is ok.
-  } else if (isSemanticModelClassUsage(representedEntity)) {
+  } else if (isSemanticModelClassProfile(representedEntity)) {
     // It is a profile.
-    const usageOf = entities[representedEntity.usageOf];
-    const usageVisual = visualModel.getVisualEntitiesForRepresented(usageOf.id)[0];
-    if (usageVisual === undefined) {
-      // There is no visual representation.
-    } else {
-      // There is a visual representation, we add a relation.
-      visualModel.addVisualProfileRelationship({
-        entity: representedEntity.id,
-        model: representedModel.getId(),
-        waypoints: [],
-        visualSource: entity.identifier,
-        visualTarget: usageVisual.identifier,
-      });
-    }
+    representedEntity.profiling
+      .map(item => entities[item])
+      .map(item => visualModel.getVisualEntitiesForRepresented(item.id)[0])
+      .filter(item => item !== undefined)
+      .forEach(item => {
+        // There is a visual representation, we add a relation.
+        visualModel.addVisualProfileRelationship({
+          entity: representedEntity.id,
+          model: representedModel.getId(),
+          waypoints: [],
+          visualSource: entity.identifier,
+          visualTarget: item.identifier,
+        });
+      })
   } else {
     visualModel.deleteVisualEntity(entity.identifier);
     return;
@@ -117,15 +114,14 @@ function migrateVisualRelationship(
   // Instead of a positive check, we use a negative one, so we
   // check for representation of non-relations.
   const representedEntity = represented.aggregatedEntity;
-  if (isSemanticModelClass(representedEntity)
-    || isSemanticModelClassUsage(representedEntity)) {
+  if (isSemanticModelClass(representedEntity)) {
     // Type miss match.
     visualModel.deleteVisualEntity(entity.identifier);
     return;
   }
 
   // We need to find ends of the relationship in the visual model.
-  if (isSemanticModelRelationship(representedEntity) || isSemanticModelRelationshipUsage(representedEntity)) {
+  if (isSemanticModelRelationship(representedEntity)) {
     const { domain, range } = getDomainAndRangeConcepts(representedEntity);
     if (domain === null || range === null) {
       // Invalid entity.
