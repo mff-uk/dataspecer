@@ -10,13 +10,15 @@ import {
 import {
   DiagramOptions,
   EntityColor,
+  LabelVisual,
+  ProfileOfVisual,
+} from "../model";
+import {
   isNodeRelationshipItem,
   isNodeTitleItem,
-  LabelVisual,
   NodeRelationshipItem,
   NodeTitleItem,
   NodeType,
-  ProfileOfVisual,
   type Node as ApiNode,
 } from "../diagram-model";
 import { DiagramContext, NodeMenuType } from "../diagram-controller";

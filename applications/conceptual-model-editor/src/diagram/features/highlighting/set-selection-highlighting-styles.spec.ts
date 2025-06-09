@@ -4,7 +4,12 @@
 
 import { expect, beforeEach, test } from "vitest";
 import { EdgeType, NodeType, selectMarkerEnd } from "../../diagram-controller";
-import { Node as ApiNode, NodeType as NodeTypeApi, Edge as ApiEdge, EdgeType as ApiEdgeType, LabelVisual, EntityColor, ProfileOfVisual, } from "../../diagram-model";
+import {
+  EntityColor,
+  LabelVisual,
+  ProfileOfVisual,
+} from "../../model";
+import { Node as ApiNode, NodeType as NodeTypeApi, Edge as ApiEdge, EdgeType as ApiEdgeType } from "../../diagram-model";
 import { EntityNodeName } from "../../node/entity-node";
 import { Edge } from "@xyflow/react";
 import { highlightColorMap, setHighlightingStylesBasedOnSelection } from "./set-selection-highlighting-styles";

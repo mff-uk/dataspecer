@@ -82,7 +82,7 @@ test("Remove ends and the relationship", () => {
     visualModel,
     firstModel,
     graph,
-   classesContext ,
+    classesContext ,
   } = ActionsTestSuite.prepareModelsWithSemanticData(
     4, TestedSemanticConnectionType.Association);
 

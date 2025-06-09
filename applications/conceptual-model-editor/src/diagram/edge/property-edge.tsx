@@ -10,7 +10,13 @@ import {
 
 import { createLogger } from "../../application/";
 
-import { defaultDiagramOptions, DiagramOptions, EdgeType, EntityColor, LabelVisual, ProfileOfVisual, type Edge as ApiEdge } from "../diagram-model";
+import {
+  DiagramOptions,
+  EntityColor,
+  LabelVisual,
+  ProfileOfVisual,
+} from "../model";
+import { EdgeType, type Edge as ApiEdge } from "../diagram-model";
 import { DiagramContext } from "../diagram-controller";
 import { createSvgPath, createOrthogonalWaypoints, findLabelPosition } from "./edge-utilities";
 import { Waypoints } from "./waypoints";
@@ -140,10 +146,10 @@ function selectArchetype(options: DiagramOptions, type: EdgeType) {
     return "";
   }
   switch (type) {
-    case EdgeType.AssociationProfile:
-      return "<<profile>>\n";
-    default:
-      return ""
+  case EdgeType.AssociationProfile:
+    return "<<profile>>\n";
+  default:
+    return ""
   }
 }
 
@@ -157,15 +163,15 @@ function selectEntityLabel(
   },
 ) {
   switch (options.labelVisual) {
-    case LabelVisual.Entity:
-      return data.label;
-    case LabelVisual.Iri:
-      return data.iri;
-    case LabelVisual.VocabularyOrEntity:
-      return data.vocabulary
-        .map(item => item.label)
-        .filter(item => item !== null)
-        .join(", ");
+  case LabelVisual.Entity:
+    return data.label;
+  case LabelVisual.Iri:
+    return data.iri;
+  case LabelVisual.VocabularyOrEntity:
+    return data.vocabulary
+      .map(item => item.label)
+      .filter(item => item !== null)
+      .join(", ");
   }
 }
 
@@ -178,14 +184,14 @@ function selectProfileLabel(
 ) {
   let labels: (string | null)[] = [];
   switch (options.profileOfVisual) {
-    case ProfileOfVisual.Entity:
-      labels = profileOf.map(item => item.label);
-      break;
-    case ProfileOfVisual.Iri:
-      labels = profileOf.map(item => item.iri);
-      break;
-    case ProfileOfVisual.None:
-      return;
+  case ProfileOfVisual.Entity:
+    labels = profileOf.map(item => item.label);
+    break;
+  case ProfileOfVisual.Iri:
+    labels = profileOf.map(item => item.iri);
+    break;
+  case ProfileOfVisual.None:
+    return;
   }
   if (labels.length === 0) {
     return "";
@@ -195,14 +201,14 @@ function selectProfileLabel(
 
 function prepareColor(data: ApiEdge) {
   switch (data.options.entityMainColor) {
-    case EntityColor.Entity:
+  case EntityColor.Entity:
+    return data.color;
+  case EntityColor.VocabularyOrEntity:
+    if (data.vocabulary.length === 0) {
       return data.color;
-    case EntityColor.VocabularyOrEntity:
-      if (data.vocabulary.length === 0) {
-        return data.color;
-      }
-      // Just use the first one.
-      return data.vocabulary[0].color;
+    }
+    // Just use the first one.
+    return data.vocabulary[0].color;
   }
 }
 

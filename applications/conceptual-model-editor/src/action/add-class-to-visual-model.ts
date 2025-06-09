@@ -6,7 +6,7 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { ModelGraphContextType } from "../context/model-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { addRelatedEntitiesAction } from "./add-related-entities-to-visual-model";
-import { findPositionForNewNodesUsingLayouting, findPositionForNewNodeUsingLayouting } from "./layout-visual-model";
+import { findPositionForNewNodeUsingLayouting } from "./layout-visual-model";
 import { ClassesContextType } from "../context/classes-context";
 import { addVisualNode } from "../dataspecer/visual-model/operation/add-visual-node";
 

@@ -95,7 +95,7 @@ export interface VisualModelOperationExecutor {
 }
 
 class DefaultVisualModelOperationExecutor
-  implements VisualModelOperationExecutor {
+implements VisualModelOperationExecutor {
 
   private visualModel: WritableVisualModel;
 

@@ -2,7 +2,6 @@ import { DialogApiContextType } from "@/dialog/dialog-service";
 import { createPerformLayoutDialog, createPerformLayoutDialogState } from "@/dialog/layout/create-perform-layout-dialog";
 import { PerformLayoutDialogState } from "@/dialog/layout/perform-layout-controller";
 import { layoutActiveVisualModelAction } from "./layout-visual-model";
-import { getDefaultUserGivenAlgorithmConfigurationsFull } from "@dataspecer/layout";
 import { ClassesContextType } from "@/context/classes-context";
 import { UseNotificationServiceWriterType } from "@/notification/notification-service-context";
 import { UseDiagramType } from "@/diagram/diagram-hook";

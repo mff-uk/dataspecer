@@ -334,8 +334,6 @@ const nodesHighlightingLevelToClassnameMap: Record<HighlightLevel, string> = Obj
   1: "node-highlight-secondary",
 });
 
-
-
 const setHighlightLevelDataForNode = (
   node: NodeType,
   newVisualIdentifierToSemanticIdentifierMap: Record<string, string>,

@@ -44,7 +44,17 @@ import { type UseModelGraphContextType, useModelGraphContext } from "./context/m
 import { type UseClassesContextType, useClassesContext } from "./context/classes-context";
 import { cardinalityToHumanLabel, getDomainAndRange } from "./util/relationship-utils";
 import { useActions } from "./action/actions-react-binding";
-import { Diagram, type Edge, EdgeType, Group, type NodeItem, type Node, NodeType, NODE_ITEM_TYPE, NodeRelationshipItem, DiagramOptions, LabelVisual, NodeTitleItem, NODE_TITLE_ITEM_TYPE, EntityColor, ProfileOfVisual, VisualModelDiagramNode, DiagramNodeTypes } from "./diagram/";
+import {
+  DiagramOptions,
+  EntityColor,
+  LabelVisual,
+  ProfileOfVisual,
+} from "./diagram/model";
+import {
+  Diagram, type Edge, EdgeType, Group, type NodeItem, type Node, NodeType,
+  NODE_ITEM_TYPE, NodeRelationshipItem, NodeTitleItem, NODE_TITLE_ITEM_TYPE,
+  VisualModelDiagramNode, DiagramNodeTypes,
+} from "./diagram/";
 import { type UseDiagramType } from "./diagram/diagram-hook";
 import { configuration, createLogger } from "./application";
 import { getDescriptionLanguageString } from "./util/name-utils";
@@ -232,12 +242,12 @@ function onChangeVisualModel(
   const { nodeToGroupMapping } = getGroupMappings(visualModel);
 
   for (const visualEntity of visualEntities) {
-    if(isVisualDiagramNode(visualEntity)) {
+    if (isVisualDiagramNode(visualEntity)) {
       const node = createVisualModelDiagramNode(
         options, aggregatorView.getAvailableVisualModels(),
         visualEntity, nodeToGroupMapping[visualEntity.identifier] ?? null);
       nextNodes.push(node);
-    } else if(isVisualGroup(visualEntity)) {
+    } else if (isVisualGroup(visualEntity)) {
       nextGroups.push(visualEntity);
       continue;
     } else if (isVisualNode(visualEntity)) {
@@ -335,7 +345,7 @@ function createVisualModelDiagramNode(
   let referencedVisualModelLabel = referencedVisualModel === undefined ?
     "" :
     getLocalizedStringFromLanguageString(referencedVisualModel.getLabel(), options.language);
-  if(referencedVisualModelLabel === null) {
+  if (referencedVisualModelLabel === null) {
     referencedVisualModelLabel = "Visual model node";
   }
 
@@ -559,7 +569,7 @@ function prepareIri(
   return applyIriPrefix(model.getBaseIri() + iri);
 }
 
-function applyIriPrefix(iri:string) : string {
+function applyIriPrefix(iri: string): string {
   const prefixes = configuration().prefixes;
   for (const [prefix, name] of Object.entries(prefixes)) {
     if (iri.startsWith(prefix)) {
@@ -867,7 +877,7 @@ function onChangeVisualEntities(
   for (const { previous, next } of changes) {
     if (next !== null) {
       // New or changed entity.
-      if(isVisualDiagramNode(next)) {
+      if (isVisualDiagramNode(next)) {
         let group: string | null = null;
         if (nodeIdToParentGroupIdMap[next.identifier] !== undefined) {
           group = nodeIdToParentGroupIdMap[next.identifier];
@@ -1011,7 +1021,7 @@ function onChangeVisualEntities(
         actions.removeNodes([previous.identifier]);
       } else if (isVisualRelationship(previous) || isVisualProfileRelationship(previous)) {
         actions.removeEdges([previous.identifier]);
-      } else if(isVisualDiagramNode(previous)) {
+      } else if (isVisualDiagramNode(previous)) {
         actions.removeNodes([previous.identifier]);
         visualDiagramNodesChanges.removed.push(previous);
       } else {
