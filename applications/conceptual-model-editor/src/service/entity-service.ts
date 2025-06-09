@@ -59,7 +59,11 @@ export function getEntityLabel(entity: GetEntityLabelType | null, language: stri
  *
  * If not return value with language tag for first preferred available language or any language.
  */
-function languageStringToHumanReadable(value: LanguageString, language: string, languagePreferences: string[]): string | null {
+function languageStringToHumanReadable(
+  value: LanguageString,
+  language: string,
+  languagePreferences: string[],
+): string | null {
   let result = value[language];
   if (result !== undefined) {
     return result;

@@ -8,11 +8,21 @@ import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { Options } from "../configuration/options";
-import { ConnectionType, CreateConnectionState, createConnectionDialog } from "../dialog/obsolete/create-connection-dialog";
+import {
+  ConnectionType,
+  CreateConnectionState,
+  createConnectionDialog,
+} from "../dialog/obsolete/create-connection-dialog";
 import { InvalidState, UnsupportedOperationException } from "../application/error";
 import { createLogger } from "../application";
-import { isSemanticModelClassProfile, SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { createVisualModelOperationExecutor, VisualModelOperationExecutor } from "../dataspecer/visual-model/visual-model-operation-executor";
+import {
+  isSemanticModelClassProfile,
+  SemanticModelClassProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  createVisualModelOperationExecutor,
+  VisualModelOperationExecutor,
+} from "../dataspecer/visual-model/visual-model-operation-executor";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { withErrorBoundary } from "./utilities/error-utilities";
 import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";

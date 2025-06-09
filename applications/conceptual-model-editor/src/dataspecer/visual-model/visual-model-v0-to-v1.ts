@@ -1,8 +1,21 @@
 import { EntityModel } from "@dataspecer/core-v2";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { VisualNode, VisualRelationship, WritableVisualModel, isVisualNode, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+  type VisualNode,
+  type VisualRelationship,
+  type WritableVisualModel,
+  isVisualNode,
+  isVisualRelationship,
+} from "@dataspecer/core-v2/visual-model";
+import {
+  isSemanticModelClass,
+  isSemanticModelGeneralization,
+  isSemanticModelRelationship,
+} from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+  isSemanticModelClassUsage,
+  isSemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { findSourceModelOfEntity } from "../../service/model-service";
 import { getDomainAndRangeConcepts } from "../../util/relationship-utils";
 

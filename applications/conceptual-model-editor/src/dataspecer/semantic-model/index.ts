@@ -1,6 +1,9 @@
 import { Entity, EntityModel } from "@dataspecer/core-v2";
 import { SemanticModelAggregator } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  isSemanticModelRelationshipProfile,
+  SemanticModelRelationshipProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isRepresentingAttribute } from "../../dialog/utilities/dialog-utilities";
 import { EntityDsIdentifier } from "../entity-model";
 

@@ -11,7 +11,9 @@ import { Position } from "../diagram";
 import { ClassDialogState } from "../dialog/class/edit-class-dialog-state";
 import { createNewAssociationDialogState } from "../dialog/association/edit-association-dialog-state";
 import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
-import { associationDialogStateToNewCmeRelationship } from "../dialog/association/edit-association-dialog-state-adapter";
+import {
+  associationDialogStateToNewCmeRelationship,
+} from "../dialog/association/edit-association-dialog-state-adapter";
 import { CmeReference } from "../dataspecer/cme-model/model";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 

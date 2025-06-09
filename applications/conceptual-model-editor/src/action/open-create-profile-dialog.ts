@@ -14,19 +14,37 @@ import { ClassesContextType } from "../context/classes-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  isSemanticModelClassProfile,
+  isSemanticModelRelationshipProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
 import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
-import { ClassProfileDialogState, createNewProfileClassDialogState } from "../dialog/class-profile/edit-class-profile-dialog-state";
+import {
+  ClassProfileDialogState,
+  createNewProfileClassDialogState,
+} from "../dialog/class-profile/edit-class-profile-dialog-state";
 import { createNewClassProfileDialog } from "../dialog/class-profile/edit-class-profile-dialog";
-import { AttributeProfileDialogState, createNewAttributeProfileDialogState } from "../dialog/attribute-profile/edit-attribute-profile-dialog-state";
+import {
+  AttributeProfileDialogState,
+  createNewAttributeProfileDialogState,
+} from "../dialog/attribute-profile/edit-attribute-profile-dialog-state";
 import { createEditAttributeProfileDialog } from "../dialog/attribute-profile/edit-attribute-profile-dialog";
-import { AssociationProfileDialogState, createNewAssociationProfileDialogState } from "../dialog/association-profile/edit-association-profile-dialog-state";
+import {
+  AssociationProfileDialogState,
+  createNewAssociationProfileDialogState,
+} from "../dialog/association-profile/edit-association-profile-dialog-state";
 import { createNewAssociationProfileDialog } from "../dialog/association-profile/edit-association-profile-dialog";
-import { classProfileDialogStateToNewCmeClassProfile } from "../dialog/class-profile/edit-class-profile-dialog-state-adapter";
-import { attributeProfileDialogStateToNewCmeRelationshipProfile } from "../dialog/attribute-profile/edit-attribute-profile-dialog-state-adapter";
-import { associationProfileDialogStateToNewCmeRelationshipProfile } from "../dialog/association-profile/edit-association-profile-dialog-state-adapter";
+import {
+  classProfileDialogStateToNewCmeClassProfile,
+} from "../dialog/class-profile/edit-class-profile-dialog-state-adapter";
+import {
+  attributeProfileDialogStateToNewCmeRelationshipProfile,
+} from "../dialog/attribute-profile/edit-attribute-profile-dialog-state-adapter";
+import {
+  associationProfileDialogStateToNewCmeRelationshipProfile,
+} from "../dialog/association-profile/edit-association-profile-dialog-state-adapter";
 
 export function openCreateProfileDialogAction(
   cmeExecutor: CmeModelOperationExecutor,

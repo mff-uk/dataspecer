@@ -7,11 +7,18 @@ import { ModelGraphContextType } from "../context/model-context";
 import { Options } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { firstInMemorySemanticModel } from "../utilities/model";
-import { AssociationDialogState, createNewAssociationDialogState } from "../dialog/association/edit-association-dialog-state";
-import { addVisualRelationshipsWithSpecifiedVisualEnds } from "../dataspecer/visual-model/operation/add-visual-relationships";
+import {
+  AssociationDialogState,
+  createNewAssociationDialogState,
+} from "../dialog/association/edit-association-dialog-state";
+import {
+  addVisualRelationshipsWithSpecifiedVisualEnds,
+} from "../dataspecer/visual-model/operation/add-visual-relationships";
 import { createNewAssociationDialog } from "../dialog/association/edit-association-dialog";
 import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
-import { associationDialogStateToNewCmeRelationship } from "../dialog/association/edit-association-dialog-state-adapter";
+import {
+  associationDialogStateToNewCmeRelationship,
+} from "../dialog/association/edit-association-dialog-state-adapter";
 
 /**
  * Open and handle create association dialog.

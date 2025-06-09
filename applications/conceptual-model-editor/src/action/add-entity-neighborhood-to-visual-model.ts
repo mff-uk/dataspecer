@@ -32,7 +32,10 @@ import { XY } from "@dataspecer/layout";
 import { addSemanticAttributeToVisualNodeAction } from "./add-semantic-attribute-to-visual-node";
 import { getViewportCenterForClassPlacement } from "./utilities";
 import { EntityModel } from "@dataspecer/core-v2";
-import { isSemanticModelAttributeUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+  isSemanticModelAttributeUsage,
+  SemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 /**
  * Adds entity's neighborhood to visual model. That is:
@@ -114,7 +117,7 @@ export const addEntityNeighborhoodToVisualModelAction = async (
       }
     }
     else if (isSemanticModelRelationship(possibleRelationship) ||
-             isSemanticModelRelationshipProfile(possibleRelationship)) {
+      isSemanticModelRelationshipProfile(possibleRelationship)) {
       const { domain, range } = getDomainAndRangeConcepts(possibleRelationship);
       if (domain === null) {
         notifications.error("Given entity is relationship or relationship profile, but it does not have domain class");
@@ -281,7 +284,8 @@ const addClassOrClassProfileToVisualModel = async (
 
   const model = findSourceModelOfEntity(cclass.id, graph.models);
   if (model === null) {
-    notifications.error("Given entity is relationship or relationship profile, but its domain or range has missing source model");
+    notifications.error(
+      "Given entity is relationship or relationship profile, but its domain or range has missing source model");
     return false;
   }
 

@@ -20,7 +20,7 @@ export const shortenStringTo = (modelId: string | null, length: number = 20) => 
  */
 export function getEntityLabelToShowInDiagram(
   language: string,
-  entity: null| Entity,
+  entity: null | Entity,
 ) {
   return getLocalizedStringFromLanguageString(getNameLanguageString(entity), language)
     ?? getFallbackDisplayName(entity) ?? "";
@@ -48,13 +48,14 @@ export type VisualsForRepresentedWrapper = (identifier: string) => VisualEntity[
  * the visual diagram node as the represented entity - but only in some cases,
  * which is one of the reasons why it is not part of the VisualModel
  * (other reason is that it would complicate the model + we would need access to all other
- *  existing VisualModels, which would destroy the fact that it should be separate concept).
+ * existing VisualModels, which would destroy the fact that it should be separate concept).
  */
 export function createGetVisualEntitiesForRepresentedGlobalWrapper(
   availableVisualModels: VisualModel[],
   visualModel: VisualModel
 ): VisualsForRepresentedWrapper {
-  const { classToVisualDiagramNodeMappingRaw } = getVisualDiagramNodeMappingsByRepresented(availableVisualModels, visualModel);
+  const { classToVisualDiagramNodeMappingRaw } =
+    getVisualDiagramNodeMappingsByRepresented(availableVisualModels, visualModel);
   return (identifier: string) => {
     const directEntitiesInModel = visualModel.getVisualEntitiesForRepresented(identifier);
     const indirectEntitiesInModel = classToVisualDiagramNodeMappingRaw[identifier]

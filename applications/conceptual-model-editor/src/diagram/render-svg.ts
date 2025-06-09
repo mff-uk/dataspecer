@@ -9,7 +9,8 @@ export async function diagramContentAsSvg(nodes: NodeType[]): Promise<string | n
 
 async function getSvg(nodes: NodeType[], width = 800, heigh = 550) : Promise<string | null> {
   // We calculate a transform for the nodes so that all nodes are visible.
-  // We then overwrite the transform of the `.react-flow__viewport` element with the style option of the html-to-image library.
+  // We then overwrite the transform of the `.react-flow__viewport`
+  // element with the style option of the html-to-image library.
   const nodesBounds = getNodesBounds(nodes);
   const transform = getViewportForBounds(nodesBounds, width, heigh, 0.01, 2, 0.065);
 

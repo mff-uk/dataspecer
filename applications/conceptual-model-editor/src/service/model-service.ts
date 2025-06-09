@@ -17,7 +17,10 @@ export function getModelLabel(model: EntityModel | undefined | null): string {
   return t("model-service.model-label-from-id", model.getId());
 }
 
-export const findSourceModelOfEntity = (entityIdentifier: string, models: Map<string, EntityModel>): EntityModel | null => {
+export const findSourceModelOfEntity = (
+  entityIdentifier: string,
+  models: Map<string, EntityModel>,
+): EntityModel | null => {
   for (const model of models.values()) {
     const entities: Entities = model.getEntities();
     if (entities[entityIdentifier] === undefined) {
@@ -28,9 +31,12 @@ export const findSourceModelOfEntity = (entityIdentifier: string, models: Map<st
   return null;
 };
 
-export const findSourceModelsOfEntities = (entityIdentifiers: string[], models: Map<string, EntityModel>): (EntityModel | null)[] => {
+export const findSourceModelsOfEntities = (
+  entityIdentifiers: string[],
+  models: Map<string, EntityModel>,
+): (EntityModel | null)[] => {
   const sourceModels = [];
-  for(const entityIdentifier of entityIdentifiers) {
+  for (const entityIdentifier of entityIdentifiers) {
     const sourceModel = findSourceModelOfEntity(entityIdentifier, models);
     sourceModels.push(sourceModel);
   }

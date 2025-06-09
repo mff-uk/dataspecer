@@ -1,4 +1,11 @@
-import { isVisualNode, isVisualRelationship, Position, VisualEntity, Waypoint, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import {
+  isVisualNode,
+  isVisualRelationship,
+  type Position,
+  type VisualEntity,
+  type Waypoint,
+  type WritableVisualModel,
+} from "@dataspecer/core-v2/visual-model";
 import { DataspecerError } from "../../dataspecer-error";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
 
@@ -23,8 +30,8 @@ export function addVisualRelationshipsWithSpecifiedVisualEnds(
   const existingVisualRelationships = visualModel.getVisualEntitiesForRepresented(represented)
     .filter(isVisualRelationship);
 
-  for(const visualSource of visualSources) {
-    for(const visualTarget of visualTargets) {
+  for (const visualSource of visualSources) {
+    for (const visualTarget of visualTargets) {
       const alreadyExists = existingVisualRelationships
         .find(visualRelationship =>
           visualRelationship.visualSource === visualSource.identifier &&

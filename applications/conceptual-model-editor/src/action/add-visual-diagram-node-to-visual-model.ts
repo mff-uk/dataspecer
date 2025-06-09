@@ -54,12 +54,12 @@ export function addVisualDiagramNodeForNewModelToVisualModelAction(
     visualModel.deleteVisualEntity(node);
   });
 
-  console.info(visualModel.getVisualEntities());        // TODO RadStr: DEBUG
   return visualDiagramNodeIdentifier;
 }
 
 /**
- * Reroutes all edges which were pointing to or from the nodes newly contained in {@link visualModelWithVisualDiagramNode}.
+ * Reroutes all edges which were pointing to or from the nodes newly contained in
+ * {@link visualModelWithVisualDiagramNode}.
  */
 function rerouteAllRelevantEdgesTotheVisualDiagramNode(
   notifications: UseNotificationServiceWriterType,

@@ -35,7 +35,6 @@ export function openCreateClassDialogAndCreateGeneralizationAction(
       visualModel, nodeIdentifier, isCreatedClassParent, createdClassData);
   }
 
-  // TODO RadStr: Action in action
   openCreateClassDialogWithModelDerivedFromClassAction(
     cmeExecutor, notifications, graph, dialogs, classes, options,
     diagram, visualModel, nodeIdentifier, positionToPlaceClassOn, onConfirm);

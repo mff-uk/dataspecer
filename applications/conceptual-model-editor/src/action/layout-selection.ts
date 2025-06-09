@@ -2,18 +2,28 @@ import { ClassesContextType } from "@/context/classes-context";
 import { ModelGraphContextType } from "@/context/model-context";
 import { UseDiagramType } from "@/diagram/diagram-hook";
 import { UseNotificationServiceWriterType } from "@/notification/notification-service-context";
-import { isVisualNode, isVisualProfileRelationship, isVisualRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import {
+  isVisualNode,
+  isVisualProfileRelationship,
+  isVisualRelationship,
+  type WritableVisualModel,
+} from "@dataspecer/core-v2/visual-model";
 import { ExplicitAnchors, performLayout, UserGivenAlgorithmConfigurations, XY } from "@dataspecer/layout";
 import { getBoundingBoxInfo } from "./utilities";
 import { createExactNodeDimensionsQueryHandler, processLayoutResult } from "./layout-visual-model";
 
 /**
- * Performs layout of given visual entities. The result is shifted in such a way that the middle of bounding boxes is the same.
+ * Performs layout of given visual entities. The result is shifted in such a way that the middle of bounding boxes
+ * is the same.
  * @param configuration The configuration for layouting algorithm.
- * @param explicitAnchors For more context check the type {@link ExplicitAnchors}. But in short it is used to override the anchors stored in visual model.
- * @param shouldUpdatePositionsInVisualModel If set to true, then update the visual model. If false then not and only return the result of layouting, default is true.
- * @param outsiders are elements which are not part of visual model, but we want to layout them anyways. Use-case is for example elements which are to be added to visual model.
- * @param shouldPutOutsidersInVisualModel If set to true, then the outsiders will be put into visual model, if false then not, but user can still see them in the returned result. Default is false
+ * @param explicitAnchors For more context check the type {@link ExplicitAnchors}. But in short it is used to override
+ *  the anchors stored in visual model.
+ * @param shouldUpdatePositionsInVisualModel If set to true, then update the visual model. If false then not and only
+ *  return the result of layouting, default is true.
+ * @param outsiders are elements which are not part of visual model, but we want to layout them anyways.
+ *  Use-case is for example elements which are to be added to visual model.
+ * @param shouldPutOutsidersInVisualModel If set to true, then the outsiders will be put into visual model,
+ *  if false then not, but user can still see them in the returned result. Default is false
  * @returns The layouted visual entities
  */
 export async function layoutGivenVisualEntities(
@@ -61,7 +71,7 @@ export async function layoutGivenVisualEntities(
         layoutedEntity.visualEntity.position.y -= shiftY;
       }
       else if (isVisualRelationship(layoutedEntity.visualEntity) ||
-                isVisualProfileRelationship(layoutedEntity.visualEntity)) {
+        isVisualProfileRelationship(layoutedEntity.visualEntity)) {
         layoutedEntity.visualEntity.waypoints.forEach(waypoint => {
           waypoint.x -= shiftX;
           waypoint.y -= shiftY;

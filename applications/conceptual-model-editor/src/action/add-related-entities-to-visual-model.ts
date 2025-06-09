@@ -1,8 +1,20 @@
 import { VisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { EntityModel } from "@dataspecer/core-v2";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { SemanticModelEntity, SemanticModelGeneralization, SemanticModelRelationship, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+  SemanticModelClassUsage,
+  SemanticModelRelationshipUsage,
+  isSemanticModelClassUsage,
+  isSemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+  SemanticModelEntity,
+  SemanticModelGeneralization,
+  SemanticModelRelationship,
+  isSemanticModelClass,
+  isSemanticModelGeneralization,
+  isSemanticModelRelationship,
+} from "@dataspecer/core-v2/semantic-model/concepts";
 
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { getDomainAndRange } from "../util/relationship-utils";
@@ -11,7 +23,12 @@ import { addSemanticGeneralizationToVisualModelAction } from "./add-generalizati
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
 import { ModelGraphContextType } from "../context/model-context";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  isSemanticModelClassProfile,
+  isSemanticModelRelationshipProfile,
+  SemanticModelClassProfile,
+  SemanticModelRelationshipProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { createVisualModelOperationExecutor } from "@/dataspecer/visual-model/visual-model-operation-executor";
 
 /**

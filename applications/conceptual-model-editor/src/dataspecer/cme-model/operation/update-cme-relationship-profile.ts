@@ -1,4 +1,6 @@
-import { createDefaultSemanticModelProfileOperationFactory } from "@dataspecer/core-v2/semantic-model/profile/operations";
+import {
+  createDefaultSemanticModelProfileOperationFactory,
+} from "@dataspecer/core-v2/semantic-model/profile/operations";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { CmeRelationshipProfile } from "../model/cme-relationship-profile";
 import { DataspecerError } from "../../dataspecer-error";
@@ -18,7 +20,7 @@ export function updateCmeRelationshipProfile(
     tags.push(next.mandatoryLevel);
   }
 
-  const operation = factory.modifyRelationshipProfile(next.identifier,{
+  const operation = factory.modifyRelationshipProfile(next.identifier, {
     ends: [{
       profiling: [],
       iri: null,

@@ -15,8 +15,6 @@ export interface CanvasGeneralMenuProps {
   menuContent: CanvasMenuContentType;
 }
 
-// TODO RadStr: Actually if we played with the typing a bit this could probably be probably also used for edges
-//              This meaning this whole general canvnas toolbar component, but that is for future, when more stuff gets added.
 /**
  * Stores the props for the content of general toolbar
  */

@@ -15,8 +15,9 @@ import { createWritableVisualModel } from "@/dataspecer/visual-model/visual-mode
 
 /**
  *
- * @param sourceVisualModel Represents the source model from which should be the initial content of the new visual model copied.
- * If null then this method only creates new empty visual model.
+ * @param sourceVisualModel Represents the source model from which should be the initial
+ *  content of the new visual model copied.
+ *  If null then this method only creates new empty visual model.
  * @param newVisualModelInitialNodes visual identifiers of the nodes copied to the new model.
  * @returns Returns created visual model.
  */

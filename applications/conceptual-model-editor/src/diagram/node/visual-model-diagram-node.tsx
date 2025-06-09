@@ -59,10 +59,10 @@ function EntityNodeMenu(props: NodeProps<Node<VisualModelDiagramNode>>) {
   }
 
   if (context.getShownNodeMenuType() === NodeMenuType.SingleNodeMenu) {
-    return <PrimaryVisualModelNodeMenu {...props}/>;
+    return <PrimaryVisualModelNodeMenu {...props} />;
   }
   else if (context.getShownNodeMenuType() === NodeMenuType.SelectionMenu) {
-    return <SelectionMenu {...props}/>;
+    return <SelectionMenu {...props} />;
   }
   else {
     console.error("Missing node menu");
@@ -94,7 +94,12 @@ function PrimaryVisualModelNodeMenu(props: NodeProps<Node<VisualModelDiagramNode
   return (
     <>
       <NodeToolbar isVisible={shouldShowToolbar} position={Position.Top} className="flex gap-2 entity-node-menu" >
-        <button onClick={onMoveToSourceVisualModel} title={t("visual-diagram-node-move-to-source-visual-model-button")}>🗺️</button>
+        <button
+          onClick={onMoveToSourceVisualModel}
+          title={t("visual-diagram-node-move-to-source-visual-model-button")}
+        >
+          🗺️
+        </button>
         &nbsp;
         <button onClick={onShowDetail} title={t("visual-diagram-node-detail-button")}>ℹ</button>
         &nbsp;
@@ -114,7 +119,12 @@ function PrimaryVisualModelNodeMenu(props: NodeProps<Node<VisualModelDiagramNode
         &nbsp;
         <button onClick={onHideVisualModelNode} title={t("visual-diagram-node-hide-button")}>🕶</button>
         &nbsp;
-        <button onClick={onAnchor} title={isPartOfGroup ? t("group-anchor-button") : t("node-anchor-button")} >⚓</button>
+        <button
+          onClick={onAnchor}
+          title={isPartOfGroup ? t("group-anchor-button") : t("node-anchor-button")}
+        >
+          ⚓
+        </button>
         &nbsp;
         <button onClick={onDissolveVisualModelNode} title={t("visual-diagram-node-dissolve-button")} >💥</button>
         &nbsp;

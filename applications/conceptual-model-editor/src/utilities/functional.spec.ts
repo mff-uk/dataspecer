@@ -1,6 +1,13 @@
 import { describe, expect, test } from "vitest";
 
-import { addToMapArray, addToRecordArray, binarySearchIndex, removeFromArray, replaceByIndexInArray, replaceInArray } from "./functional";
+import {
+  addToMapArray,
+  addToRecordArray,
+  binarySearchIndex,
+  removeFromArray,
+  replaceByIndexInArray,
+  replaceInArray,
+} from "./functional";
 
 describe("removeFromArray", () => {
 

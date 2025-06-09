@@ -21,7 +21,9 @@ export interface EditVisualDiagramNodeDialogController {
 
 }
 
-export function useEditVisualDiagramNodeDialogController({ changeState }: DialogProps<EditVisualDiagramNodeDialogState>): EditVisualDiagramNodeDialogController {
+export function useEditVisualDiagramNodeDialogController(
+  { changeState }: DialogProps<EditVisualDiagramNodeDialogState>,
+): EditVisualDiagramNodeDialogController {
   const { openCreateModelDialog } = useActions();
 
   return useMemo(() => {
@@ -38,5 +40,5 @@ export function useEditVisualDiagramNodeDialogController({ changeState }: Dialog
       setRepresentedVisualModelName,
       openChangeReferencedVisualModel,
     };
-  }, [changeState]);
+  }, [changeState, openCreateModelDialog]);
 }

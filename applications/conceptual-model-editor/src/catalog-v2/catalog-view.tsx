@@ -88,7 +88,7 @@ function CatalogSearchBar({ state, controller }: {
   React.useEffect(() => {
     const times = setTimeout(() => controller.onChangeSearch(value), 200)
     return () => clearTimeout(times)
-  }, [value])
+  }, [value, controller])
 
   const onClear = () => {
     setValue("");

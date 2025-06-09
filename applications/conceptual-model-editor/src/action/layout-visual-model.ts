@@ -184,7 +184,8 @@ export function createExactNodeDimensionsQueryHandler(
 ): NodeDimensionQueryHandler {
   const getWidth = (node: Node) => {
     // The question is what does it mean if the node isn't in editor? Same for height
-    // Actually it is not error, it can be valid state when we are layouting elements which are not yet part of visual model
+    // Actually it is not error, it can be valid state when we are layouting elements which are
+    // not yet part of visual model
     const width = diagram.actions().getNodeWidth(node.id) ?? new ReactflowDimensionsEstimator().getWidth(node);
     return width;
   };

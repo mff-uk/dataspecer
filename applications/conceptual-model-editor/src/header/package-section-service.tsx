@@ -42,7 +42,8 @@ export const usePackageSectionService = (): PackageSectionServiceType => {
     if (currentPackageIdentifier === null) {
       return;
     }
-    const result = await updateSemanticModelPackageModels(currentPackageIdentifier, [...models.values()], [...visualModels.values()]);
+    const result = await updateSemanticModelPackageModels(
+      currentPackageIdentifier, [...models.values()], [...visualModels.values()]);
     const svg = await actions.diagram?.actions().renderToSvgString();
     const activeVisualModel = aggregatorView.getActiveVisualModel();
 

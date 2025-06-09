@@ -4,28 +4,31 @@ import type {
   SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ResourceDetailClickThrough } from "./entity-detail-dialog-clicktrough-component";
-import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  SemanticModelClassProfile,
+  SemanticModelRelationshipProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 export const ScrollableResourceDetailClickThroughList = (props: {
-    resources: (
-        | SemanticModelClass
-        | SemanticModelRelationship
-        | SemanticModelClassUsage
-        | SemanticModelRelationshipUsage
-        | SemanticModelClassProfile
-        | SemanticModelRelationshipProfile
-    )[];
-    onResourceClicked: (
-        resource:
-            | SemanticModelClass
-            | SemanticModelRelationship
-            | SemanticModelClassUsage
-            | SemanticModelRelationshipUsage
-            | SemanticModelClassProfile
-            | SemanticModelRelationshipProfile
-    ) => void;
-    withIri?: boolean;
-    detailDialogLanguage?: string;
+  resources: (
+    | SemanticModelClass
+    | SemanticModelRelationship
+    | SemanticModelClassUsage
+    | SemanticModelRelationshipUsage
+    | SemanticModelClassProfile
+    | SemanticModelRelationshipProfile
+  )[];
+  onResourceClicked: (
+    resource:
+      | SemanticModelClass
+      | SemanticModelRelationship
+      | SemanticModelClassUsage
+      | SemanticModelRelationshipUsage
+      | SemanticModelClassProfile
+      | SemanticModelRelationshipProfile
+  ) => void;
+  withIri?: boolean;
+  detailDialogLanguage?: string;
 }) => {
   const { resources, onResourceClicked, withIri, detailDialogLanguage } = props;
 

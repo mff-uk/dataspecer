@@ -9,7 +9,12 @@ import {
   LabelVisual,
   ProfileOfVisual,
 } from "../../model";
-import { Node as ApiNode, NodeType as NodeTypeApi, Edge as ApiEdge, EdgeType as ApiEdgeType } from "../../diagram-model";
+import {
+  Node as ApiNode,
+  NodeType as NodeTypeApi,
+  Edge as ApiEdge,
+  EdgeType as ApiEdgeType,
+} from "../../diagram-model";
 import { EntityNodeName } from "../../node/entity-node";
 import { Edge } from "@xyflow/react";
 import { highlightColorMap, setHighlightingStylesBasedOnSelection } from "./set-selection-highlighting-styles";
@@ -28,7 +33,7 @@ test("Test highlighting single set", () => {
     return nodes.find(node => node.id === id);
   }
 
-  for(let i = 0; i < 8; i++) {
+  for (let i = 0; i < 8; i++) {
     nodes.push(createTestNodeType());
   }
 
@@ -61,11 +66,11 @@ test("Test highlighting single set", () => {
     getNode, selectedNodes, selectedEdges, setNodes, setEdges);
 
   const actualNodeStyles = nodes.map(node => {
-    if(node?.style?.outline !== undefined) {
-      if(node.style.outline.toString().includes(highlightColorMap[0])) {
+    if (node?.style?.outline !== undefined) {
+      if (node.style.outline.toString().includes(highlightColorMap[0])) {
         return highlightColorMap[0];
       }
-      else if(node.style.outline.toString().includes(highlightColorMap[1])) {
+      else if (node.style.outline.toString().includes(highlightColorMap[1])) {
         return highlightColorMap[1];
       }
       else {
@@ -91,11 +96,11 @@ test("Test highlighting single set", () => {
   //
 
   const actualEdgeStyles = edges.map(edge => {
-    if(edge?.style?.stroke !== undefined) {
-      if(edge.style.stroke.toString().includes(highlightColorMap[0])) {
+    if (edge?.style?.stroke !== undefined) {
+      if (edge.style.stroke.toString().includes(highlightColorMap[0])) {
         return highlightColorMap[0];
       }
-      else if(edge.style.stroke.toString().includes(highlightColorMap[1])) {
+      else if (edge.style.stroke.toString().includes(highlightColorMap[1])) {
         return highlightColorMap[1];
       }
       else {
@@ -120,7 +125,7 @@ test("Test highlighting set back to back", () => {
     return nodes.find(node => node.id === id);
   }
 
-  for(let i = 0; i < 8; i++) {
+  for (let i = 0; i < 8; i++) {
     nodes.push(createTestNodeType());
   }
 
@@ -161,11 +166,11 @@ test("Test highlighting set back to back", () => {
     getNode, selectedNodes, selectedEdges, setNodes, setEdges);
 
   const actualNodeStyles = nodes.map(node => {
-    if(node?.style?.outline !== undefined) {
-      if(node.style.outline.toString().includes(highlightColorMap[0])) {
+    if (node?.style?.outline !== undefined) {
+      if (node.style.outline.toString().includes(highlightColorMap[0])) {
         return highlightColorMap[0];
       }
-      else if(node.style.outline.toString().includes(highlightColorMap[1])) {
+      else if (node.style.outline.toString().includes(highlightColorMap[1])) {
         return highlightColorMap[1];
       }
       else {
@@ -191,14 +196,14 @@ test("Test highlighting set back to back", () => {
   //
 
   const actualEdgeStyles = edges.map(edge => {
-    if(edge?.style?.stroke !== undefined) {
-      if(edge.style.stroke.toString().includes(highlightColorMap[0])) {
+    if (edge?.style?.stroke !== undefined) {
+      if (edge.style.stroke.toString().includes(highlightColorMap[0])) {
         return highlightColorMap[0];
       }
-      else if(edge.style.stroke.toString().includes(highlightColorMap[1])) {
+      else if (edge.style.stroke.toString().includes(highlightColorMap[1])) {
         return highlightColorMap[1];
       }
-      else if(edge.style.stroke.toString() === "test-color") {
+      else if (edge.style.stroke.toString() === "test-color") {
         return "no-highlight";
       }
     }

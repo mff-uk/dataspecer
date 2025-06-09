@@ -1,4 +1,6 @@
-import { createDefaultSemanticModelProfileOperationFactory } from "@dataspecer/core-v2/semantic-model/profile/operations";
+import {
+  createDefaultSemanticModelProfileOperationFactory,
+} from "@dataspecer/core-v2/semantic-model/profile/operations";
 import { NewCmeRelationshipProfile } from "../model/cme-relationship-profile";
 import { CmeReference } from "../model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";

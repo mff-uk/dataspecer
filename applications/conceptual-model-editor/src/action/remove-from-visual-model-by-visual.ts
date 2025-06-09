@@ -38,7 +38,8 @@ export function removeFromVisualModelByVisualAction(
  *  which can transform given identifier from {@link identifiers} into VisualEntity[].
  * @param shouldReportMissingVisualEntity if true then we report to console identifiers,
  *  which have no VisualEntity. In some cases that is valid case, for example when we are working with
- *  represented, then some entities may be hidden in the visual diagram node, therefore there is no direct visual for it.
+ *  represented, then some entities may be hidden in the visual diagram node,
+ *  therefore there is no direct visual for it.
  *  So for such cases it makes sense to set the argument to false.
  *
  * @returns Returns entities that are related to the removed entity.

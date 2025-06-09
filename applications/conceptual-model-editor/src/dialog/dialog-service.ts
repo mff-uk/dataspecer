@@ -102,7 +102,10 @@ export const createDialogApiContext = (setState: React.Dispatch<React.SetStateAc
   };
 };
 
-export const createDialogRendererContext = <S>(state: State, setState: React.Dispatch<React.SetStateAction<State>>): DialogRendererContextType<S> | null => {
+export const createDialogRendererContext = <S>(
+  state: State,
+  setState: React.Dispatch<React.SetStateAction<State>>,
+): DialogRendererContextType<S> | null => {
   const dialog = state.dialogs.at(-1);
   if (dialog === undefined) {
     return null;

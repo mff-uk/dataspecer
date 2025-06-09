@@ -5,7 +5,9 @@ import type { UseNotificationServiceWriterType } from "../notification/notificat
 import { getDomainAndRange } from "../util/relationship-utils";
 import { ModelGraphContextType } from "../context/model-context";
 import { withAggregatedEntity } from "./utilities";
-import { addVisualRelationshipsWithSpecifiedVisualEnds } from "../dataspecer/visual-model/operation/add-visual-relationships";
+import {
+  addVisualRelationshipsWithSpecifiedVisualEnds,
+} from "../dataspecer/visual-model/operation/add-visual-relationships";
 
 /**
  * Adds given semantic relationship to visual model.

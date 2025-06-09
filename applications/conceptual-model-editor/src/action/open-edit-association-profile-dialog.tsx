@@ -7,9 +7,14 @@ import { ModelGraphContextType } from "../context/model-context";
 import { Options } from "../application";
 import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
-import { AssociationProfileDialogState, createEditAssociationProfileDialogState } from "../dialog/association-profile/edit-association-profile-dialog-state";
+import {
+  AssociationProfileDialogState,
+  createEditAssociationProfileDialogState,
+} from "../dialog/association-profile/edit-association-profile-dialog-state";
 import { createEditAssociationProfileDialog } from "../dialog/association-profile/edit-association-profile-dialog";
-import { associationProfileDialogStateToNewCmeRelationshipProfile } from "../dialog/association-profile/edit-association-profile-dialog-state-adapter";
+import {
+  associationProfileDialogStateToNewCmeRelationshipProfile,
+} from "../dialog/association-profile/edit-association-profile-dialog-state-adapter";
 
 /**
  * Open and handle edit association dialog.

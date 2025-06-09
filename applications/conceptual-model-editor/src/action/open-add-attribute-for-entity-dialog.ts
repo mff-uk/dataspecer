@@ -7,14 +7,22 @@ import { DialogApiContextType } from "../dialog/dialog-service";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { isSemanticModelClass, SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { AttributeDialogState, createAddAttributeDialogState } from "../dialog/attribute/edit-attribute-dialog-state";
-import { AttributeProfileDialogState, createAddAttributeProfileDialogState } from "../dialog/attribute-profile/edit-attribute-profile-dialog-state";
+import {
+  AttributeProfileDialogState,
+  createAddAttributeProfileDialogState,
+} from "../dialog/attribute-profile/edit-attribute-profile-dialog-state";
 import { createAddAttributeDialog } from "../dialog/attribute/edit-attribute-dialog";
-import { isSemanticModelClassProfile, SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  isSemanticModelClassProfile,
+  SemanticModelClassProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { createAddAttributeProfileDialog } from "../dialog/attribute-profile/edit-attribute-profile-dialog";
 import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
 import { attributeDialogStateToNewCmeRelationship } from "../dialog/attribute/edit-attribute-dialog-state-adapter";
-import { attributeProfileDialogStateToNewCmeRelationshipProfile } from "../dialog/attribute-profile/edit-attribute-profile-dialog-state-adapter";
+import {
+  attributeProfileDialogStateToNewCmeRelationshipProfile,
+} from "../dialog/attribute-profile/edit-attribute-profile-dialog-state-adapter";
 
 const LOG = createLogger(import.meta.url);
 

@@ -239,7 +239,8 @@ function rerouteToEntityInsideDiagramNode(
 
   const otherEnd = visualModelWithDiagramNode.getVisualEntity(otherEndOfTheVisualRelationship);
   if(otherEnd === null) {
-    notifications.error("Missing the node on the other end when rerouting visual relationship with end in the diagram node");
+    notifications.error(
+      "Missing the node on the other end when rerouting visual relationship with end in the diagram node");
     return null;
   }
 
@@ -253,11 +254,12 @@ function rerouteToEntityInsideDiagramNode(
   }
 
   if (otherSemanticEndIdentifier === null) {
-    console.error("Can't find the identifier of the other end, we don't report the result in notifications, since it may be valid");
+    console.error(
+      "Can't find the identifier of the other end, we don't report the result in notifications, since it may be valid");
     return null;
   }
 
-  const otherSemanticEnd = allClasses.find(cclass => cclass.id === otherSemanticEndIdentifier);
+  const otherSemanticEnd = allClasses.find(item => item.id === otherSemanticEndIdentifier);
   if (otherSemanticEnd === undefined) {
     notifications.error("The other end is not present in semantic model, something is wrong");
     return null;

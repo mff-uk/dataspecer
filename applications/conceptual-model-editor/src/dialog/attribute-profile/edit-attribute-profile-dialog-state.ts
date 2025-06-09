@@ -23,8 +23,15 @@ import { semanticModelMapToCmeSemanticModel } from "../../dataspecer/cme-model/a
 import { configuration, createLogger, t } from "../../application";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { getDomainAndRange } from "../../util/relationship-utils";
-import { BaseEntityProfileDialogState, createEditBaseEntityProfileDialogState, createNewBaseEntityProfileDialogState } from "../base-entity-profile/base-entity-profile-dialog-state";
-import { BaseRelationshipProfileDialogState, createBaseRelationshipProfileDialogState } from "../base-relationship-profile/base-relationship-profile-dialog-state";
+import {
+  BaseEntityProfileDialogState,
+  createEditBaseEntityProfileDialogState,
+  createNewBaseEntityProfileDialogState,
+} from "../base-entity-profile/base-entity-profile-dialog-state";
+import {
+  BaseRelationshipProfileDialogState,
+  createBaseRelationshipProfileDialogState,
+} from "../base-relationship-profile/base-relationship-profile-dialog-state";
 import { EntityDsIdentifier } from "../../dataspecer/entity-model";
 import { isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { InvalidState } from "../../application/error";

@@ -117,7 +117,8 @@ function findInvalidVisualEdgesForVisualDiagramNodes(
           .find(classProfile => visualEntityRelatedToVisualDiagramNode.entity === classProfile.id);
         if(relevantClassProfile === undefined) {
           if(notifications !== null) {
-            notifications.error("There exists edge representing class profile, but the class profile is not present in semantic model");
+            notifications.error(
+              "There exists edge representing class profile, but the class profile is not present in semantic model");
           }
           continue;
         }

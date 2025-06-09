@@ -1,5 +1,7 @@
 import { DialogWrapper } from "@/dialog/dialog-api";
-import { EditVisualDiagramNodeDialogState } from "../edit-visual-diagram-node/edit-visual-diagram-node-dialog-controller";
+import {
+  EditVisualDiagramNodeDialogState,
+} from "../edit-visual-diagram-node/edit-visual-diagram-node-dialog-controller";
 import { VisualDiagramNodeInfoDialog } from "./visual-diagram-node-info-dialog";
 
 export const createVisualDiagramNodeInfoDialog = (

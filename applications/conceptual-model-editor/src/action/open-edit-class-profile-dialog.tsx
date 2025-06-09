@@ -8,9 +8,14 @@ import { Options } from "../application";
 import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { updateVisualNodeProfiles } from "../dataspecer/visual-model/operation/update-visual-node-profiles";
 import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
-import { ClassProfileDialogState, createEditClassProfileDialogState } from "../dialog/class-profile/edit-class-profile-dialog-state";
+import {
+  ClassProfileDialogState,
+  createEditClassProfileDialogState,
+} from "../dialog/class-profile/edit-class-profile-dialog-state";
 import { createEditClassProfileDialog } from "../dialog/class-profile/edit-class-profile-dialog";
-import { classProfileDialogStateToNewCmeClassProfile } from "../dialog/class-profile/edit-class-profile-dialog-state-adapter";
+import {
+  classProfileDialogStateToNewCmeClassProfile,
+} from "../dialog/class-profile/edit-class-profile-dialog-state-adapter";
 
 export function openEditClassProfileDialogAction(
   cmeExecutor: CmeModelOperationExecutor,

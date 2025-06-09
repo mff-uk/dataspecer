@@ -121,5 +121,5 @@ function useHandleMouseDown(
 
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
-  }, []);
+  }, [leftRef, containerRef, maximumSize, minimumSize, onSizeChange]);
 }

@@ -7,7 +7,10 @@ import { createNewVisualModelAction } from "./create-new-visual-model-from-sourc
 import { QueryParamsContextType } from "@/context/query-params-context";
 import { createVisualModelDialog } from "@/dialog/visual-model/create-visual-model/edit-visual-model-dialog";
 import { changeVisualModelAction } from "./change-visual-model";
-import { createEditVisualModelDialogState, EditVisualModelDialogState } from "../dialog/visual-model/create-visual-model";
+import {
+  createEditVisualModelDialogState,
+  EditVisualModelDialogState,
+} from "../dialog/visual-model/create-visual-model";
 
 /**
  * Opens dialog, which on confirm creates visual model, which will contain all the {@link nodes} and {@link edges}.

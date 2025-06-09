@@ -4,10 +4,17 @@ import { createLogger } from "../application";
 import { ModelGraphContextType } from "../context/model-context";
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { createAddModelDialog } from "../dialog/semantic-model/create-semantic-model/create-semantic-model-dialog";
-import { CreateModelState, TabType } from "../dialog/semantic-model/create-semantic-model/create-semantic-model-dialog-controller";
+import {
+  CreateModelState,
+  TabType,
+} from "../dialog/semantic-model/create-semantic-model/create-semantic-model-dialog-controller";
 import { randomColorFromPalette } from "../util/color-utils";
 import { createDefaultWritableVisualModel } from "../dataspecer/visual-model/visual-model-factory";
-import { createCzechSemanticVocabulary, createInMemorySemanticModel, createRdfsSemanticModel } from "@/dataspecer/semantic-model/semantic-model-factory";
+import {
+  createCzechSemanticVocabulary,
+  createInMemorySemanticModel,
+  createRdfsSemanticModel,
+} from "@/dataspecer/semantic-model/semantic-model-factory";
 
 const LOG = createLogger(import.meta.url);
 

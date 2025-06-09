@@ -7,7 +7,13 @@ import {
 import { CatalogLayout } from "../catalog-layout";
 import * as State from "../catalog-state";
 import * as Toolbars from "../catalog-toolbar";
-import { addChildrenToNode, addGeneralizationsToChildren, addProfilesToChildren, filterByModel, NodeChildren } from "./layout-utilities";
+import {
+  addChildrenToNode,
+  addGeneralizationsToChildren,
+  addProfilesToChildren,
+  filterByModel,
+  NodeChildren,
+} from "./layout-utilities";
 import { CmeSemanticModelType } from "@/dataspecer/cme-model";
 import { ACTION_SEMANTIC_MODEL_CREATE_CLASS, ACTION_SEMANTIC_MODEL_EXPAND } from "../catalog-action";
 

@@ -4,7 +4,10 @@ import { addVisualNodeProfile } from "./operation/add-visual-node-profile";
 import { addVisualNode } from "./operation/add-visual-node";
 import { deleteEntityModel } from "./operation/delete-entity-model";
 import { updateVisualNodeProfiles } from "./operation/update-visual-node-profiles";
-import { addVisualRelationshipsForRepresented, addVisualRelationshipsWithSpecifiedVisualEnds } from "./operation/add-visual-relationships";
+import {
+  addVisualRelationshipsForRepresented,
+  addVisualRelationshipsWithSpecifiedVisualEnds,
+} from "./operation/add-visual-relationships";
 import { CmeReference } from "../cme-model/model";
 import { deleteVisualEntity } from "./operation/delete-visual-entity";
 

@@ -3,7 +3,10 @@ import { ModelGraphContextType } from "../context/model-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { SemanticModelRelationship, isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelAttributeUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+  isSemanticModelAttributeUsage,
+  SemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ClassesContextType } from "../context/classes-context";
 import { getDomainAndRange } from "../util/relationship-utils";
 import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
@@ -26,16 +29,16 @@ export function centerViewportToVisualEntityByRepresentedAction(
 ) {
   const attribute = findAttributeWithIdentifier(entityIdentifier, classesContext);
   let isAttribute = false;
-  if(attribute !== undefined) {
+  if (attribute !== undefined) {
     let domainClassIdentifier;
-    if(isSemanticModelAttribute(attribute)) {
+    if (isSemanticModelAttribute(attribute)) {
       domainClassIdentifier = getDomainAndRange(attribute)?.domain?.concept ?? null;
     }
     else {
       domainClassIdentifier = getDomainAndRange(attribute)?.domain?.concept ?? null;
     }
 
-    if(domainClassIdentifier === null) {
+    if (domainClassIdentifier === null) {
       notifications.error("Focused attribute doesn't have domain node");
       return;
     }
@@ -50,7 +53,7 @@ export function centerViewportToVisualEntityByRepresentedAction(
     return;
   }
   let visualEntities = visualModel.getVisualEntitiesForRepresented(entityIdentifier);
-  if(isAttribute) {
+  if (isAttribute) {
     visualEntities = visualEntities.filter(isVisualNode).filter(node => node.content.includes(attribute!.id));
   }
   if (visualEntities.length === 0) {
@@ -63,8 +66,9 @@ export function centerViewportToVisualEntityByRepresentedAction(
 };
 
 /**
- * @returns undefined if the relationship with given identifier wasn't found. Otherwise the found relationship or relationship usage -
- * Note that the returned type depends on the actual entity
+ * @returns undefined if the relationship with given identifier wasn't found.
+ *  Otherwise the found relationship or relationship usage,
+ *  Note that the returned type depends on the actual entity
  */
 export function findAttributeWithIdentifier(identifier: string, classesContext: ClassesContextType) {
   const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
@@ -83,10 +87,10 @@ export function centerToVisualEntity(
   diagram: UseDiagramType,
   visualEntity: VisualEntity,
 ) {
-  if(isVisualNode(visualEntity) || isVisualGroup(visualEntity)) {
+  if (isVisualNode(visualEntity) || isVisualGroup(visualEntity)) {
     diagram.actions().centerViewportToNode(visualEntity.identifier);
   }
-  else if(isVisualRelationship(visualEntity)) {
+  else if (isVisualRelationship(visualEntity)) {
     diagram.actions().fitToView([visualEntity.visualSource, visualEntity.visualTarget]);
   }
 }

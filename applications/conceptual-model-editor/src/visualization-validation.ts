@@ -11,16 +11,27 @@ import {
   VisualProfileRelationship,
   WritableVisualModel
 } from "@dataspecer/core-v2/visual-model";
-import { SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
+import {
+  SemanticModelAggregatorView,
+} from "@dataspecer/core-v2/semantic-model/aggregator";
 import { EntityModel } from "@dataspecer/core-v2";
-import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+  SemanticModelClassProfile,
+  SemanticModelRelationshipProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  SemanticModelGeneralization,
+  SemanticModelRelationship,
+} from "@dataspecer/core-v2/semantic-model/concepts";
 import { ActionsContextType } from "./action/actions-react-binding";
 import { UseClassesContextType } from "./context/classes-context";
 import { createLogger } from "./application";
 import { addToRecordArray } from "./utilities/functional";
 import { findSourceModelOfEntity } from "./service/model-service";
-import { createGetVisualEntitiesForRepresentedGlobalWrapper, VisualsForRepresentedWrapper } from "./util/utils";
+import {
+  createGetVisualEntitiesForRepresentedGlobalWrapper,
+  VisualsForRepresentedWrapper,
+} from "./util/utils";
 import { getSemanticConnectionEndConcepts } from "./util/relationship-utils";
 
 const LOG = createLogger(import.meta.url);

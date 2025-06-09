@@ -1,13 +1,21 @@
 import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { SemanticModelRelationshipUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+  SemanticModelRelationshipUsage,
+  isSemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { getDomainAndRange } from "../util/relationship-utils";
 import { ModelGraphContextType } from "../context/model-context";
 import { withAggregatedEntity } from "./utilities";
-import { isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  isSemanticModelRelationshipProfile,
+  SemanticModelRelationshipProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isOwlThing } from "../dataspecer/semantic-model";
-import { addVisualRelationshipsWithSpecifiedVisualEnds } from "../dataspecer/visual-model/operation/add-visual-relationships";
+import {
+  addVisualRelationshipsWithSpecifiedVisualEnds,
+} from "../dataspecer/visual-model/operation/add-visual-relationships";
 
 /**
  * Adds given semantic relationship profile to visual model.

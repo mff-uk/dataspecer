@@ -38,7 +38,7 @@ const EditVisualNode = (props: DialogProps<EditVisualNodeDialogState>) => {
         controller.orderInactive(source.index, destination.index);
       }
     }
-  }, []);
+  }, [controller]);
 
   return (
     <>

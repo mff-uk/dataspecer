@@ -1,6 +1,9 @@
 import React, { useContext } from "react";
 
-import { SemanticModelAggregator, type SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
+import {
+  SemanticModelAggregator,
+  type SemanticModelAggregatorView,
+} from "@dataspecer/core-v2/semantic-model/aggregator";
 import type { EntityModel } from "@dataspecer/core-v2/entity-model";
 import type { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { type WritableVisualModel } from "@dataspecer/core-v2/visual-model";
@@ -15,52 +18,52 @@ const _SemanticModelAggregatorType = new SemanticModelAggregator();
 
 export type ModelGraphContextType = {
 
-    aggregator: typeof _SemanticModelAggregatorType;
+  aggregator: typeof _SemanticModelAggregatorType;
 
-    aggregatorView: SemanticModelAggregatorView;
+  aggregatorView: SemanticModelAggregatorView;
 
-    setAggregatorView: React.Dispatch<React.SetStateAction<SemanticModelAggregatorView>>;
+  setAggregatorView: React.Dispatch<React.SetStateAction<SemanticModelAggregatorView>>;
 
-    models: Map<string, EntityModel>;
+  models: Map<string, EntityModel>;
 
-    setModels: React.Dispatch<React.SetStateAction<Map<string, EntityModel>>>;
+  setModels: React.Dispatch<React.SetStateAction<Map<string, EntityModel>>>;
 
-    visualModels: Map<string, WritableVisualModel>;
+  visualModels: Map<string, WritableVisualModel>;
 
-    setVisualModels: React.Dispatch<React.SetStateAction<Map<string, WritableVisualModel>>>;
+  setVisualModels: React.Dispatch<React.SetStateAction<Map<string, WritableVisualModel>>>;
 };
 
 export const ModelGraphContext = React.createContext(null as unknown as ModelGraphContextType);
 
 export interface UseModelGraphContextType {
 
-    aggregator: typeof _SemanticModelAggregatorType;
+  aggregator: typeof _SemanticModelAggregatorType;
 
-    aggregatorView: SemanticModelAggregatorView;
+  aggregatorView: SemanticModelAggregatorView;
 
-    setAggregatorView: React.Dispatch<React.SetStateAction<SemanticModelAggregatorView>>;
+  setAggregatorView: React.Dispatch<React.SetStateAction<SemanticModelAggregatorView>>;
 
-    models: Map<string, EntityModel>;
+  models: Map<string, EntityModel>;
 
-    visualModels: Map<string, WritableVisualModel>;
+  visualModels: Map<string, WritableVisualModel>;
 
-    setVisualModels: React.Dispatch<React.SetStateAction<Map<string, WritableVisualModel>>>;
+  setVisualModels: React.Dispatch<React.SetStateAction<Map<string, WritableVisualModel>>>;
 
-    //
+  //
 
-    addModel: (...models: EntityModel[]) => void;
+  addModel: (...models: EntityModel[]) => void;
 
-    addVisualModel: (...models: WritableVisualModel[]) => void;
+  addVisualModel: (...models: WritableVisualModel[]) => void;
 
-    setModelAlias: (alias: string | null, model: EntityModel) => void;
+  setModelAlias: (alias: string | null, model: EntityModel) => void;
 
-    setModelIri: (iri: string, model: InMemorySemanticModel) => void;
+  setModelIri: (iri: string, model: InMemorySemanticModel) => void;
 
-    replaceModels: (entityModels: EntityModel[], visualModels: WritableVisualModel[]) => void;
+  replaceModels: (entityModels: EntityModel[], visualModels: WritableVisualModel[]) => void;
 
-    removeModel: (modelId: string) => void;
+  removeModel: (modelId: string) => void;
 
-    removeVisualModel: (modelId: string) => void;
+  removeVisualModel: (modelId: string) => void;
 
 }
 
@@ -70,7 +73,7 @@ export interface UseModelGraphContextType {
  */
 export const useModelGraphContext = (): UseModelGraphContextType => {
   const { aggregator, aggregatorView, setAggregatorView, models, setModels, visualModels, setVisualModels } =
-        useContext(ModelGraphContext);
+    useContext(ModelGraphContext);
 
   const addModel = (...models: EntityModel[]) => {
     // Make sure there is a view model.

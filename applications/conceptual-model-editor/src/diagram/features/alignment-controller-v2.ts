@@ -20,18 +20,21 @@ import { binarySearchIndex } from "../../utilities/functional";
 // (which equals the absolute position if there is no parent node)
 // There some places where I probably don't update the absolute position,
 // but I should (some of the commented code), so after group nodes will be added, it will have to be fixed
-const getInternalNodeFromNode = (node: Node, reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>): InternalNode => {
+const getInternalNodeFromNode = (
+  node: Node,
+  reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
+): InternalNode => {
   return reactFlowInstance.getInternalNode(node.id) as InternalNode;
 };
 
 type Coordinate = "x" | "y";
 type RelevantAlignmentDataForCoordinate = {
-    alignmentNode: InternalNode | null,
-    setAlignmentNode: Dispatch<SetStateAction<InternalNode | null>>,
-    sortedNodes: [string, number][],
-    alignmentHelperLine: LineEndPointsForOrthogonal | null,
-    setAlignmentHelperLine: Dispatch<SetStateAction<LineEndPointsForOrthogonal | null>>,
-    alignmentSnapGrid: number
+  alignmentNode: InternalNode | null,
+  setAlignmentNode: Dispatch<SetStateAction<InternalNode | null>>,
+  sortedNodes: [string, number][],
+  alignmentHelperLine: LineEndPointsForOrthogonal | null,
+  setAlignmentHelperLine: Dispatch<SetStateAction<LineEndPointsForOrthogonal | null>>,
+  alignmentSnapGrid: number
 };
 
 const getOtherCoordinate = (coordinate: Coordinate) => {
@@ -46,40 +49,40 @@ const isInRange = (value: number, midPoint: number, range: number) => {
  * Controller type for the canvas alignment helper.
  */
 export type AlignmentController = {
-    /**
-     * Called on visual model change
-    */
-    onReset: () => void,
-    /**
-     * Called when user starts dragging node. Prepares state for updates based on node changes.
-     */
-    alignmentSetUpOnNodeDragStart: (node: Node) => void,
-    /**
-     * Called when user stops dragging node. Cleans state
-     */
-    alignmentCleanUpOnNodeDragStop: (node: Node) => void,
-    /**
-     * Updates lines to render ({@link horizontalAlignmentLine} and {@link verticalAlignmentLine})
-     * based on given node changes ({@link changes}).
-     */
-    alignmentNodesChange: (changes: NodeChange<NodeType>[]) => void,
-    /**
-     * The line representing horizontal alignment or null, if there is currently no alignment.
-     */
-    horizontalAlignmentLine: LineEndPointsForOrthogonal | null,
-    /**
-     * The line representing vertical alignment or null, if there is currently no alignment.
-     */
-    verticalAlignmentLine: LineEndPointsForOrthogonal | null,
+  /**
+   * Called on visual model change
+  */
+  onReset: () => void,
+  /**
+   * Called when user starts dragging node. Prepares state for updates based on node changes.
+   */
+  alignmentSetUpOnNodeDragStart: (node: Node) => void,
+  /**
+   * Called when user stops dragging node. Cleans state
+   */
+  alignmentCleanUpOnNodeDragStop: (node: Node) => void,
+  /**
+   * Updates lines to render ({@link horizontalAlignmentLine} and {@link verticalAlignmentLine})
+   * based on given node changes ({@link changes}).
+   */
+  alignmentNodesChange: (changes: NodeChange<NodeType>[]) => void,
+  /**
+   * The line representing horizontal alignment or null, if there is currently no alignment.
+   */
+  horizontalAlignmentLine: LineEndPointsForOrthogonal | null,
+  /**
+   * The line representing vertical alignment or null, if there is currently no alignment.
+   */
+  verticalAlignmentLine: LineEndPointsForOrthogonal | null,
 };
 
 export type LineEndPointsForOrthogonal = {
-    start: Point,
-    length: number,
+  start: Point,
+  length: number,
 }
 
 export const useAlignmentController = (props: {
-    reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
+  reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
 }): AlignmentController => {
   const { reactFlowInstance } = props;
 
@@ -130,7 +133,7 @@ export const useAlignmentController = (props: {
 
   const alignmentNodesChange = (changes: NodeChange<NodeType>[]) => {
     // If we are moving more than 1 node, then we don't want to perform alignment
-    if(changes.length > 1) {
+    if (changes.length > 1) {
       return;
     }
 
@@ -253,7 +256,7 @@ export const useAlignmentController = (props: {
       length: 0,
     };
     helperLineEndPoints.start[otherCoordinate] = (otherCoordinateSortedNodes[0]?.[1] ?? 0) as number -
-                                                  ADDITIONAL_SPACE_FOR_HELPER_LINE;
+      ADDITIONAL_SPACE_FOR_HELPER_LINE;
     helperLineEndPoints.start[coordinate] = coordinatePosition;
 
     // Check if we aren't too far away with the dragging,
@@ -265,29 +268,29 @@ export const useAlignmentController = (props: {
     // which has additional space cut by half
     // Then use the position of node as new base for the start of alignment helper line
     const maxPossiblePositionBeforeChoosingNewStart = helperLineEndPoints.start[otherCoordinate] +
-                                                    ADDITIONAL_SPACE_FOR_HELPER_LINE / 2;
-    if(draggedNodePosition[otherCoordinate] < maxPossiblePositionBeforeChoosingNewStart) {
+      ADDITIONAL_SPACE_FOR_HELPER_LINE / 2;
+    if (draggedNodePosition[otherCoordinate] < maxPossiblePositionBeforeChoosingNewStart) {
       helperLineEndPoints.start[otherCoordinate] = draggedNodePosition[otherCoordinate] -
-                                                    ADDITIONAL_SPACE_FOR_HELPER_LINE;
+        ADDITIONAL_SPACE_FOR_HELPER_LINE;
     }
 
     helperLineEndPoints.length = (otherCoordinateSortedNodes.at(-1)?.[1] ?? 0) as number +
-                                  ADDITIONAL_SPACE_FOR_HELPER_LINE;
+      ADDITIONAL_SPACE_FOR_HELPER_LINE;
     helperLineEndPoints.length -= helperLineEndPoints.start[otherCoordinate];
 
     const possibleLengthCandidate = (draggedNodePosition[otherCoordinate] +
-                                    ADDITIONAL_SPACE_FOR_HELPER_LINE) -
-                                    helperLineEndPoints.start[otherCoordinate];
+      ADDITIONAL_SPACE_FOR_HELPER_LINE) -
+      helperLineEndPoints.start[otherCoordinate];
     // If the new end, where the additional space cut by half is still after the current end then swap,
     // since we might be running out of line. User is dragging too much.
-    if(possibleLengthCandidate - ADDITIONAL_SPACE_FOR_HELPER_LINE / 2 > helperLineEndPoints.length) {
+    if (possibleLengthCandidate - ADDITIONAL_SPACE_FOR_HELPER_LINE / 2 > helperLineEndPoints.length) {
       helperLineEndPoints.length = possibleLengthCandidate;
     }
 
     // Optimization to update only when necessary
-    if(alignmentHelperLine?.start.x === helperLineEndPoints.start.x &&
-            alignmentHelperLine?.start.y === helperLineEndPoints.start.y &&
-            alignmentHelperLine?.length === helperLineEndPoints.length) {
+    if (alignmentHelperLine?.start.x === helperLineEndPoints.start.x &&
+      alignmentHelperLine?.start.y === helperLineEndPoints.start.y &&
+      alignmentHelperLine?.length === helperLineEndPoints.length) {
       return;
     }
 
@@ -312,14 +315,14 @@ export const useAlignmentController = (props: {
 
     // We are are aligning and weren't or were but to a different position
     if (indexInSortedArray >= 0 &&
-        (alignmentNode === null ||
-          absolutePosition[coordinate] !== alignmentNode.internals.positionAbsolute[coordinate])) {
+      (alignmentNode === null ||
+        absolutePosition[coordinate] !== alignmentNode.internals.positionAbsolute[coordinate])) {
 
       const internalNode = reactFlowInstance.getInternalNode(sortedNodes[indexInSortedArray]?.[0] as string);
       setAlignmentNode(internalNode as (InternalNode | undefined) ?? null);
       const offsetForHandler = 0;
       const coordinatePositionForAlignmentHelperNodes = sortedNodes[indexInSortedArray]?.[1] as number +
-                                                        offsetForHandler;
+        offsetForHandler;
 
       setNewAlignmentLine(coordinate, coordinatePositionForAlignmentHelperNodes, absolutePosition);
       changedAlignmentLines.push(coordinate);

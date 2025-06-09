@@ -28,7 +28,8 @@ export type EntityToAddToVisualModel = {
      */
     identifier: string,
     /**
-     * The position to put the newly created visual entity at if the position is null or undefined then default placement is chosen based on type of entity.
+     * The position to put the newly created visual entity at if the position
+     * is null or undefined then default placement is chosen based on type of entity.
      */
     position?: XY | null
 };
@@ -89,7 +90,9 @@ async function updatePositionsAndSplitIntoNodesAndEdges(
       }
       nodes.push(validatedEntityToAddToVisualModel);
     }
-    else if(isSemanticModelRelationship(entity) || isSemanticModelRelationshipProfile(entity) || isSemanticModelGeneralization(entity)) {
+    else if(isSemanticModelRelationship(entity)
+      || isSemanticModelRelationshipProfile(entity)
+      || isSemanticModelGeneralization(entity)) {
       edges.push(validatedEntityToAddToVisualModel);
     }
     else {  // Maybe unnecessary
@@ -132,7 +135,8 @@ function validateEntities(
     const model = sourceModelOfEntity(entityIdentifier, [...graph.models.values()]);
     if(model === undefined) {
       // Note that we continue, therefore if one entity fails, the addition of rest is not affected.
-      notifications.error(`The entity ${entityIdentifier} which should have been added to visual model doesn't have source semantic model`);
+      notifications.error(
+        `The entity ${entityIdentifier} to add to the visual model doesn't have source semantic model`);
       continue;
     }
 
@@ -157,21 +161,23 @@ async function addClassesAndClassProfilesToVisualModel(
 ) {
   for(const { entity, model, position } of validatedNodesData) {
     const modelIdentifier = model.getId();
-    // TODO RadStr: Hotfix for https://github.com/mff-uk/dataspecer/issues/1017 since it is called here,
-    //              so we catch the exception and move to next class
     try {
       if(isSemanticModelClass(entity)) {
-        await addSemanticClassToVisualModelAction(notifications, graph, classes, visualModel, diagram, entity.id, modelIdentifier, position);
+        await addSemanticClassToVisualModelAction(
+          notifications, graph, classes, visualModel, diagram, entity.id, modelIdentifier, position);
       }
       else if(isSemanticModelClassProfile(entity)) {
-        await addSemanticClassProfileToVisualModelAction(notifications, graph, classes, visualModel, diagram, entity.id, modelIdentifier, position);
+        await addSemanticClassProfileToVisualModelAction(
+          notifications, graph, classes, visualModel, diagram, entity.id, modelIdentifier, position);
       }
       else {
         notifications.error("Adding node of not supported type");
       }
     }
     catch {
-      console.info("Exception when adding class or class profile, but it is most likely nothing to worry about, since it is known issue https://github.com/mff-uk/dataspecer/issues/1017");
+      console.info(
+        "Exception when adding class or class profile, but it is most likely nothing to worry about, "
+        +" since it is known issue https://github.com/mff-uk/dataspecer/issues/1017");
     }
   }
 }

@@ -9,8 +9,12 @@ import { useEditInput } from "../components/input/edit-input";
 import { ModelTypeIcon } from "../components/model-type-icon";
 import { ColorPicker } from "../features/color-picker";
 import { randomColorFromPalette } from "../util/color-utils";
-import { ShowAllClassesFromSemanticModelButton } from "./components/add-entities-from-semantic-model-to-visual-button";
-import { HideAllClassesFromSemanticModelButton } from "./components/remove-entities-in-semantic-model-from-visual-button";
+import {
+  ShowAllClassesFromSemanticModelButton,
+} from "./components/add-entities-from-semantic-model-to-visual-button";
+import {
+  HideAllClassesFromSemanticModelButton,
+} from "./components/remove-entities-in-semantic-model-from-visual-button";
 
 const ModelName = (props: { displayName: string | null }) => (
   <div className="flex-grow text-nowrap">{props.displayName}</div>
@@ -88,8 +92,8 @@ export const ModelItemRow = (props: { modelId: string }) => {
         {
           model === undefined ? null :
             <div>
-              <ShowAllClassesFromSemanticModelButton semanticModel={model}/>
-              <HideAllClassesFromSemanticModelButton semanticModel={model}/>
+              <ShowAllClassesFromSemanticModelButton semanticModel={model} />
+              <HideAllClassesFromSemanticModelButton semanticModel={model} />
             </div>
         }
         <ColorPicker currentColor={currentColor} saveColor={handleSaveColor} />

@@ -6,7 +6,12 @@ import { ClassesContextType } from "@/context/classes-context";
 import { UseNotificationServiceWriterType } from "@/notification/notification-service-context";
 import { UseDiagramType } from "@/diagram/diagram-hook";
 import { ModelGraphContextType } from "@/context/model-context";
-import { isVisualProfileRelationship, isVisualRelationship, VisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import {
+  isVisualProfileRelationship,
+  isVisualRelationship,
+  VisualModel,
+  WritableVisualModel,
+} from "@dataspecer/core-v2/visual-model";
 import { layoutGivenVisualEntities } from "./layout-selection";
 
 /**

@@ -43,7 +43,7 @@ export function WithUiModel(props: {
     return {
 
     } as any;
-  }, [observers, setState]);
+  }, [observers]);
 
   // Register for changes in the
   useEffect(() => {

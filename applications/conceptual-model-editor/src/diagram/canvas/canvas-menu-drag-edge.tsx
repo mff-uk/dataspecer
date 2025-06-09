@@ -19,7 +19,8 @@ export function CanvasMenuCreatedByEdgeDrag({ menuProps }: { menuProps: CanvasMe
     return () => {
       context?.closeCanvasMenu();
       context?.cleanSelection();
-      context?.callbacks().onCanvasOpenCreateClassDialogWithAssociation(menuProps.sourceNodeIdentifier, menuProps.canvasPosition, isCreatedClassTarget);
+      context?.callbacks().onCanvasOpenCreateClassDialogWithAssociation(
+        menuProps.sourceNodeIdentifier, menuProps.canvasPosition, isCreatedClassTarget);
     };
   };
 
@@ -27,7 +28,8 @@ export function CanvasMenuCreatedByEdgeDrag({ menuProps }: { menuProps: CanvasMe
     return () => {
       context?.closeCanvasMenu();
       context?.cleanSelection();
-      context?.callbacks().onCanvasOpenCreateClassDialogWithGeneralization(menuProps.sourceNodeIdentifier, menuProps.canvasPosition, isCreatedClassParent);
+      context?.callbacks().onCanvasOpenCreateClassDialogWithGeneralization(
+        menuProps.sourceNodeIdentifier, menuProps.canvasPosition, isCreatedClassParent);
     }
   };
 

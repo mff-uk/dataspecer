@@ -22,26 +22,31 @@ import { useModelGraphContext } from "../../context/model-context";
 import { useClassesContext } from "../../context/classes-context";
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { findSourceModelOfEntity } from "../../service/model-service";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  isSemanticModelClassProfile,
+  isSemanticModelRelationshipProfile,
+  SemanticModelClassProfile,
+  SemanticModelRelationshipProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isSemanticModelAttributeProfile } from "../../dataspecer/semantic-model";
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
 
 export const RowHierarchy = (props: {
-    entity: SemanticModelClass | SemanticModelClassUsage
-      | SemanticModelRelationship | SemanticModelRelationshipUsage
-      | SemanticModelClassProfile | SemanticModelRelationshipProfile;
-    handlers: {
-        handleAddEntityToActiveView: (model: EntityModel, entity: Entity) => void;
-        handleRemoveEntityFromActiveView: (entity: Entity) => void;
-        handleExpansion: (model: EntityModel, classId: string) => Promise<void>;
-        handleRemoval: (model: InMemorySemanticModel | ExternalSemanticModel, entityId: string) => Promise<void>;
-        handleTargeting: (entityId: string, entityNumberToBeCentered: number) => void;
-    };
-    indent: number;
-    /**
-     * List of entities represented on canvas.
-     */
-    onCanvas: string[];
+  entity: SemanticModelClass | SemanticModelClassUsage
+  | SemanticModelRelationship | SemanticModelRelationshipUsage
+  | SemanticModelClassProfile | SemanticModelRelationshipProfile;
+  handlers: {
+    handleAddEntityToActiveView: (model: EntityModel, entity: Entity) => void;
+    handleRemoveEntityFromActiveView: (entity: Entity) => void;
+    handleExpansion: (model: EntityModel, classId: string) => Promise<void>;
+    handleRemoval: (model: InMemorySemanticModel | ExternalSemanticModel, entityId: string) => Promise<void>;
+    handleTargeting: (entityId: string, entityNumberToBeCentered: number) => void;
+  };
+  indent: number;
+  /**
+   * List of entities represented on canvas.
+   */
+  onCanvas: string[];
 }) => {
   const { models, aggregatorView } = useModelGraphContext();
   const { usages, classProfiles, relationshipProfiles, classes, allowedClasses } = useClassesContext();
@@ -61,21 +66,21 @@ export const RowHierarchy = (props: {
     || isSemanticModelRelationshipProfile(aggregatedEntity);
 
   const isAttributeOrAttributeProfile = isSemanticModelAttribute(aggregatedEntity) ||
-                                          isSemanticModelAttributeUsage(aggregatedEntity) ||
-                                          isSemanticModelAttributeProfile(aggregatedEntity);
+    isSemanticModelAttributeUsage(aggregatedEntity) ||
+    isSemanticModelAttributeProfile(aggregatedEntity);
 
   const expansionHandler =
-        isSemanticModelClass(entity) && sourceModel instanceof ExternalSemanticModel
-          ? {
-            toggleHandler: () => props.handlers.handleExpansion(sourceModel, entity.id),
-            expanded: () => allowedClasses.includes(entity.id),
-          }
-          : null;
+    isSemanticModelClass(entity) && sourceModel instanceof ExternalSemanticModel
+      ? {
+        toggleHandler: () => props.handlers.handleExpansion(sourceModel, entity.id),
+        expanded: () => allowedClasses.includes(entity.id),
+      }
+      : null;
 
   const showDrawingHandler = isClassOrProfile ||
-        (isAttributeOrAttributeProfile &&
-          isAttributeDomainInVisualModel(aggregatorView.getActiveVisualModel(), aggregatedEntity)) ||
-       (isRelationshipOrProfile && hasBothEndsInVisualModel(aggregatedEntity, aggregatorView.getActiveVisualModel()));
+    (isAttributeOrAttributeProfile &&
+      isAttributeDomainInVisualModel(aggregatorView.getActiveVisualModel(), aggregatedEntity)) ||
+    (isRelationshipOrProfile && hasBothEndsInVisualModel(aggregatedEntity, aggregatorView.getActiveVisualModel()));
 
   const drawingHandler = !showDrawingHandler || sourceModel === undefined ? null : {
     addToViewHandler: () => props.handlers.handleAddEntityToActiveView(sourceModel, entity),
@@ -83,9 +88,9 @@ export const RowHierarchy = (props: {
   };
 
   const removalHandler =
-        sourceModel instanceof InMemorySemanticModel || sourceModel instanceof ExternalSemanticModel
-          ? { remove: () => props.handlers.handleRemoval(sourceModel, entity.id) }
-          : null;
+    sourceModel instanceof InMemorySemanticModel || sourceModel instanceof ExternalSemanticModel
+      ? { remove: () => props.handlers.handleRemoval(sourceModel, entity.id) }
+      : null;
 
   const thisEntityProfiles = [
     ...usages.filter(item => item.usageOf === entity.id),
@@ -97,9 +102,9 @@ export const RowHierarchy = (props: {
     centerViewportOnEntityHandler: (entityNumberToBeCentered: number) =>
       props.handlers.handleTargeting(entity.id, entityNumberToBeCentered),
     isTargetable: props.onCanvas.includes(entity.id) ||
-                  isSemanticModelAttribute(entity) ||
-                  isSemanticModelAttributeUsage(entity) ||
-                  isSemanticModelAttributeProfile(entity),
+      isSemanticModelAttribute(entity) ||
+      isSemanticModelAttributeUsage(entity) ||
+      isSemanticModelAttributeProfile(entity),
   };
 
   const model = findSourceModelOfEntity(entity.id, models);
@@ -123,8 +128,8 @@ export const RowHierarchy = (props: {
         entity={entity}
         key={
           entity.id +
-                    (aggregatorView.getActiveVisualModel()?.getId() ?? "mId") +
-                    classes.length.toString()
+          (aggregatorView.getActiveVisualModel()?.getId() ?? "mId") +
+          classes.length.toString()
         }
         expandable={expansionHandler}
         drawable={drawingHandler}
@@ -149,8 +154,8 @@ export const RowHierarchy = (props: {
 function isAttributeDomainInVisualModel(
   visualModel: VisualModel | null,
   attribute: SemanticModelRelationship
-      | SemanticModelRelationshipUsage
-      | SemanticModelRelationshipProfile,
+    | SemanticModelRelationshipUsage
+    | SemanticModelRelationshipProfile,
 ): boolean {
   if (visualModel === null) {
     return false;
@@ -181,7 +186,7 @@ const hasBothEndsInVisualModel = (
   if (visualModel === null) {
     return false;
   }
-  if(visualModel.hasVisualEntityForRepresented(entity.id)) {
+  if (visualModel.hasVisualEntityForRepresented(entity.id)) {
     // We do separate if so we can exit early if it is on canvas.
     // Also solves connection to visual diagram node.
     // Note that if we wanted to return true in cases when

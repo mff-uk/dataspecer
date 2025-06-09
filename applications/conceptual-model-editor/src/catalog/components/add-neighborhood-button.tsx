@@ -1,21 +1,27 @@
 import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { t } from "../../application";
-import { SemanticModelClassUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+  SemanticModelClassUsage,
+  SemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useActions } from "../../action/actions-react-binding";
-import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  SemanticModelClassProfile,
+  SemanticModelRelationshipProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { useRef } from "react";
 
 export const AddNeighborhoodButton = ({ entity }: {
   entity: SemanticModelClass | SemanticModelRelationship |
-    SemanticModelClassUsage | SemanticModelRelationshipUsage |
-    SemanticModelClassProfile | SemanticModelRelationshipProfile
+  SemanticModelClassUsage | SemanticModelRelationshipUsage |
+  SemanticModelClassProfile | SemanticModelRelationshipProfile
 }) => {
 
   const { addEntityNeighborhoodToVisualModel } = useActions();
 
   const currentlyPerformingShowAction = useRef<boolean>(false);
   const onClick = async () => {
-    if(currentlyPerformingShowAction.current) {
+    if (currentlyPerformingShowAction.current) {
       return;
     }
     currentlyPerformingShowAction.current = true;

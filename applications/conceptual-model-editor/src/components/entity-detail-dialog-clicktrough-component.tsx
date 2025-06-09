@@ -9,22 +9,25 @@ import { useClassesContext } from "../context/classes-context";
 import { getIri, getModelIri } from "../util/iri-utils";
 import { sourceModelOfEntity } from "../util/model-utils";
 import { useOptions } from "../configuration/options";
-import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  SemanticModelClassProfile,
+  SemanticModelRelationshipProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 const DEFAULT_MODEL_COLOR = "#ffffff";
 
 export const ResourceDetailClickThrough = (props: {
-    resource:
-      SemanticModelClass
-      | SemanticModelRelationship
-      | SemanticModelClassUsage
-      | SemanticModelRelationshipUsage
-      | SemanticModelClassProfile
-      | SemanticModelRelationshipProfile;
-    detailDialogLanguage?: string;
-    onClick: () => void;
-    withCardinality?: string;
-    withIri?: boolean;
+  resource:
+  SemanticModelClass
+  | SemanticModelRelationship
+  | SemanticModelClassUsage
+  | SemanticModelRelationshipUsage
+  | SemanticModelClassProfile
+  | SemanticModelRelationshipProfile;
+  detailDialogLanguage?: string;
+  onClick: () => void;
+  withCardinality?: string;
+  withIri?: boolean;
 }) => {
   const { language } = useOptions();
   const { sourceModelOfEntityMap } = useClassesContext();
@@ -32,7 +35,9 @@ export const ResourceDetailClickThrough = (props: {
 
   const { resource, onClick, withCardinality, withIri, detailDialogLanguage } = props;
   const name = useEntityProxy(resource, detailDialogLanguage ?? language).name;
-  const modelColor = aggregatorView.getActiveVisualModel()?.getModelColor(sourceModelOfEntityMap.get(resource.id) ?? "") ?? DEFAULT_MODEL_COLOR;
+  const modelColor =
+    aggregatorView.getActiveVisualModel()?.getModelColor(sourceModelOfEntityMap.get(resource.id) ?? "")
+    ?? DEFAULT_MODEL_COLOR;
   const iri = withIri ? getIri(resource, getModelIri(sourceModelOfEntity(resource.id, [...models.values()]))) : null;
 
   return (

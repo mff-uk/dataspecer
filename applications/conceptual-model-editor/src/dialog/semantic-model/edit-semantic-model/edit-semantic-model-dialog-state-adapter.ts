@@ -1,4 +1,9 @@
-import { CmeSemanticModel, CmeSemanticModelChange, CmeSemanticModelNameLanguage, CmeSemanticModelType } from "../../../dataspecer/cme-model";
+import {
+  CmeSemanticModel,
+  CmeSemanticModelChange,
+  CmeSemanticModelNameLanguage,
+  CmeSemanticModelType,
+} from "../../../dataspecer/cme-model";
 import { EditSemanticModelDialogState } from "./edit-semantic-model-dialog-state";
 
 export function createEditSemanticModelDialogState(

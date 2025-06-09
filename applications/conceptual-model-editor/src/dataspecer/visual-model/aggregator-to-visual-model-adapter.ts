@@ -1,12 +1,33 @@
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { isSemanticModelAttribute, isSemanticModelRelationship, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isVisualNode, isVisualProfileRelationship, isVisualRelationship, VisualModel, VisualNode, VisualProfileRelationship, VisualRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { isSemanticModelAttributeUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+  isSemanticModelAttribute,
+  isSemanticModelRelationship,
+  SemanticModelRelationship,
+} from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+  isVisualNode,
+  isVisualProfileRelationship,
+  isVisualRelationship,
+  VisualModel,
+  VisualNode,
+  VisualProfileRelationship,
+  VisualRelationship,
+  WritableVisualModel,
+} from "@dataspecer/core-v2/visual-model";
+import {
+  isSemanticModelAttributeUsage,
+  isSemanticModelClassUsage,
+  isSemanticModelRelationshipUsage,
+  SemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { getDomainAndRange, getDomainAndRangeConcepts } from "../../util/relationship-utils";
 import { createLogger } from "../../application";
 import { EntityDsIdentifier } from "../entity-model";
-import { isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  isSemanticModelRelationshipProfile,
+  SemanticModelRelationshipProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isSemanticModelAttributeProfile } from "../semantic-model";
 import { Entity } from "@dataspecer/core-v2";
 
@@ -38,7 +59,7 @@ function getDomainNodes(
   entity: SemanticModelRelationship | SemanticModelRelationshipUsage | SemanticModelRelationshipProfile
 ): VisualNode[] {
   let domainConcept;
-  if(isSemanticModelAttribute(entity)) {
+  if (isSemanticModelAttribute(entity)) {
     const { domain } = getDomainAndRange(entity);
     domainConcept = domain?.concept;
   }
@@ -46,7 +67,7 @@ function getDomainNodes(
     const { domain } = getDomainAndRange(entity);
     domainConcept = domain?.concept;
   }
-  if(domainConcept === undefined || domainConcept === null) {
+  if (domainConcept === undefined || domainConcept === null) {
     return [];
   }
 
@@ -68,9 +89,9 @@ function handleDeletionOfSemanticAttribute(
   deletedEntity: Entity | null
 ) {
   const isAttributeOrAttributeProfile = isSemanticModelAttribute(deletedEntity) ||
-                        isSemanticModelAttributeProfile(deletedEntity) ||
-                        isSemanticModelAttributeUsage(deletedEntity);
-  if(isAttributeOrAttributeProfile) {
+    isSemanticModelAttributeProfile(deletedEntity) ||
+    isSemanticModelAttributeUsage(deletedEntity);
+  if (isAttributeOrAttributeProfile) {
     const nodes = getDomainNodes(visualModel, deletedEntity);
 
     for (const node of nodes) {
@@ -86,29 +107,29 @@ function handleUpdateOfSemanticAttribute(
   nextEntity: Entity | null,
 ) {
   const isAttributeOrAttributeProfile = isSemanticModelAttribute(nextEntity) ||
-                        isSemanticModelAttributeProfile(nextEntity) ||
-                        isSemanticModelAttributeUsage(nextEntity);
-  if(!isAttributeOrAttributeProfile) {
+    isSemanticModelAttributeProfile(nextEntity) ||
+    isSemanticModelAttributeUsage(nextEntity);
+  if (!isAttributeOrAttributeProfile) {
     return;
   }
   const wasAttributeOrAttributeProfile = isSemanticModelAttribute(previousEntity) ||
-          isSemanticModelAttributeProfile(previousEntity) ||
-          isSemanticModelAttributeUsage(previousEntity);
+    isSemanticModelAttributeProfile(previousEntity) ||
+    isSemanticModelAttributeUsage(previousEntity);
 
-  if(previousEntity === null || !wasAttributeOrAttributeProfile) {
+  if (previousEntity === null || !wasAttributeOrAttributeProfile) {
     return;
   }
 
   const previousNodes = getDomainNodes(visualModel, previousEntity);
-  if(previousNodes === null) {
+  if (previousNodes === null) {
     return;
   }
   const nextNodes = getDomainNodes(visualModel, nextEntity);
-  if(nextNodes === null) {
+  if (nextNodes === null) {
     return;
   }
 
-  if(previousNodes.length > 0 && previousNodes.length === nextNodes.length &&
+  if (previousNodes.length > 0 && previousNodes.length === nextNodes.length &&
     previousNodes[0].representedEntity === nextNodes[0].representedEntity) {
     return;
   }
@@ -122,8 +143,6 @@ function handleUpdateOfSemanticAttribute(
     visualModel.updateVisualEntity(nextNode.identifier, { content: nextNode.content.concat([previousEntity.id]) });
   }
 
-  // TODO RadStr: Debug
-  console.info("Updating attribute", { previousNodes, nextNodes });
 }
 
 /**
@@ -145,7 +164,7 @@ function synchronizeUpdates(
 ): void {
   for (const item of changedItems) {
     const visuals = visualModel.getVisualEntitiesForRepresented(item.id);
-    for(const visual of visuals) {
+    for (const visual of visuals) {
       // We decide based on the type.
       if (isVisualNode(visual)) {
         updateVisualNode(visualModel, item, visual);
@@ -215,12 +234,12 @@ function updateVisualRelationship(
   const isSourceSame = givenVisualSource !== null && visualSources.includes(givenVisualSource);
   const givenVisualTarget = visualModel.getVisualEntity(visual.visualTarget);
   const isTargetSame = givenVisualTarget !== null && visualTargets.includes(givenVisualTarget);
-  if(isSourceSame && isTargetSame) {
+  if (isSourceSame && isTargetSame) {
     return;
   }
 
-  for(const visualSource of visualSources) {
-    for(const visualTarget of visualTargets) {
+  for (const visualSource of visualSources) {
+    for (const visualTarget of visualTargets) {
       if (visual.visualSource === visualSource.identifier
         && visual.visualTarget === visualTarget.identifier) {
         // There was no change.
@@ -265,8 +284,8 @@ function updateVisualProfileRelationshipForEnds(
     return;
   }
 
-  for(const visualSource of visualSources) {
-    for(const visualTarget of visualTargets) {
+  for (const visualSource of visualSources) {
+    for (const visualTarget of visualTargets) {
       if (visual.visualSource === visualSource.identifier
         && visual.visualTarget === visualTarget.identifier) {
         // There was no change.
@@ -288,7 +307,7 @@ function synchronizeRemoved(
 ): void {
   for (const identifier of removed) {
     const visuals = visualModel.getVisualEntitiesForRepresented(identifier);
-    for(const visual of visuals) {
+    for (const visual of visuals) {
       visualModel.deleteVisualEntity(visual.identifier);
     }
   }

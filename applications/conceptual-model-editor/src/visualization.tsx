@@ -341,7 +341,8 @@ function createVisualModelDiagramNode(
   visualDiagramNode: VisualDiagramNode,
   group: string | null,
 ): VisualModelDiagramNode {
-  const referencedVisualModel = availableVisualModels.find(availableVisualModel => availableVisualModel.getIdentifier() === visualDiagramNode.representedVisualModel);
+  const referencedVisualModel = availableVisualModels.find(
+    model => model.getIdentifier() === visualDiagramNode.representedVisualModel);
   let referencedVisualModelLabel = referencedVisualModel === undefined ?
     "" :
     getLocalizedStringFromLanguageString(referencedVisualModel.getLabel(), options.language);
@@ -860,20 +861,6 @@ function onChangeVisualEntities(
     }
   }
 
-  // TODO RadStr: This (visualDiagramNodesChanges) is here just for debugging, remove later
-  const visualDiagramNodesChanges: {
-    created: VisualModelDiagramNode[],
-    updated: {
-      previous: VisualEntity,
-      next: VisualDiagramNode,
-    }[],
-    removed: VisualEntity[],
-  } = {
-    created: [],
-    updated: [],
-    removed: [],
-  };
-
   for (const { previous, next } of changes) {
     if (next !== null) {
       // New or changed entity.
@@ -887,11 +874,9 @@ function onChangeVisualEntities(
           options, aggregatorView.getAvailableVisualModels(), next, group);
         if (previous === null) {
           // Create new entity.
-          visualDiagramNodesChanges.created.push(node);
           actions.addNodes([node]);
         } else {
           // Change of existing.
-          visualDiagramNodesChanges.updated.push({ previous, next });
           actions.updateNodes([node]);
         }
       } else if (isVisualNode(next)) {
@@ -973,7 +958,9 @@ function onChangeVisualEntities(
         } else if (isSemanticModelClassProfile(entity)) {
           profiled.push(...entity.profiling);
         } else {
-          console.error("Ignored profile relation as entity is not a usage or a profile.", { entity, visualEntity: next });
+          console.error(
+            "Ignored profile relation as entity is not a usage or a profile.",
+            { entity, visualEntity: next });
           continue;
         }
         // We can have multiple candidates, but we can add only the one represented
@@ -1023,7 +1010,6 @@ function onChangeVisualEntities(
         actions.removeEdges([previous.identifier]);
       } else if (isVisualDiagramNode(previous)) {
         actions.removeNodes([previous.identifier]);
-        visualDiagramNodesChanges.removed.push(previous);
       } else {
         // We ignore other properties.
       }

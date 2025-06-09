@@ -1,16 +1,55 @@
 import { AggregatedEntityWrapper, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { UI_UNKNOWN_ENTITY_TYPE, UiClass, UiClassProfile, UiEntity, UiGeneralization, UiPrimitiveType, UiRelationship, UiRelationshipProfile, UiSemanticModel } from "./model";
-import { cmeClassAggregateToUiClassProfile, cmeClassToUiClass, cmeGeneralizationToCmeGeneralization, cmePrimitiveTypeToUiPrimitiveType, cmeRelationshipAggregateToUiRelationshipProfile, cmeRelationshipToUiRelationship, cmeSemanticModelToUiSemanticModel } from "./adapter";
+import {
+  UI_UNKNOWN_ENTITY_TYPE,
+  UiClass,
+  UiClassProfile,
+  UiEntity,
+  UiGeneralization,
+  UiPrimitiveType,
+  UiRelationship,
+  UiRelationshipProfile,
+  UiSemanticModel,
+} from "./model";
+import {
+  cmeClassAggregateToUiClassProfile,
+  cmeClassToUiClass,
+  cmeGeneralizationToCmeGeneralization,
+  cmePrimitiveTypeToUiPrimitiveType,
+  cmeRelationshipAggregateToUiRelationshipProfile,
+  cmeRelationshipToUiRelationship,
+  cmeSemanticModelToUiSemanticModel,
+} from "./adapter";
 import { HexColor, VisualModel } from "@dataspecer/core-v2/visual-model";
 import { SemanticModel } from "../semantic-model";
 import { createLogger } from "../../application";
 import { createUiAdapterContext, UiAdapterContext } from "./adapter/adapter-context";
-import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { listCmePrimitiveTypes, semanticClassToCmeClass, semanticGeneralizationToCmeGeneralization, semanticRelationshipToCmeRelationship } from "../cme-model/adapter";
+import {
+  isSemanticModelClass,
+  isSemanticModelGeneralization,
+  isSemanticModelRelationship,
+} from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+  isSemanticModelClassProfile,
+  isSemanticModelRelationshipProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  listCmePrimitiveTypes,
+  semanticClassToCmeClass,
+  semanticGeneralizationToCmeGeneralization,
+  semanticRelationshipToCmeRelationship,
+} from "../cme-model/adapter";
 import { semanticClassProfileToCmeClassAggregate } from "../cme-model/adapter/cme-class-profile-aggregate";
-import { semanticRelationshipProfileToCmeRelationshipAggregate } from "../cme-model/adapter/cme-relationship-aggregate-adapter";
-import { OwlCmeSemanticModel, OwlThingCmeEntity, UnknownCmeEntity, UnknownCmeSemanticModel, UnspecifiedCmeEntity, semanticModelToCmeSemanticModel } from "../cme-model";
+import {
+  semanticRelationshipProfileToCmeRelationshipAggregate,
+} from "../cme-model/adapter/cme-relationship-aggregate-adapter";
+import {
+  OwlCmeSemanticModel,
+  OwlThingCmeEntity,
+  UnknownCmeEntity,
+  UnknownCmeSemanticModel,
+  UnspecifiedCmeEntity,
+  semanticModelToCmeSemanticModel,
+} from "../cme-model";
 import { languageStringToString } from "../../utilities/string";
 import { EntityDsIdentifier } from "../entity-model";
 import { Entity } from "@dataspecer/core-v2";

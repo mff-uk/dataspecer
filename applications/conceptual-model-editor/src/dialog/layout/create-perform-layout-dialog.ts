@@ -1,6 +1,10 @@
 import { DialogWrapper } from "@/dialog/dialog-api";
 import { PerformLayoutDialogState } from "./perform-layout-controller";
-import { AlgorithmName, getDefaultUserGivenAlgorithmConfigurationsFull, UserGivenAlgorithmConfigurationsMap } from "@dataspecer/layout";
+import {
+  AlgorithmName,
+  getDefaultUserGivenAlgorithmConfigurationsFull,
+  UserGivenAlgorithmConfigurationsMap,
+} from "@dataspecer/layout";
 import { PerformLayoutDialog } from "./perform-layout-dialog";
 
 export function createPerformLayoutDialogState(

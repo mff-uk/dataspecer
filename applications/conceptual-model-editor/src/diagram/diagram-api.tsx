@@ -1,5 +1,15 @@
 import { AlignmentHorizontalPosition, AlignmentVerticalPosition } from "@/action/align-nodes";
-import { Node, Edge, Group, GroupWithContent, Position, ViewportDimensions, Waypoint, DiagramNodeTypes, VisualModelDiagramNode } from "./diagram-model";
+import {
+  type Node,
+  type Edge,
+  type Group,
+  type GroupWithContent,
+  type Position,
+  type ViewportDimensions,
+  type Waypoint,
+  type DiagramNodeTypes,
+  type VisualModelDiagramNode,
+} from "./diagram-model";
 
 interface GroupActions {
 
@@ -280,7 +290,8 @@ interface DiagramNodes {
   onCanvasOpenCreateClassDialog: (nodeIdentifier: string, canvasPosition: Position) => void;
 
   /**
-   * Called when user chooses to create new class from diagram's canvas menu with default association created afterwards.
+   * Called when user chooses to create new class from diagram's canvas menu
+   * with default association created afterwards.
    * @param isCreatedClassTarget if set to true, then the association points to the created class.
    *  If set to false the direction of the association is from the created class to the source class.
    */
@@ -291,9 +302,10 @@ interface DiagramNodes {
   ) => void;
 
   /**
-   * Called when user choses to create new class from diagram's canvas menu with generalization created afterwards.
-   * @param isCreatedClassParent if set to true, then the the created class becomes parent of the source class.
-   *  If set to false, it becomes child.
+   * Called when user choses to create new class from diagram's canvas menu
+   * with generalization created afterwards.
+   * @param isCreatedClassParent if set to true, then the the created class
+   *  becomes parent of the source class. If set to false, it becomes child.
    */
   onCanvasOpenCreateClassDialogWithGeneralization: (
     nodeIdentifier: string,

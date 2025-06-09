@@ -5,7 +5,19 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { configuration, createLogger } from "../application";
 import { ReactflowDimensionsConstantEstimator, XY, placePositionOnGrid } from "@dataspecer/layout";
-import { Position, VisualGroup, VisualModel, WritableVisualModel, isVisualNode, isVisualGroup, isVisualRelationship, VisualDiagramNode, VisualNode, isVisualDiagramNode, VisualEntity } from "@dataspecer/core-v2/visual-model";
+import {
+  Position,
+  VisualGroup,
+  VisualModel,
+  WritableVisualModel,
+  isVisualNode,
+  isVisualGroup,
+  isVisualRelationship,
+  VisualDiagramNode,
+  VisualNode,
+  isVisualDiagramNode,
+  VisualEntity,
+} from "@dataspecer/core-v2/visual-model";
 import { DiagramNodeTypes, Edge, EdgeType } from "../diagram";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { ModelGraphContextType } from "../context/model-context";
@@ -16,7 +28,10 @@ import { isSemanticModelAttribute, SemanticModelClass } from "@dataspecer/core-v
 import { addToRecordArray } from "@/utilities/functional";
 import { isSemanticModelAttributeProfile } from "@/dataspecer/semantic-model";
 import { getDomainAndRange } from "@/util/relationship-utils";
-import { isSemanticModelAttributeUsage, SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+  isSemanticModelAttributeUsage,
+  SemanticModelClassUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 const LOG = createLogger(import.meta.url);
@@ -32,10 +47,10 @@ export function convertToEntitiesToDeleteType(
   entityIdentifiers: string[],
 ): EntityToDelete[] {
   const entitiesToDelete: EntityToDelete[] = [];
-  for(const entityIdentifier of entityIdentifiers) {
+  for (const entityIdentifier of entityIdentifiers) {
     const sourceModel = findSourceModelOfEntity(entityIdentifier, allModels);
-    if(sourceModel === null) {
-      if(notifications !== null) {
+    if (sourceModel === null) {
+      if (notifications !== null) {
         notifications.error("Entity doesn't have source semantic model.");
       }
       continue;
@@ -94,21 +109,24 @@ export function getViewportCenter(diagram: UseDiagramType) {
 }
 
 /**
- * @returns Return slightly changed position of current viewport's center. The position is shifted so the class appears more in the middle.
+ * @returns Return slightly changed position of current viewport's center.
+ *  The position is shifted so the class appears more in the middle.
  */
 export function getViewportCenterForClassPlacement(diagram: UseDiagramType) {
   const position = getViewportCenter(diagram);
 
   position.x -= ReactflowDimensionsConstantEstimator.getMinimumWidth() / 2;
   position.y -= ReactflowDimensionsConstantEstimator.getDefaultHeight() / 2;
-  placePositionOnGrid(position, configuration().xSnapGrid, configuration().ySnapGrid);
+  placePositionOnGrid(
+    position, configuration().xSnapGrid, configuration().ySnapGrid);
 
   return position;
 }
 
 /**
  *
- * @param selectionsToSetWith the {@link Selections} object with visual identifiers to be used as new selection.
+ * @param selectionsToSetWith the {@link Selections} object with visual
+ *  identifiers to be used as new selection.
  */
 export function setSelectionsInDiagram(selectionsToSetWith: Selections, diagram: UseDiagramType) {
   diagram.actions().setSelectedNodes(selectionsToSetWith.nodeSelection);
@@ -116,8 +134,9 @@ export function setSelectionsInDiagram(selectionsToSetWith: Selections, diagram:
 }
 
 /**
- * @returns Current selection in diagram, which has data formatted based on function arguments.
- * The nodes representing visual models have visual identifier of the represented model as an external identifier.
+ * @returns Current selection in diagram, which has data formatted based on
+ *  function arguments. The nodes representing visual models have visual
+ *  identifier of the represented model as an external identifier.
  */
 export function getSelections(
   diagram: UseDiagramType,
@@ -127,13 +146,13 @@ export function getSelections(
   const nodeSelectionFromDiagram = diagram.actions().getSelectedNodes();
   let edgeSelectionFromDiagram = diagram.actions().getSelectedEdges();
 
-  if(shouldFilterOutProfileClassEdges) {
+  if (shouldFilterOutProfileClassEdges) {
     edgeSelectionFromDiagram = edgeSelectionFromDiagram.filter(edge => edge.type !== EdgeType.ClassProfile);
   }
 
   let nodeSelection = extractIdentifiers(nodeSelectionFromDiagram, shouldGetVisualIdentifiers);
   let edgeSelection = extractIdentifiers(edgeSelectionFromDiagram, shouldGetVisualIdentifiers);
-  if(!shouldGetVisualIdentifiers) {
+  if (!shouldGetVisualIdentifiers) {
     // There may be duplicates, we have to remove them
     nodeSelection = [...new Set(nodeSelection)];
     edgeSelection = [...new Set(edgeSelection)];
@@ -169,12 +188,14 @@ export function filterOutProfileClassEdges(edgeSemanticIdentifiers: string[], vi
 //
 
 type ComputedPositionForNodePlacement = {
-    position: XY,
-    isInCenterOfViewport: boolean,
+  position: XY,
+  isInCenterOfViewport: boolean,
 };
 
 /**
- * @returns The barycenter of nodes associated to {@link classToFindAssociationsFor} and boolean variable saying if the position was explicitly put to middle of viewport.
+ * @returns The barycenter of nodes associated to
+ *  {@link classToFindAssociationsFor} and boolean
+ *  variable saying if the position was explicitly put to middle of viewport.
  */
 export const computeRelatedAssociationsBarycenterAction = (
   notifications: UseNotificationServiceWriterType,
@@ -188,13 +209,13 @@ export const computeRelatedAssociationsBarycenterAction = (
     notifications, graph, classesContext, classToFindAssociationsFor).selectionExtension.nodeSelection;
   const associatedPositions = associatedClasses.flatMap(associatedNodeIdentifier => {
     const visualEntities = visualModel.getVisualEntitiesForRepresented(associatedNodeIdentifier);
-    if(visualEntities.length === 0) {
+    if (visualEntities.length === 0) {
       notifications.error("The associated visual entity is not present in visual model, even though it should");
       return null;
     }
     const positions = [];
-    for(const visualEntity of visualEntities) {
-      if(!isVisualNode(visualEntity)) {
+    for (const visualEntity of visualEntities) {
+      if (!isVisualNode(visualEntity)) {
         notifications.error("One of the associated nodes is actually not a node for unknown reason");
         return null;
       }
@@ -209,7 +230,8 @@ export const computeRelatedAssociationsBarycenterAction = (
 };
 
 /**
- * @returns The barycenter of given positions and boolean saying if the barycenter was put to middle of viewport, because there is 0 neighbors.
+ * @returns The barycenter of given positions and boolean saying
+ *  if the barycenter was put to middle of viewport, because there is 0 neighbors.
  */
 const computeBarycenter = (positions: Position[], diagram: UseDiagramType): ComputedPositionForNodePlacement => {
   const barycenter = positions.reduce((accumulator: Position, currentValue: Position) => {
@@ -220,7 +242,7 @@ const computeBarycenter = (positions: Position[], diagram: UseDiagramType): Comp
   }, { x: 0, y: 0, anchored: null });
 
   let isInCenterOfViewport;
-  if(positions.length >= 1) {
+  if (positions.length >= 1) {
     isInCenterOfViewport = false;
     barycenter.x /= positions.length;
     barycenter.y /= positions.length;
@@ -262,12 +284,12 @@ export function findTopLevelGroup<T>(
   existingGroups: Record<string, T>,
   nodeToGroupMapping: Record<string, string>,
 ): string | null {
-  if(nodeToGroupMapping[identifier] === undefined) {
+  if (nodeToGroupMapping[identifier] === undefined) {
     return existingGroups[identifier] === undefined ? null : identifier;
   }
 
   let topLevelGroup = nodeToGroupMapping[identifier];
-  while(nodeToGroupMapping[topLevelGroup] !== undefined) {
+  while (nodeToGroupMapping[topLevelGroup] !== undefined) {
     topLevelGroup = nodeToGroupMapping[topLevelGroup];
   }
   return topLevelGroup;
@@ -276,7 +298,8 @@ export function findTopLevelGroup<T>(
 /**
  * Finds the top level group for given {@link identifier}, which represents any kind of node
  * (node, group, visual diagram node). We are looking for top level group in the given {@link visualModel}
- * @returns The identifier of the top level group or null, if the input node identified by {@link identifier} isn't part of any group.
+ * @returns The identifier of the top level group or null, if the input node identified
+ *  by {@link identifier} isn't part of any group.
  */
 export function findTopLevelGroupInVisualModel(
   identifier: string,
@@ -295,8 +318,8 @@ export function findTopLevelGroupInVisualModel(
  * It also contains the mappings of visual diagram nodes to its parent visual diagram node.
  * So keys are both visual and semantic identifiers, but it is simpler to use, if we have it all in one map.
  * The {@link existingVisualDiagramNodes} returns the diagram nodes stored in given {@link visualModel}
- * @returns The {@link classToVisualDiagramNodeMapping} contains the mapped visual diagram nodes together with the amount,
- * {@link classToVisualDiagramNodeMappingRaw} just contains all the visual diagram nodes
+ * @returns The {@link classToVisualDiagramNodeMapping} contains the mapped visual diagram nodes together
+ *  with the amount, {@link classToVisualDiagramNodeMappingRaw} just contains all the visual diagram nodes
  *  (possibly multiple times if it the class is present in it more than once)
  */
 export function getVisualDiagramNodeMappingsByRepresented(
@@ -306,7 +329,7 @@ export function getVisualDiagramNodeMappingsByRepresented(
   existingVisualDiagramNodes: Record<string, VisualDiagramNode>,
   classToVisualDiagramNodeMapping: Record<string, Record<string, number>>,
   classToVisualDiagramNodeMappingRaw: Record<string, string[]>
- } {
+} {
   const existingVisualDiagramNodes: Record<string, VisualDiagramNode> = {};
   const classToVisualDiagramNodeMappingRaw: Record<string, string[]> = {};
   for (const [identifier, visualEntity] of visualModel.getVisualEntities()) {
@@ -346,10 +369,10 @@ export function getVisualDiagramNodeMappingsByRepresented(
 export function getGroupMappings(visualModel: VisualModel) {
   const existingGroups: Record<string, VisualGroup> = {};
   const nodeToGroupMapping: Record<string, string> = {};
-  for(const [identifier, group] of visualModel.getVisualEntities()) {
-    if(isVisualGroup(group)) {
+  for (const [identifier, group] of visualModel.getVisualEntities()) {
+    if (isVisualGroup(group)) {
       existingGroups[identifier] = group;
-      for(const nodeInGroup of group.content) {
+      for (const nodeInGroup of group.content) {
         nodeToGroupMapping[nodeInGroup] = identifier;
       }
     }
@@ -369,15 +392,15 @@ export function getGroupMappings(visualModel: VisualModel) {
 export function getRemovedAndAdded<T>(previousValues: T[], nextValues: T[]) {
   const removed: T[] = [];
   const added: T[] = [];
-  for(const element of nextValues) {
+  for (const element of nextValues) {
     const isElementInPrevious = previousValues.includes(element);
-    if(!isElementInPrevious) {
+    if (!isElementInPrevious) {
       added.push(element);
     }
   }
-  for(const element of previousValues) {
+  for (const element of previousValues) {
     const isElementInNext = nextValues.includes(element);
-    if(!isElementInNext) {
+    if (!isElementInNext) {
       removed.push(element);
     }
   }
@@ -395,10 +418,10 @@ export function getRemovedAndAdded<T>(previousValues: T[], nextValues: T[]) {
 export const getTopLeftPosition = (nodes: VisualEdgeEndPoint[]) => {
   const topLeft = { x: 10000000, y: 10000000 };
   nodes.forEach(node => {
-    if(node.position.x < topLeft.x) {
+    if (node.position.x < topLeft.x) {
       topLeft.x = node.position.x;
     }
-    if(node.position.y < topLeft.y) {
+    if (node.position.y < topLeft.y) {
       topLeft.y = node.position.y;
     }
   });
@@ -419,13 +442,13 @@ export const getBotRightPosition = (
   nodes.forEach(node => {
     const width = getDimensionValue(diagram, DimensionType.Width, node.identifier);
     const x = node.position.x + width;
-    if(x > botRight.x) {
+    if (x > botRight.x) {
       botRight.x = x;
     }
 
     const height = getDimensionValue(diagram, DimensionType.Height, node.identifier);
     const y = node.position.y + height;
-    if(y > botRight.y) {
+    if (y > botRight.y) {
       botRight.y = y;
     }
   });
@@ -536,13 +559,14 @@ function getClassesAndDiagramNodesFromVisualModelInternal(
   visualModel: string,
   result: string[],
 ) {
-  const linkedVisualmodel = availableVisualModels.find(availableVisualModel => visualModel === availableVisualModel.getIdentifier());
-  if(linkedVisualmodel !== undefined) {
-    for (const [_, visualEntity] of linkedVisualmodel.getVisualEntities()) {
-      if(isVisualNode(visualEntity)) {
+  const linkedVisualModel = availableVisualModels.find(
+    availableVisualModel => visualModel === availableVisualModel.getIdentifier());
+  if (linkedVisualModel !== undefined) {
+    for (const [_, visualEntity] of linkedVisualModel.getVisualEntities()) {
+      if (isVisualNode(visualEntity)) {
         result.push(visualEntity.representedEntity);
       }
-      else if(isVisualDiagramNode(visualEntity)) {
+      else if (isVisualDiagramNode(visualEntity)) {
         result.push(visualEntity.representedVisualModel);
         getClassesAndDiagramNodesFromVisualModelInternal(availableVisualModels, visualEntity.representedVisualModel, result);
       }

@@ -1,12 +1,18 @@
 import { useMemo } from "react";
-import { BaseEntityProfileDialogController, createBaseEntityProfileDialogController } from "../base-entity-profile/base-entity-profile-dialog-controller";
+import {
+  BaseEntityProfileDialogController,
+  createBaseEntityProfileDialogController,
+} from "../base-entity-profile/base-entity-profile-dialog-controller";
 import { DialogProps } from "../dialog-api";
 import { EntityRepresentative, filterByModel, RelationshipRepresentative } from "../utilities/dialog-utilities";
 import { AssociationProfileDialogState } from "./edit-association-profile-dialog-state";
 import { configuration } from "../../application";
 import { LanguageString } from "../../dataspecer/entity-model";
 import { CmeSemanticModel } from "../../dataspecer/cme-model";
-import { BaseRelationshipProfileDialogController, createBaseRelationshipProfileDialogController } from "../base-relationship-profile/base-relationship-profile-dialog-controller";
+import {
+  BaseRelationshipProfileDialogController,
+  createBaseRelationshipProfileDialogController,
+} from "../base-relationship-profile/base-relationship-profile-dialog-controller";
 import { validateBaseEntityDialogState } from "../base-entity/base-entity-dialog-validation";
 
 export interface EditAssociationProfileDialogController extends

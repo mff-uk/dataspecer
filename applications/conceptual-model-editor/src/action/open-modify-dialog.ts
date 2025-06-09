@@ -20,7 +20,11 @@ import { openEditAttributeProfileDialogAction } from "./open-edit-attribute-prof
 import { openEditClassDialogAction } from "./open-edit-class-dialog";
 import { openEditClassProfileDialogAction } from "./open-edit-class-profile-dialog";
 import { createLogger } from "../application";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  isSemanticModelClassProfile,
+  isSemanticModelRelationshipProfile,
+  SemanticModelRelationshipProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
 import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 

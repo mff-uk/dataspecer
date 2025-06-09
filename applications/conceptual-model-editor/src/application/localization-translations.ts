@@ -1,3 +1,4 @@
+/* eslint @stylistic/js/max-len: off */
 
 function prefix<T>(prefix: string, items: Record<string, T>): Record<string, T> {
   const result: Record<string, T> = {};

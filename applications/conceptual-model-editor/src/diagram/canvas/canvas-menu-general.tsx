@@ -21,7 +21,8 @@ export function CanvasGeneralMenu({ canvasMenu }: {canvasMenu: GeneralCanvasMenu
     return null;
   }
 
-  const position = computeScreenPosition(canvasMenu.menuProps.canvasPosition.x, canvasMenu.menuProps.canvasPosition.y, { x, y, zoom });
+  const position = computeScreenPosition(
+    canvasMenu.menuProps.canvasPosition.x, canvasMenu.menuProps.canvasPosition.y, { x, y, zoom });
 
   return <div>
     <ToolbarPortal>

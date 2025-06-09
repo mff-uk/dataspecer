@@ -4,7 +4,12 @@ import { ClassesContextType } from "../context/classes-context";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { Options } from "../application";
-import { SemanticModelRelationship, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+  SemanticModelRelationship,
+  isSemanticModelClass,
+  isSemanticModelGeneralization,
+  isSemanticModelRelationship,
+} from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
@@ -13,12 +18,26 @@ import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relatio
 import { findAnyWritableModelFromRawInput } from "../dataspecer/cme-model/cme-model-utilities";
 import { CmeSemanticModel } from "../dataspecer/cme-model";
 import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
-import { ClassProfileDialogState, createNewProfileClassDialogState } from "../dialog/class-profile/edit-class-profile-dialog-state";
-import { classProfileDialogStateToNewCmeClassProfile } from "../dialog/class-profile/edit-class-profile-dialog-state-adapter";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelRelationshipEndProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { createNewAssociationProfileDialogState } from "@/dialog/association-profile/edit-association-profile-dialog-state";
+import {
+  ClassProfileDialogState,
+  createNewProfileClassDialogState,
+} from "../dialog/class-profile/edit-class-profile-dialog-state";
+import {
+  classProfileDialogStateToNewCmeClassProfile,
+} from "../dialog/class-profile/edit-class-profile-dialog-state-adapter";
+import {
+  isSemanticModelClassProfile,
+  isSemanticModelRelationshipProfile,
+  SemanticModelRelationshipEndProfile,
+  SemanticModelRelationshipProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  createNewAssociationProfileDialogState,
+} from "@/dialog/association-profile/edit-association-profile-dialog-state";
 import { Language } from "@/configuration";
-import { associationProfileDialogStateToNewCmeRelationshipProfileWithOverridenEnds } from "@/dialog/association-profile/edit-association-profile-dialog-state-adapter";
+import {
+  associationProfileDialogStateToNewCmeRelationshipProfileWithOverriddenEnds,
+} from "@/dialog/association-profile/edit-association-profile-dialog-state-adapter";
 
 /**
  * Creates default profiles of given {@link semanticClassesToProfile} and {@link semanticRelationshipsToProfile}.
@@ -52,9 +71,11 @@ export async function createDefaultProfilesAction(
 };
 
 /**
- * Creates classes and class profiles from given {@link classesAndClassProfilesToProfile} containing semantic identifiers of entities to profile and adds the profiles to the visual model.
- * @returns The created map of created class and class profiles. Key is the identifier from {@link classesAndClassProfilesToProfile} and value is the identifier of the created profile.
- * Or null, if it is explicitly null, then it means that we failed to create the class profile for some reason.
+ * Creates classes and class profiles from given {@link classesAndClassProfilesToProfile} containing
+ * semantic identifiers of entities to profile and adds the profiles to the visual model.
+ * @returns The created map of created class and class profiles. Key is the identifier from
+ *  {@link classesAndClassProfilesToProfile} and value is the identifier of the created profile.
+ *  Or null, if it is explicitly null, then it means that we failed to create the class profile for some reason.
  */
 async function createDefaultClassProfiles(
   cmeExecutor: CmeModelOperationExecutor,
@@ -83,7 +104,8 @@ async function createDefaultClassProfiles(
 
 /**
  * Creates class profile of given entity with default parameters,
- * that it is the resulting class profile is the same as if the user opened the dialog and clicked accept without changing anything.
+ * that it is the resulting class profile is the same as if the user opened the dialog and clicked accept without
+ * changing anything.
  * @returns The identifier of the created class profile or null if the creation of profile failed
  */
 async function createDefaultClassProfile(
@@ -134,7 +156,7 @@ async function createDefaultClassProfile(
 function createClassProfile(
   state: ClassProfileDialogState,
   cmeExecutor: CmeModelOperationExecutor
-)  {
+) {
   return cmeExecutor.createClassProfile(classProfileDialogStateToNewCmeClassProfile(state));
 }
 
@@ -234,7 +256,7 @@ async function createDefaultRelationshipProfile(
     classesContext, graph, visualModel, language, [relationshipToProfile.id]);
 
   const result = cmeExecutor.createRelationshipProfile(
-    associationProfileDialogStateToNewCmeRelationshipProfileWithOverridenEnds(
+    associationProfileDialogStateToNewCmeRelationshipProfileWithOverriddenEnds(
       relationshipProfileState, ends[0].concept, ends[1].concept));
   cmeExecutor.updateSpecialization(result, relationshipProfileState.model.identifier,
     [], relationshipProfileState.specializations);

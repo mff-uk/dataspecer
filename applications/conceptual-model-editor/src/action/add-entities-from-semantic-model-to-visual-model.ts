@@ -79,7 +79,6 @@ function addHiddenAttributesForExistingClassesAndClassProfiles(
   visualModel: WritableVisualModel,
   classesPresentOnCanvas: (SemanticModelClass | SemanticModelClassProfile | SemanticModelClassUsage)[]
 ): void {
-  // TODO RadStr: The finding of allAttributes could maybe be part of some exported utility function
   const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
   const attributeUsages = classesContext.usages.filter(isSemanticModelAttributeUsage);
   const attributeProfiles = classesContext.relationshipProfiles.filter(isSemanticModelAttributeProfile);
@@ -102,7 +101,6 @@ function addHiddenAttributesForExistingClassesAndClassProfiles(
           continue;
         }
       }
-      // TODO RadStr: Maybe it would be better to allow for the function to take more than 1 attribute
       addSemanticAttributeToVisualModelAction(
         notifications, visualModel, classPresentOnCanvas.id, attribute.id, false);
     }

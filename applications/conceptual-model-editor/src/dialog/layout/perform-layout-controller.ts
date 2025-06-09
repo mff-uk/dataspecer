@@ -3,8 +3,11 @@ import { useMemo } from "react";
 import { DialogProps } from "../dialog-api";
 import { AlgorithmName, UserGivenAlgorithmConfigurationsMap } from "@dataspecer/layout";
 
-export type UserGivenAlgorithmConfigurationsMapSetter = (previous: UserGivenAlgorithmConfigurationsMap) => UserGivenAlgorithmConfigurationsMap;
-export type UserGivenAlgorithmConfigurationsMapFieldSetter = <T>(fieldToSet: string, newValue: T) => UserGivenAlgorithmConfigurationsMap;
+export type UserGivenAlgorithmConfigurationsMapSetter =
+  (previous: UserGivenAlgorithmConfigurationsMap) => UserGivenAlgorithmConfigurationsMap;
+
+export type UserGivenAlgorithmConfigurationsMapFieldSetter =
+  <T>(fieldToSet: string, newValue: T) => UserGivenAlgorithmConfigurationsMap;
 
 export interface PerformLayoutDialogState {
 
@@ -22,7 +25,9 @@ export interface PerformLayoutDialogController {
 
 }
 
-export function usePerformLayoutDialogController({ changeState }: DialogProps<PerformLayoutDialogState>): PerformLayoutDialogController {
+export function usePerformLayoutDialogController(
+  { changeState }: DialogProps<PerformLayoutDialogState>,
+): PerformLayoutDialogController {
 
   return useMemo(() => {
 

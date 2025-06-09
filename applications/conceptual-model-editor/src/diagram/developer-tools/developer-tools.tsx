@@ -51,7 +51,7 @@ export function DeveloperTools() {
           >
             Viewport
           </DevToolButton>
-          <button onClick={_ => openPerformLayoutVisualModelDialog()}>{ t("layout-dialog-open-button") }</button>
+          <button onClick={_ => openPerformLayoutVisualModelDialog()}>{t("layout-dialog-open-button")}</button>
           <DevToolButton
             setActive={explorationMode.toggleHighlighting}
             active={explorationMode.isHighlightingOn}
@@ -143,12 +143,18 @@ function ChangeInfo({ change }: { change: NodeChange | EdgeChange }) {
     <div style={{ marginBottom: 4 }}>
       <div>node id: {id}</div>
       <div>
-        {type === "add" ? JSON.stringify(change.item, null, 2) : null}
-        {type === "dimensions" ? `dimensions: ${change.dimensions?.width ?? "-"} x ${change.dimensions?.height ?? "-"}` : null}
-        {type === "position" ? `position: ${change.position?.x.toFixed(1,) ?? "-"}, ${change.position?.y.toFixed(1) ?? "-"}` : null}
-        {type === "remove" ? "remove" : null}
-        {type === "select" ? (change.selected ? "select" : "unselect") : null}
-        {type === "replace" ? JSON.stringify(change.item, null, 2) : null}
+        {type === "add" ?
+          JSON.stringify(change.item, null, 2) : null}
+        {type === "dimensions" ?
+          `dimensions: ${change.dimensions?.width ?? "-"} x ${change.dimensions?.height ?? "-"}` : null}
+        {type === "position" ?
+          `position: ${change.position?.x.toFixed(1,) ?? "-"}, ${change.position?.y.toFixed(1) ?? "-"}` : null}
+        {type === "remove" ?
+          "remove" : null}
+        {type === "select" ?
+          (change.selected ? "select" : "unselect") : null}
+        {type === "replace" ?
+          JSON.stringify(change.item, null, 2) : null}
       </div>
     </div>
   );

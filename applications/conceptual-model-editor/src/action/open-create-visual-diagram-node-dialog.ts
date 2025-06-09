@@ -5,9 +5,15 @@ import { Options } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { addVisualDiagramNodeForNewModelToVisualModelAction } from "./add-visual-diagram-node-to-visual-model";
-import { EditVisualDiagramNodeDialogState } from "@/dialog/visual-model/visual-diagram-node/edit-visual-diagram-node/edit-visual-diagram-node-dialog-controller";
-import { createEditVisualDiagramNodeDialogState } from "@/dialog/visual-model/visual-diagram-node/edit-visual-diagram-node/create-edit-visual-diagram-node-dialog";
-import { createCreateVisualDiagramNodeDialog } from "@/dialog/visual-model/visual-diagram-node/create-visual-diagram-node/create-create-visual-diagram-node-dialog";
+import {
+  EditVisualDiagramNodeDialogState,
+} from "../dialog/visual-model/visual-diagram-node/edit-visual-diagram-node/edit-visual-diagram-node-dialog-controller";
+import {
+  createEditVisualDiagramNodeDialogState,
+} from "../dialog/visual-model/visual-diagram-node/edit-visual-diagram-node/create-edit-visual-diagram-node-dialog";
+import {
+  createCreateVisualDiagramNodeDialog,
+} from "../dialog/visual-model/visual-diagram-node/create-visual-diagram-node/create-create-visual-diagram-node-dialog";
 
 /**
  * Opens dialog, which on confirm creates visual model, which will contain all the {@link nodes} and {@link edges}.

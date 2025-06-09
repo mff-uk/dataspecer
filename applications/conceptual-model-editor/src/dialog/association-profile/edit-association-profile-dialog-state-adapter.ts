@@ -4,11 +4,11 @@ import { AssociationProfileDialogState } from "./edit-association-profile-dialog
 export function associationProfileDialogStateToNewCmeRelationshipProfile(
   state: AssociationProfileDialogState
 ): NewCmeRelationshipProfile {
-  return associationProfileDialogStateToNewCmeRelationshipProfileWithOverridenEnds(
+  return associationProfileDialogStateToNewCmeRelationshipProfileWithOverriddenEnds(
     state, state.domain.identifier, state.range.identifier);
 }
 
-export function associationProfileDialogStateToNewCmeRelationshipProfileWithOverridenEnds(
+export function associationProfileDialogStateToNewCmeRelationshipProfileWithOverriddenEnds(
   state: AssociationProfileDialogState,
   domain: string,
   range: string,

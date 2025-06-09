@@ -2,8 +2,18 @@ import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 
 import type { Entity, EntityModel } from "@dataspecer/core-v2/entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { type VisualModel, VisualModelDataVersion, type WritableVisualModel, isVisualModel, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { type AggregatedEntityWrapper, SemanticModelAggregator, type SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
+import {
+  type VisualModel,
+  VisualModelDataVersion,
+  type WritableVisualModel,
+  isVisualModel,
+  isWritableVisualModel,
+} from "@dataspecer/core-v2/visual-model";
+import {
+  type AggregatedEntityWrapper,
+  SemanticModelAggregator,
+  type SemanticModelAggregatorView,
+} from "@dataspecer/core-v2/semantic-model/aggregator";
 import {
   type SemanticModelClass,
   type SemanticModelGeneralization,
@@ -36,7 +46,12 @@ import { OptionsContextProvider } from "./configuration/options";
 
 import { migrateVisualModelFromV0 } from "./dataspecer/visual-model/visual-model-v0-to-v1";
 import { ExplorationContextProvider } from "./context/highlighting-exploration-mode";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  isSemanticModelClassProfile,
+  isSemanticModelRelationshipProfile,
+  SemanticModelClassProfile,
+  SemanticModelRelationshipProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { createDefaultWritableVisualModel } from "./dataspecer/visual-model/visual-model-factory";
 import { VerticalSplitter } from "./components/vertical-splitter";
 import { preferences, updatePreferences } from "./configuration";

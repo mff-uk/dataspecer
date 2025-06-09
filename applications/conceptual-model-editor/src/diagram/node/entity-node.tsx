@@ -168,7 +168,7 @@ function ProfileOf({ options, profileOf }: {
     iri: string | null,
   }[],
 }) {
-  if (profileOf.length ===0) {
+  if (profileOf.length === 0) {
     return null;
   }
   let labels: (string | null)[] = [];
@@ -265,7 +265,11 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
         &nbsp;
         <button onClick={onDelete} title={t("class-remove-button")}>🗑</button>
         &nbsp;
-        <button onClick={onAnchor} title={isPartOfGroup ? t("group-anchor-button") : t("node-anchor-button")} >⚓</button>
+        <button
+          onClick={onAnchor}
+          title={isPartOfGroup ? t("group-anchor-button") : t("node-anchor-button")} >
+          ⚓
+        </button>
         &nbsp;
         <button onClick={onAddAttribute} title={addAttributeTitle} >➕</button>
         &nbsp;
@@ -293,7 +297,7 @@ function RelationshipItem(props: {
           - {label}&nbsp;
         </span>
         <ProfileOf options={data.options} profileOf={data.profileOf} />
-        <Cardinality options={data.options} data={data}/>
+        <Cardinality options={data.options} data={data} />
       </div>
       {props.showToolbar ? (
         <div>

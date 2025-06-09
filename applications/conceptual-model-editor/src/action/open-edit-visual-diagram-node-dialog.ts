@@ -2,10 +2,20 @@ import { Options } from "../application";
 import { ModelGraphContextType } from "../context/model-context";
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { isVisualDiagramNode, VisualDiagramNode, VisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import {
+  isVisualDiagramNode,
+  VisualDiagramNode,
+  VisualModel,
+  WritableVisualModel,
+} from "@dataspecer/core-v2/visual-model";
 import { VisualModelDiagramNode } from "../diagram";
-import { createEditVisualDiagramNodeDialog, createEditVisualDiagramNodeDialogState } from "@/dialog/visual-model/visual-diagram-node/edit-visual-diagram-node/create-edit-visual-diagram-node-dialog";
-import { EditVisualDiagramNodeDialogState } from "@/dialog/visual-model/visual-diagram-node/edit-visual-diagram-node/edit-visual-diagram-node-dialog-controller";
+import {
+  createEditVisualDiagramNodeDialog,
+  createEditVisualDiagramNodeDialogState,
+} from "@/dialog/visual-model/visual-diagram-node/edit-visual-diagram-node/create-edit-visual-diagram-node-dialog";
+import {
+  EditVisualDiagramNodeDialogState,
+} from "../dialog/visual-model/visual-diagram-node/edit-visual-diagram-node/edit-visual-diagram-node-dialog-controller";
 
 /**
  * Open model to edit information about visual diagram node.
@@ -50,7 +60,7 @@ export function prepareDataForVisualDiagramNodeDialog(
   state: EditVisualDiagramNodeDialogState,
 } | null {
   const visualDiagramNode = visualModel?.getVisualEntity(visualModelDiagramNode.identifier) ?? null;
-  if(visualDiagramNode === null || !isVisualDiagramNode(visualDiagramNode)) {
+  if (visualDiagramNode === null || !isVisualDiagramNode(visualDiagramNode)) {
     notifications.error("Editing non-existing visual diagram node.");
     return null;
   }
@@ -58,7 +68,7 @@ export function prepareDataForVisualDiagramNodeDialog(
   const referencedVisualModel = graph.aggregatorView.getAvailableVisualModels().find(
     availableModel => availableModel.getIdentifier() === visualDiagramNode.representedVisualModel);
 
-  if(referencedVisualModel === undefined) {
+  if (referencedVisualModel === undefined) {
     notifications.error("The edited visual diagram node has missing the referenced visual model");
     return null;
   }

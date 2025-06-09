@@ -7,7 +7,7 @@ export const ShowAllClassesFromSemanticModelButton = (props: { semanticModel: En
   const { addEntitiesFromSemanticModelToVisualModel } = useActions();
   const currentlyPerformingShowAction = useRef<boolean>(false);
   const onClick = async () => {
-    if(currentlyPerformingShowAction.current) {
+    if (currentlyPerformingShowAction.current) {
       return;
     }
     currentlyPerformingShowAction.current = true;
@@ -22,7 +22,11 @@ export const ShowAllClassesFromSemanticModelButton = (props: { semanticModel: En
   };
 
   return (
-    <button className="hover:bg-teal-400" title={t("show-all-classes-from-semantic-model-to-visual-model-button.title")} onClick={async () => await onClick()}>
+    <button
+      className="hover:bg-teal-400"
+      title={t("show-all-classes-from-semantic-model-to-visual-model-button.title")}
+      onClick={async () => await onClick()}
+    >
       👁
     </button>
   );

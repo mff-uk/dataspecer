@@ -24,7 +24,7 @@ import LayeredAlgorithmDirectionDropdown from "./direction-combobox-react-compon
 export const PerformLayoutDialog = (props: DialogProps<PerformLayoutDialogState>) => {
   return <div className="flex flex-row">
     <ConfigDialogAlgorithmNameCombobox {...props}></ConfigDialogAlgorithmNameCombobox>
-    <VerticalSeparator/>
+    <VerticalSeparator />
     <ConfigDialogAlgorithmConfiguration {...props}></ConfigDialogAlgorithmConfiguration>
   </div>;
 };
@@ -35,11 +35,14 @@ const ConfigDialogAlgorithmNameCombobox = (props: DialogProps<PerformLayoutDialo
   return (
     <div>
       <div className="flex flex-row">
-        <label htmlFor="main-layout-alg" className="font-black text-base">{t("layout-dialog-chosen-algorithm-label")}:</label>
+        <label htmlFor="main-layout-alg" className="font-black text-base">
+          {t("layout-dialog-chosen-algorithm-label")}:
+        </label>
       </div>
       <div className="flex flex-row">
         <select id="main-layout-alg"
-          className="px-2 py-1 text-base text-gray-900 bg-gray-100 border border-gray-300 shadow-[inset_1px_1px_0_#fff] focus:outline-none focus:ring-0 "
+          className="px-2 py-1 text-base text-gray-900 bg-gray-100 border
+            border-gray-300 shadow-[inset_1px_1px_0_#fff] focus:outline-none focus:ring-0 "
           value={state.chosenAlgorithm}
           onChange={(event) => controller.setChosenAlgorithm(event.target.value as AlgorithmName)}>
           <option value="elk_layered">
@@ -79,7 +82,7 @@ const ConfigDialogAlgorithmConfiguration = (props: DialogProps<PerformLayoutDial
       return null;
     },
     elk_stress: function (): JSX.Element | null {
-      return <ElkStressConfig controller={controller} configuration={state.configurations.elk_stress}/>
+      return <ElkStressConfig controller={controller} configuration={state.configurations.elk_stress} />
     },
     elk_layered: function (): JSX.Element | null {
       return <ElkLayeredConfig controller={controller} configuration={state.configurations.elk_layered} />;
@@ -88,7 +91,7 @@ const ConfigDialogAlgorithmConfiguration = (props: DialogProps<PerformLayoutDial
       return null;
     },
     random: function (): JSX.Element | null {
-      return <RandomConfig controller={controller} configuration={state.configurations.random}/>;
+      return <RandomConfig controller={controller} configuration={state.configurations.random} />;
     },
     elk_radial: function (): JSX.Element | null {
       return <RadialConfig controller={controller} configuration={state.configurations.elk_radial}></RadialConfig>
@@ -98,10 +101,10 @@ const ConfigDialogAlgorithmConfiguration = (props: DialogProps<PerformLayoutDial
     },
     elk_stress_advanced_using_clusters: function (): JSX.Element | null {
       return <ElkStressWithClustersConfig controller={controller}
-        configuration={state.configurations.elk_stress_advanced_using_clusters}/>
+        configuration={state.configurations.elk_stress_advanced_using_clusters} />
     },
     elk_stress_profile: function (): JSX.Element | null {
-      return <ElkStressConfig controller={controller} configuration={state.configurations.elk_stress_profile}/>
+      return <ElkStressConfig controller={controller} configuration={state.configurations.elk_stress_profile} />
     },
     automatic: function (): JSX.Element | null {
       return null;
@@ -163,7 +166,7 @@ const ElkLayeredConfig = (
       step={10}
       fieldToSet="in_layer_gap" />
 
-    <HorizontalSeparator/>
+    <HorizontalSeparator />
     <div className="flex flex-row ml-4 mt-2 mb-4">
       <div className="mr-8">
         <LayoutEdgeRoutingCombobox configuration={props.configuration}
@@ -173,7 +176,7 @@ const ElkLayeredConfig = (
       <LayeredAlgorithmDirectionDropdown direction={props.configuration.alg_direction}
         setDirection={(direction) => props.controller.setAlgorithmConfigurationValue("alg_direction", direction)} />
     </div>
-    <HorizontalSeparator/>
+    <HorizontalSeparator />
     <InteractiveCheckbox configuration={props.configuration} controller={props.controller} />
   </div>
 };
@@ -183,8 +186,8 @@ const ElkStressConfig = (
     {
       controller: PerformLayoutDialogController,
       configuration: UserGivenAlgorithmConfigurationStress |
-                      UserGivenAlgorithmConfigurationStressProfile |
-                      UserGivenAlgorithmConfigurationStressWithClusters
+      UserGivenAlgorithmConfigurationStressProfile |
+      UserGivenAlgorithmConfigurationStressWithClusters
     }
 ) => {
   return <div>
@@ -209,11 +212,11 @@ const ElkStressConfig = (
           step={10}
           fieldToSet="profileEdgeLength" />
     }
-    <NumberOfRunsReactComponent controller={props.controller} configuration={props.configuration}/>
-    <HorizontalSeparator/>
-    <InteractiveCheckbox controller={props.controller} configuration={props.configuration}/>
-    <RunOverlapRemovalAfterCheckbox controller={props.controller} configuration={props.configuration}/>
-    <RunLayeredAfterCombobox controller={props.controller} configuration={props.configuration}/>
+    <NumberOfRunsReactComponent controller={props.controller} configuration={props.configuration} />
+    <HorizontalSeparator />
+    <InteractiveCheckbox controller={props.controller} configuration={props.configuration} />
+    <RunOverlapRemovalAfterCheckbox controller={props.controller} configuration={props.configuration} />
+    <RunLayeredAfterCombobox controller={props.controller} configuration={props.configuration} />
   </div>;
 };
 
@@ -222,8 +225,8 @@ const ElkStressWithClustersConfig = (
     {
       controller: PerformLayoutDialogController,
       configuration: UserGivenAlgorithmConfigurationStress |
-                      UserGivenAlgorithmConfigurationStressProfile |
-                      UserGivenAlgorithmConfigurationStressWithClusters
+      UserGivenAlgorithmConfigurationStressProfile |
+      UserGivenAlgorithmConfigurationStressWithClusters
     }
 ) => {
   return <div>
@@ -236,14 +239,14 @@ const ElkStressWithClustersConfig = (
       max={1000}
       step={10}
       fieldToSet="stress_edge_len" />
-    <NumberOfRunsReactComponent controller={props.controller} configuration={props.configuration}/>
+    <NumberOfRunsReactComponent controller={props.controller} configuration={props.configuration} />
     <RunOverlapRemovalAfterCheckbox text="layout-clusters-edge-layout"
       controller={props.controller}
-      configuration={props.configuration}/>
+      configuration={props.configuration} />
   </div>;
 };
 
-const HorizontalSeparator = () => <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
+const HorizontalSeparator = () => <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700" />
 
 const VerticalSeparator = () => <hr className="w-px mx-8 h-84 bg-gray-200 border-0 mx-4" />
 
@@ -332,8 +335,8 @@ const RunOverlapRemovalAfterCheckbox = (
   props: {
     text?: string,
     controller: PerformLayoutDialogController,
-    configuration: {run_node_overlap_removal_after: boolean}
-}) => {
+    configuration: { run_node_overlap_removal_after: boolean }
+  }) => {
   return <LayoutCheckboxGeneral
     controller={props.controller}
     reactComponentId="checkbox-run-overlap-removal-after"
@@ -346,8 +349,8 @@ const InteractiveCheckbox = (
   props: {
     text?: string,
     controller: PerformLayoutDialogController,
-    configuration: {interactive: boolean}
-}) => {
+    configuration: { interactive: boolean }
+  }) => {
   return <LayoutCheckboxGeneral
     controller={props.controller}
     reactComponentId="checkbox-interactive"
@@ -360,8 +363,8 @@ const RunLayeredAfterCombobox = (
   props: {
     text?: string,
     controller: PerformLayoutDialogController,
-    configuration: {run_layered_after: boolean}
-}) => {
+    configuration: { run_layered_after: boolean }
+  }) => {
   return <LayoutCheckboxGeneral
     controller={props.controller}
     reactComponentId="checkbox-run-layered-after"
@@ -377,7 +380,7 @@ const LayoutCheckboxGeneral = (
     fieldToSet: string,
     configuration: any,
     translateLabel: string,
-}) => {
+  }) => {
   return <div>
     <input type="checkbox"
       id={props.reactComponentId}
@@ -386,7 +389,7 @@ const LayoutCheckboxGeneral = (
       onChange={e => {
         props.controller.setAlgorithmConfigurationValue(props.fieldToSet, e.target.checked);
       }} />
-    <label htmlFor={props.reactComponentId}>{ t(props.translateLabel) }</label>
+    <label htmlFor={props.reactComponentId}>{t(props.translateLabel)}</label>
   </div>;
 };
 
@@ -395,7 +398,7 @@ const LayoutEdgeRoutingCombobox = (
     controller: PerformLayoutDialogController,
     reactComponentId: string,
     configuration: UserGivenAlgorithmConfigurationLayered,
-}) => {
+  }) => {
   return <div>
     <div className="flex flex-row">
       <label htmlFor={`${props.reactComponentId}-edge-routing`}>{t("layout-layered-edge-routing")}</label>

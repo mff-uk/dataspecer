@@ -153,7 +153,9 @@ export interface CreateModelControllerType {
 
 }
 
-export function useCreateModelController({ state, changeState }: DialogProps<CreateModelState>): CreateModelControllerType {
+export function useCreateModelController(
+  { state, changeState }: DialogProps<CreateModelState>,
+): CreateModelControllerType {
   return useMemo(() => {
 
     const setActiveTab = (next: TabType) => {
@@ -171,9 +173,18 @@ export function useCreateModelController({ state, changeState }: DialogProps<Cre
     const toggleSelection = (model: PredefinedModel) => {
       const index = state.selectedModels.indexOf(model);
       if (index === -1) {
-        changeState({ ...state, selectedModels: [...state.selectedModels, model] });
+        changeState({
+          ...state,
+          selectedModels: [...state.selectedModels, model]
+        });
       } else {
-        changeState({ ...state, selectedModels: [...state.selectedModels.slice(0, index), ...state.selectedModels.slice(index + 1)] });
+        changeState({
+          ...state,
+          selectedModels: [
+            ...state.selectedModels.slice(0, index),
+            ...state.selectedModels.slice(index + 1),
+          ],
+        });
       }
     };
 

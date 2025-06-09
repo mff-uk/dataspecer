@@ -27,7 +27,12 @@ import { DialogColoredModelHeaderWithLanguageSelector } from "../../components/d
 import { t } from "../../application";
 import { DialogProps, DialogWrapper } from "../dialog-api";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  isSemanticModelClassProfile,
+  isSemanticModelRelationshipProfile,
+  SemanticModelClassProfile,
+  SemanticModelRelationshipProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isSemanticModelAttributeProfile } from "../../dataspecer/semantic-model";
 
 type SupportedTypes =
@@ -140,7 +145,7 @@ const EntityDetailDialog = (props: DialogProps<EntityDetailState>) => {
             Detail of: <span className="font-semibold">{proxy.name}</span>
           </h5>
         </div>
-        {proxy.iri === null ? null  : (
+        {proxy.iri === null ? null : (
           <p className="flex flex-row pl-8 text-gray-500" title={proxy.iri ?? ""}>
             <IriLink iri={proxy.iri} />
             {proxy.iri}

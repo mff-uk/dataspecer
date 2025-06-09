@@ -6,10 +6,15 @@ import { ClassesContextType } from "../context/classes-context";
 import { ModelGraphContextType } from "../context/model-context";
 import { Options } from "../application";
 import { SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { AssociationDialogState, createEditAssociationDialogState } from "../dialog/association/edit-association-dialog-state";
+import {
+  AssociationDialogState,
+  createEditAssociationDialogState,
+} from "../dialog/association/edit-association-dialog-state";
 import { createEditAssociationDialog } from "../dialog/association/edit-association-dialog";
 import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
-import { associationDialogStateToNewCmeRelationship } from "../dialog/association/edit-association-dialog-state-adapter";
+import {
+  associationDialogStateToNewCmeRelationship,
+} from "../dialog/association/edit-association-dialog-state-adapter";
 
 /**
  * Open and handle edit association dialog.

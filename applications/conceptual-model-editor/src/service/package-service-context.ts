@@ -31,7 +31,10 @@ export const usePackageService = (): UsePackageServiceType => {
   };
 };
 
-const fetchCurrentPackage = (packageId: string | null, setCurrentPackage: (nextPackage: Package | null) => void): void => {
+const fetchCurrentPackage = (
+  packageId: string | null,
+  setCurrentPackage: (nextPackage: Package | null) => void,
+): void => {
   if (packageId === null) {
     return;
   }

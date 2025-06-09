@@ -19,7 +19,8 @@ export function removeVisualEntitiesFromVisualModelAction(
   const removedGroups: string[] = [];
   entitiesToRemove.forEach(entity => {
     if(isVisualGroup(entity) && !removedGroups.includes(entity.identifier)) {
-      const isGroupRemoved = removePartOfGroupContentAction(notifications, visualModel, entity.identifier, entitiesToRemoveIdentifiers, false);
+      const isGroupRemoved = removePartOfGroupContentAction(
+        notifications, visualModel, entity.identifier, entitiesToRemoveIdentifiers, false);
       if(isGroupRemoved) {
         removedGroups.push(entity.identifier);
       }

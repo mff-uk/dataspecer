@@ -29,11 +29,25 @@ function miniMapNodeColor(node: Node<ApiNode>) {
 const createRenderMiniMapNodeHandler = (reactflowInstance: ReactFlowInstance<any, any>) => {
   return (props: MiniMapNodeProps): JSX.Element => {
     const node = reactflowInstance.getNode(props.id);
-    if(node !== undefined) {
-      if(node.type === VisualModelNodeName) {
-        return <rect x={props.x} y={props.y} width={props.width} height={props.height} fill="#FFFFFF" stroke="black" strokeWidth="2"/>;
+    if (node !== undefined) {
+      if (node.type === VisualModelNodeName) {
+        return <rect
+          x={props.x}
+          y={props.y}
+          width={props.width}
+          height={props.height}
+          fill="#FFFFFF"
+          stroke="black"
+          strokeWidth="2"
+        />;
       }
     }
-    return <rect x={props.x} y={props.y} width={props.width} height={props.height} fill={props.color}/>;
+    return <rect
+      x={props.x}
+      y={props.y}
+      width={props.width}
+      height={props.height}
+      fill={props.color}
+    />;
   }
 }

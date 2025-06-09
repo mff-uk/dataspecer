@@ -1,7 +1,10 @@
 import { createLogger } from "../../application";
 import { EntityDsIdentifier, LanguageString } from "../../dataspecer/entity-model";
 import { removeFromArray } from "../../utilities/functional";
-import { createBaseEntityDialogController, BaseEntityDialogController } from "../base-entity/base-entity-dialog-controller";
+import {
+  createBaseEntityDialogController,
+  BaseEntityDialogController,
+} from "../base-entity/base-entity-dialog-controller";
 import { EntityRepresentative } from "../utilities/dialog-utilities";
 import { BaseEntityProfileDialogState } from "./base-entity-profile-dialog-state";
 

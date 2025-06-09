@@ -1,6 +1,20 @@
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { CreatedEntityOperationResult, createGeneralization, deleteEntity, Operation } from "@dataspecer/core-v2/semantic-model/operations";
-import { CmeGeneralization, CmeReference, CmeSpecialization, isCmeReferenceEqual, isCmeSpecialization, NewCmeSpecialization } from "../model";
+import {
+  InMemorySemanticModel,
+} from "@dataspecer/core-v2/semantic-model/in-memory";
+import {
+  CreatedEntityOperationResult,
+  createGeneralization,
+  deleteEntity,
+  Operation,
+} from "@dataspecer/core-v2/semantic-model/operations";
+import {
+  CmeGeneralization,
+  CmeReference,
+  CmeSpecialization,
+  isCmeReferenceEqual,
+  isCmeSpecialization,
+  NewCmeSpecialization,
+} from "../model";
 import { createLogger } from "../../../application";
 
 const LOG = createLogger(import.meta.url);

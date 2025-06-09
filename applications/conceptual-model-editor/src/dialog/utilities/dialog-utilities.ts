@@ -1,16 +1,30 @@
 import { EntityModel } from "@dataspecer/core-v2";
-import { LanguageString, SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+  LanguageString,
+  SemanticModelClass,
+  SemanticModelRelationship,
+} from "@dataspecer/core-v2/semantic-model/concepts";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { DataTypeURIs, isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
-import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+  SemanticModelClassUsage,
+  SemanticModelRelationshipUsage,
+  isSemanticModelClassUsage,
+  isSemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { configuration, createLogger, t } from "../../application";
 import { getDomainAndRange } from "../../util/relationship-utils";
-import { CmeSemanticModel, OwlCmeSemanticModel, UnknownCmeSemanticModel  } from "../../dataspecer/cme-model";
+import { CmeSemanticModel, OwlCmeSemanticModel, UnknownCmeSemanticModel } from "../../dataspecer/cme-model";
 import { EntityDsIdentifier } from "../../dataspecer/entity-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+  isSemanticModelClassProfile,
+  isSemanticModelRelationshipProfile,
+  SemanticModelClassProfile,
+  SemanticModelRelationshipProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { semanticModelMapToCmeSemanticModel } from "../../dataspecer/cme-model/adapter";
 import { dataTypeUriToName } from "../../dataspecer/semantic-model/data-type";
@@ -117,7 +131,7 @@ export function representClasses(
   vocabularies: CmeSemanticModel[],
   classes: SemanticModelClass[],
 ): EntityRepresentative[] {
-  let modelArray : EntityModel[] = [];
+  let modelArray: EntityModel[] = [];
   if (models instanceof Map) {
     modelArray = [...models.values()];
   } else {
