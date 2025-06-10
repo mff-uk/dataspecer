@@ -148,4 +148,28 @@ export const knownDatatypes: KnownDatatype[] = [
             "en": "Hex encoded binary content"
         }
     },
+    {
+        "iri": "http://www.opengis.net/ont/geosparql#wktLiteral",
+        "documentation": "http://www.opengis.net/ont/geosparql#wktLiteral",
+        "label": {
+            "cs": "WKT - Well-Known Text",
+            "en": "WKT - Well-Known Text"
+        }
+    },
+        {
+        "iri": "http://www.opengis.net/ont/geosparql#gmlLiteral",
+        "documentation": "http://www.opengis.net/ont/geosparql#gmlLiteral",
+        "label": {
+            "cs": "GML - Geography Markup Language",
+            "en": "GML - Geography Markup Language"
+        }
+    },
+    {
+        "iri": "http://www.opengis.net/ont/geosparql#geoJSONLiteral",
+        "documentation": "http://www.opengis.net/ont/geosparql#geoJSONLiteral",
+        "label": {
+            "cs": "GeoJSON",
+            "en": "GeoJSON"
+        }
+    },
 ];

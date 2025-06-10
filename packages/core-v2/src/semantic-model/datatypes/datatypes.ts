@@ -32,11 +32,18 @@ const SGovTypeURIs = [
     "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/text",
 ];
 
+const GeoSPARQLURIs = [
+    "http://www.opengis.net/ont/geosparql#wktLiteral",
+    "http://www.opengis.net/ont/geosparql#gmlLiteral",
+    "http://www.opengis.net/ont/geosparql#geoJSONLiteral",
+];
+
 export const DataTypeURIs = [
     ...XsdSimpleTypeURIs,
     ...RdfTypeURIs,
     ...RdfsTypeURIs,
     ...SGovTypeURIs,
+    ...GeoSPARQLURIs,
 ];
 
 const PRIMITIVE_TYPES: Set<string> = new Set([
