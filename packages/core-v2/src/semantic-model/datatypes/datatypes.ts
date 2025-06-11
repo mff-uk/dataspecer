@@ -1,4 +1,3 @@
-
 const XsdSimpleTypeURIs = [
     "http://www.w3.org/2001/XMLSchema#string",
     "http://www.w3.org/2001/XMLSchema#token",
@@ -86,9 +85,16 @@ export const isRdfDataType = (uri: string) => {
 /**
  * @deprecated
  */
+export const isGeoSPARQLDataType = (uri: string) => {
+    return GeoSPARQLURIs.includes(uri);
+};
+
+/**
+ * @deprecated
+ */
 export const isDataType = (uri: string | null): uri is string => {
     if (!uri) {
         return false;
     }
-    return isXsdSimpleDataType(uri) || isRdfDataType(uri) || uri === "http://www.w3.org/2000/01/rdf-schema#Literal" || uri.startsWith("https://ofn.gov.cz/zdroj/základní-datové-typy/"); // || isOtherDataType(uri)...
+    return isXsdSimpleDataType(uri) || isRdfDataType(uri) || isGeoSPARQLDataType(uri)|| uri === "http://www.w3.org/2000/01/rdf-schema#Literal" || uri.startsWith("https://ofn.gov.cz/zdroj/základní-datové-typy/"); // || isOtherDataType(uri)...
 };

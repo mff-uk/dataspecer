@@ -1,4 +1,4 @@
-import { isRdfDataType, isXsdSimpleDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
+import { isRdfDataType, isXsdSimpleDataType, isGeoSPARQLDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
 
 export const dataTypeUriToName = (uri: string) => {
   if (isXsdSimpleDataType(uri)) {
@@ -6,6 +6,9 @@ export const dataTypeUriToName = (uri: string) => {
   }
   if (isRdfDataType(uri)) {
     return "rdf:" + uri.split("#").at(1)!;
+  }
+  if (isGeoSPARQLDataType(uri)) {
+    return "gsp:" + uri.split("#").at(1)!;
   }
   if (uri === "http://www.w3.org/2000/01/rdf-schema#Literal") {
     return "rdfs:Literal";
