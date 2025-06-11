@@ -59,6 +59,128 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/Resource'
+    SimplifiedSemanticModel:
+      type: object
+      required:
+        - classes
+        - attributes
+        - relationships
+        - generalizations
+      properties:
+        classes:
+          type: array
+          description: Seznam tříd/entit.
+          items:
+            type: object
+            required:
+              - iri
+              - title
+              - description
+            properties:
+              iri:
+                type: string
+              title:
+                type: string
+              description:
+                type: string
+                description: Lidsky čitelný popisek.
+        attributes:
+          type: array
+          description: Seznam atributů.
+          items:
+            type: object
+            required:
+              - iri
+              - title
+              - description
+              - domain
+              - domainCardinality
+              - range
+              - rangeCardinality
+            properties:
+              iri:
+                type: string
+              title:
+                type: string
+              description:
+                type: string
+                description: Lidsky čitelný popisek.
+              domain:
+                type: string
+              domainCardinality:
+                type: string
+                enum:
+                  - optional-one
+                  - one
+                  - many
+              range:
+                type: string
+              rangeCardinality:
+                type: string
+                enum:
+                  - optional-one
+                  - one
+                  - many
+        relationships:
+          type: array
+          description: Seznam vztahů mezi třídami.
+          items:
+            type: object
+            required:
+              - iri
+              - title
+              - description
+              - domain
+              - domainCardinality
+              - range
+              - rangeCardinality
+            properties:
+              iri:
+                type: string
+              title:
+                type: string
+              description:
+                type: string
+                description: Lidsky čitelný popisek.
+              domain:
+                type: string
+              domainCardinality:
+                type: string
+                enum:
+                  - optional-one
+                  - one
+                  - many
+              range:
+                type: string
+              rangeCardinality:
+                type: string
+                enum:
+                  - optional-one
+                  - one
+                  - many
+        generalizations:
+          type: array
+          description: Seznam generalizačních vztahů mezi třídami.
+          items:
+            type: object
+            required:
+              - iri
+              - title
+              - description
+              - generalClass
+              - specialClass
+            properties:
+              iri:
+                type: string
+              title:
+                type: string
+              description:
+                type: string
+                description: Lidsky čitelný popisek.
+              generalClass:
+                type: string
+              specialClass:
+                type: string
 paths:
   /health:
     get:
@@ -444,7 +566,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/SimplifiedSemanticModel'
         '404':
           description: Resource not found
     put:
@@ -460,7 +582,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
+              $ref: '#/components/schemas/SimplifiedSemanticModel'
       responses:
         '204':
           description: Updated
@@ -474,7 +596,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
+              $ref: '#/components/schemas/SimplifiedSemanticModel'
       responses:
         '200':
           description: Turtle representation
