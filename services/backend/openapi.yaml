@@ -1,0 +1,597 @@
+openapi: 3.0.3
+info:
+  title: Dataspecer Backend API
+  version: 1.0.0
+  description: API for managing resources and generating artifacts in Dataspecer.
+servers:
+  - url: /api
+components:
+  schemas:
+    LanguageString:
+      type: object
+      additionalProperties:
+        type: string
+    Resource:
+      type: object
+      properties:
+        iri:
+          type: string
+        types:
+          type: array
+          items:
+            type: string
+        userMetadata:
+          type: object
+          properties:
+            label:
+              $ref: '#/components/schemas/LanguageString'
+            description:
+              $ref: '#/components/schemas/LanguageString'
+            tags:
+              type: array
+              items:
+                type: string
+        metadata:
+          type: object
+          properties:
+            creationDate:
+              type: string
+              format: date-time
+            modificationDate:
+              type: string
+              format: date-time
+        dataStores:
+          type: object
+          additionalProperties:
+            type: string
+      required:
+        - iri
+        - types
+        - userMetadata
+        - metadata
+        - dataStores
+    Package:
+      allOf:
+        - $ref: '#/components/schemas/Resource'
+        - type: object
+          properties:
+            subResources:
+              type: array
+              items:
+                $ref: '#/components/schemas/Resource'
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+  /resources:
+    get:
+      summary: Get resource
+      parameters:
+        - in: query
+          name: iri
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Resource found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+        '404':
+          description: Resource not found
+    post:
+      summary: Create resource
+      parameters:
+        - in: query
+          name: parentIri
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                iri:
+                  type: string
+                type:
+                  type: string
+                userMetadata:
+                  type: object
+              required:
+                - type
+      responses:
+        '200':
+          description: Created resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+    put:
+      summary: Update resource
+      parameters:
+        - in: query
+          name: iri
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userMetadata:
+                  type: object
+      responses:
+        '200':
+          description: Updated resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+    delete:
+      summary: Delete resource
+      parameters:
+        - in: query
+          name: iri
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Deleted
+  /repository/copy-recursively:
+    post:
+      summary: Copy resource recursively
+      parameters:
+        - in: query
+          name: iri
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: parentIri
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userMetadata:
+                  type: object
+      responses:
+        '200':
+          description: Parent resource after copy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+  /resources/blob:
+    get:
+      summary: Get resource blob
+      parameters:
+        - in: query
+          name: iri
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: name
+          schema:
+            type: string
+            default: model
+      responses:
+        '200':
+          description: Raw data
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Blob not found
+    post:
+      summary: Create or update resource blob
+      parameters:
+        - in: query
+          name: iri
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: name
+          schema:
+            type: string
+            default: model
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Updated
+    put:
+      summary: Update resource blob
+      parameters:
+        - in: query
+          name: iri
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: name
+          schema:
+            type: string
+            default: model
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Updated
+    delete:
+      summary: Delete resource blob
+      parameters:
+        - in: query
+          name: iri
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: name
+          schema:
+            type: string
+            default: model
+      responses:
+        '204':
+          description: Deleted
+  /resources/packages:
+    get:
+      summary: Get package
+      parameters:
+        - in: query
+          name: iri
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Package data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Package'
+        '404':
+          description: Package not found
+    post:
+      summary: Create package
+      parameters:
+        - in: query
+          name: parentIri
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                iri:
+                  type: string
+                userMetadata:
+                  type: object
+      responses:
+        '200':
+          description: Created package
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Package'
+    patch:
+      summary: Update package
+      parameters:
+        - in: query
+          name: iri
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userMetadata:
+                  type: object
+      responses:
+        '200':
+          description: Updated package
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Package'
+    delete:
+      summary: Delete package
+      parameters:
+        - in: query
+          name: iri
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Deleted
+  /resources/root-resources:
+    get:
+      summary: List root packages
+      responses:
+        '200':
+          description: Root resources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Resource'
+  /resources/export.zip:
+    get:
+      summary: Export package as ZIP
+      parameters:
+        - in: query
+          name: iri
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ZIP file
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+  /resources/import:
+    post:
+      summary: Import resource from URL
+      parameters:
+        - in: query
+          name: parentIri
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: url
+          required: true
+          schema:
+            type: string
+            format: uri
+      responses:
+        '200':
+          description: Imported resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+  /resources/import-zip:
+    post:
+      summary: Import package from ZIP
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Imported packages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Package'
+  /default-configuration:
+    get:
+      summary: Get generator default configuration
+      responses:
+        '200':
+          description: Configuration object
+          content:
+            application/json:
+              schema:
+                type: object
+  /simplified-semantic-model:
+    get:
+      summary: Get simplified semantic model
+      parameters:
+        - in: query
+          name: iri
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Simplified model
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Resource not found
+    put:
+      summary: Update simplified semantic model
+      parameters:
+        - in: query
+          name: iri
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '204':
+          description: Updated
+        '404':
+          description: Resource not found
+  /experimental/lightweight-owl-from-simplified.ttl:
+    post:
+      summary: Convert simplified model to OWL TTL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Turtle representation
+          content:
+            text/turtle:
+              schema:
+                type: string
+  /generate:
+    get:
+      summary: Generate artifacts as ZIP
+      parameters:
+        - in: query
+          name: iri
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ZIP file
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+  /experimental/output.zip:
+    get:
+      summary: Generate experimental ZIP
+      parameters:
+        - in: query
+          name: iri
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ZIP file
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+  /preview/{file}:
+    get:
+      summary: Get single generated file
+      parameters:
+        - in: path
+          name: file
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: iri
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: raw
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Generated file
+          content:
+            '*/*':
+              schema:
+                type: string
+  /generate/application:
+    get:
+      summary: Generate application from model
+      parameters:
+        - in: query
+          name: iri
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Application ZIP
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+  /generate-app:
+    post:
+      summary: Generate application from serialized graph
+      parameters:
+        - in: query
+          name: zipname
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                serializedGraph:
+                  type: string
+      responses:
+        '200':
+          description: Application ZIP
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+  /system/data:
+    get:
+      summary: Download database ZIP
+      responses:
+        '200':
+          description: Database ZIP
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
