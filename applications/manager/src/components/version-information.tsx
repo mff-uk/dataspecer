@@ -65,7 +65,7 @@ export function VersionInformation() {
               <div className="grid grid-cols-2 items-center gap-4">
                 <span className="text-sm font-medium">Commit hash:</span>
                 <span className="text-sm">
-                  <a href={`https://github.com/mff-uk/dataspecer/commit/${commit}`} className="flex items-center" target="_blank">
+                  <a href={`https://github.com/dataspecer/dataspecer/commit/${commit}`} className="flex items-center" target="_blank">
                     <Github className="h-[.9rem] w-[.9rem] mr-1" />
                     {commit.substring(0, 8)}
                   </a>

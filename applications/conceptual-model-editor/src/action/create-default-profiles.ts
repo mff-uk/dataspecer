@@ -40,7 +40,7 @@ import {
 
 /**
  * Creates default profiles of given {@link semanticClassesToProfile} and {@link semanticRelationshipsToProfile}.
- * The exact behavior is described here: https://github.com/mff-uk/dataspecer/pull/1201
+ * The exact behavior is described here: https://github.com/dataspecer/dataspecer/pull/1201
  */
 export async function createDefaultProfilesAction(
   cmeExecutor: CmeModelOperationExecutor,

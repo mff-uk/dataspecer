@@ -14,7 +14,7 @@ export const dataTypeUriToName = (uri: string) => {
     return "rdfs:Literal";
   }
   if (uri === "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/text") {
-    // https://github.com/mff-uk/dataspecer/issues/1078
+    // https://github.com/dataspecer/dataspecer/issues/1078
     return "Text";
   }
   return null;

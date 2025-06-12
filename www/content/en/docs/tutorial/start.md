@@ -20,4 +20,4 @@ The tutorial is divided into several sections. Feel free to skip any of them if 
 
 ---
 
-If you are interested in technical documentation or the source code, please visit our [Github repository](https://github.com/mff-uk/dataspecer). This documentation is also available on [GitHub](https://github.com/mff-uk/dataspecer-docs).
+If you are interested in technical documentation or the source code, please visit our [Github repository](https://github.com/dataspecer/dataspecer). This documentation is also available on [GitHub](https://github.com/dataspecer/dataspecer-docs).

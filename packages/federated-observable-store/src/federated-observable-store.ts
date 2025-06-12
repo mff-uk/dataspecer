@@ -264,7 +264,7 @@ export class FederatedObservableStore implements FederatedCoreResourceWriter {
     }
 
     /**
-     * @see https://github.com/mff-uk/dataspecer/issues/151
+     * @see https://github.com/dataspecer/dataspecer/issues/151
      * @param schemaIri Schema IRI under which the operation is applied
      * @param operation The operation to be applied
      */

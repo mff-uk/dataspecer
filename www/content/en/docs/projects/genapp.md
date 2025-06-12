@@ -378,7 +378,7 @@ This section provides steps for local build of the entire Dataspecer repository.
 2. After cloning the monorepository, local config files should be created. Please see individual applications or packages what to do.
 3. Navigate to the monorepository root directory and install all packages using `npm install`.
 4. To be able to generate an application prototype, the backend service and Dataspecer manager application have to be built:
-   1. Please refer to [backend service documentation](https://github.com/mff-uk/dataspecer/blob/main/services/backend/README.md) or run the following commands:
+   1. Please refer to [backend service documentation](https://github.com/dataspecer/dataspecer/blob/main/services/backend/README.md) or run the following commands:
       ```
       npx turbo run build --filter=backend
       npm --prefix services/backend run update-database
@@ -411,6 +411,6 @@ In order to be able to run the Dataspecer tools, Genapp tool as well as the gene
 
 # Source code reference
 
-All source code implemented for the purpose of this research project is available on [Github repository](https://github.com/mff-uk/dataspecer).
+All source code implemented for the purpose of this research project is available on [Github repository](https://github.com/dataspecer/dataspecer).
 
-The Genapp tool source code can be found at `packages/genapp` directory ([link](https://github.com/mff-uk/dataspecer/tree/main/packages/genapp)).
+The Genapp tool source code can be found at `packages/genapp` directory ([link](https://github.com/dataspecer/dataspecer/tree/main/packages/genapp)).

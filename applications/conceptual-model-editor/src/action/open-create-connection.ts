@@ -103,7 +103,7 @@ function openCreateConnectionDialogActionInternal(
 
     const generalization = cmeExecutor.createGeneralization({
       model: sourceModel.getId(),
-      // https://github.com/mff-uk/dataspecer/issues/537
+      // https://github.com/dataspecer/dataspecer/issues/537
       iri: null,
       childIdentifier: source.id,
       parentIdentifier: target.id,
@@ -196,7 +196,7 @@ function createGeneralization(
 ) {
   const generalization = cmeExecutor.createGeneralization({
     model: state.model.getId(),
-    // https://github.com/mff-uk/dataspecer/issues/537
+    // https://github.com/dataspecer/dataspecer/issues/537
     iri: null,
     childIdentifier: state.source.id,
     parentIdentifier: state.target.id,

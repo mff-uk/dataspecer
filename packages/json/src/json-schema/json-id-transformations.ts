@@ -9,7 +9,7 @@ import { getClassTypeKey } from "../json-ld/json-ld-adapter.ts";
 /**
  * For each PSM class with CIM interpretation, it adds iri and type property
  * based on generator configuration.
- * @see https://github.com/mff-uk/dataspecer/issues/245
+ * @see https://github.com/dataspecer/dataspecer/issues/245
  */
 export function structureModelAddIdAndTypeProperties(
   structure: StructureModel,

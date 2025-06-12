@@ -27,7 +27,7 @@ let RDFS_LITERAL: CmePrimitiveType | null = null;
 
 function iriToName(prefixes: { [iri: string]: string }, iri: string): string {
   if (iri === "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/text") {
-    // https://github.com/mff-uk/dataspecer/issues/1078
+    // https://github.com/dataspecer/dataspecer/issues/1078
     return "Text";
   }
   for (const [prefix, shortcut] of Object.entries(prefixes)) {

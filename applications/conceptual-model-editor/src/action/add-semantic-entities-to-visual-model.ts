@@ -177,7 +177,7 @@ async function addClassesAndClassProfilesToVisualModel(
     catch {
       console.info(
         "Exception when adding class or class profile, but it is most likely nothing to worry about, "
-        +" since it is known issue https://github.com/mff-uk/dataspecer/issues/1017");
+        +" since it is known issue https://github.com/dataspecer/dataspecer/issues/1017");
     }
   }
 }

@@ -13,7 +13,7 @@ This package provides `FederatedObservableStore`.
 ## Why do we need this store?
 
 This store was implemented to overcome a few issues with `CoreResourceReader` and `CoreResourceWriter`, namely:
-   - The interface of `CoreResourceWriter` can't be used with federated stores because it can't be derived from the operation in which store the operation should be executed. This is planned to be [fixed in the future](https://github.com/mff-uk/dataspecer/issues/151), enabling the creation of writeable federated stores easily.
+   - The interface of `CoreResourceWriter` can't be used with federated stores because it can't be derived from the operation in which store the operation should be executed. This is planned to be [fixed in the future](https://github.com/dataspecer/dataspecer/issues/151), enabling the creation of writeable federated stores easily.
    - React ecosystem needs to be notified about the changes. Either whether an operation made changes or the store changed itself.
    - Resource change notification batching is needed in some scenarios, mainly for large operations which can update a single resource multiple times, which would cause numerous re-renders of a React component.
 
@@ -45,7 +45,7 @@ federatedObservableStore as CoreResourceReader;
 ```
 
 ## Applying operations
-You can use part of the new interface according to [#151](https://github.com/mff-uk/dataspecer/issues/151) to apply core operations to the store.
+You can use part of the new interface according to [#151](https://github.com/dataspecer/dataspecer/issues/151) to apply core operations to the store.
 ```ts
 const coreOperationResult = await federatedObservableStore.applyOperation(schemaIri, coreOperation);
 ```

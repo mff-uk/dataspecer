@@ -6,7 +6,7 @@ export interface NewCmeGeneralization {
 
   /**
    * We to not work with IRI in an active way, that is why we allow null.
-   * See https://github.com/mff-uk/dataspecer/issues/537
+   * See https://github.com/dataspecer/dataspecer/issues/537
    */
   iri: string | null;
 

@@ -74,7 +74,7 @@ alertDismissable = true
 # repoHost [Github | Gitea | GitLab | Bitbucket | BitbucketServer ] is used for building the edit link based on git hoster
 repoHost = "GitHub"
 #repoHost = "Gitea"
-docsRepo = "https://github.com/mff-uk/dataspecer"
+docsRepo = "https://github.com/dataspecer/dataspecer"
 docsRepoBranch = "main"
 docsRepoSubPath = "www"
 editPage = true

@@ -31,7 +31,7 @@ authors:
     family-names: Strýček
   - given-names: Anastasia
     family-names: Akhvlediani
-repository-code: 'https://github.com/mff-uk/dataspecer'
+repository-code: 'https://github.com/dataspecer/dataspecer'
 url: 'https://dataspecer.com'
 keywords:
   - data specification
