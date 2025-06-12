@@ -195,12 +195,6 @@ export class XmlSchemaDocumentationGenerator {
      * The definition may be located in another file.
      */
     result["xml-href"] = (element: XmlSchemaElement | XmlSchemaType) => {
-      if (element?.name?.[1] === "iri") {
-        console.warn("xml-href", element);
-      } else {
-        console.log("xml-href", element);
-      }
-
       if (!element) {
         throw new Error("Element or type is required to generate href in xml-href helper.");
       }

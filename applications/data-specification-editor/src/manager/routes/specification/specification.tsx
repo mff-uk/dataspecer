@@ -4,7 +4,7 @@ import { getDataSpecification } from "@dataspecer/specification/specification";
 import { createContext, FC, useContext, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { BackendConnectorContext } from "../../../application";
-import { modelRepository } from "../../../editor/configuration/provided-configuration";
+import { modelRepository } from "../../../generators/configuration/provided-configuration";
 import { DocumentationSpecification } from "./documentation-specification";
 
 export const SpecificationContext = createContext<[DataSpecification & Package, (update: DataSpecification & Package) => void]>(null);

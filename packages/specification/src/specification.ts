@@ -6,13 +6,13 @@ import { PimStoreWrapper } from "@dataspecer/core-v2/semantic-model/v1-adapters"
 import { LanguageString } from "@dataspecer/core/core/core-resource";
 import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
 import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
+import { dsvModelToJsonLdSerialization } from "./dsv/adapter.ts";
 import { resourceDescriptor, semanticDataSpecification } from "./dsv/model.ts";
 import { isModelProfile, isModelVocabulary } from "./dsv/utils.ts";
 import { DSV, DSV_CONFORMS_TO, DSV_KNOWN_FORMATS, OWL, OWL_BASE, PROF, RDFS_BASE } from "./dsv/well-known.ts";
 import { ModelRepository } from "./model-repository/index.ts";
 import { ModelDescription } from "./model.ts";
 import { generateDsv, generateHtmlDocumentation, generateLightweightOwl } from "./utils.ts";
-import { dsvModelToJsonLdSerialization } from "./dsv/adapter.ts";
 
 const PIM_STORE_WRAPPER = "https://dataspecer.com/core/model-descriptor/pim-store-wrapper";
 const SGOV = "https://dataspecer.com/core/model-descriptor/sgov";

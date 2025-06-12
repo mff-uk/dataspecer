@@ -181,7 +181,7 @@ console.log("Construct models from the package only from the backend.");
 console.log("Add semantic model with person class.");
 {
     // To create a new semantic model, we must call the service directly.
-    const semanticModel = await service.createRemoteSemanticModel(MY_PACKAGE_ID);
+    const semanticModel = await service.createRemoteSemanticModel(MY_PACKAGE_ID); // @deprecated
 
     const newClassId = semanticModel.executeOperation(createClass({
         name: {cs: "Person"},

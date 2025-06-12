@@ -6,9 +6,9 @@ import { FC, useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import { DefaultConfigurationContext } from "../../../../application";
 import { getDefaultConfigurators } from "../../../../configurators";
-import { provideConfiguration } from "../../../../editor/configuration/provided-configuration";
+import { getConfiguration } from "../../../../generators/configuration/provided-configuration";
 import { useAsyncMemo } from "../../../../editor/hooks/use-async-memo";
-import { ArtifactConfigurator } from "../../../artifact-configurator";
+import { ArtifactConfigurator } from "@dataspecer/specification/v1";
 import { SpecificationContext } from "../../../routes/specification/specification";
 
 const artefactTitle = {
@@ -103,7 +103,7 @@ export const ArtifactNames: FC<{
     // @ts-ignore
     clonedSpecification.artefactConfiguration = currentConfiguration;
 
-    const {store, dataSpecifications: ds2} = await provideConfiguration(specification.id, "");
+    const {store, dataSpecifications: ds2} = await getConfiguration(specification.id, "");
 
     // We know, that the current data specification and its stores are present
     const configurator = new ArtifactConfigurator(

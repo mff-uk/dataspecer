@@ -1,7 +1,7 @@
 import { StructureEditorBackendService } from "@dataspecer/backend-utils/connectors/specification";
 import { BaseResource } from "@dataspecer/core-v2/project";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
-import { BaseModel, BlobModel, ModelRepository, PackageModel } from "@dataspecer/specification/model-repository";
+import { BaseModel, BlobModel, ModelRepository, PackageModel, WritableBlobModel } from "@dataspecer/specification/model-repository";
 
 export class FrontendModelRepository implements ModelRepository {
   constructor(protected backendService: StructureEditorBackendService) { }
@@ -38,13 +38,17 @@ export class FrontendBaseModel implements BaseModel {
   }
 }
 
-export class FrontendBlobModel extends FrontendBaseModel implements BlobModel {
+export class FrontendBlobModel extends FrontendBaseModel implements BlobModel, WritableBlobModel {
   constructor(baseModel: BaseResource, modelRepository: StructureEditorBackendService) {
     super(baseModel, modelRepository);
   }
 
   async getJsonBlob(name?: string): Promise<unknown> {
     return await this.modelRepository.getResourceJsonData(this.id, name);
+  }
+
+  async setJsonBlob(data: unknown, name?: string): Promise<void> {
+    await this.modelRepository.setResourceJsonData(this.id, data, name);
   }
 }
 

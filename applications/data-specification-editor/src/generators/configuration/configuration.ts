@@ -1,7 +1,7 @@
 import { DataSpecification } from '@dataspecer/backend-utils/connectors/specification';
 import { SemanticModelClass, SemanticModelEntity } from '@dataspecer/core-v2/semantic-model/concepts';
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
-import { OperationContext } from "../operations/context/operation-context";
+import { OperationContext } from "../../editor/operations/context/operation-context";
 import { SemanticModelAggregator } from '@dataspecer/core-v2/hierarchical-semantic-aggregator';
 
 /**
@@ -39,29 +39,4 @@ export interface SearchableSemanticModelSync {
 
 export function isSourceSemanticModelSearchableSync(model: any): model is SearchableSemanticModelSync {
     return model && (model as SearchableSemanticModelSync).searchEntitySync !== undefined;
-}
-
-export type ModelCompositionConfiguration = string | {
-    modelType: "merge" | "application-profile" | "cache";
-};
-
-export type ModelCompositionConfigurationMerge = ModelCompositionConfiguration & {
-    modelType: "merge";
-    models: {
-        model: ModelCompositionConfiguration,
-    }[];
-}
-
-export type ModelCompositionConfigurationApplicationProfile = ModelCompositionConfiguration & {
-    modelType: "application-profile";
-    model: ModelCompositionConfiguration;
-    profiles: ModelCompositionConfiguration;
-    canAddEntities: boolean;
-    canModify: boolean;
-}
-
-export type ModelCompositionConfigurationCache = ModelCompositionConfiguration & {
-    modelType: "cache";
-    model: ModelCompositionConfiguration;
-    caches: ModelCompositionConfiguration;
 }

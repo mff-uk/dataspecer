@@ -1,18 +1,14 @@
-import { StoreDescriptor } from "@dataspecer/backend-utils/store-descriptor";
 import { CoreResourceReader } from "@dataspecer/core/core/core-reader";
-import { LanguageString, ReadOnlyFederatedStore } from "@dataspecer/core/core/index";
-import { httpFetch } from "@dataspecer/core/io/fetch/fetch-nodejs";
+import { LanguageString } from "@dataspecer/core/core/index";
 import { InputStream } from "@dataspecer/core/io/stream/input-stream";
 import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
-import { generateSpecification } from "@dataspecer/specification";
+import { getDataSpecificationWithModels } from "@dataspecer/specification/specification";
+import { DefaultArtifactBuilder } from "@dataspecer/specification/v1";
 import express from "express";
 import { z } from "zod";
 import configuration from "../configuration.ts";
-import { DefaultArtifactBuilder } from "../generate/default-artifact-builder.ts";
-import { ZipStreamDictionary } from "../generate/zip-stream-dictionary.ts";
-import { resourceModel, storeModel } from "../main.ts";
-import { LocalStoreDescriptor } from "../models/local-store-descriptor.ts";
-import { LocalStore } from "../models/local-store.ts";
+import { ZipStreamDictionary } from "../utils/zip-stream-dictionary.ts";
+import { resourceModel } from "../main.ts";
 import { asyncHandler } from "../utils/async-handler.ts";
 import { BackendModelRepository } from "../utils/model-repository.ts";
 
@@ -25,67 +21,8 @@ function getName(name: LanguageString | undefined, defaultName: string) {
   return name?.["cs"] || name?.["en"] || defaultName;
 }
 
-export const generate = asyncHandler(async (request: express.Request, response: express.Response) => {
-  const querySchema = z.object({
-    iri: z.string().min(1),
-  });
-  const query = querySchema.parse(request.query);
-
-  const pckg = await resourceModel.getPackage(query.iri);
-
-  if (!pckg) {
-    response.status(404).send({ error: "Package does not exist." });
-    return;
-  }
-
-
-  const packagesToGenerate = [query.iri];
-  const defaultConfiguration = configuration.configuration;
-  const dataSpecifications = [] as any; //Object.fromEntries((await dataSpecificationModel.getAllDataSpecifications()).map((s) => [s.iri, s])) as Record<string, FullDataSpecification>;
-
-  const gatheredDataSpecifications: DataSpecifications = {};
-  const toProcessDataSpecification = [...packagesToGenerate];
-
-  for (let i = 0; i < toProcessDataSpecification.length; i++) {
-    const dataSpecification = dataSpecifications[toProcessDataSpecification[i]];
-    gatheredDataSpecifications[dataSpecification.iri as string] = dataSpecification;
-    dataSpecification.importsDataSpecifications.forEach((importedDataSpecificationIri: any) => {
-      if (!toProcessDataSpecification.includes(importedDataSpecificationIri)) {
-        toProcessDataSpecification.push(importedDataSpecificationIri);
-      }
-    });
-  }
-
-  // Gather all store descriptors
-
-  const storeDescriptors = Object.values(gatheredDataSpecifications).reduce((acc, dataSpecification) => {
-    return [...acc, ...dataSpecification.pimStores, ...Object.values(dataSpecification.psmStores).flat(1)];
-  }, [] as StoreDescriptor[]);
-
-  // Create stores or use the cache.
-
-  const constructedStores: CoreResourceReader[] = [];
-
-  for (const storeDescriptor of storeDescriptors) {
-    const localStoreDescriptor = storeDescriptor as LocalStoreDescriptor;
-    const store = new LocalStore(localStoreDescriptor, storeModel);
-    await store.loadStore();
-    constructedStores.push(store);
-  }
-
-  const federatedStore = ReadOnlyFederatedStore.createLazy(constructedStores);
-
-  const generator = new DefaultArtifactBuilder(federatedStore, gatheredDataSpecifications, defaultConfiguration);
-  await generator.prepare(Object.keys(gatheredDataSpecifications));
-  const data = await generator.build();
-
-  // Send zip file
-  response.type("application/zip").send(data);
-
-  return;
-});
 class SingleFileStreamDictionary implements StreamDictionary {
-  requestedFileContents: string | null = null;
+  requestedFileContents: string | Blob | null = null;
   constructor(private requestedFile: string) {}
   readPath(): InputStream {
     throw new Error("Method not implemented.");
@@ -98,9 +35,16 @@ class SingleFileStreamDictionary implements StreamDictionary {
   }
   writePath(path: string) {
     return {
-      write: async (data: string) => {
+      write: async (data: string | Blob) => {
         if (path === this.requestedFile) {
-          this.requestedFileContents = data;
+          if (data instanceof Blob) {
+            this.requestedFileContents = data;
+          } else {
+            if (this.requestedFileContents === null) {
+              this.requestedFileContents = "";
+            }
+            this.requestedFileContents += data;
+          }
         }
       },
       close: () => Promise.resolve(),
@@ -108,15 +52,22 @@ class SingleFileStreamDictionary implements StreamDictionary {
   }
 }
 
-async function generateArtifacts(packageIri: string, streamDictionary: StreamDictionary, queryParams: string = "") {
-  // Call the main function from @dataspecer/specification
-  await generateSpecification(packageIri, {
-    modelRepository: new BackendModelRepository(resourceModel),
-    output: streamDictionary,
-    fetch: httpFetch,
-  }, {
-    queryParams,
-  });
+/**
+ * The main method to generate everything for a given package into a stream dictionary.
+ */
+async function generateArtifacts(
+  packageIri: string,
+  streamDictionary: StreamDictionary,
+  queryParams: string = "",
+  singleFilePath: string | null = null,
+) {
+  const modelRepository = new BackendModelRepository(resourceModel);
+
+  const { store, dataSpecifications } = await getDataSpecificationWithModels(packageIri, "", modelRepository);
+  const generator = new DefaultArtifactBuilder(store as CoreResourceReader, dataSpecifications, configuration.configuration, fetch, modelRepository);
+  generator.singleSpecificationOnly = true; // We want to generate only a single specification without extra directories.
+  await generator.prepare(Object.keys(dataSpecifications), undefined, queryParams);
+  await generator.build(streamDictionary, singleFilePath, queryParams, packageIri);
 }
 
 export const getZip = asyncHandler(async (request: express.Request, response: express.Response) => {
@@ -166,7 +117,14 @@ export const getSingleFile = asyncHandler(async (request: express.Request, respo
   }
 
   const streamDictionary = new SingleFileStreamDictionary(path);
-  await generateArtifacts(query.iri, streamDictionary, query.raw ? "" : "?iri=" + encodeURIComponent(query.iri));
+  await generateArtifacts(
+    query.iri,
+    streamDictionary,
+    query.raw ? "" : "?iri=" + encodeURIComponent(query.iri),
+    path,
+  );
+
+  console.log("Requested file contents:", streamDictionary.requestedFileContents);
 
   if (streamDictionary.requestedFileContents === null) {
     response.status(404).send({ error: "File not found." });
@@ -186,7 +144,13 @@ export const getSingleFile = asyncHandler(async (request: express.Request, respo
       default:
         response.type("text/plain");
     }
-    response.send(streamDictionary.requestedFileContents);
-    return;
+    // The requested file content can be a blob
+    if (streamDictionary.requestedFileContents instanceof Blob) {
+      response.send(await streamDictionary.requestedFileContents.text());
+      return;
+    } else {
+      response.send(streamDictionary.requestedFileContents);
+      return;
+    }
   }
 });

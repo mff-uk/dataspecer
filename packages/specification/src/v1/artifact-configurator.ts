@@ -2,14 +2,15 @@ import { mergeConfigurations } from "@dataspecer/core/configuration/utils";
 import { DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
 import { DataSpecificationArtefact, DataSpecificationDocumentation } from "@dataspecer/core/data-specification/model";
 import { PlantUmlGenerator } from "@dataspecer/plant-uml";
-import { DefaultArtifactConfigurator } from "../default-artifact-configurator";
-import { PlantUmlImageGenerator } from "./artifacts/plant-uml-image-generator";
+import { PlantUmlImageGenerator } from "./plant-uml-image-generator.ts";
+import { DefaultArtifactConfigurator } from "./default-artifact-configurator.ts";
 
 export class ArtifactConfigurator extends DefaultArtifactConfigurator {
   public async generateFor(
     dataSpecificationIri: string,
+    singleSpecificationOnly: boolean = false,
   ): Promise<DataSpecificationArtefact[]> {
-    const artifacts = await super.generateFor(dataSpecificationIri);
+    const artifacts = await super.generateFor(dataSpecificationIri, singleSpecificationOnly);
 
     const dataSpecification = this.dataSpecifications.find(
         dataSpecification => dataSpecification.iri === dataSpecificationIri,
@@ -28,13 +29,15 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
     const dataSpecificationConfiguration = DataSpecificationConfigurator.getFromObject(configuration);
     const generatorsEnabledByDefault = dataSpecificationConfiguration.generatorsEnabledByDefault!;
 
+    const baseOutputPath = singleSpecificationOnly ? "" : `${dataSpecificationName}/`;
+
     // PlantUML source
     const plantUml = new DataSpecificationDocumentation();
     plantUml.iri = `${dataSpecificationIri}#plantUml`;
     plantUml.generator = PlantUmlGenerator.IDENTIFIER;
     const plantUmlFileName = dataSpecificationConfiguration.renameArtifacts?.[plantUml.generator] ?? "conceptual-model.plantuml";
-    plantUml.outputPath = `${dataSpecificationName}/${plantUmlFileName}`;
-    plantUml.publicUrl = `${this.baseURL}/${plantUmlFileName}`;
+    plantUml.outputPath = `${baseOutputPath}${plantUmlFileName}`;
+    plantUml.publicUrl = `${this.baseURL}/${plantUmlFileName}${this.queryParams}`;
     plantUml.configuration = configuration;
     if ((dataSpecificationConfiguration.useGenerators?.["plantUML"] ?? generatorsEnabledByDefault) !== false) {
       artifacts.push(plantUml);
@@ -45,8 +48,8 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
     plantUmlImage.iri = `${dataSpecificationIri}#plantUmlImage`;
     plantUmlImage.generator = PlantUmlImageGenerator.IDENTIFIER;
     const plantUmlImageFileName = dataSpecificationConfiguration.renameArtifacts?.[plantUmlImage.generator] ?? "conceptual-model.svg";
-    plantUmlImage.outputPath = `${dataSpecificationName}/${plantUmlImageFileName}`;
-    plantUmlImage.publicUrl = `${this.baseURL}/${plantUmlImageFileName}`;
+    plantUmlImage.outputPath = `${baseOutputPath}${plantUmlImageFileName}`;
+    plantUmlImage.publicUrl = `${this.baseURL}/${plantUmlImageFileName}${this.queryParams}`;
     plantUmlImage.configuration = configuration;
     if ((dataSpecificationConfiguration.useGenerators?.["plantUML"] ?? generatorsEnabledByDefault) !== false) {
       artifacts.push(plantUmlImage);
@@ -58,9 +61,9 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
       respec.iri = `${dataSpecificationIri}#respec`;
       respec.generator = "https://schemas.dataspecer.com/generator/template-artifact";
       const respecFileName = dataSpecificationConfiguration.renameArtifacts?.[respec.generator] ?? "en/index.html";
-      respec.outputPath = `${dataSpecificationName}/${respecFileName}`;
-      respec.publicUrl = `${this.baseURL}/${respecFileName}`;
-      respec.artefacts = artifacts.map(a => a.iri);
+      respec.outputPath = `${baseOutputPath}${respecFileName}`;
+      respec.publicUrl = `${this.baseURL}/${respecFileName}${this.queryParams}`;
+      respec.artefacts = artifacts.map(a => a.iri!);
       // @ts-ignore
       respec.templateType = null;
       respec.configuration = configuration;

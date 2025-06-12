@@ -11,7 +11,6 @@ import { getlightweightFromSimplified as getlightweightOwlFromSimplified } from 
 import { getSingleFile, getZip } from "./routes/generate.ts";
 import { exportPackageResource, importPackageResource } from "./routes/export-import-raw.ts";
 import { getGenerateApplicationByModelId, getGeneratedApplication } from "./routes/genapp.ts";
-import { generate } from "./routes/generate.ts";
 import { importResource } from "./routes/import.ts";
 import {
   copyRecursively,
@@ -122,7 +121,7 @@ application.post(apiBasename + "/experimental/lightweight-owl-from-simplified.tt
 
 // Generate artifacts
 
-application.get(apiBasename + "/generate", generate);
+application.get(apiBasename + "/generate", getZip);
 application.get(apiBasename + "/experimental/output.zip", getZip);
 application.get(apiBasename + "/preview/*", getSingleFile);
 application.get(apiBasename + "/generate/application", getGenerateApplicationByModelId);

@@ -8,12 +8,12 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { BackendConnectorContext, DefaultConfigurationContext } from "../../../application";
 import { LanguageStringText } from "../../../editor/components/helper/LanguageStringComponents";
-import { modelRepository, provideConfiguration } from "../../../editor/configuration/provided-configuration";
+import { modelRepository, getConfiguration } from "../../../generators/configuration/provided-configuration";
 import { useDialog } from "../../../editor/dialog";
 import { ConfigureArtifacts } from "../../artifacts/configuration/configure-artifacts";
 import { ConfigureButton } from "../../artifacts/configuration/configure-button";
-import { DefaultArtifactBuilder } from "../../artifacts/default-artifact-builder";
-import { GenerateReport } from "../../artifacts/generate-report";
+import { DefaultArtifactBuilder } from "@dataspecer/specification/v1";
+import { GenerateReport } from "@dataspecer/specification/v1";
 import { DeleteDataSchemaForm } from "../../components/delete-data-schema-form";
 import { SpecificationTags } from "../../components/specification-tags";
 import { getEditorLink } from "../../shared/get-schema-generator-link";
@@ -25,6 +25,8 @@ import { RedirectDialog } from "./redirect-dialog";
 import { ReuseDataSpecifications } from "./reuse-data-specifications";
 import { AllSpecificationsContext, SpecificationContext } from "./specification";
 import { loadDataSpecifications } from "@dataspecer/specification/specification";
+import { CoreResourceReader } from "@dataspecer/core/core/core-reader";
+import { ZipStreamDictionary } from "../../../generators/zip-stream-dictionary";
 
 export const DocumentationSpecification = memo(() => {
   const { t } = useTranslation("ui");
@@ -57,7 +59,7 @@ export const DocumentationSpecification = memo(() => {
     setGenerateDialogOpen(true);
 
     // Gather all data specifications that are needed for the generation
-    let gatheredDataSpecifications = await loadDataSpecifications(dataSpecificationIri as string, modelRepository);
+    let gatheredDataSpecifications = await loadDataSpecifications(dataSpecificationIri as string, modelRepository); // todo we probably do not need this
 
     // Override base urls to null
     if (overrideBasePathsToNull) {
@@ -71,14 +73,15 @@ export const DocumentationSpecification = memo(() => {
       }
     }
 
-    const { store: federatedStore, dataSpecifications: ds2 } = await provideConfiguration(dataSpecificationIri as string, "");
+    const { store: federatedStore, dataSpecifications: ds2 } = await getConfiguration(dataSpecificationIri as string, "");
 
     setZipLoading("generating");
 
-    // @ts-ignore
-    const generator = new DefaultArtifactBuilder(federatedStore, ds2, defaultConfiguration);
+    const generator = new DefaultArtifactBuilder(federatedStore as CoreResourceReader, ds2, defaultConfiguration, fetch, modelRepository);
     await generator.prepare(Object.keys(ds2), setGenerateState);
-    const data = await generator.build();
+    const zip = new ZipStreamDictionary();
+    await generator.build(zip);
+    const data = await zip.save();
     saveAs(data, "artifact.zip");
     setZipLoading(false);
   };

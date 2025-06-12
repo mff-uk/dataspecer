@@ -5,12 +5,15 @@ import {
   SemanticModelAggregator,
   VocabularyAggregator
 } from "@dataspecer/core-v2/hierarchical-semantic-aggregator";
-import { BackendPackageService } from "@dataspecer/core-v2/project";
 import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { VisualModelData } from "@dataspecer/core-v2/visual-model";
-import { ModelCompositionConfiguration, ModelCompositionConfigurationApplicationProfile, ModelCompositionConfigurationMerge } from "./configuration";
-import { getProvidedSourceSemanticModel } from "./source-semantic-model/adapter";
+import { ModelCompositionConfiguration, ModelCompositionConfigurationApplicationProfile, ModelCompositionConfigurationMerge } from "./composition-configuration.ts";
+import { getProvidedSourceSemanticModel } from "./adapter.ts";
+import { loadAsSemanticModel, loadAsVisualModel } from "../model-loader.ts";
+import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
+import { LOCAL_PACKAGE } from "@dataspecer/core-v2/model/known-models";
+import { PackageModel } from "../model-repository/package-model.ts";
 
 // todo until colors are properly generated from model metadata
 
@@ -19,7 +22,7 @@ const DEFAULT_VOCABULARY_COLOR = "#f9aa49";
 
 function mergeIfNecessary(models: SemanticModelAggregator[]): SemanticModelAggregator {
   if (models.length === 1) {
-    return models[0];
+    return models[0]!;
   } else {
     return new MergeAggregator(models);
   }
@@ -38,36 +41,57 @@ type rawModelsType = {
  * Builder of the semantic model aggregator from the configuration.
  */
 export class SemanticModelAggregatorBuilder {
-  private knownModels: Record<string, InMemorySemanticModel>;
-  private modelData: Record<string, VisualModelData>;
+  private knownModels: Record<string, InMemorySemanticModel> = {};
+  private modelData: Record<string, VisualModelData> = {};
 
   /**
    * Helper set to keep track of used models for the option to use all remaining models.
    */
-  private usedModels: Set<InMemorySemanticModel>;
-  private readonly backendPackageService: BackendPackageService;
-  private readonly specificationId: string;
+  private usedModels: Set<InMemorySemanticModel> = new Set();
+  private readonly packageModel: PackageModel;
+  private readonly httpFetch: HttpFetch;
 
-  constructor(backendPackageService: BackendPackageService, specificationId: string) {
-    this.backendPackageService = backendPackageService;
-    this.specificationId = specificationId;
+  constructor(packageModel: PackageModel, httpFetch: HttpFetch) {
+    this.packageModel = packageModel;
+    this.httpFetch = httpFetch;
+  }
+
+  /**
+   * Loads all semantic models from the package and all its sub-packages recursively.
+   *
+   * This method is private as this is currently a workaround. In the future, each model should state which models it depends on and the aggregator should be built based on that.
+   */
+  private async recursivelyLoadAllModels(packageModel: PackageModel): Promise<void> {
+    const subResources = await packageModel.getSubResources();
+    for (const resource of subResources) {
+      const trySemanticModel = await loadAsSemanticModel(resource, this.httpFetch);
+      if (trySemanticModel) {
+        this.knownModels[trySemanticModel.getId()] = trySemanticModel as InMemorySemanticModel;
+      }
+
+      const tryVisualModel = await loadAsVisualModel(resource, this.httpFetch);
+      if (tryVisualModel) {
+        Object.assign(this.modelData, Object.fromEntries(tryVisualModel.getModelsData()));
+      }
+
+      if (resource.types.includes(LOCAL_PACKAGE)) {
+        const pckg = await resource.asPackageModel();
+        await this.recursivelyLoadAllModels(pckg);
+      }
+    }
   }
 
   async build(configuration: ModelCompositionConfiguration): Promise<SemanticModelAggregator> {
-    const [models, visualModels] = await this.backendPackageService.constructSemanticModelPackageModels(this.specificationId);
-
-    this.modelData = {};
-    for (const visualModel of visualModels) {
-      Object.assign(this.modelData, Object.fromEntries(visualModel.getModelsData()));
-    }
-    this.knownModels = Object.fromEntries(models.map((model) => [model.getId(), model])) as Record<string, InMemorySemanticModel>;
+    this.knownModels = {};
     this.usedModels = new Set();
+    this.modelData = {};
+
+    await this.recursivelyLoadAllModels(this.packageModel);
 
     const result = await this.buildRecursive(configuration);
 
     // Handle rawModels metadata
     {
-      const pckg = await this.backendPackageService.getPackage(this.specificationId);
       const rawModels: rawModelsType = {
         model: {
           entities: {},
@@ -76,14 +100,15 @@ export class SemanticModelAggregatorBuilder {
       };
 
       for (const [knownModelId, knownModel] of Object.entries(this.knownModels)) {
-        if (pckg.subResources.find(res => res.iri === knownModelId)) {
+        const subResources = await this.packageModel.getSubResources();
+        if (subResources.find(res => res.id === knownModelId)) {
           Object.assign(rawModels.model.entities, knownModel.getEntities());
         } else {
           rawModels.otherModels.push({ entities: knownModel.getEntities() as Record<string, SemanticModelEntity> });
         }
       }
 
-      result["rawModels"] = rawModels;
+      (result as any)["rawModels"] = rawModels;
     }
 
     return result;
@@ -119,7 +144,7 @@ export class SemanticModelAggregatorBuilder {
       let result: SemanticModelAggregator;
       if (profile) {
         result = new ApplicationProfileAggregator(profile, mergeModel);
-        (result as ApplicationProfileAggregator).thisVocabularyChain["color"] = this.modelData[profile.getId() as string]?.color ?? DEFAULT_VOCABULARY_COLOR;
+        ((result as ApplicationProfileAggregator).thisVocabularyChain as any)["color"] = this.modelData[profile.getId() as string]?.color ?? DEFAULT_VOCABULARY_COLOR;
         result = mergeIfNecessary([result, mergeModel]);
       } else {
         result = mergeModel;
@@ -148,25 +173,25 @@ export class SemanticModelAggregatorBuilder {
     if (!configuration) {
       throw new Error("Configuration is not defined.");
     } else if (typeof configuration === "string") {
-      const model = this.knownModels[configuration];
+      const model = this.knownModels[configuration]!;
       this.usedModels.add(model);
-      if (model.modelMetadata?.["caches"]) { // Some models may not have metadata
-        const cimAdapter = await getProvidedSourceSemanticModel(model.modelMetadata["caches"]);
+      if ((model.modelMetadata as any)?.["caches"]) { // Some models may not have metadata
+        const cimAdapter = await getProvidedSourceSemanticModel((model.modelMetadata as any)["caches"]);
         const aggregator = new ExternalModelWithCacheAggregator(model, cimAdapter);
-        aggregator.thisVocabularyChain["color"] = this.modelData[configuration]?.color ?? DEFAULT_VOCABULARY_COLOR;
+        (aggregator.thisVocabularyChain as any)["color"] = this.modelData[configuration]?.color ?? DEFAULT_VOCABULARY_COLOR;
         return aggregator;
       } else {
-        const aggregator = new VocabularyAggregator(this.knownModels[configuration]);
-        aggregator.thisVocabularyChain["color"] = this.modelData[configuration]?.color ?? DEFAULT_VOCABULARY_COLOR;
+        const aggregator = new VocabularyAggregator(this.knownModels[configuration]!);
+        (aggregator.thisVocabularyChain as any)["color"] = this.modelData[configuration]?.color ?? DEFAULT_VOCABULARY_COLOR;
         return aggregator;
       }
     } else if (configuration.modelType === "application-profile") {
       const profileConfig = configuration as ModelCompositionConfigurationApplicationProfile;
-      const model = this.knownModels[profileConfig.model as string];
-      this.usedModels.add(model);
+      const model = this.knownModels[profileConfig.model as string]!;
+      this.usedModels.add(model!);
       const profiles = await this.buildRecursive(profileConfig.profiles);
       const aggregator = new ApplicationProfileAggregator(model, profiles, true).setCanAddEntities(profileConfig.canAddEntities ?? true).setCanModify(profileConfig.canModify ?? true);
-      aggregator.thisVocabularyChain["color"] = this.modelData[profileConfig.model as string]?.color ?? DEFAULT_COLOR;
+      (aggregator.thisVocabularyChain as any)["color"] = this.modelData[profileConfig.model as string]?.color ?? DEFAULT_COLOR;
       return aggregator;
     } else if (configuration.modelType === "merge") {
       const mergeConfig = configuration as ModelCompositionConfigurationMerge;

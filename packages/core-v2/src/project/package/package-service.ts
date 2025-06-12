@@ -44,9 +44,4 @@ export interface SemanticModelPackageService extends PackageService {
         models: EntityModel[],
         visualModels: VisualModel[]
     ): Promise<boolean>;
-
-    /**
-     * For a given package, creates a new remote semantic model that can be used to store entities.
-     */
-    createRemoteSemanticModel(packageId: string): Promise<WritableSemanticModelAdapter>;
 }

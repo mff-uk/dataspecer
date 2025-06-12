@@ -1,24 +1,13 @@
 import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
 import { EntityModel } from "../../entity-model/index.ts";
-import { HttpEntityModel } from "../../entity-model/http-entity-model.ts";
 import { LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL } from "../../model/known-models.ts";
 import { createRdfsModel, createSgovModel } from "../../semantic-model/simplified/index.ts";
 import { createInMemorySemanticModel } from "../../semantic-model/simplified/in-memory-semantic-model.ts";
 import { createVisualModel } from "../../semantic-model/simplified/visual-model.ts";
 import { PimStoreWrapper } from "../../semantic-model/v1-adapters/index.ts";
-import { WritableSemanticModelAdapter } from "../../semantic-model/writable-semantic-model-adapter.ts";
 import { VisualModel } from "../../visual-model/index.ts";
 import { BaseResource, Package, ResourceEditable } from "../resource/resource.ts";
 import { PackageService, SemanticModelPackageService } from "./package-service.ts";
-
-async function createHttpSemanticModel(data: any, httpFetch: HttpFetch): Promise<WritableSemanticModelAdapter> {
-    const baseModel = HttpEntityModel.createFromDescriptor(data, httpFetch);
-    await baseModel.load();
-    const model = new WritableSemanticModelAdapter(baseModel);
-    // @ts-ignore
-    model.serializeModel = () => data;
-    return model;
-}
 
 /**
  * Implementation of PackageService that communicates with backend and provides semantic models.
@@ -233,17 +222,6 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         });
     }
 
-    async createRemoteSemanticModel(packageId: string) {
-        let url = this.backendUrl + "/resources/packages/semantic-models";
-        url += "?iri=" + encodeURIComponent(packageId);
-        const result = await this.httpFetch(url, {
-            method: "POST",
-        });
-        const data = await result.json();
-
-        return await createHttpSemanticModel(data, this.httpFetch);
-    }
-
     private getPackageUrl(packageId: string, asParent: boolean = false): string {
         let url = this.backendUrl + "/resources/packages";
         url += "?" + (asParent ? "parentIri" : "iri") + "=" + encodeURIComponent(packageId);
@@ -337,8 +315,6 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
             } else if (modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/rdfs") {
                 const model = await createRdfsModel(modelDescriptor.urls, this.httpFetch);
                 constructedEntityModels.push(model);
-            } else if (modelDescriptor.type === "https://ofn.gov.cz/store-descriptor/http") {
-                constructedEntityModels.push(await createHttpSemanticModel(modelDescriptor, this.httpFetch));
             } else if (
                 modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/visual-model" ||
                 modelDescriptor.type === LOCAL_VISUAL_MODEL

@@ -28,14 +28,13 @@ import { useSnackbar } from "notistack";
 import React, { useCallback, useContext, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DefaultConfigurationContext } from "../../../application";
-import { getDefaultConfigurators } from "../../../configurators";
-import { DefaultArtifactConfigurator } from "../../../default-artifact-configurator";
 import { dialog, useDialog } from "../../dialog";
 import { useAsyncMemo } from "../../hooks/use-async-memo";
 import { useToggle } from "../../hooks/use-toggle";
 import { ConfigurationContext } from "../App";
-import { getSingleArtifact } from "./get-single-artifact";
+import { getSingleArtifact } from "../../../generators/get-single-artifact";
 import { SingleArtifactPreview } from "./multiple-artifacts-preview";
+import { DefaultArtifactConfigurator } from "@dataspecer/specification/v1";
 
 const PreviewDialog = dialog<{generatorId: string}>({fullWidth: true, maxWidth: "xl"}, (({generatorId, close}) => {
     const {t} = useTranslation("artifacts");
@@ -260,7 +259,7 @@ export const GenerateArtifactsMenu: React.FC<{
             return null;
         }
         const defaultArtifactConfigurator = new DefaultArtifactConfigurator(
-            Object.values(configuration.dataSpecifications), configuration.store, defaultConfiguration, getDefaultConfigurators());
+            Object.values(configuration.dataSpecifications), configuration.store, defaultConfiguration);
         const artifacts = await defaultArtifactConfigurator.generateFor(configuration.dataSpecificationIri as string);
         return artifacts;
     }, [configuration, defaultConfiguration]);

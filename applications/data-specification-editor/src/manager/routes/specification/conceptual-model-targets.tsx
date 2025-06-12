@@ -1,10 +1,10 @@
 import { LOCAL_SEMANTIC_MODEL } from "@dataspecer/core-v2/model/known-models";
+import { ModelCompositionConfigurationApplicationProfile, ModelCompositionConfigurationMerge } from "@dataspecer/specification/model-hierarchy";
 import { Alert, Box, Button, Card, CardContent, Checkbox, Divider, FormControlLabel, Radio, RadioGroup, Typography } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { FC, useContext, useState } from "react";
 import { BackendConnectorContext } from "../../../application";
 import { LanguageStringText } from "../../../editor/components/helper/LanguageStringComponents";
-import { ModelCompositionConfigurationApplicationProfile, ModelCompositionConfigurationMerge } from "../../../editor/configuration/configuration";
 import { SpecificationContext } from "./specification";
 
 export const ConceptualModelTargets: FC = () => {

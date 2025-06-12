@@ -5,7 +5,7 @@ import { RdfsFileAdapter } from "@dataspecer/rdfs-adapter";
 import { SgovAdapter } from "@dataspecer/sgov-adapter";
 import { WikidataAdapter } from "@dataspecer/wikidata-experimental-adapter";
 
-const DEFAULT_CONFIG = [];
+const DEFAULT_CONFIG = [] as [];
 
 export async function getProvidedSourceSemanticModel(
   cimAdaptersConfiguration: any[] = DEFAULT_CONFIG
@@ -19,7 +19,7 @@ export async function getProvidedSourceSemanticModel(
   }
 
   if (cimAdaptersConfiguration.length === 1 && cimAdaptersConfiguration[0] === "https://dataspecer.com/adapters/wikidata") {
-    const cimAdapter = new WikidataAdapter(httpFetch, import.meta.env.VITE_WIKIDATA_ONTOLOGY_BACKEND);
+    const cimAdapter = new WikidataAdapter(httpFetch, ""); // import.meta.env.VITE_WIKIDATA_ONTOLOGY_BACKEND
     cimAdapter.setIriProvider(iriProvider);
     return wrapCimAdapter(cimAdapter);
   }

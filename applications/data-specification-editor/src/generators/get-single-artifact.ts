@@ -3,9 +3,7 @@ import { DataSpecificationArtefact } from "@dataspecer/core/data-specification/m
 import { Generator } from "@dataspecer/core/generator";
 import { MemoryStreamDictionary } from "@dataspecer/core/io/stream/memory-stream-dictionary";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
-import { getArtefactGenerators } from "../../../artefact-generators";
-import { getDefaultConfigurators } from "../../../configurators";
-import { DefaultArtifactConfigurator } from "../../../default-artifact-configurator";
+import { DefaultArtifactConfigurator, getArtefactGenerators } from "@dataspecer/specification/v1";
 import { DataSpecification as CoreDataSpecification } from "@dataspecer/core/data-specification/model";
 import { DataSpecification } from "@dataspecer/backend-utils/connectors/specification";
 
@@ -30,7 +28,7 @@ export async function getSingleArtifact(
   // Generate artifacts definitions
 
   // todo: list of artifacts is generated in place by DefaultArtifactConfigurator
-  const defaultArtifactConfigurator = new DefaultArtifactConfigurator(Object.values(dataSpecifications), store, configuration, getDefaultConfigurators());
+  const defaultArtifactConfigurator = new DefaultArtifactConfigurator(Object.values(dataSpecifications), store, configuration);
   const dataSpecificationsWithArtifacts: typeof dataSpecifications = {};
   for (const dataSpecification of Object.values(dataSpecifications)) {
     dataSpecificationsWithArtifacts[dataSpecification.iri as string] = {

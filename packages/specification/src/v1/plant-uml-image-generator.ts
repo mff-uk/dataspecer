@@ -90,11 +90,11 @@ function encode64(data: Uint8Array): string {
   let r = "";
   for (let i=0; i < data.length; i += 3) {
     if (i+2 === data.length) {
-      r +=append3bytes(data[i], data[i+1], 0);
+      r +=append3bytes(data[i]!, data[i+1]!, 0);
     } else if (i+1 === data.length) {
-      r += append3bytes(data[i], 0, 0);
+      r += append3bytes(data[i]!, 0, 0);
     } else {
-      r += append3bytes(data[i], data[i+1], data[i+2]);
+      r += append3bytes(data[i]!, data[i+1]!, data[i+2]!);
     }
   }
   return r;

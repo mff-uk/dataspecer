@@ -1,5 +1,5 @@
 import { LOCAL_PACKAGE } from "@dataspecer/core-v2/model/known-models";
-import { ZipStreamDictionary } from "../generate/zip-stream-dictionary.ts";
+import { ZipStreamDictionary } from "../utils/zip-stream-dictionary.ts";
 import { BaseResource, ResourceModel } from "../models/resource-model.ts";
 import { v4 as uuidv4 } from 'uuid';
 import { currentVersion } from "../tools/migrations/index.ts";

@@ -4,3 +4,4 @@ export * from "./interfaces.ts";
 export { MergeAggregator } from "./merge-aggregator.ts";
 export * from "./utils.ts";
 export { VocabularyAggregator } from "./vocabulary-aggregator.ts";
+export * from "./as-entity-model.ts";

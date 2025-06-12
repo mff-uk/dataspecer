@@ -1,6 +1,6 @@
 import React, {FC, useMemo} from "react";
 import {Alert, Button, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
-import {GenerateReport} from "../../artifacts/generate-report";
+import {GenerateReport} from "@dataspecer/specification/v1";
 import CheckCircleTwoToneIcon from '@mui/icons-material/CheckCircleTwoTone';
 import ErrorTwoToneIcon from '@mui/icons-material/ErrorTwoTone';
 import PendingTwoToneIcon from '@mui/icons-material/PendingTwoTone';

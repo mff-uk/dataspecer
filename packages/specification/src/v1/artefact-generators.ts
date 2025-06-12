@@ -1,4 +1,4 @@
-import {PlantUmlImageGenerator} from "./manager/artifacts/plant-uml-image-generator";
+import {PlantUmlImageGenerator} from "./plant-uml-image-generator.ts";
 import {SparqlGenerator} from "@dataspecer/sparql-query";
 import {PlantUmlGenerator} from "@dataspecer/plant-uml";
 import {JsonLdGenerator} from "@dataspecer/json/json-ld";
@@ -13,6 +13,11 @@ import {ShexGenerator, ShexMapGenerator} from "@dataspecer/shex"
 import {JsonExampleGenerator} from "@dataspecer/json-example";
 import {OpenapiGenerator} from "@dataspecer/openapi";
 import {TemplateArtifactGenerator} from "@dataspecer/documentation";
+import { Configurator } from "@dataspecer/core/configuration/configurator";
+import { DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
+import { CsvConfigurator } from "@dataspecer/csv/configuration";
+import { JsonConfigurator } from "@dataspecer/json/configuration";
+import { XmlConfigurator } from "@dataspecer/xml/configuration";
 
 /**
  * Returns all artefact generators that will be used in the application.
@@ -43,4 +48,18 @@ export function getArtefactGenerators() {
         // Generators that need backend support
         new PlantUmlImageGenerator(),
     ];
+}
+
+/**
+ * Returns all configurators for generator families that will be used in the
+ * application.
+ * This is the place to register your own artefact generators if you need to.
+ */
+export function getDefaultConfigurators(): Configurator[] {
+    return [
+        JsonConfigurator,
+        CsvConfigurator,
+        XmlConfigurator,
+        DataSpecificationConfigurator,
+    ]
 }

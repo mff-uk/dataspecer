@@ -11,8 +11,8 @@ import {DialogAppProvider} from "./dialog-app-provider";
 import {MultipleArtifactsPreview} from "./artifacts/multiple-artifacts-preview";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {createTheme, ThemeProvider} from "@mui/material/styles";
-import {useProvidedConfiguration} from "../configuration/providers/provided-configuration";
-import {Configuration} from "../configuration/configuration";
+import {useProvidedConfiguration} from "../../generators/configuration/providers/provided-configuration";
+import {Configuration} from "../../generators/configuration/configuration";
 import {StoreContext} from "@dataspecer/federated-observable-store-react/store"
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {DataPsmSchema} from "@dataspecer/core/data-psm/model";

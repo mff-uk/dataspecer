@@ -1,6 +1,6 @@
-import { useAsyncMemo } from "../../hooks/use-async-memo";
+import { useAsyncMemo } from "../../../editor/hooks/use-async-memo";
 import { Configuration } from "../configuration";
-import { provideConfiguration } from "../provided-configuration";
+import { getConfiguration } from "../provided-configuration";
 
 /**
  * Loads the configuration from the given IRIs and registers the stores properly
@@ -10,6 +10,6 @@ import { provideConfiguration } from "../provided-configuration";
  * @param dataPsmSchemaIri IRI of the given PSM schema that will be updated
  */
 export const useProvidedConfiguration = (dataSpecificationIri: string | null, dataPsmSchemaIri: string | null): Configuration | null => {
-  const [configuration] = useAsyncMemo(() => provideConfiguration(dataSpecificationIri, dataPsmSchemaIri), [dataSpecificationIri, dataPsmSchemaIri]);
+  const [configuration] = useAsyncMemo(() => getConfiguration(dataSpecificationIri, dataPsmSchemaIri), [dataSpecificationIri, dataPsmSchemaIri]);
   return configuration;
 };

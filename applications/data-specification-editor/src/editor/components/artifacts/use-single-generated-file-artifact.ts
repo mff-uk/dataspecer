@@ -2,7 +2,7 @@ import {useContext, useEffect, useState} from "react";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {useAsyncMemo} from "../../hooks/use-async-memo";
 import {ConfigurationContext} from "../App";
-import {getSingleArtifact} from "./get-single-artifact";
+import {getSingleArtifact} from "../../../generators/get-single-artifact";
 import {DataSpecificationSchema} from "@dataspecer/core/data-specification/model";
 import {DefaultConfigurationContext} from "../../../application";
 

@@ -1,28 +1,16 @@
-import { CoreResource, CoreResourceReader } from "@dataspecer/core/core";
+import { Configurator } from "@dataspecer/core/configuration/configurator";
+import { CoreResourceReader } from "@dataspecer/core/core";
 import { DataSpecification as CoreDataSpecification } from "@dataspecer/core/data-specification/model";
 import { Generator } from "@dataspecer/core/generator";
-import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
+import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
-import { getArtefactGenerators } from "../../artefact-generators";
-import { getDefaultConfigurators } from "../../configurators";
-import { DataSpecification } from "@dataspecer/backend-utils/connectors/specification";
-import { ArtifactConfigurator } from "../artifact-configurator";
-import { GenerateReport } from "./generate-report";
-import { ZipStreamDictionary } from "./zip-stream-dictionary";
-import { generateSpecification } from "@dataspecer/specification";
-import { FrontendModelRepository } from "../utils/model-repository";
-import { backendPackageService } from "../../editor/configuration/provided-configuration";
-import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
-
-async function writeToStreamDictionary(
-  streamDictionary: StreamDictionary,
-  path: string,
-  data: string,
-  ) {
-    const stream = streamDictionary.writePath(path);
-    await stream.write(data);
-    await stream.close();
-}
+import { ModelRepository } from "../model-repository/model-repository.ts";
+import { GenerateReport } from "./generate-report.ts";
+import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
+import { ArtifactConfigurator } from "./artifact-configurator.ts";
+import { getArtefactGenerators, getDefaultConfigurators } from "./artefact-generators.ts";
+import { generateSpecification } from "../specification.ts";
+import { DataSpecification } from "../specification/model.ts";
 
 /**
  * Class handling a construction of the zip file. Configuration, helper files, etc.
@@ -34,17 +22,36 @@ export class DefaultArtifactBuilder {
     private reportCallback: ((report: GenerateReport) => void) | undefined;
     private artifactReport: GenerateReport = [];
     private configuration: object;
+    private readonly httpFetch: HttpFetch;
+    private readonly configurator: Configurator[];
+    private readonly modelRepository: ModelRepository;
 
-    public constructor(store: CoreResourceReader, dataSpecifications: Record<string, DataSpecification>, configuration: object) {
+    /**
+     * Whether to generate a single specification only. This will affect the file structure.
+     */
+    singleSpecificationOnly = false;
+
+    public constructor(
+        store: CoreResourceReader,
+        dataSpecifications: Record<string, DataSpecification>,
+        configuration: object,
+        httpFetch: HttpFetch,
+        modelRepository: ModelRepository,
+        configurator?: Configurator[],
+    ) {
         this.store = store;
         // @ts-ignore
         this.dataSpecifications = dataSpecifications;
         this.configuration = configuration;
+        this.httpFetch = httpFetch;
+        this.configurator = configurator ?? getDefaultConfigurators();
+        this.modelRepository = modelRepository;
     }
 
     public async prepare(
       dataSpecificationIris: string[],
       reportCallback: ((report: GenerateReport) => void) | undefined = undefined,
+      queryParams: string = "",
     ) {
         this.dataSpecificationIris = dataSpecificationIris;
         this.reportCallback = reportCallback;
@@ -54,16 +61,18 @@ export class DefaultArtifactBuilder {
             Object.values(this.dataSpecifications),
             this.store as FederatedObservableStore,
             this.configuration,
-            getDefaultConfigurators(),
+            this.configurator,
         );
 
+        artifactConfigurator.queryParams = queryParams;
+
         for (const dataSpecificationIri of dataSpecificationIris) {
-            this.dataSpecifications[dataSpecificationIri].artefacts =
-              await artifactConfigurator.generateFor(dataSpecificationIri);
+            this.dataSpecifications[dataSpecificationIri]!.artefacts =
+              await artifactConfigurator.generateFor(dataSpecificationIri, this.singleSpecificationOnly);
         }
 
         this.artifactReport = dataSpecificationIris
-          .flatMap(dataSpecificationIri => this.dataSpecifications[dataSpecificationIri].artefacts.filter(a => a.outputPath).map(artifact => ({
+          .flatMap(dataSpecificationIri => this.dataSpecifications[dataSpecificationIri]!.artefacts.filter((a: any) => a.outputPath).map((artifact: any) => ({
               artifact: artifact,
               state: "pending",
               error: null,
@@ -76,23 +85,24 @@ export class DefaultArtifactBuilder {
      * final zip. The build process is split into individual artifacts in a way
      * that if one fails, other can still be generated.
      */
-    public async build(): Promise<Blob> {
-        const zip = new ZipStreamDictionary();
-
-        await this.writeReadme(zip);
-        await this.writeArtifacts(zip);
-
-        return zip.save();
+    public async build(dictionary: StreamDictionary, singleFileArtifact: string | null = null, queryParams: string = "", singleSpecificationId: string | null = null): Promise<void> {
+        if (!singleFileArtifact) {
+            await this.writeReadme(dictionary);
+        }
+        await this.writeArtifacts(dictionary, singleFileArtifact, queryParams, singleSpecificationId ?? undefined);
     }
 
-    private async writeReadme(writer: ZipStreamDictionary) {
+    private async writeReadme(writer: StreamDictionary) {
         const stream = writer.writePath("README.md");
         await stream.write(`Tento dokument byl vygenerován ${new Date().toLocaleString("cs-CZ")}.`);
         await stream.close();
     }
 
     private async writeArtifacts(
-      zip: ZipStreamDictionary,
+      zip: StreamDictionary,
+      singleFileArtifact: string | null = null,
+      queryParams: string = "",
+      singleSpecificationId?: string,
     ) {
         // Convert data specification
         const dataSpecifications = Object.values(this.dataSpecifications).map(specification => ({
@@ -115,7 +125,13 @@ export class DefaultArtifactBuilder {
         );
 
         for (const dataSpecificationIri of this.dataSpecificationIris) {
-            for (const artifact of this.dataSpecifications[dataSpecificationIri].artefacts) {
+            if (singleSpecificationId && dataSpecificationIri !== singleSpecificationId) {
+                continue; // Skip specifications that are not the one we want to generate
+            }
+            for (const artifact of this.dataSpecifications[dataSpecificationIri]!.artefacts) {
+                if (singleFileArtifact && !artifact.outputPath.startsWith(singleFileArtifact)) {
+                    continue; // Skip artifacts that are not generated
+                }
                 try {
                     this.updateState(artifact.iri as string, "progress", null);
                     await generator.generateArtefact(dataSpecificationIri, artifact.iri as string, zip);
@@ -131,14 +147,17 @@ export class DefaultArtifactBuilder {
                 }
             }
 
+            let newGeneratorsPath = this.dataSpecifications[dataSpecificationIri]?.artefacts.find((a: any) => a.generator === "https://schemas.dataspecer.com/generator/template-artifact").outputPath;
+            newGeneratorsPath = newGeneratorsPath?.split("/").slice(0, -2).join("/"); // remove lang and index.html
+            newGeneratorsPath = newGeneratorsPath ? newGeneratorsPath + "/" : ""; // default to "en" if not specified
             // use new generator for the rest
             await generateSpecification(
                 dataSpecificationIri,
                 {
-                    modelRepository: new FrontendModelRepository(backendPackageService),
+                    modelRepository: this.modelRepository,
                     output: zip,
 
-                    fetch: httpFetch,
+                    fetch: this.httpFetch,
 
                     v1Context: await generator.createContext(),
                     v1Specification: dataSpecifications.find(specification => specification.iri === dataSpecificationIri),
@@ -147,7 +166,8 @@ export class DefaultArtifactBuilder {
                     artifacts: this.dataSpecifications[dataSpecificationIri].artefacts,
                 },
                 {
-                    subdirectory: this.dataSpecifications[dataSpecificationIri].artefacts[0].outputPath.split("/")[0] + "/",
+                    subdirectory: newGeneratorsPath,
+                    queryParams
                 }
             );
         }

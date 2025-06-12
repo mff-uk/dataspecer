@@ -1,12 +1,13 @@
 import { Configurator } from "@dataspecer/core/configuration/configurator";
-import { mergeConfigurations } from "@dataspecer/core/configuration/utils";
+import { getDefaultConfiguration, mergeConfigurations } from "@dataspecer/core/configuration/utils";
 import { CoreResourceReader, LanguageString } from "@dataspecer/core/core";
 import { DataPsmSchema } from "@dataspecer/core/data-psm/model";
 import { DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
 import { DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
-import { getSchemaArtifacts } from "./schema-artifacts";
-import { DataSpecification } from "@dataspecer/backend-utils/connectors/specification";
+import { getSchemaArtifacts } from "./schema-artifacts.ts";
+import { DataSpecification } from "../specification/model.ts";
+import { getDefaultConfigurators } from "./artefact-generators.ts";
 
 /**
  * This class is responsible for setting the artifacts definitions in
@@ -29,16 +30,18 @@ export class DefaultArtifactConfigurator {
    */
   baseURL = "/";
 
+  queryParams: string = "";
+
   constructor(
     dataSpecifications: DataSpecification[],
     store: FederatedObservableStore,
     configurationObject: object,
-    configurators: Configurator[],
+    configurators?: Configurator[],
   ) {
     this.dataSpecifications = dataSpecifications;
     this.store = store as CoreResourceReader;
     this.configurationObject = configurationObject;
-    this.configurators = configurators;
+    this.configurators = configurators ?? getDefaultConfigurators();
   }
 
   /**
@@ -47,6 +50,7 @@ export class DefaultArtifactConfigurator {
    */
   public async generateFor(
     dataSpecificationIri: string,
+    singleSpecificationOnly: boolean = false,
   ): Promise<DataSpecificationArtefact[]> {
     const dataSpecification = this.dataSpecifications.find(
       dataSpecification => dataSpecification.iri === dataSpecificationIri,
@@ -58,41 +62,43 @@ export class DefaultArtifactConfigurator {
 
     // @ts-ignore
     const localConfiguration = dataSpecification.artefactConfiguration;
-    const configuration = mergeConfigurations(this.configurators, this.configurationObject, localConfiguration);
+    const configuration = mergeConfigurations(this.configurators, getDefaultConfiguration(getDefaultConfigurators()), this.configurationObject, localConfiguration);
 
     const dataSpecificationName = await this.getSpecificationDirectoryName(dataSpecificationIri);
 
     const dataSpecificationConfiguration = DataSpecificationConfigurator.getFromObject(configuration);
     const baseFromConfig = dataSpecificationConfiguration.publicBaseUrl ? dataSpecificationConfiguration.publicBaseUrl : null;
-    this.baseURL = baseFromConfig ?? `/${dataSpecificationName}`;
+    this.baseURL = baseFromConfig ?? `/${singleSpecificationOnly ? "" : dataSpecificationName}`;
     if (this.baseURL.endsWith("/")) {
       this.baseURL = this.baseURL.slice(0, -1);
     }
 
     // Generate schemas
-    if (false) { // dataSpecification.type === DataSpecification.TYPE_EXTERNAL
-      // @ts-ignore
-      return configuration.artifacts ?? [];
-    } else if (true) { // dataSpecification.type === DataSpecification.TYPE_DOCUMENTATION
-      const currentSchemaArtefacts: DataSpecificationArtefact[] = [];
-      for (const dataStructure of dataSpecification.dataStructures) {
-        const psmSchemaIri = dataStructure.id;
-        let subdirectory = "/" + await this.getSchemaDirectoryName(dataSpecificationIri, psmSchemaIri);
 
-        if (dataSpecificationConfiguration.skipStructureNameIfOnlyOne && dataSpecification.dataStructures.length === 1) {
-          subdirectory = "";
-        }
+    const currentSchemaArtefacts: DataSpecificationArtefact[] = [];
+    for (const dataStructure of dataSpecification.dataStructures) {
+      const psmSchemaIri = dataStructure.id;
+      let subdirectory = (singleSpecificationOnly ? "" : "/") + await this.getSchemaDirectoryName(dataSpecificationIri, psmSchemaIri);
 
-        currentSchemaArtefacts.push(...getSchemaArtifacts(
-            psmSchemaIri,
-            `${this.baseURL}${subdirectory}`,
-            `${dataSpecificationName}${subdirectory}`,
-            configuration
-        ));
+      if (dataSpecificationConfiguration.skipStructureNameIfOnlyOne && dataSpecification.dataStructures.length === 1) {
+        subdirectory = "";
       }
 
-      return currentSchemaArtefacts;
+      let basePath = `${singleSpecificationOnly ? "" : dataSpecificationName}${subdirectory}` + "/";
+      if (basePath.startsWith("/")) {
+        basePath = basePath.slice(1);
+      }
+
+      currentSchemaArtefacts.push(...getSchemaArtifacts(
+          psmSchemaIri,
+          `${this.baseURL}${subdirectory ? "/" + subdirectory : ""}`,
+          basePath,
+          configuration,
+          this.queryParams,
+      ));
     }
+
+    return currentSchemaArtefacts;
   }
 
   protected nameFromIri(iri: string): string {
